@@ -28,8 +28,7 @@ datamodel_code_generator.model.pydantic.types.IMPORT_SECRET_STR = Import.from_fu
 from datamodel_code_generator.__main__ import main
 
 current_directory = os.getcwd()
-ingestion_path = "./" if current_directory.endswith("/ingestion") else "ingestion/"
-directory_root = "../" if current_directory.endswith("/ingestion") else "./"
+ingestion_path = "./ingestion/"
 
 UTF_8 = "UTF-8"
 UNICODE_REGEX_REPLACEMENT_FILE_PATHS = [
@@ -40,11 +39,14 @@ UNICODE_REGEX_REPLACEMENT_FILE_PATHS = [
     f"{ingestion_path}src/metadata/generated/schema/type/basic.py",
 ]
 
-args = f"--input {directory_root}spec/src/main/resources/json/schema --input-file-type jsonschema --output {ingestion_path}src/metadata/generated/schema --set-default-enum-member".split(" ")
+args = f"--input ./spec/src/main/resources/json/schema --input-file-type jsonschema --output {ingestion_path}src/metadata/generated/schema --set-default-enum-member".split(" ")
+
+print("datamodel_code_generator: %s" % args)
 
 main(args)
 
 for file_path in UNICODE_REGEX_REPLACEMENT_FILE_PATHS:
+    print("Processing file:", file_path)
     with open(file_path, "r", encoding=UTF_8) as file_:
         content = file_.read()
         # Python now requires to move the global flags at the very start of the expression

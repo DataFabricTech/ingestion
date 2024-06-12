@@ -32,30 +32,10 @@ docker["name"]="Docker"
 docker["version_command"]="docker --version | awk '{print \$3}' | sed 's/,//'"
 docker["required_version"]="20 21 22 23 24"
 
-declare -A maven
-maven["name"]="Maven"
-maven["version_command"]="mvn --version | head -n1 | awk '{print \$3}'"
-maven["required_version"]="3.6 3.7 3.8 3.9"
-
-declare -A java
-java["name"]="Java"
-java["version_command"]="java -version 2>&1 | awk -F'\"' '/version/ {print \$2}'"
-java["required_version"]="11 16 17"
-
 declare -A jq
 jq["name"]="jq"
 jq["version_command"]="jq --version | awk -F- '{print \$2}'"
 jq["required_version"]="any"
-
-declare -A node
-node["name"]="Node"
-node["version_command"]="node --version"
-node["required_version"]="18"
-
-declare -A yarn
-yarn["name"]="Yarn"
-yarn["version_command"]="yarn --version"
-yarn["required_version"]="1.22 1.23 1.24"
 
 declare -A antlr
 antlr["name"]="ANTLR"
@@ -99,7 +79,7 @@ check_version() {
 }
 
 declare -n dependency
-for dependency in python docker java maven jq node yarn antlr; do
+for dependency in python docker jq antlr; do
     command=$(echo "${dependency["version_command"]}" | awk '{print $1}')
     if [[ $(check_command_existence "$command") -ne 0 ]]; then
         continue
