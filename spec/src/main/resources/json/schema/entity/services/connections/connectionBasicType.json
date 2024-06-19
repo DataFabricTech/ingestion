@@ -100,6 +100,10 @@
               "$ref": "../../../security/credentials/awsCredentials.json"
             },
             {
+              "title": "Minio Storage Config",
+              "$ref": "../../../security/credentials/minioCredentials.json"
+            },
+            {
               "title": "OpenMetadata Storage",
               "type": "object",
               "additionalProperties": false

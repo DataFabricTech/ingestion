@@ -4,7 +4,7 @@
   "title": "MinIO Connection",
   "description": "MinIO Connection.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.storage.minioConnection",
+  "javaType": "org.openmetadata.schema.services.connections.storage.MinIOConnection",
   "definitions": {
     "minioType": {
       "description": "MinIO service type",
@@ -48,10 +48,6 @@
     "supportsProfiler": {
       "title": "Supports Profiler",
       "$ref": "../connectionBasicType.json#/definitions/supportsProfiler"
-    },
-    "sampleDataStorageConfig": {
-      "title": "Storage Config for Sample Data",
-      "$ref": "../connectionBasicType.json#/definitions/sampleDataStorageConfig"
     }
   },
   "additionalProperties": false,

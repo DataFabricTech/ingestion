@@ -91,7 +91,7 @@
       "type": "string"
     },
     "serviceType": {
-      "description": "Type of storage service such as S3, GCS, AZURE...",
+      "description": "Type of storage service such as S3, MinIO, GCS, AZURE...",
       "$ref": "#/definitions/storageServiceType"
     },
     "description": {
