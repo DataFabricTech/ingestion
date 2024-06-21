@@ -12,11 +12,13 @@
 import json
 import secrets
 import traceback
+import urllib.parse
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Dict, Iterable, List, Optional
 
 from pydantic import ValidationError
+from metadata.utils.s3_utils import list_s3_objects
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
 from metadata.generated.schema.entity.data import container
@@ -202,7 +204,7 @@ class MinioSource(StorageServiceSource):
                     creation_date=bucket_response.creation_date.isoformat()
                     if bucket_response.creation_date
                     else None,
-                    number_of_objects=self.list_objects(bucket_name=bucket_name),
+                    number_of_objects=list_s3_objects(self.minio_client, bucket_name=bucket_name),
                     size=self.get_bucket_size(bucket_name=bucket_name),
                     file_formats=[container.FileFormat(metadata_entry.structureFormat)],
                     data_model=ContainerDataModel(
@@ -271,42 +273,51 @@ class MinioSource(StorageServiceSource):
         Method to list the objects in the bucket
         """
         # response = client.list_objects_v2(
-        #     Bucket='string', Delimiter='string', EncodingType='url', MaxKeys=123, Prefix='string', ContinuationToken='string',
+        #     Bucket='string', Delimiter='string', EncodingType='url', \
+        #         MaxKeys=123, Prefix='string', ContinuationToken='string',
         #     FetchOwner=True | False, StartAfter='string', RequestPayer='requester', ExpectedBucketOwner='string',
         #     OptionalObjectAttributes=[
         #         'RestoreStatus',
         #     ]
         # )
+
+        # ...
+        # 'Contents': [
+        #    {
+        #      'Key': 'string',
+        #      'LastModified': datetime(2015, 1, 1),
+        #      'ETag': 'string',
+        #      'ChecksumAlgorithm': [
+        #          'CRC32'|'CRC32C'|'SHA1'|'SHA256',
+        #      ],
+        #      'Size': 123,
+        #      'StorageClass': 'STANDARD'|'REDUCED_REDUNDANCY'|'GLACIER'|\
+        #         'STANDARD_IA'|'ONEZONE_IA'|'INTELLIGENT_TIERING'|'DEEP_ARCHIVE'|\
+        #         'OUTPOSTS'|'GLACIER_IR'|'SNOW'|'EXPRESS_ONEZONE',
+        #      'Owner': {
+        #          'DisplayName': 'string',
+        #          'ID': 'string'
+        #      },
+        #      'RestoreStatus': {
+        #          'IsRestoreInProgress': True|False,
+        #          'RestoreExpiryDate': datetime(2015, 1, 1)
+        #      }
+        #    },
+        #  ],
+        #  ...
+        #
+
         try:
-            response = self.minio_client.list_objects_v2(Bucket=bucket_name, EncodingType='url')
-            # ...
-            # 'Contents': [
-            #    {
-            #      'Key': 'string',
-            #      'LastModified': datetime(2015, 1, 1),
-            #      'ETag': 'string',
-            #      'ChecksumAlgorithm': [
-            #          'CRC32'|'CRC32C'|'SHA1'|'SHA256',
-            #      ],
-            #      'Size': 123,
-            #      'StorageClass': 'STANDARD'|'REDUCED_REDUNDANCY'|'GLACIER'|'STANDARD_IA'|'ONEZONE_IA'|'INTELLIGENT_TIERING'|'DEEP_ARCHIVE'|'OUTPOSTS'|'GLACIER_IR'|'SNOW'|'EXPRESS_ONEZONE',
-            #      'Owner': {
-            #          'DisplayName': 'string',
-            #          'ID': 'string'
-            #      },
-            #      'RestoreStatus': {
-            #          'IsRestoreInProgress': True|False,
-            #          'RestoreExpiryDate': datetime(2015, 1, 1)
-            #      }
-            #    },
-            #  ],
-            #  ...
-            #
-            logger.info(f"Bucket: {bucket_name} has {len(response[S3_CLIENT_ROOT_RESPONSE])} objects")
-            for obj in response[S3_CLIENT_ROOT_RESPONSE]:
-                logger.info(f"key          : {obj.get('Key')}")
-                logger.info(f"size         : {obj.get('Size')}")
-                logger.info(f"storageClass : {obj.get('Size')}")
+            kwargs = {
+                'Bucket': bucket_name,
+                'EncodingType': 'url',
+                # 'Prefix': prefix if prefix.endswith("/") else f"{prefix}/"
+            }
+            for key in list_s3_objects(self.minio_client, **kwargs):
+                decoded_key = urllib.parse.unquote(key['Key'])
+                logger.info(f"key          : {decoded_key}")
+                logger.info(f"size         : {key['Size']}")
+                logger.info(f"storageClass : {key['StorageClass']}")
             return 0
         except Exception as exc:
             logger.debug(traceback.format_exc())
@@ -384,28 +395,33 @@ class MinioSource(StorageServiceSource):
             )
             return None
 
-    def get_bucket_region(self, bucket_name: str) -> str:
-        """
-        Method to fetch the bucket region
-        """
-        region = None
-        try:
-            region_resp = self.minio_client.get_bucket_location(Bucket=bucket_name)
-            region = region_resp.get("LocationConstraint")
-        except Exception:
-            logger.debug(traceback.format_exc())
-            logger.warning(f"Unable to get the region for bucket: {bucket_name}")
-        return region or self.service_connection.awsConfig.awsRegion
+    # def get_bucket_region(self, bucket_name: str) -> str:
+    #     """
+    #     Method to fetch the bucket region
+    #     """
+    #     region = None
+    #     try:
+    #         self.connection.minio_config.region
+    #         region_resp = self.minio_client.get_bucket_location(Bucket=bucket_name)
+    #         region = region_resp.get("LocationConstraint")
+    #     except Exception:
+    #         logger.debug(traceback.format_exc())
+    #         logger.warning(f"Unable to get the region for bucket: {bucket_name}")
+    #     return region or self.service_connection.awsConfig.awsRegion
 
     def _get_bucket_source_url(self, bucket_name: str) -> Optional[str]:
         """
         Method to get the source url of s3 bucket
         """
         try:
-            region = self.get_bucket_region(bucket_name=bucket_name)
+            if self.config.serviceConnection.__root__.config.minioConfig.region:
+                return (
+                    f"{self.config.serviceConnection.__root__.config.minioConfig.endPointURL}/buckets/{bucket_name}"
+                    f"?region={self.config.serviceConnection.__root__.config.minioConfig.region}&tab=objects"
+                )
             return (
-                f"https://s3.console.aws.amazon.com/s3/buckets/{bucket_name}"
-                f"?region={region}&tab=objects"
+                f"{self.config.serviceConnection.__root__.config.minioConfig.endPointURL}/buckets/{bucket_name}"
+                f"?tab=objects"
             )
         except Exception as exc:
             logger.debug(traceback.format_exc())
