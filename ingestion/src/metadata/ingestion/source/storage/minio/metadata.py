@@ -25,9 +25,9 @@ from metadata.generated.schema.entity.data.container import (
     ContainerDataModel,
 )
 
-from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
-    S3Config,
-)
+# from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
+#     S3Config,
+# )
 from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
     MinioConnection,
 )
@@ -45,9 +45,10 @@ from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.source.storage.s3.models import (
-    S3BucketResponse,
-    S3ContainerDetails,
+from metadata.ingestion.source.storage.minio.models import (
+    MinioBucketResponse,
+    MinioContainerDetails,
+    StructuredDataDetails,
 )
 from metadata.ingestion.source.storage.storage_service import (
     KEY_SEPARATOR,
@@ -65,23 +66,16 @@ logger = ingestion_logger()
 S3_CLIENT_ROOT_RESPONSE = "Contents"
 
 
-class S3Metric(Enum):
-    NUMBER_OF_OBJECTS = "NumberOfObjects"
-    BUCKET_SIZE_BYTES = "BucketSizeBytes"
-
-
-class S3Source(StorageServiceSource):
+class MinioSource(StorageServiceSource):
     """
-    Source implementation to ingest S3 buckets data.
+    Source implementation to ingest MinIO buckets data.
     """
 
     def __init__(self, config: WorkflowSource, metadata: OpenMetadata):
         super().__init__(config, metadata)
-        self.s3_client = self.connection.s3_client
-        self.cloudwatch_client = self.connection.cloudwatch_client
+        self.minio_client = self.connection.minio_client
 
         self._bucket_cache: Dict[str, Container] = {}
-        self.s3_reader = get_reader(config_source=S3Config(), client=self.s3_client)
 
     @classmethod
     def create(
@@ -90,10 +84,10 @@ class S3Source(StorageServiceSource):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: MinioConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, MinioConnection):
-            raise InvalidSourceException(f"Expected S3Connection, but got {connection}")
+            raise InvalidSourceException(f"Expected MinIOConnection, but got {connection}")
         return cls(config, metadata)
 
-    def get_containers(self) -> Iterable[S3ContainerDetails]:
+    def get_containers(self) -> Iterable[MinioContainerDetails]:
         bucket_results = self.fetch_buckets()
 
         for bucket_response in bucket_results:
@@ -159,7 +153,7 @@ class S3Source(StorageServiceSource):
                 )
 
     def yield_create_container_requests(
-        self, container_details: S3ContainerDetails
+        self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
         container_request = CreateContainerRequest(
             name=container_details.name,
@@ -178,10 +172,10 @@ class S3Source(StorageServiceSource):
 
     def _generate_container_details(
         self,
-        bucket_response: S3BucketResponse,
+        bucket_response: MinioBucketResponse,
         metadata_entry: MetadataEntry,
         parent: Optional[EntityReference] = None,
-    ) -> Optional[S3ContainerDetails]:
+    ) -> Optional[MinioContainerDetails]:
         bucket_name = bucket_response.name
         sample_key = self._get_sample_file_path(
             bucket_name=bucket_name, metadata_entry=metadata_entry
@@ -192,27 +186,24 @@ class S3Source(StorageServiceSource):
                 container_name=bucket_name,
                 sample_key=sample_key,
                 metadata_entry=metadata_entry,
-                config_source=S3Config(
-                    securityConfig=self.service_connection.awsConfig
-                ),
-                client=self.s3_client,
+                config_source=None,
+                # S3Config(
+                #     securityConfig=self.service_connection.awsConfig
+                # ),
+                client=self.minio_client,
             )
             if columns:
                 prefix = (
                     f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
                 )
-                return S3ContainerDetails(
+                return MinioContainerDetails(
                     name=metadata_entry.dataPath.strip(KEY_SEPARATOR),
                     prefix=prefix,
                     creation_date=bucket_response.creation_date.isoformat()
                     if bucket_response.creation_date
                     else None,
-                    number_of_objects=self._fetch_metric(
-                        bucket_name=bucket_name, metric=S3Metric.NUMBER_OF_OBJECTS
-                    ),
-                    size=self._fetch_metric(
-                        bucket_name=bucket_name, metric=S3Metric.BUCKET_SIZE_BYTES
-                    ),
+                    number_of_objects=self.list_objects(bucket_name=bucket_name),
+                    size=self.get_bucket_size(bucket_name=bucket_name),
                     file_formats=[container.FileFormat(metadata_entry.structureFormat)],
                     data_model=ContainerDataModel(
                         isPartitioned=metadata_entry.isPartitioned, columns=columns
@@ -228,18 +219,18 @@ class S3Source(StorageServiceSource):
 
     def _generate_structured_containers(
         self,
-        bucket_response: S3BucketResponse,
+        bucket_response: MinioBucketResponse,
         entries: List[MetadataEntry],
         parent: Optional[EntityReference] = None,
-    ) -> List[S3ContainerDetails]:
-        result: List[S3ContainerDetails] = []
+    ) -> List[MinioContainerDetails]:
+        result: List[MinioContainerDetails] = []
         for metadata_entry in entries:
             logger.info(
                 f"Extracting metadata from path {metadata_entry.dataPath.strip(KEY_SEPARATOR)} "
                 f"and generating structured container"
             )
             structured_container: Optional[
-                S3ContainerDetails
+                MinioContainerDetails
             ] = self._generate_container_details(
                 bucket_response=bucket_response,
                 metadata_entry=metadata_entry,
@@ -250,88 +241,88 @@ class S3Source(StorageServiceSource):
 
         return result
 
-    def fetch_buckets(self) -> List[S3BucketResponse]:
-        results: List[S3BucketResponse] = []
+    def fetch_buckets(self) -> List[MinioBucketResponse]:
+        results: List[MinioBucketResponse] = []
         try:
+            # if the service connection(minio connection setting) has bucket names, use them
             if self.service_connection.bucketNames:
                 return [
-                    S3BucketResponse(Name=bucket_name)
+                    MinioBucketResponse(Name=bucket_name)
                     for bucket_name in self.service_connection.bucketNames
                 ]
-            # No pagination required, as there is a hard 1000 limit on nr of buckets per aws account
-            for bucket in self.s3_client.list_buckets().get("Buckets") or []:
+            # No pagination required, as there is a hard 1000 limit on nr of buckets per account
+            for bucket in self.minio_client.list_buckets().get("Buckets") or []:
+                # if there is a filter pattern(in metadata ingestion setting), check if the bucket name matches it
                 if filter_by_container(
                     self.source_config.containerFilterPattern,
                     container_name=bucket["Name"],
                 ):
                     self.status.filter(bucket["Name"], "Bucket Filtered Out")
                 else:
-                    results.append(S3BucketResponse.parse_obj(bucket))
+                    results.append(MinioBucketResponse.parse_obj(bucket))
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.error(f"Failed to fetch buckets list - {err}")
         return results
 
-    def _fetch_metric(self, bucket_name: str, metric: S3Metric) -> float:
+
+    def list_objects(self, bucket_name: str) -> int:
+        """
+        Method to list the objects in the bucket
+        """
+        # response = client.list_objects_v2(
+        #     Bucket='string', Delimiter='string', EncodingType='url', MaxKeys=123, Prefix='string', ContinuationToken='string',
+        #     FetchOwner=True | False, StartAfter='string', RequestPayer='requester', ExpectedBucketOwner='string',
+        #     OptionalObjectAttributes=[
+        #         'RestoreStatus',
+        #     ]
+        # )
         try:
-            raw_result = self.cloudwatch_client.get_metric_data(
-                MetricDataQueries=[
-                    {
-                        "Id": "total_nr_of_object_request",
-                        "MetricStat": {
-                            "Metric": {
-                                "Namespace": "AWS/S3",
-                                "MetricName": metric.value,
-                                "Dimensions": [
-                                    {"Name": "BucketName", "Value": bucket_name},
-                                    {
-                                        "Name": "StorageType",
-                                        # StandardStorage-only support for BucketSizeBytes for now
-                                        "Value": "StandardStorage"
-                                        if metric == S3Metric.BUCKET_SIZE_BYTES
-                                        else "AllStorageTypes",
-                                    },
-                                ],
-                            },
-                            "Period": 60,
-                            "Stat": "Average",
-                            "Unit": "Bytes"
-                            if metric == S3Metric.BUCKET_SIZE_BYTES
-                            else "Count",
-                        },
-                    },
-                ],
-                StartTime=datetime.now() - timedelta(days=2),
-                # metrics generated daily, ensure there is at least 1 entry
-                EndTime=datetime.now(),
-                ScanBy="TimestampDescending",
-            )
-            if raw_result["MetricDataResults"]:
-                first_metric = raw_result["MetricDataResults"][0]
-                if first_metric["StatusCode"] == "Complete" and first_metric["Values"]:
-                    return int(first_metric["Values"][0])
-        except Exception:
+            response = self.minio_client.list_objects_v2(Bucket=bucket_name, EncodingType='url')
+            # ...
+            # 'Contents': [
+            #    {
+            #      'Key': 'string',
+            #      'LastModified': datetime(2015, 1, 1),
+            #      'ETag': 'string',
+            #      'ChecksumAlgorithm': [
+            #          'CRC32'|'CRC32C'|'SHA1'|'SHA256',
+            #      ],
+            #      'Size': 123,
+            #      'StorageClass': 'STANDARD'|'REDUCED_REDUNDANCY'|'GLACIER'|'STANDARD_IA'|'ONEZONE_IA'|'INTELLIGENT_TIERING'|'DEEP_ARCHIVE'|'OUTPOSTS'|'GLACIER_IR'|'SNOW'|'EXPRESS_ONEZONE',
+            #      'Owner': {
+            #          'DisplayName': 'string',
+            #          'ID': 'string'
+            #      },
+            #      'RestoreStatus': {
+            #          'IsRestoreInProgress': True|False,
+            #          'RestoreExpiryDate': datetime(2015, 1, 1)
+            #      }
+            #    },
+            #  ],
+            #  ...
+            #
+            logger.info(f"Bucket: {bucket_name} has {len(response[S3_CLIENT_ROOT_RESPONSE])} objects")
+            for obj in response[S3_CLIENT_ROOT_RESPONSE]:
+                logger.info(f"key          : {obj.get('Key')}")
+                logger.info(f"size         : {obj.get('Size')}")
+                logger.info(f"storageClass : {obj.get('Size')}")
+            return 0
+        except Exception as exc:
             logger.debug(traceback.format_exc())
-            logger.warning(
-                f"Failed fetching metric {metric.value} for bucket {bucket_name}, returning 0"
-            )
+            logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
         return 0
 
+
     def _generate_unstructured_container(
-        self, bucket_response: S3BucketResponse
-    ) -> S3ContainerDetails:
-        return S3ContainerDetails(
+        self, bucket_response: MinioBucketResponse
+    ) -> MinioContainerDetails:
+        return MinioContainerDetails(
             name=bucket_response.name,
             prefix=KEY_SEPARATOR,
-            creation_date=bucket_response.creation_date.isoformat()
-            if bucket_response.creation_date
-            else None,
-            number_of_objects=self._fetch_metric(
-                bucket_name=bucket_response.name, metric=S3Metric.NUMBER_OF_OBJECTS
-            ),
-            size=self._fetch_metric(
-                bucket_name=bucket_response.name, metric=S3Metric.BUCKET_SIZE_BYTES
-            ),
+            creation_date=(bucket_response.creation_date.isoformat() if bucket_response.creation_date else None),
+            number_of_objects=self.list_objects(bucket_name=bucket_response.name),
+            size=self.get_bucket_size(bucket_response.name),
             file_formats=[],
             data_model=None,
             fullPath=self._get_full_path(bucket_name=bucket_response.name),
@@ -367,7 +358,7 @@ class S3Source(StorageServiceSource):
         # We'd rather not do pagination here as it would incur unwanted costs
         try:
             if prefix:
-                response = self.s3_client.list_objects_v2(
+                response = self.minio_client.list_objects_v2(
                     Bucket=bucket_name, Prefix=prefix
                 )
                 candidate_keys = [
@@ -393,13 +384,13 @@ class S3Source(StorageServiceSource):
             )
             return None
 
-    def get_aws_bucket_region(self, bucket_name: str) -> str:
+    def get_bucket_region(self, bucket_name: str) -> str:
         """
         Method to fetch the bucket region
         """
         region = None
         try:
-            region_resp = self.s3_client.get_bucket_location(Bucket=bucket_name)
+            region_resp = self.minio_client.get_bucket_location(Bucket=bucket_name)
             region = region_resp.get("LocationConstraint")
         except Exception:
             logger.debug(traceback.format_exc())
@@ -411,7 +402,7 @@ class S3Source(StorageServiceSource):
         Method to get the source url of s3 bucket
         """
         try:
-            region = self.get_aws_bucket_region(bucket_name=bucket_name)
+            region = self.get_bucket_region(bucket_name=bucket_name)
             return (
                 f"https://s3.console.aws.amazon.com/s3/buckets/{bucket_name}"
                 f"?region={region}&tab=objects"
@@ -441,25 +432,49 @@ class S3Source(StorageServiceSource):
         """
         Load the metadata template file from the root of the bucket, if it exists
         """
+        # try:
+        #     logger.info(
+        #         f"Looking for metadata template file at - s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
+        #     )
+        #     response_object = self.s3_reader.read(
+        #         path=OPENMETADATA_TEMPLATE_FILE_NAME,
+        #         bucket_name=bucket_name,
+        #         verbose=False,
+        #     )
+        #     content = json.loads(response_object)
+        #     metadata_config = StorageContainerConfig.parse_obj(content)
+        #     return metadata_config
+        # except ReadException:
+        #     logger.warning(
+        #         f"No metadata file found at s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
+        #     )
+        # except Exception as exc:
+        #     logger.debug(traceback.format_exc())
+        #     logger.warning(
+        #         f"Failed loading metadata file s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}-{exc}"
+        #     )
+        return None
+
+    def get_bucket_size(self, bucket_name: str) -> Optional[int]:
+        """
+        get the size of the bucket
+        """
         try:
-            logger.info(
-                f"Looking for metadata template file at - s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
-            )
-            response_object = self.s3_reader.read(
-                path=OPENMETADATA_TEMPLATE_FILE_NAME,
-                bucket_name=bucket_name,
-                verbose=False,
-            )
-            content = json.loads(response_object)
-            metadata_config = StorageContainerConfig.parse_obj(content)
-            return metadata_config
-        except ReadException:
-            logger.warning(
-                f"No metadata file found at s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
+            response = self.minio_client.list_objects_v2(Bucket=bucket_name)
+            return sum(
+                [
+                    obj["Size"]
+                    for obj in response[S3_CLIENT_ROOT_RESPONSE]
+                    if obj and obj.get("Size")
+                ]
             )
         except Exception as exc:
             logger.debug(traceback.format_exc())
-            logger.warning(
-                f"Failed loading metadata file s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}-{exc}"
-            )
+            logger.error(f"Unable to get the size of the bucket: {bucket_name} - {exc}")
+
         return None
+
+# airflow', 'tasks', 'run', 'efe11ad4-02ef-464f-8841-7b63ae336acb',
+# 'ingestion_task', 'manual__2024-06-20T10:10:23.157460+00:00',
+# '--job-id', '12', '--raw', '--subdir', 'DAGS_FOLDER/efe11ad4-02ef-464f-8841-7b63ae336acb.py',
+# '--cfg-path', '/tmp/tmpcgrv73_r']

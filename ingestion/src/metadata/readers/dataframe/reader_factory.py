@@ -37,6 +37,8 @@ logger = utils_logger()
 class SupportedTypes(Enum):
     CSV = "csv"
     TSV = "tsv"
+    # TODO : JBLIM : Add support for Excel
+    # EXCEL = "excel"
     AVRO = "avro"
     PARQUET = "parquet"
     JSON = "json"
@@ -47,6 +49,8 @@ class SupportedTypes(Enum):
 DF_READER_MAP = {
     SupportedTypes.CSV.value: CSVDataFrameReader,
     SupportedTypes.TSV.value: TSVDataFrameReader,
+    # TODO : JBLIM : Add support for Excel
+    # SupportedTypes.EXCEL.value: ExcelDataFrameReader,
     SupportedTypes.AVRO.value: AvroDataFrameReader,
     SupportedTypes.PARQUET.value: ParquetDataFrameReader,
     SupportedTypes.JSON.value: JSONDataFrameReader,

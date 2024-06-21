@@ -71,8 +71,8 @@ class MinioClient:
                 return session.client(
                     service_name="s3", endpoint_url=self.config.endPointURL
                 )
-            return session.client(service_name="minio")
+            return session.client(service_name="s3")
 
         logger.info(f"Getting Minio default client")
         # initialized with the credentials loaded from running machine
-        return boto3.client("minio")
+        return boto3.client("s3")

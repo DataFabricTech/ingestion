@@ -19,7 +19,11 @@ RUN echo "root:Ahqlwps12#$" | chpasswd && \
 RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#ClientAliveInterval 0/ClientAliveInterval 100/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#ClientAliveCountMax 3/ClientAliveCountMax 3/g' /etc/ssh/sshd_config
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+#RUN echo "export TMOUT=300" >> /etc/profile
 
 WORKDIR /home/airflow/workspace
 
