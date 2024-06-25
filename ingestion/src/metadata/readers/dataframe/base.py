@@ -57,15 +57,16 @@ class DataFrameReader(ABC):
         self.reader = get_reader(config_source=config_source, client=client)
 
     @abstractmethod
-    def _read(self, *, key: str, bucket_name: str, **kwargs) -> DatalakeColumnWrapper:
+    def _read(self, *, key: str, bucket_name: str, encoding: str, **kwargs) -> DatalakeColumnWrapper:
         """
         Pass the path, bucket, or any other necessary details
         to read the dataframe from the source.
         """
         raise NotImplementedError("Missing read implementation")
 
-    def read(self, *, key: str, bucket_name: str, **kwargs) -> DatalakeColumnWrapper:
+    def read(self, *, key: str, bucket_name: str, encoding: str, **kwargs) -> DatalakeColumnWrapper:
         try:
-            return self._read(key=key, bucket_name=bucket_name, **kwargs)
+            return self._read(key=key, bucket_name=bucket_name, encoding=encoding, **kwargs)
         except Exception as err:
+            # logger.exception(f"Error reading dataframe due to [{err}]")
             raise DataFrameReadException(f"Error reading dataframe due to [{err}]")

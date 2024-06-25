@@ -31,6 +31,8 @@ VERSIONS = {
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
     "pandas": "pandas~=2.0.0",
+    "fsspec": "fsspec~=2024.2.0",
+    "s3fs": "s3fs~=2024.2.0",
     "pyarrow": "pyarrow~=14.0",
     "pydantic": "pydantic~=1.10",
     "pydomo": "pydomo~=0.3",
@@ -272,6 +274,9 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["pandas"],
         "presidio-analyzer==2.2.32",
     },
+    # jblim add to minio
+    "fsspec": {VERSIONS["fsspec"]},
+    "s3fs": {VERSIONS["s3fs"]},
 }
 
 dev = {

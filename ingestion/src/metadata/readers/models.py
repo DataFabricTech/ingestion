@@ -26,5 +26,8 @@ from metadata.generated.schema.entity.services.connections.database.datalake.s3C
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
+from metadata.generated.schema.security.credentials.minioCredentials import (
+    MinioCredentials
+)
 
-ConfigSource = Union[LocalConfig, AzureConfig, GCSConfig, S3Config]
+ConfigSource = Union[LocalConfig, AzureConfig, GCSConfig, S3Config, MinioCredentials]

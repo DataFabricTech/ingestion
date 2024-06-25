@@ -28,6 +28,9 @@ from metadata.generated.schema.entity.services.connections.database.datalake.s3C
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
+from metadata.generated.schema.security.credentials.minioCredentials import (
+    MinioCredentials
+)
 from metadata.readers.dataframe.base import DataFrameReader, FileFormatException
 from metadata.readers.dataframe.models import DatalakeColumnWrapper
 from metadata.readers.file.adls import AZURE_PATH, return_azure_storage_options
@@ -54,7 +57,7 @@ class DSVDataFrameReader(DataFrameReader):
         super().__init__(config_source, client)
 
     def read_from_pandas(
-        self, path: str, storage_options: Optional[Dict[str, Any]] = None
+            self, path: str, encoding: str, storage_options: Optional[Dict[str, Any]] = None
     ) -> DatalakeColumnWrapper:
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
@@ -63,34 +66,48 @@ class DSVDataFrameReader(DataFrameReader):
             path,
             sep=self.separator,
             chunksize=CHUNKSIZE,
+            encoding=encoding,
             storage_options=storage_options,
         ) as reader:
             for chunks in reader:
                 chunk_list.append(chunks)
 
+        # columns = [Column(name=col) for col in chunk_list[0].columns]
         return DatalakeColumnWrapper(dataframes=chunk_list)
 
     @singledispatchmethod
     def _read_dsv_dispatch(
-        self, config_source: ConfigSource, key: str, bucket_name: str
+        self, config_source: ConfigSource, key: str, bucket_name: str, encoding: str
     ) -> DatalakeColumnWrapper:
         raise FileFormatException(config_source=config_source, file_name=key)
 
     @_read_dsv_dispatch.register
-    def _(self, _: GCSConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:
+    def _(self, _: GCSConfig, key: str, bucket_name: str, encoding: str) -> DatalakeColumnWrapper:
         """
         Read the CSV file from the gcs bucket and return a dataframe
         """
         path = f"gs://{bucket_name}/{key}"
-        return self.read_from_pandas(path=path)
+        return self.read_from_pandas(path=path, encoding=encoding)
 
     @_read_dsv_dispatch.register
-    def _(self, _: S3Config, key: str, bucket_name: str) -> DatalakeColumnWrapper:
+    def _(self, _: S3Config, key: str, bucket_name: str, encoding: str) -> DatalakeColumnWrapper:
         path = self.client.get_object(Bucket=bucket_name, Key=key)["Body"]
-        return self.read_from_pandas(path=path)
+        return self.read_from_pandas(path=path, encoding=encoding)
 
     @_read_dsv_dispatch.register
-    def _(self, _: AzureConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:
+    def _(self, _: MinioCredentials, key: str, bucket_name: str, encoding: str) -> DatalakeColumnWrapper:
+        storage_options = {
+            "key": f"{self.config_source.accessKeyId}",
+            "secret": f"{self.config_source.secretKey}",
+            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
+        data = self.read_from_pandas(path=f"s3://{bucket_name}/{key}", encoding=encoding, storage_options=storage_options)
+
+        res = self.client.head_object(Bucket=bucket_name, Key=key)
+        data.raw_data = res
+        return data
+
+    @_read_dsv_dispatch.register
+    def _(self, _: AzureConfig, key: str, bucket_name: str, encoding: str) -> DatalakeColumnWrapper:
         storage_options = return_azure_storage_options(self.config_source)
         path = AZURE_PATH.format(
             bucket_name=bucket_name,
@@ -99,18 +116,19 @@ class DSVDataFrameReader(DataFrameReader):
         )
         return self.read_from_pandas(
             path=path,
+            encoding=encoding,
             storage_options=storage_options,
         )
 
     @_read_dsv_dispatch.register
     def _(  # pylint: disable=unused-argument
-        self, _: LocalConfig, key: str, bucket_name: str
+        self, _: LocalConfig, key: str, bucket_name: str, encoding: str
     ) -> DatalakeColumnWrapper:
-        return self.read_from_pandas(path=key)
+        return self.read_from_pandas(path=key, encoding=encoding)
 
-    def _read(self, *, key: str, bucket_name: str, **__) -> DatalakeColumnWrapper:
+    def _read(self, *, key: str, bucket_name: str, encoding: str, **__) -> DatalakeColumnWrapper:
         return self._read_dsv_dispatch(
-            self.config_source, key=key, bucket_name=bucket_name
+            self.config_source, key=key, bucket_name=bucket_name, encoding=encoding
         )
 
 

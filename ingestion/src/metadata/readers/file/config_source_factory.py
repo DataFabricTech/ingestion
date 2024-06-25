@@ -51,6 +51,9 @@ from metadata.generated.schema.metadataIngestion.dbtconfig.dbtLocalConfig import
 from metadata.generated.schema.metadataIngestion.dbtconfig.dbtS3Config import (
     DbtS3Config,
 )
+from metadata.generated.schema.security.credentials.minioCredentials import (
+    MinioCredentials
+)
 from metadata.readers.file.adls import ADLSReader
 from metadata.readers.file.base import Reader
 from metadata.readers.file.gcs import GCSReader
@@ -63,6 +66,7 @@ CONFIG_SOURCE_READER = {
     AzureConfig.__name__: ADLSReader,
     GCSConfig.__name__: GCSReader,
     S3Config.__name__: S3Reader,
+    MinioCredentials.__name__: S3Reader,
     DbtLocalConfig.__name__: LocalReader,
     DbtAzureConfig.__name__: ADLSReader,
     DbtGcsConfig.__name__: GCSReader,
