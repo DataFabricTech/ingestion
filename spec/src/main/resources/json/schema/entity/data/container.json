@@ -38,13 +38,15 @@
       "description": "This schema defines the file formats for the object/files within a container.",
       "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
       "type": "string",
-      "enum": ["zip", "gz", "zstd", "csv", "tsv", "json", "parquet", "avro"],
+      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro"],
       "javaEnums": [
         {"name": "Zip"},
         {"name": "Gz"},
         {"name": "Zstd"},
         {"name": "Csv"},
         {"name": "Tsv"},
+        {"name": "Xls"},
+        {"name": "Xlsx"},
         {"name": "Json"},
         {"name": "Parquet"},
         {"name": "Avro"}
