@@ -14,6 +14,7 @@ Delete methods
 import traceback
 from typing import Dict, Iterable, List, Optional, Type
 
+from metadata.generated.schema.entity.data.container import Container
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
 )
@@ -43,6 +44,16 @@ def delete_entity_from_source(
     try:
         entity_state = metadata.list_all_entities(entity=entity_type, params=params)
         for entity in entity_state:
+            if isinstance(entity_type, Container.__class__):
+                # remove double quotes from the fqn
+                entity.fullyQualifiedName.__root__ = entity.fullyQualifiedName.__root__.replace(f"\"{str(entity.name.__root__)}\"", str(entity.name.__root__))
+                if str(entity.fullyQualifiedName.__root__) not in entity_source_state:
+                    yield Either(
+                        right=DeleteEntity(
+                            entity=entity, mark_deleted_entities=mark_deleted_entity
+                        )
+                    )
+                continue
             if str(entity.fullyQualifiedName.__root__) not in entity_source_state:
                 yield Either(
                     right=DeleteEntity(

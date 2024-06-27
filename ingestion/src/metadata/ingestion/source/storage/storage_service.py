@@ -12,6 +12,7 @@
 Base class for ingesting Object Storage services
 """
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any, Iterable, List, Optional, Set
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
@@ -67,6 +68,12 @@ KEY_SEPARATOR = "/"
 OPENMETADATA_TEMPLATE_FILE_NAME = "openmetadata.json"
 
 
+class Metric(Enum):
+    LAST_MODIFIED = "LastModified"
+    NUMBER_OF_OBJECTS = "NumberOfObjects"
+    BUCKET_SIZE_BYTES = "BucketSizeBytes"
+
+
 class StorageServiceTopology(ServiceTopology):
     root = TopologyNode(
         producer="get_services",
@@ -118,9 +125,9 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
     global_manifest: Optional[ManifestMetadataConfig]
 
     def __init__(
-        self,
-        config: WorkflowSource,
-        metadata: OpenMetadata,
+            self,
+            config: WorkflowSource,
+            metadata: OpenMetadata,
     ):
         super().__init__()
         self.config = config
@@ -146,8 +153,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     def get_manifest_file(self) -> Optional[ManifestMetadataConfig]:
         if self.source_config.storageMetadataConfigSource and not isinstance(
-            self.source_config.storageMetadataConfigSource,
-            NoMetadataConfigurationSource,
+                self.source_config.storageMetadataConfigSource,
+                NoMetadataConfigurationSource,
         ):
             try:
                 return get_manifest(self.source_config.storageMetadataConfigSource)
@@ -163,7 +170,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     @abstractmethod
     def yield_create_container_requests(
-        self, container_details: Any
+            self, container_details: Any
     ) -> Iterable[Either[CreateContainerRequest]]:
         """Generate the create container requests based on the received details"""
 
@@ -222,7 +229,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     @staticmethod
     def _manifest_entries_to_metadata_entries_by_container(
-        container_name: str, manifest: ManifestMetadataConfig
+            container_name: str, manifest: ManifestMetadataConfig
     ) -> List[MetadataEntry]:
         """
         Convert manifest entries (which have an extra bucket property) to bucket-level metadata entries, filtered by
@@ -256,11 +263,11 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     @staticmethod
     def extract_column_definitions(
-        bucket_name: str,
-        sample_key: str,
-        config_source: ConfigSource,
-        client: Any,
-        metadata_entry: MetadataEntry,
+            bucket_name: str,
+            sample_key: str,
+            config_source: ConfigSource,
+            client: Any,
+            metadata_entry: MetadataEntry,
     ) -> List[Column]:
         """Extract Column related metadata from s3"""
         data_structure_details, raw_data = fetch_dataframe(
@@ -284,12 +291,12 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         return columns
 
     def _get_columns(
-        self,
-        container_name: str,
-        sample_key: str,
-        metadata_entry: MetadataEntry,
-        config_source: ConfigSource,
-        client: Any,
+            self,
+            container_name: str,
+            sample_key: str,
+            metadata_entry: MetadataEntry,
+            config_source: ConfigSource,
+            client: Any,
     ) -> Optional[List[Column]]:
         """Get the columns from the file and partition information"""
         extracted_cols = self.extract_column_definitions(
