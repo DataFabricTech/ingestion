@@ -28,6 +28,7 @@ from metadata.readers.dataframe.dsv import (
 )
 from metadata.readers.dataframe.json import JSONDataFrameReader
 from metadata.readers.dataframe.parquet import ParquetDataFrameReader
+from metadata.readers.dataframe.excel import ExcelDataFrameReader
 from metadata.readers.models import ConfigSource
 from metadata.utils.logger import utils_logger
 
@@ -37,8 +38,8 @@ logger = utils_logger()
 class SupportedTypes(Enum):
     CSV = "csv"
     TSV = "tsv"
-    # TODO : JBLIM : Add support for Excel
-    # EXCEL = "excel"
+    OLD_EXCEL = "xls"
+    EXCEL = "xlsx"
     AVRO = "avro"
     PARQUET = "parquet"
     JSON = "json"
@@ -49,8 +50,8 @@ class SupportedTypes(Enum):
 DF_READER_MAP = {
     SupportedTypes.CSV.value: CSVDataFrameReader,
     SupportedTypes.TSV.value: TSVDataFrameReader,
-    # TODO : JBLIM : Add support for Excel
-    # SupportedTypes.EXCEL.value: ExcelDataFrameReader,
+    SupportedTypes.OLD_EXCEL.value: ExcelDataFrameReader,
+    SupportedTypes.EXCEL.value: ExcelDataFrameReader,
     SupportedTypes.AVRO.value: AvroDataFrameReader,
     SupportedTypes.PARQUET.value: ParquetDataFrameReader,
     SupportedTypes.JSON.value: JSONDataFrameReader,
