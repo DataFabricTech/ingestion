@@ -14,6 +14,12 @@ DF Reader common methods
 """
 from metadata.utils.constants import CHUNKSIZE
 
+PANDAS_ENCODINGS = [
+    "utf-8",
+    "euc-kr",
+    "cp949",
+    "iso-8859-1",
+]
 
 def dataframe_to_chunks(df: "DataFrame"):
     """

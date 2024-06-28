@@ -33,6 +33,7 @@ VERSIONS = {
     "pandas": "pandas~=2.0.0",
     "fsspec": "fsspec~=2024.2.0",
     "s3fs": "s3fs~=2024.2.0",
+    "openpyxl": "openpyxl~=3.1.3",
     "pyarrow": "pyarrow~=14.0",
     "pydantic": "pydantic~=1.10",
     "pydomo": "pydomo~=0.3",
@@ -274,9 +275,10 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["pandas"],
         "presidio-analyzer==2.2.32",
     },
-    # jblim add to minio
+    # jblim : MinIO 저장소 데이터 가상화를 위해 추가
     "fsspec": {VERSIONS["fsspec"]},
     "s3fs": {VERSIONS["s3fs"]},
+    "openpyxl": {VERSIONS["openpyxl"]},
 }
 
 dev = {

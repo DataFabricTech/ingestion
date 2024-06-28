@@ -376,7 +376,9 @@ class MinioSource(StorageServiceSource):
     ) -> List[MinioContainerDetails]:
         result: List[MinioContainerDetails] = []
         for key, metadata_entry in self._metadata_cache.items():
-            if metadata_entry.structureFormat not in ["csv", "tsv"]:
+            if (metadata_entry.structureFormat not in
+                    [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
+                logger.debug(f"Unsupported format {metadata_entry.structureFormat}")
                 self.status.filter(key, f"Unsupported format {metadata_entry.structureFormat}")
                 continue
             logger.info(
