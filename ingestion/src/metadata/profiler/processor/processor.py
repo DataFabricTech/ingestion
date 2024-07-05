@@ -46,6 +46,11 @@ class ProfilerProcessor(Processor):
         self.profiler_config = ProfilerProcessorConfig.parse_obj(
             self.config.processor.dict().get("config")
         )
+
+        self.source_confg: storageServiceProfilerPipeline = StorageServiceProfilerPipeline = cast(
+            StorageServiceProfilerPipeline, self.config.source.sourceConfig.config
+        )
+
         self.source_config: DatabaseServiceProfilerPipeline = cast(
             DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
         )  # Used to satisfy type checked
