@@ -40,6 +40,9 @@
               "$ref": "storageServiceMetadataPipeline.json"
             },
             {
+              "$ref": "storageServiceProfilerPipeline.json"
+            },
+            {
               "$ref": "searchServiceMetadataPipeline.json"
             },
             {
