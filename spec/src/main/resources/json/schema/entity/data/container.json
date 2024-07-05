@@ -150,15 +150,6 @@
       },
       "default": null
     },
-    "sampleData": {
-      "description": "Sample data for a table.",
-      "oneOf": [
-        {
-          "$ref": "table.json#/definitions/tableData"
-        }
-      ],
-      "default": null
-    },
     "changeDescription": {
       "description": "Change that lead to this version of the entity.",
       "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
