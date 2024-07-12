@@ -11,6 +11,7 @@
 """
 Profiler Processor Step
 """
+import logging
 import traceback
 from typing import Optional, cast
 
@@ -20,6 +21,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
+from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
@@ -31,6 +33,8 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.profiler.api.models import ProfilerProcessorConfig, ProfilerResponse
 from metadata.profiler.processor.core import Profiler
 from metadata.profiler.source.metadata import ProfilerSourceAndEntity
+
+logger = logging.getLogger("Profiler")
 
 
 class ProfilerProcessor(Processor):
@@ -47,13 +51,14 @@ class ProfilerProcessor(Processor):
             self.config.processor.dict().get("config")
         )
 
-        self.source_confg: storageServiceProfilerPipeline = StorageServiceProfilerPipeline = cast(
-            StorageServiceProfilerPipeline, self.config.source.sourceConfig.config
-        )
-
-        self.source_config: DatabaseServiceProfilerPipeline = cast(
-            DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
-        )  # Used to satisfy type checked
+        if self.config.source.type == "minio":
+            self.source_config: StorageServiceProfilerPipeline = cast(
+                StorageServiceProfilerPipeline, self.config.source.sourceConfig.config
+            )
+        else:
+            self.source_config: DatabaseServiceProfilerPipeline = cast(
+                DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
+            )  # Used to satisfy type checked
 
     @property
     def name(self) -> str:

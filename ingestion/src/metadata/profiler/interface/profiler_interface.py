@@ -17,6 +17,9 @@ supporting sqlalchemy abstraction layer
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioConnection
+from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
+
 from sqlalchemy import Column
 
 from metadata.generated.schema.entity.data.database import (
@@ -90,12 +93,12 @@ class ProfilerInterface(ABC):
     # pylint: disable=too-many-arguments,unused-argument
     def __init__(
         self,
-        service_connection_config: Union[DatabaseConnection, DatalakeConnection],
+        service_connection_config: Union[DatabaseConnection, DatalakeConnection, MinioConnection],
         ometa_client: OpenMetadata,
         entity: Table,
         storage_config: DataStorageConfig,
         profile_sample_config: Optional[ProfileSampleConfig],
-        source_config: DatabaseServiceProfilerPipeline,
+        source_config: Union[DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline],
         sample_query: Optional[str],
         table_partition_config: Optional[PartitionProfilerConfig],
         thread_count: int = 5,

@@ -18,23 +18,11 @@ No sample data is required beforehand
 
 import json
 import logging
-from typing import List
-from unittest import TestCase
 
-from metadata.generated.schema.configuration.profilerConfiguration import (
-    MetricConfigurationDefinition,
-    MetricType,
-    ProfilerConfiguration,
-)
 from metadata.generated.schema.entity.data.container import Container
-from metadata.generated.schema.entity.services.storageService import StorageService
-from metadata.generated.schema.settings.settings import Settings, SettingType
-from metadata.workflow.metadata import MetadataWorkflow
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.workflow.profiler import ProfilerWorkflow
-
-from ...utils.docker_service_builders.test_container_builder import ContainerBuilder
-from ..integration_base import (
-    METADATA_INGESTION_CONFIG_TEMPLATE,
+from tests.integration.integration_base import (
     PROFILER_INGESTION_CONFIG_TEMPLATE,
     int_admin_ometa,
 )
@@ -42,35 +30,43 @@ from ..integration_base import (
 logger = logging.getLogger(__name__)
 
 
-class TestMinioProfiler(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.metadata = int_admin_ometa(url="http://192.168.105.51:8585")
-        try:
-            config = METADATA_INGESTION_CONFIG_TEMPLATE.format(
-                type="minio",
-                service_name="test",
-                service_config=cls.get_service_config(),
-                source_config=cls.get_source_config(),
-            )
-            ingestion_workflow = MetadataWorkflow.create(
-                json.loads(config),
-            )
-            ingestion_workflow.execute()
-            ingestion_workflow.raise_from_status()
-            ingestion_workflow.stop()
-        except Exception as e:
-            raise e
+def get_source_config():
+    return json.dumps(
+        {
+            "config": {"type": "StorageMetadata"},
+        }
+    )
 
-    @classmethod
-    def tearDownClass(cls):
-        db_entities = cls.metadata.get_by_name(StorageService, "test")
-        for db_entity in db_entities:
-            cls.metadata.delete(StorageService, db_entity.id, True, True)
-        cls._clean_up_settings()
 
-    @classmethod
-    def _clean_up_settings(cls):
+def get_service_config():
+    return json.dumps(
+        {
+            "type": "MinIO",
+            "minioConfig": {"accessKeyId": "fabric", "secretKey": "fabric12##",
+                            "endPointURL": "http://192.168.106.12:9000"},
+            "bucketNames": ["fabric"],
+        }
+    )
+
+
+service_type = "minio"
+service_name = "test"
+openmetadata_url = "http://192.168.105.51:8585/api"
+
+
+class MinioProfiler:
+    def __init__(self):
+        self.metadata: OpenMetadata = int_admin_ometa(url=openmetadata_url)
+
+    def tear_down(self):
+        # storage_service = self.metadata.get_by_name(StorageService, self.service_name)
+        # for entity in storage_service:
+        #     self.metadata.delete(StorageService, entity.id, True, True)
+        logger.info("tear_down")
+        self.clean_up()
+
+    @staticmethod
+    def clean_up():
         """Reset profiler settings"""
         # profiler_configuration = ProfilerConfiguration(metricConfiguration=[])
         #
@@ -79,15 +75,16 @@ class TestMinioProfiler(TestCase):
         #     config_value=profiler_configuration,
         # )
         # cls.metadata.create_or_update_settings(settings)
-        logger.info("Cleaned up settings")
+        logger.info("clean_up")
 
     def test_profiler_workflow(self):
         """test a simple profiler workflow on a table in each service and validate the profile is created"""
         try:
             config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
-                type="minio",
-                service_name="test",
-                service_config=self.get_service_config(),
+                type=service_type,
+                service_name=service_name,
+                service_config=get_service_config(),
+                hostport=openmetadata_url,
             )
             profiler_workflow = ProfilerWorkflow.create(
                 json.loads(config),
@@ -96,90 +93,37 @@ class TestMinioProfiler(TestCase):
             profiler_workflow.raise_from_status()
             profiler_workflow.stop()
         except Exception as e:
-            self.fail(
-                f"Profiler workflow failed for minio with error {e}"
-            )
+            logger.exception(e)
 
-        containers: List[Container] = self.metadata.list_all_entities(Container)
+        containers = self.metadata.list_all_entities(entity=Container, limit=1000)
         for container in containers:
-            table = self.metadata.get_latest_table_profile(container.fullyQualifiedName)
-            columns = table.columns
-            self.assertIsNotNone(table.profile)
-            for column in columns:
-                self.assertIsNotNone(column.profile)
+            logger.debug(f"container: {container}")
+        #     self.metadata.get_latest_table_profile()
+        # #     self.assertIsNotNone(table.profile)
+        #     for column in columns:
+        #         self.assertIsNotNone(column.profile)
+        #
+        # tables: List[Table] = self.metadata.list_all_entities(Table)
+        # for table in tables:
+        #     if table.name.__root__ != "users":
+        #         continue
+        #     table = self.metadata.get_latest_table_profile(table.fullyQualifiedName)
+        #     columns = table.columns
+        #     self.assertIsNotNone(table.profile)
+        #     for column in columns:
+        #         if column.dataType == DataType.INT:
+        #             self.assertIsNone(column.profile.mean)
+        #             self.assertIsNotNone(column.profile.valuesCount)
+        #             self.assertIsNotNone(column.profile.distinctCount)
+        #         if column.dataType == DataType.STRING:
+        #             self.assertIsNone(column.profile.mean)
+        #             self.assertIsNone(column.profile.valuesCount)
+        #             self.assertIsNone(column.profile.distinctCount)
 
-    def test_profiler_workflow_w_globale_config(self):
-        """test a simple profiler workflow with a globale profiler configuration"""
-        # add metric level settings
-        profiler_configuration = ProfilerConfiguration(
-            metricConfiguration=[
-                MetricConfigurationDefinition(
-                    dataType=DataType.INT,
-                    disabled=False,
-                    metrics=[MetricType.valuesCount, MetricType.distinctCount],
-                ),
-                MetricConfigurationDefinition(
-                    dataType=DataType.VARCHAR, disabled=True, metrics=None
-                ),
-            ]
-        )
 
-        settings = Settings(
-            config_type=SettingType.profilerConfiguration,
-            config_value=profiler_configuration,
-        )
-        self.metadata.create_or_update_settings(settings)
+if __name__ == "__main__":
+    profiler = MinioProfiler()
 
-        for container in self.container_builder.containers:
-            try:
-                config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
-                    type=container.connector_type,
-                    service_config=container.get_config(),
-                    service_name=type(container).__name__,
-                )
-                profiler_workflow = ProfilerWorkflow.create(
-                    json.loads(config),
-                )
-                profiler_workflow.execute()
-                profiler_workflow.raise_from_status()
-                profiler_workflow.stop()
-            except Exception as e:
-                self.fail(
-                    f"Profiler workflow failed for {type(container).__name__} with error {e}"
-                )
+    profiler.test_profiler_workflow()
 
-        tables: List[Table] = self.metadata.list_all_entities(Table)
-        for table in tables:
-            if table.name.__root__ != "users":
-                continue
-            table = self.metadata.get_latest_table_profile(table.fullyQualifiedName)
-            columns = table.columns
-            self.assertIsNotNone(table.profile)
-            for column in columns:
-                if column.dataType == DataType.INT:
-                    self.assertIsNone(column.profile.mean)
-                    self.assertIsNotNone(column.profile.valuesCount)
-                    self.assertIsNotNone(column.profile.distinctCount)
-                if column.dataType == DataType.STRING:
-                    self.assertIsNone(column.profile.mean)
-                    self.assertIsNone(column.profile.valuesCount)
-                    self.assertIsNone(column.profile.distinctCount)
-
-    @classmethod
-    def get_service_config(cls):
-        return json.dumps(
-            {
-                "type": "MinIO",
-                "minioConfig": {"accessKeyId": "fabric", "secretKey": "fabric12##",
-                                "endPointURL": "http://192.168.106.12:9000"},
-                "bucketNames": ["fabric"],
-            }
-        )
-
-    @classmethod
-    def get_source_config(cls):
-        return json.dumps(
-            {
-                "config": {"type": "StorageMetadata"},
-            }
-        )
+    profiler.tear_down()

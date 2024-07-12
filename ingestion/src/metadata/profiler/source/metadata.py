@@ -17,15 +17,19 @@ from typing import Iterable, Optional, cast
 from pydantic import BaseModel
 
 from metadata.generated.schema.entity.data.database import Database
+from metadata.generated.schema.entity.data.container import Container
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import Table, TableType
-from metadata.generated.schema.entity.services.databaseService import DatabaseService
+from metadata.generated.schema.entity.services.databaseService import DatabaseService, DatabaseConnection
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
 )
+from metadata.generated.schema.entity.services.serviceType import ServiceType
+from metadata.generated.schema.entity.services.storageService import StorageService, StorageConnection
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
+from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
@@ -37,7 +41,7 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.profiler.source.base.profiler_source import ProfilerSource
 from metadata.profiler.source.profiler_source_factory import profiler_source_factory
 from metadata.utils import fqn
-from metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table
+from metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table, filter_by_container
 from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
@@ -56,6 +60,7 @@ class ProfilerSourceAndEntity(BaseModel):
 
     profiler_source: ProfilerSource
     entity: Table
+    # minio_entity: Container
 
     def __str__(self):
         """Return the information of the table being profiler"""
@@ -91,11 +96,17 @@ class OpenMetadataSource(Source):
         self.metadata = metadata
         self.test_connection()
 
-        # Init and type the source config
-        self.source_config: DatabaseServiceProfilerPipeline = cast(
-            DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
-        )  # Used to satisfy type checked
+        # JBLIM : for MinIO support
+        if self.config.source.type == "minio":
+            self.source_config: StorageServiceProfilerPipeline = cast(
+                StorageServiceProfilerPipeline, self.config.source.sourceConfig.config
+            )
+        else:
+            self.source_config: DatabaseServiceProfilerPipeline = cast(
+                DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
+            )
 
+        # Used to satisfy type checked
         if not self._validate_service_name():
             raise ValueError(
                 f"Service name `{self.config.source.serviceName}` does not exist. "
@@ -111,9 +122,19 @@ class OpenMetadataSource(Source):
 
     def _validate_service_name(self):
         """Validate service name exists in OpenMetadata"""
-        return self.metadata.get_by_name(
-            entity=DatabaseService, fqn=self.config.source.serviceName
-        )
+        if isinstance(self.config.source.serviceConnection.__root__, DatabaseConnection):
+            return self.metadata.get_by_name(
+                entity=DatabaseService, fqn=self.config.source.serviceName
+            )
+        elif isinstance(self.config.source.serviceConnection.__root__, StorageConnection):
+            return self.metadata.get_by_name(
+                entity=StorageService, fqn=self.config.source.serviceName
+            )
+        else:
+            raise ValueError(
+                f"Service Connection Type {self.config.source.serviceConnection.__root__.config.type} is not supported. "
+                f"Supported types are {ServiceType.Database}, {ServiceType.Storage}"
+            )
 
     def prepare(self):
         """Nothing to prepare"""
@@ -127,30 +148,57 @@ class OpenMetadataSource(Source):
 
     def _iter(self, *_, **__) -> Iterable[Either[ProfilerSourceAndEntity]]:
         global_profiler_config = self.metadata.get_profiler_config_settings()
-        for database in self.get_database_entities():
-            try:
-                profiler_source = profiler_source_factory.create(
-                    self.config.source.type.lower(),
-                    self.config,
-                    database,
-                    self.metadata,
-                    global_profiler_config,
-                )
-                for entity in self.get_table_entities(database=database):
+        if isinstance(self.config.source.serviceConnection.__root__, DatabaseConnection):
+            for database in self.get_database_entities():
+                try:
+                    profiler_source = profiler_source_factory.create(
+                        self.config.source.type.lower(),
+                        self.config,
+                        database,
+                        self.metadata,
+                        global_profiler_config,
+                    )
+                    for entity in self.get_table_entities(database=database):
+                        yield Either(
+                            right=ProfilerSourceAndEntity(
+                                profiler_source=profiler_source,
+                                entity=entity,
+                            )
+                        )
+                except Exception as exc:
                     yield Either(
-                        right=ProfilerSourceAndEntity(
-                            profiler_source=profiler_source,
-                            entity=entity,
+                        left=StackTraceError(
+                            name=database.fullyQualifiedName.__root__,
+                            error=f"Error listing source and entities for database due to [{exc}]",
+                            stackTrace=traceback.format_exc(),
                         )
                     )
-            except Exception as exc:
-                yield Either(
-                    left=StackTraceError(
-                        name=database.fullyQualifiedName.__root__,
-                        error=f"Error listing source and entities for database due to [{exc}]",
-                        stackTrace=traceback.format_exc(),
+        elif isinstance(self.config.source.serviceConnection.__root__, StorageConnection):
+            for container in self.get_container_entities():
+                try:
+                    profiler_source = profiler_source_factory.create(
+                        self.config.source.type.lower(),
+                        self.config,
+                        container,
+                        self.metadata,
+                        global_profiler_config
                     )
-                )
+                    for entity in self.get_structured_entities(container=container):
+                        yield Either(
+                            right=ProfilerSourceAndEntity(
+                                profiler_source=profiler_source,
+                                entity=entity,
+                            )
+                        )
+                except Exception as exc:
+                    yield Either(
+                        left=StackTraceError(
+                            name=container.fullyQualifiedName.__root__,
+                            error=f"Error listing source and entities for container due to [{exc}]",
+                            stackTrace=traceback.format_exc(),
+                        )
+                    )
+
 
     @classmethod
     def create(
@@ -179,6 +227,25 @@ class OpenMetadataSource(Source):
             self.status.filter(database.name.__root__, "Database pattern not allowed")
             return None
         return database
+
+    def filter_containers(self, container: Container) -> Optional[Container]:
+        """Returns filtered container entities"""
+        container_fqn = fqn.build(
+            self.metadata,
+            entity_type=Container,
+            service_name=self.config.source.serviceName,
+            parent_container=container.parent,
+            container_name=container.name.__root__,
+        )
+        if filter_by_container(
+                self.source_config.databaseFilterPattern,
+               container_fqn
+                if self.source_config.useFqnForFiltering
+                else container.name.__root__,
+        ):
+            self.status.filter(container.name.__root__, "Name pattern not allowed")
+            return None
+        return container
 
     def filter_entities(self, tables: Iterable[Table]) -> Iterable[Table]:
         """
@@ -292,6 +359,57 @@ class OpenMetadataSource(Source):
                 "database": fqn.build(
                     self.metadata,
                     entity_type=Database,
+                    service_name=self.config.source.serviceName,
+                    database_name=database.name.__root__,
+                ),
+            },  # type: ignore
+        )
+
+        yield from self.filter_entities(tables)
+
+    def get_container_entities(self):
+        """List all container in service"""
+
+        containers = [
+            self.filter_containers(container)
+            for container in self.metadata.list_all_entities(
+                entity=Container,
+                params={"service": self.config.source.serviceName},
+            )
+            if self.filter_containers(container)
+        ]
+
+        if not containers:
+            raise ValueError(
+                "FilterPattern returned 0 result. At least 1 container must be returned by the filter pattern."
+                f"\n\t- includes: {self.source_config.databaseFilterPattern.includes if self.source_config.databaseFilterPattern else None}"  # pylint: disable=line-too-long
+                f"\n\t- excludes: {self.source_config.databaseFilterPattern.excludes if self.source_config.databaseFilterPattern else None}"  # pylint: disable=line-too-long
+            )
+
+        return containers
+
+    def get_structured_entities(self, container):
+        """
+        List and filter OpenMetadata tables based on the
+        source configuration.
+
+        The listing will be based on the entities from the
+        informed service name in the source configuration.
+
+        Note that users can specify `table_filter_pattern` to
+        either be `includes` or `excludes`. This means
+        that we will either what is specified in `includes`
+        or we will use everything but the tables excluded.
+
+        Same with `schema_filter_pattern`.
+        """
+        tables = self.metadata.list_all_entities(
+            entity=Container,
+            params={
+                "service": self.config.source.serviceName,
+                "database": fqn.build(
+                    self.metadata,
+                    entity_type=Container,
                     service_name=self.config.source.serviceName,
                     database_name=database.name.__root__,
                 ),
