@@ -88,6 +88,22 @@ class DatabaseAndSchemaConfig(BaseProfileConfig):
 
     sampleDataStorageConfig: Optional[SampleDataStorageConfig] = None
 
+# class ContainerConfig(BaseProfileConfig):
+#     """Container profile config"""
+#
+#     columnConfig: Optional[ColumnConfig]
+#
+#     @classmethod
+#     def from_database_and_schema_config(
+#             cls, config: "DatabaseAndSchemaConfig", table_fqn: str
+#     ):
+#         table_config = ContainerConfig(
+#             fullyQualifiedName=table_fqn,
+#             profileSample=config.profileSample,
+#             profileSampleType=config.profileSampleType,
+#             sampleDataCount=config.sampleDataCount,
+#         )
+#         return table_config
 
 class ProfileSampleConfig(ConfigModel):
     """Profile Sample Config"""
