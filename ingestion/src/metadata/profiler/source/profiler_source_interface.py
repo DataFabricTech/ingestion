@@ -48,6 +48,17 @@ class ProfilerSourceInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def create_storage_profiler_interface(
+        self,
+        entity,
+        config,
+        profiler_config,
+        storage_service,
+    ) -> ProfilerInterface:
+        """Create the profiler interface"""
+        raise NotImplementedError
+
+    @abstractmethod
     def get_profiler_runner(self, entity, profiler_config):
         """Get the profiler runner"""
         raise NotImplementedError

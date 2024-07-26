@@ -84,7 +84,7 @@ class MinioSource(StorageServiceSource):
 
     def __init__(self, config: WorkflowSource, metadata: OpenMetadata):
         super().__init__(config, metadata)
-        self.minio_client = self.connection.minio_client
+        self.minio_client = self.connection.client
 
         self._bucket_cache: Dict[str, Container] = {}
         self._metadata_cache: Dict[str, MetadataEntry] = {}

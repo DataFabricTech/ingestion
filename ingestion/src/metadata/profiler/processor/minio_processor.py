@@ -17,9 +17,7 @@ from typing import Optional, cast
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
 )
-from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
-    DatabaseServiceProfilerPipeline,
-)
+from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
@@ -30,10 +28,10 @@ from metadata.ingestion.api.steps import Processor
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.profiler.api.models import ProfilerProcessorConfig, ProfilerResponse
 from metadata.profiler.processor.core import Profiler
-from metadata.profiler.source.metadata import ProfilerSourceAndEntity
+from metadata.profiler.source.metadata_minio import MinIoProfilerSourceAndEntity
 
 
-class ProfilerProcessor(Processor):
+class MinioProfilerProcessor(Processor):
     """
     This processor is in charge of getting the profiler source and entity coming from
     the OpenMetadataSource and compute the metrics.
@@ -46,15 +44,17 @@ class ProfilerProcessor(Processor):
         self.profiler_config = ProfilerProcessorConfig.parse_obj(
             self.config.processor.dict().get("config")
         )
-        self.source_config: DatabaseServiceProfilerPipeline = cast(
-            DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
-        )  # Used to satisfy type checked
+
+        # Used to satisfy type checked
+        self.source_config: StorageServiceProfilerPipeline = cast(
+            StorageServiceProfilerPipeline, self.config.source.sourceConfig.config
+        )
 
     @property
     def name(self) -> str:
         return "Profiler"
 
-    def _run(self, record: ProfilerSourceAndEntity) -> Either[ProfilerResponse]:
+    def _run(self, record: MinIoProfilerSourceAndEntity) -> Either[ProfilerResponse]:
         profiler_runner: Profiler = record.profiler_source.get_profiler_runner(
             record.entity, self.profiler_config
         )

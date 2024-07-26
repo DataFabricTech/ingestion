@@ -19,7 +19,6 @@ from pathlib import Path
 
 from metadata.config.common import load_config_file
 from metadata.utils.logger import cli_logger
-from metadata.utils.logger import ingestion_logger
 from metadata.workflow.metadata import MetadataWorkflow
 from metadata.workflow.workflow_output_handler import (
     WorkflowType,

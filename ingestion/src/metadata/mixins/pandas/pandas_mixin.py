@@ -87,15 +87,27 @@ class PandasInterfaceMixin:
         """
         returns sampled ometa dataframes
         """
-        data = fetch_dataframe(
-            config_source=service_connection_config.configSource,
-            client=client,
-            file_fqn=DatalakeTableSchemaWrapper(
-                key=table.name.__root__,
-                bucket_name=table.databaseSchema.name,
-                file_extension=table.fileFormat,
-            ),
-        )
+        if hasattr(service_connection_config, "minioConfig"):
+            bucket_name = table.fullPath.replace("s3://", "").split("/")[0]
+            data = fetch_dataframe(
+                config_source=service_connection_config.minioConfig,
+                client=client,
+                file_fqn=DatalakeTableSchemaWrapper(
+                    key=table.name.__root__,
+                    bucket_name=bucket_name,
+                    file_extension=table.fileFormats[0],
+                ),
+            )
+        else:
+            data = fetch_dataframe(
+                config_source=service_connection_config.configSource,
+                client=client,
+                file_fqn=DatalakeTableSchemaWrapper(
+                    key=table.name.__root__,
+                    bucket_name=table.databaseSchema.name,
+                    file_extension=table.fileFormat,
+                ),
+            )
         if data:
             random.shuffle(data)
             # sampling data based on profiler config (if any)

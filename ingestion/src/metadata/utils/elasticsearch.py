@@ -34,6 +34,7 @@ from metadata.generated.schema.entity.data.storedProcedure import StoredProcedur
 from metadata.generated.schema.entity.data.table import Table
 from metadata.generated.schema.entity.data.topic import Topic
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
+from metadata.generated.schema.entity.services.storageService import StorageService
 from metadata.generated.schema.entity.teams.team import Team
 from metadata.generated.schema.entity.teams.user import User
 from metadata.utils.logger import utils_logger
@@ -48,6 +49,7 @@ ES_INDEX_MAP = {
     DatabaseService.__name__: "database_service_search_index",
     StoredProcedure.__name__: "stored_procedure_search_index",
     DashboardDataModel.__name__: "dashboard_data_model_search_index",
+    StorageService.__name__: "storage_service_search_index",
     SearchIndex.__name__: "search_entity_search_index",
     Team.__name__: "team_search_index",
     User.__name__: "user_search_index",

@@ -40,8 +40,8 @@ def main():
         config:
           type: Mysql
           scheme: mysql+pymysql
-          username: openmetadata_user
-          password: openmetadata_password
+          username: user
+          password: password
           hostPort: 'mysql:3306'
       serviceType: Database
       connectionType: Mysql

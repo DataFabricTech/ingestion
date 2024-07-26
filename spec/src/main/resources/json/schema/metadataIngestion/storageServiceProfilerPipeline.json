@@ -8,19 +8,29 @@
     "profilerConfigType": {
       "description": "Profiler Source Config Pipeline type",
       "type": "string",
-      "enum": ["Profiler"],
-      "default": "Profiler"
+      "enum": ["StorageProfiler"],
+      "default": "StorageProfiler"
     }
   },
   "properties": {
     "type": {
       "description": "Pipeline type",
       "$ref": "#/definitions/profilerConfigType",
-      "default": "Profiler"
+      "default": "StorageProfiler"
+    },
+    "bucketFilterPattern": {
+      "description": "Regex to only fetch buckets that matches the pattern.",
+      "$ref": "../type/filterPattern.json#/definitions/filterPattern"
     },
     "containerFilterPattern": {
       "description": "Regex to only fetch containers that matches the pattern.",
       "$ref": "../type/filterPattern.json#/definitions/filterPattern"
+    },
+    "useFqnForFiltering": {
+      "description": "Regex will be applied on fully qualified name (e.g service_name.bucket.container_name) instead of raw name (e.g. table_name)",
+      "type": "boolean",
+      "default": false,
+      "title": "Use FQN For Filtering"
     },
     "generateSampleData": {
       "description": "Option to turn on/off generating sample data. If enabled, profiler will ingest sample data for each table.",

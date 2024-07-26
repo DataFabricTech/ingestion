@@ -17,6 +17,7 @@ supporting sqlalchemy abstraction layer
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
 
+from metadata.generated.schema.entity.services.storageService import StorageService
 from sqlalchemy import Column
 
 from metadata.generated.schema.entity.data.database import (
@@ -32,12 +33,16 @@ from metadata.generated.schema.entity.data.table import (
     Table,
     TableData,
 )
+from metadata.generated.schema.entity.data.container import (
+    Container,
+)
 from metadata.generated.schema.entity.services.connections.connectionBasicType import (
     DataStorageConfig,
 )
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioConnection
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
     DatabaseService,
@@ -48,6 +53,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
+from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.ingestion.api.status import Status
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
@@ -90,12 +96,12 @@ class ProfilerInterface(ABC):
     # pylint: disable=too-many-arguments,unused-argument
     def __init__(
         self,
-        service_connection_config: Union[DatabaseConnection, DatalakeConnection],
+        service_connection_config: Union[DatabaseConnection, DatalakeConnection, MinioConnection],
         ometa_client: OpenMetadata,
-        entity: Table,
+        entity: Union[Table, Container],
         storage_config: DataStorageConfig,
         profile_sample_config: Optional[ProfileSampleConfig],
-        source_config: DatabaseServiceProfilerPipeline,
+        source_config: Union[DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline],
         sample_query: Optional[str],
         table_partition_config: Optional[PartitionProfilerConfig],
         thread_count: int = 5,
@@ -144,13 +150,13 @@ class ProfilerInterface(ABC):
     @classmethod
     def create(
         cls,
-        entity: Table,
-        database_schema: DatabaseSchema,
-        database: Database,
-        database_service: DatabaseService,
+        entity: Union[Table, Container],
+        database_schema: Optional[DatabaseSchema],
+        database: Optional[Database],
+        service: Union[DatabaseService, StorageService],
         entity_config: Optional[TableConfig],
         profiler_config: Optional[ProfilerProcessorConfig],
-        source_config: DatabaseServiceProfilerPipeline,
+        source_config: Union[DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline],
         service_connection_config,
         ometa_client: Optional[OpenMetadata],
         **kwargs,
@@ -159,10 +165,13 @@ class ProfilerInterface(ABC):
         correct object based on the service connection object
 
         Args:
-            _profiler_type (str): service connection object str
-            entity (Table): entity
+            entity (Table, Container): entity
+            database_schema (Optional[DatabaseSchema]): database schema entity
+            database (Optional[Database]): database entity
+            service (Union[DatabaseService, StorageService]): DatabaseService, StorageService entity
             entity_config (Optional[TableConfig]): entity config object
-            source_config (DatabaseServiceProfilerPipeline): source config object
+            profiler_config (Optional[ProfilerProcessorConfig]): Profiler config object
+            source_config (Union[DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline]): source config object
             service_connection_config (_type_): connection for the service
             ometa_client (Optional[OpenMetadata]): ometa client object
 
@@ -170,10 +179,12 @@ class ProfilerInterface(ABC):
             NotImplementedError: if the profiler type is not supported
 
         Returns:
+            ProfilerInterface: ProfilerInterface object
 
         """
         thread_count = source_config.threadCount
         timeout_seconds = source_config.timeoutSeconds
+        # if entity is table, get the database schema and database
         database_profiler_config = cls.get_database_profiler_config(
             database_entity=database
         )
@@ -184,7 +195,7 @@ class ProfilerInterface(ABC):
             entity=entity,
             schema_profiler_config=schema_profiler_config,
             database_profiler_config=database_profiler_config,
-            db_service=database_service,
+            service=service,
             profiler_config=profiler_config,
         )
 
@@ -259,32 +270,34 @@ class ProfilerInterface(ABC):
 
     @staticmethod
     def get_storage_config_for_table(
-        entity: Table,
+        entity: Union[Table, Container],
         schema_profiler_config: Optional[DatabaseSchemaProfilerConfig],
         database_profiler_config: Optional[DatabaseProfilerConfig],
-        db_service: Optional[DatabaseService],
+        service: Union[DatabaseService, StorageService],
         profiler_config: ProfilerProcessorConfig,
     ) -> Optional[DataStorageConfig]:
         """Get config for a specific entity
 
         Args:
-            entity: table entity
+            entity: table entity or container entity
         """
-        for schema_config in profiler_config.schemaConfig:
-            if (
-                schema_config.fullyQualifiedName.__root__
-                == entity.databaseSchema.fullyQualifiedName
-                and ProfilerInterface._get_sample_storage_config(schema_config)
-            ):
-                return ProfilerInterface._get_sample_storage_config(schema_config)
+        if hasattr(entity, "databaseSchema"):
+            for schema_config in profiler_config.schemaConfig:
+                if (
+                    schema_config.fullyQualifiedName.__root__
+                    == entity.databaseSchema.fullyQualifiedName
+                    and ProfilerInterface._get_sample_storage_config(schema_config)
+                ):
+                    return ProfilerInterface._get_sample_storage_config(schema_config)
 
-        for database_config in profiler_config.databaseConfig:
-            if (
-                database_config.fullyQualifiedName.__root__
-                == entity.database.fullyQualifiedName
-                and ProfilerInterface._get_sample_storage_config(database_config)
-            ):
-                return ProfilerInterface._get_sample_storage_config(database_config)
+        if hasattr(entity, "database"):
+            for database_config in profiler_config.databaseConfig:
+                if (
+                    database_config.fullyQualifiedName.__root__
+                    == entity.database.fullyQualifiedName
+                    and ProfilerInterface._get_sample_storage_config(database_config)
+                ):
+                    return ProfilerInterface._get_sample_storage_config(database_config)
 
         if ProfilerInterface._get_sample_storage_config(schema_profiler_config):
             return ProfilerInterface._get_sample_storage_config(schema_profiler_config)
@@ -295,7 +308,7 @@ class ProfilerInterface(ABC):
             )
 
         try:
-            return db_service.connection.config.sampleDataStorageConfig.config
+            return service.connection.config.sampleDataStorageConfig.config
         except AttributeError:
             pass
 
@@ -363,7 +376,7 @@ class ProfilerInterface(ABC):
 
     @staticmethod
     def get_profile_query(
-        entity: Table, entity_config: Optional[TableConfig]
+        entity: Union[Table, Container], entity_config: Optional[TableConfig]
     ) -> Optional[str]:
         """get profile query for sampling
 

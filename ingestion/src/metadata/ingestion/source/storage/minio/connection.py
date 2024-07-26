@@ -32,7 +32,7 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 
 @dataclass
 class MinioObjectStoreClient:
-    minio_client: BaseClient
+    client: BaseClient
 
 
 def get_connection(connection: MinioConnection) -> MinioObjectStoreClient:
@@ -41,7 +41,7 @@ def get_connection(connection: MinioConnection) -> MinioObjectStoreClient:
     """
     client = MinioClient(connection.minioConfig)
     return MinioObjectStoreClient(
-        minio_client=client.get_client(),
+        client=client.get_client(),
     )
 
 
@@ -59,9 +59,9 @@ def test_connection(
     def test_buckets(connection: MinioConnection, client: MinioObjectStoreClient):
         if connection.bucketNames:
             for bucket_name in connection.bucketNames:
-                client.minio_client.list_objects(Bucket=bucket_name)
+                client.client.list_objects(Bucket=bucket_name)
             return
-        client.minio_client.list_buckets()
+        client.client.list_buckets()
 
     test_fn = {
         "ListBuckets": partial(

@@ -31,6 +31,11 @@ from metadata.generated.schema.entity.data.table import (
     Table,
     TableData,
 )
+
+from metadata.generated.schema.entity.data.container import (
+    Container,
+    ContainerDataModel
+)
 from metadata.generated.schema.entity.services.connections.connectionBasicType import (
     SampleDataStorageConfig,
 )
@@ -67,7 +72,7 @@ class TableConfig(BaseProfileConfig):
 
     @classmethod
     def from_database_and_schema_config(
-        cls, config: "DatabaseAndSchemaConfig", table_fqn: str
+            cls, config: "DatabaseAndSchemaConfig", table_fqn: str
     ):
         table_config = TableConfig(
             fullyQualifiedName=table_fqn,
@@ -111,7 +116,7 @@ class ProfilerResponse(ConfigModel):
     the ran tests, if any.
     """
 
-    table: Table
+    table: Union[Table, Container]
     profile: CreateTableProfileRequest
     sample_data: Optional[TableData] = None
     column_tags: Optional[List[ColumnTag]] = None

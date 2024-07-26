@@ -111,6 +111,27 @@
       "$ref": "#/definitions/containerDataModel",
       "default": null
     },
+    "tableProfilerConfig": {
+      "description": "Table Profiler Config to include or exclude columns from profiling.",
+      "$ref": "table.json/#/definitions/tableProfilerConfig"
+    },
+    "customMetrics": {
+      "description": "List of Custom Metrics registered for a table.",
+      "type": "array",
+      "items": {
+        "$ref": "../../tests/customMetric.json"
+      },
+      "default": null
+    },
+    "profile": {
+      "description": "Latest Data profile for a table data.",
+      "$ref": "table.json/#/definitions/tableProfile",
+      "default": null
+    },
+    "testSuite": {
+      "description": "Executable test suite associated with this table",
+      "$ref": "../../type/entityReference.json"
+    },
     "prefix": {
       "description": "Optional prefix path defined for this container",
       "type": "string",
