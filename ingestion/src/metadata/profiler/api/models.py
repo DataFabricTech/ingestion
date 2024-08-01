@@ -132,7 +132,7 @@ class ThreadPoolMetrics(ConfigModel):
     metrics: Union[List[Union[Type[Metric], CustomMetric]], Type[Metric]]
     metric_type: MetricTypes
     column: Optional[Union[Column, SQALikeColumn]]
-    table: Union[Table, DeclarativeMeta]
+    table: Union[Table, DeclarativeMeta, Container]
 
     class Config:
         arbitrary_types_allowed = True

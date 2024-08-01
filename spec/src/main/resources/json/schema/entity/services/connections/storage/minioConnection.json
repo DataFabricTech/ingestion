@@ -45,9 +45,9 @@
       "title": "Supports Metadata Extraction",
       "$ref": "../connectionBasicType.json#/definitions/supportsMetadataExtraction"
     },
-    "supportsProfiler": {
-      "title": "Supports Profiler",
-      "$ref": "../connectionBasicType.json#/definitions/supportsProfiler"
+    "supportsStorageProfiler": {
+      "title": "Supports Storage Profiler",
+      "$ref": "../connectionBasicType.json#/definitions/supportsStorageProfiler"
     }
   },
   "additionalProperties": false,

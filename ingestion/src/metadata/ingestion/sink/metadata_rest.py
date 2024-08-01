@@ -41,6 +41,7 @@ from metadata.generated.schema.entity.data.searchIndex import (
     SearchIndexSampleData,
 )
 from metadata.generated.schema.entity.data.table import DataModel, Table
+from metadata.generated.schema.entity.data.container import Container
 from metadata.generated.schema.entity.data.topic import TopicSampleData
 from metadata.generated.schema.entity.teams.role import Role
 from metadata.generated.schema.entity.teams.team import Team
@@ -527,10 +528,17 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
 
         record.profile.columnProfile = column_profile
 
-        table = self.metadata.ingest_profile_data(
-            table=record.table,
-            profile_request=record.profile,
-        )
+        # JBLIM - Modify For Container Data
+        if isinstance(record.table, Container):
+            table = self.metadata.ingest_profile_data(
+                table=record.table,
+                profile_request=record.profile,
+            )
+        else:
+            table = self.metadata.ingest_profile_data(
+                table=record.table,
+                profile_request=record.profile,
+            )
         logger.debug(
             f"Successfully ingested profile metrics for {record.table.fullyQualifiedName.__root__}"
         )

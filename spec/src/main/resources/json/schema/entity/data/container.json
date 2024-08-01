@@ -51,6 +51,12 @@
         {"name": "Parquet"},
         {"name": "Avro"}
       ]
+    },
+    "tableProfilerConfig": {
+      "$ref": "../data/table.json#/definitions/tableProfilerConfig"
+    },
+    "tableProfile": {
+      "$ref": "../data/table.json#/definitions/tableProfile"
     }
   },
   "properties": {
@@ -113,7 +119,7 @@
     },
     "tableProfilerConfig": {
       "description": "Table Profiler Config to include or exclude columns from profiling.",
-      "$ref": "table.json/#/definitions/tableProfilerConfig"
+      "$ref": "#/definitions/tableProfilerConfig"
     },
     "customMetrics": {
       "description": "List of Custom Metrics registered for a table.",
@@ -125,7 +131,7 @@
     },
     "profile": {
       "description": "Latest Data profile for a table data.",
-      "$ref": "table.json/#/definitions/tableProfile",
+      "$ref": "#/definitions/tableProfile",
       "default": null
     },
     "testSuite": {
@@ -175,7 +181,7 @@
       "description": "Sample data for a table.",
       "oneOf": [
         {
-          "$ref": "table.json#/definitions/tableData"
+          "$ref": "../data/table.json#/definitions/tableData"
         }
       ],
       "default": null

@@ -14,6 +14,7 @@ Default simple profiler to use
 """
 from typing import List, Optional
 
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioType
 from metadata.generated.schema.entity.services.storageService import StorageService
 from sqlalchemy.orm import DeclarativeMeta
 
@@ -114,9 +115,15 @@ class DefaultProfiler(Profiler):
             exclude_columns: Optional[List[str]] = None,
             global_profiler_configuration: Optional[ProfilerConfiguration] = None,
     ):
-        _metrics = get_default_metrics(
-            table=profiler_interface.table, ometa_client=profiler_interface.ometa_client
-        )
+        if profiler_interface.service_connection_config.type == MinioType.MinIO:
+            _metrics = get_default_metrics_for_storage_service(
+                table=profiler_interface.table,
+                ometa_client=profiler_interface.ometa_client,
+            )
+        else:
+            _metrics = get_default_metrics(
+                table=profiler_interface.table, ometa_client=profiler_interface.ometa_client
+            )
 
         super().__init__(
             *_metrics,
