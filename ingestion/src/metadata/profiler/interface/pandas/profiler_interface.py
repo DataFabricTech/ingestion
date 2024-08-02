@@ -98,7 +98,6 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         )
         self.complex_df()
 
-
     def complex_df(self):
         """Assign DataTypes to dataframe columns as per the parsed column type"""
         coltype_mapping_df = []

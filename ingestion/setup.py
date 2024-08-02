@@ -31,8 +31,8 @@ VERSIONS = {
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
     "pandas": "pandas~=2.0.0",
-    "fsspec": "fsspec~=2024.2.0",
-    "s3fs": "s3fs~=2024.2.0",
+    "fsspec": "fsspec==2022.11.0",
+    "s3fs": "s3fs>=0.4.2",
     "openpyxl": "openpyxl~=3.1.3",
     "pyarrow": "pyarrow~=14.0",
     "pydantic": "pydantic~=1.10",
@@ -181,7 +181,7 @@ plugins: Dict[str, Set[str]] = {
         # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
         # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
         # Leaving this marked to the automatic resolution to speed up installation.
-        "s3fs==0.4.2",
+        "s3fs>=0.4.2",
         *COMMONS["datalake"],
     },
     "deltalake": {"delta-spark<=2.3.0"},

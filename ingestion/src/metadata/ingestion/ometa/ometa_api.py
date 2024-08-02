@@ -18,7 +18,11 @@ import traceback
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel
-from requests.utils import quote
+# from requests.utils import quote
+from requests.compat import quote
+# from urllib.parse import (
+#     quote
+# )
 
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
