@@ -17,25 +17,23 @@ import traceback
 from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
-from requests.utils import quote
+from requests.compat import quote
 
-from metadata.generated.schema.api.data.createContainerProfile import (
-    CreateContainerProfileRequest,
-)
+from metadata.generated.schema.api.data.createTableProfile import CreateTableProfileRequest
 from metadata.generated.schema.api.tests.createCustomMetric import (
     CreateCustomMetricRequest,
 )
 from metadata.generated.schema.entity.data.table import (
-    TableData
+    TableData,
+    SystemProfile,
+    TableProfile,
+    ColumnProfile
 )
 from metadata.generated.schema.entity.data.container import (
-    TableProfile,
     TableProfilerConfig,
-    Container,
-    ContainerDataModel,
+    Container
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName, Uuid
-from metadata.generated.schema.type.usageRequest import UsageRequest
 from metadata.ingestion.ometa.client import REST
 from metadata.ingestion.ometa.models import EntityList
 from metadata.ingestion.ometa.utils import model_str
@@ -62,7 +60,7 @@ class OMetaContainerMixin:
         """
         PUT sample data for a table
 
-        :param table: Table Entity to update
+        :param container: Container Entity to update
         :param sample_data: Data to add
         """
         resp = None
@@ -127,13 +125,13 @@ class OMetaContainerMixin:
         return None
 
     def ingest_container_profile_data(
-        self, container: Container, profile_request: CreateContainerProfileRequest
+        self, container: Container, profile_request: CreateTableProfileRequest
     ) -> Container:
         """
         PUT profile data for a container
 
         :param container: Container Entity to update
-        :param table_profile: Profile data to add
+        :param profile_request : Profile data to add
         """
         resp = self.client.put(
             f"{self.get_suffix(Container)}/{container.id.__root__}/tableProfile",
@@ -190,10 +188,10 @@ class OMetaContainerMixin:
         container_id: Uuid,
         table_profiler_config: TableProfilerConfig,
     ):
-        """create or update profler config
+        """create or update profiler config
 
         Args:
-            table: table entity
+            container_id: container id
             table_profiler_config: profiler config object,
             path: tableProfilerConfig
 
@@ -208,19 +206,19 @@ class OMetaContainerMixin:
 
     def create_or_update_table_profiler_config(
         self, fqn: str, table_profiler_config: TableProfilerConfig
-    ) -> Optional[Table]:
+    ) -> Optional[Container]:
         """
         Update the profileSample property of a Table, given
         its FQN.
 
-        :param fqn: Table FQN
-        :param profile_sample: new profile sample to set
-        :return: Updated table
+        :param fqn: Container FQN
+        :param table_profiler_config : new profile sample to set
+        :return: Updated container
         """
-        table = self.get_by_name(entity=Table, fqn=fqn)
-        if table:
+        container = self.get_by_name(entity=Container, fqn=fqn)
+        if container:
             return self._create_or_update_table_profiler_config(
-                table.id,
+                container_id=container.id,
                 table_profiler_config=table_profiler_config,
             )
 
@@ -257,7 +255,7 @@ class OMetaContainerMixin:
         profile_type_url = profile_type.__name__[0].lower() + profile_type.__name__[1:]
 
         resp = self.client.get(
-            f"{self.get_suffix(Table)}/{fqn}/{profile_type_url}?limit={limit}{url_after}",
+            f"{self.get_suffix(Container)}/{fqn}/{profile_type_url}?limit={limit}{url_after}",
             data={"startTs": start_ts, "endTs": end_ts},
         )
 
@@ -280,28 +278,29 @@ class OMetaContainerMixin:
 
     def get_latest_table_profile(
         self, fqn: FullyQualifiedEntityName
-    ) -> Optional[Table]:
-        """Get the latest profile data for a table
+    ) -> Optional[Container]:
+        """Get the latest profile data for a container
 
         Args:
-            fqn (str): table fully qualified name
+            fqn (str): container fully qualified name
 
         Returns:
-            Optional[Table]: OM table object
+            Optional[Container]: OM container object
         """
-        return self._get(Table, f"{quote(model_str(fqn))}/tableProfile/latest")
+        return self._get(Container, f"{quote(model_str(fqn))}/tableProfile/latest")
 
     def create_or_update_custom_metric(
-        self, custom_metric: CreateCustomMetricRequest, table_id: str
-    ) -> Table:
+        self, custom_metric: CreateCustomMetricRequest, container_id: str
+    ) -> Container:
         """Create or update custom metric. If custom metric name matches an existing
         one then it will be updated.
 
         Args:
             custom_metric (CreateCustomMetricRequest): custom metric to be create or updated
+            container_id : container entity uuid
         """
         resp = self.client.put(
-            f"{self.get_suffix(Table)}/{table_id}/customMetric",
+            f"{self.get_suffix(Container)}/{container_id}/customMetric",
             data=custom_metric.json(),
         )
-        return Table(**resp)
+        return Container(**resp)

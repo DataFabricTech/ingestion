@@ -575,10 +575,8 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
         return Either(right=table)
 
     def write_container_profiler_response(self, record: ProfilerResponse) -> Either[Container]:
-        # return Either(left=StackTraceError(name="Container", error="Container profiler response not implemented"))
-
         container = self.metadata.ingest_container_profile_data(
-            table=record.table,
+            container=record.table,
             profile_request=record.profile,
         )
         logger.debug(
@@ -586,14 +584,14 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
         )
 
         if record.sample_data:
-            table_data = self.metadata.ingest_table_sample_data(
-                table=record.table, sample_data=record.sample_data
+            table_data = self.metadata.ingest_container_sample_data(
+                container=record.table, sample_data=record.sample_data
             )
             if not table_data:
                 self.status.failed(
                     StackTraceError(
-                        name=table.fullyQualifiedName.__root__,
-                        error="Error trying to ingest sample data for table",
+                        name=container.fullyQualifiedName.__root__,
+                        error="Error trying to ingest sample data for container",
                     )
                 )
             else:
@@ -602,13 +600,13 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                 )
 
         if record.column_tags:
-            patched = self.metadata.patch_column_tags(
-                table=record.table, column_tags=record.column_tags
+            patched = self.metadata.patch_container_column_tags(
+                container=record.table, column_tags=record.column_tags
             )
             if not patched:
                 self.status.failed(
                     StackTraceError(
-                        name=table.fullyQualifiedName.__root__,
+                        name=container.fullyQualifiedName.__root__,
                         error="Error patching tags for table",
                     )
                 )
@@ -617,49 +615,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                     f"Successfully patched tag {record.column_tags} for {record.table.fullyQualifiedName.__root__}"
                 )
 
-        return Either(right=table)
-
-        # container = self.metadata.ingest_container_profile_data(
-        #     container=record.table,
-        #     profile_request=record.profile,
-        # )
-        # logger.debug(
-        #     f"Successfully ingested profile metrics for {record.table.fullyQualifiedName.__root__}"
-        # )
-        #
-        # if record.sample_data:
-        #     table_data = self.metadata.ingest_table_sample_data(
-        #         table=record.table, sample_data=record.sample_data
-        #     )
-        #     if not table_data:
-        #         self.status.failed(
-        #             StackTraceError(
-        #                 name=table.fullyQualifiedName.__root__,
-        #                 error="Error trying to ingest sample data for table",
-        #             )
-        #         )
-        #     else:
-        #         logger.debug(
-        #             f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
-        #         )
-        #
-        # if record.column_tags:
-        #     patched = self.metadata.patch_column_tags(
-        #         table=record.table, column_tags=record.column_tags
-        #     )
-        #     if not patched:
-        #         self.status.failed(
-        #             StackTraceError(
-        #                 name=table.fullyQualifiedName.__root__,
-        #                 error="Error patching tags for table",
-        #             )
-        #         )
-        #     else:
-        #         logger.debug(
-        #             f"Successfully patched tag {record.column_tags} for {record.table.fullyQualifiedName.__root__}"
-        #         )
-        #
-        # return Either(right=table)
+        return Either(right=container)
 
     @_run_dispatch.register
     def write_executable_test_suite(
