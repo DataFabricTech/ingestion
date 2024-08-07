@@ -86,6 +86,8 @@ public abstract class PipelineServiceClient {
           "ingestion_task",
           PipelineType.PROFILER.toString(),
           "profiler_task",
+          PipelineType.STORAGE_PROFILER.toString(),
+          "profiler_task",
           PipelineType.LINEAGE.toString(),
           "lineage_task",
           PipelineType.DBT.toString(),

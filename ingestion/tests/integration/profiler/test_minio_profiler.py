@@ -24,7 +24,7 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.workflow.profiler import ProfilerWorkflow
 from tests.integration.integration_base import (
     PROFILER_INGESTION_CONFIG_TEMPLATE,
-    int_admin_ometa,
+    int_admin_ometa, TEST2,
 )
 
 logger = logging.getLogger(__name__)
@@ -80,15 +80,16 @@ class MinioProfiler:
     def test_profiler_workflow(self):
         """test a simple profiler workflow on a table in each service and validate the profile is created"""
         try:
-            config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
-                type=service_type,
-                service_name=service_name,
-                service_config=get_service_config(),
-                hostport=openmetadata_url,
-                Profiler="StorageProfiler",
-            )
+            # config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
+            #     type=service_type,
+            #     service_name=service_name,
+            #     service_config=get_service_config(),
+            #     hostport=openmetadata_url,
+            #     Profiler="StorageProfiler",
+            # )
+
             profiler_workflow = ProfilerWorkflow.create(
-                json.loads(config),
+                json.loads(TEST2),
             )
             profiler_workflow.execute()
             profiler_workflow.raise_from_status()

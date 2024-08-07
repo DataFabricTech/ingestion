@@ -67,6 +67,9 @@ RUN apt-get -qq update \
     postgresql-common \
     expat \
     bind9 \
+    make \
+    procps \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Required for Starting Ingestion Container in Docker Compose
@@ -75,6 +78,10 @@ COPY --chown=airflow:0 --chmod=775 ingestion/ingestion_dependency.sh /opt/airflo
 COPY --chown=airflow:0 ingestion/examples/sample_data /home/airflow/ingestion/examples/sample_data
 # Required for Airflow DAGs of Sample Data
 COPY --chown=airflow:0 ingestion/examples/airflow/dags /opt/airflow/dags
+
+RUN mkdir -p /home/airflow/workspace
+COPY --chown=airflow:0 . /home/airflow/workspace/datafabric
+
 USER airflow
 # Argument to provide for Ingestion Dependencies to install. Defaults to all
 ARG INGESTION_DEPENDENCY="all"
@@ -97,11 +104,15 @@ RUN if [[ $(uname -m) != "aarch64" ]]; \
  pip install "ibm-db-sa~=0.4"; \
  fi
 
+RUN pip install -v /home/airflow/workspace/datafabric/airflow-apis/
+RUN pip install -v /home/airflow/workspace/datafabric/ingestion[all]/
+RUN pip install -v /home/airflow/workspace/datafabric/ingestion/
+
 # bump python-daemon for https://github.com/apache/airflow/pull/29916
 RUN pip install "python-daemon>=3.0.0"
 
 # remove all airflow providers except for docker and cncf kubernetes
-RUN pip freeze | grep "apache-airflow-providers" | grep --invert-match -E "docker|http|cncf" | xargs pip uninstall -y
+#RUN pip freeze | grep "apache-airflow-providers" | grep --invert-match -E "docker|http|cncf" | xargs pip uninstall -y
 # Uninstalling psycopg2-binary and installing psycopg2 instead 
 # because the psycopg2-binary generates a architecture specific error 
 # while authenticating connection with the airflow, psycopg2 solves this error
@@ -111,3 +122,24 @@ RUN pip install psycopg2 mysqlclient==2.1.1
 RUN mkdir -p /opt/airflow/dag_generated_configs
 # This is required as it's responsible to create airflow.cfg file
 RUN airflow db init && rm -f /opt/airflow/airflow.db
+
+USER root
+
+RUN apt-get update && apt-get install -t bullseye-backports -y \
+    openssh-server default-jdk \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN echo "root:Ahqlwps12#$" | chpasswd && \
+    echo "airflow:Ahqlwps12#$" | chpasswd && \
+    mkdir -p /var/run/sshd /airflow/.ssh /root/.ssh && \
+    echo "airflow   ALL=(ALL)   ALL" >> /etc/sudoers && \
+    echo "alias vi=vim" >> /home/airflow/.bashrc
+
+RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#UseDNS no/UseDNS no/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#ClientAliveInterval 0/ClientAliveInterval 100/g' /etc/ssh/sshd_config
+RUN sed -ri 's/#ClientAliveCountMax 3/ClientAliveCountMax 3/g' /etc/ssh/sshd_config
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+USER airflow

@@ -20,19 +20,19 @@ from setuptools import setup
 # Add here versions required for multiple plugins
 VERSIONS = {
     "airflow": "apache-airflow==2.7.3",
-    "adlfs": "adlfs~=2022.11",
+    "adlfs": "adlfs==2023.12.0",
     "avro": "avro>=1.11.3,<1.12",
-    "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
+    "boto3": "boto3==1.29.4",  # No need to add botocore separately. It's a dep from boto3
     "geoalchemy2": "GeoAlchemy2~=0.12",
     "google-cloud-storage": "google-cloud-storage==1.43.0",
-    "gcsfs": "gcsfs~=2022.11",
+    "gcsfs": "gcsfs==2023.12.1",
     "great-expectations": "great-expectations>=0.18.0,<0.18.14",
     "grpc-tools": "grpcio-tools>=1.47.2",
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
     "pandas": "pandas~=2.0.0",
-    "fsspec": "fsspec==2022.11.0",
-    "s3fs": "s3fs>=0.4.2",
+    "fsspec": "fsspec==2023.12.1",
+    "s3fs": "s3fs==2023.12.1",
     "openpyxl": "openpyxl~=3.1.3",
     "pyarrow": "pyarrow~=14.0",
     "pydantic": "pydantic~=1.10",
@@ -181,7 +181,7 @@ plugins: Dict[str, Set[str]] = {
         # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
         # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
         # Leaving this marked to the automatic resolution to speed up installation.
-        "s3fs>=0.4.2",
+        "s3fs==2023.12.1",
         *COMMONS["datalake"],
     },
     "deltalake": {"delta-spark<=2.3.0"},
