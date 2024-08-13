@@ -23,9 +23,7 @@ from metadata.generated.schema.entity.automations.workflow import (
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.utils.ssl_manager import SSLManager, check_ssl_and_init
-from metadata.utils.logger import utils_logger
 
-logger = utils_logger()
 
 def execute(encrypted_automation_workflow: AutomationWorkflow) -> Any:
     """
@@ -70,7 +68,6 @@ def _(
 
     connection = get_connection(request.connection.config)
 
-    logger.info("automations execute")
     # Find the test_connection function in each <source>/connection.py file
     test_connection_fn = get_test_connection_fn(request.connection.config)
     test_connection_fn(

@@ -15,6 +15,8 @@ Factory class for creating profiler interface objects
 
 from typing import cast
 
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioConnection
+
 from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigQueryConnection,
 )
@@ -100,6 +102,7 @@ profilers = {
     BigQueryConnection.__name__: BigQueryProfilerInterface,
     SingleStoreConnection.__name__: SingleStoreProfilerInterface,
     DatalakeConnection.__name__: PandasProfilerInterface,
+    MinioConnection.__name__: PandasProfilerInterface,
     MariaDBConnection.__name__: MariaDBProfilerInterface,
     SnowflakeConnection.__name__: SnowflakeProfilerInterface,
     TrinoConnection.__name__: TrinoProfilerInterface,

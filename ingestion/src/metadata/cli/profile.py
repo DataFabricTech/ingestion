@@ -49,3 +49,6 @@ def run_profiler(config_path: Path) -> None:
     workflow.stop()
     print_status(workflow)
     workflow.raise_from_status()
+
+if __name__ == "__main__":
+    run_profiler(Path("/Users/jblim/Workspace/airflow-ingestion/ingestion/tests/cli_e2e/storage/minio/minio.yaml"))

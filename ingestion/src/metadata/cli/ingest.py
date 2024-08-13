@@ -12,6 +12,7 @@
 """
 Profiler utility for the metadata CLI
 """
+import logging
 import sys
 import traceback
 from pathlib import Path
@@ -26,7 +27,7 @@ from metadata.workflow.workflow_output_handler import (
 )
 
 logger = cli_logger()
-
+logger.setLevel(logging.DEBUG)
 
 def run_ingest(config_path: Path) -> None:
     """
@@ -49,3 +50,7 @@ def run_ingest(config_path: Path) -> None:
     workflow.stop()
     print_status(workflow)
     workflow.raise_from_status()
+
+if __name__ == "__main__":
+    run_ingest(Path("/Users/jblim/Workspace/airflow-ingestion/ingestion/tests/cli_e2e/storage/minio/minio.yaml"))
+

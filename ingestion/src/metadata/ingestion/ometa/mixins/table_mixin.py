@@ -17,7 +17,7 @@ import traceback
 from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
-from requests.utils import quote
+from requests.compat import quote
 
 from metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,

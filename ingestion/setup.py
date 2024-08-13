@@ -20,24 +20,27 @@ from setuptools import setup
 # Add here versions required for multiple plugins
 VERSIONS = {
     "airflow": "apache-airflow==2.7.3",
-    "adlfs": "adlfs~=2022.11",
+    "adlfs": "adlfs==2023.12.0",
     "avro": "avro>=1.11.3,<1.12",
-    "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
+    "boto3": "boto3==1.29.4",  # No need to add botocore separately. It's a dep from boto3
     "geoalchemy2": "GeoAlchemy2~=0.12",
     "google-cloud-storage": "google-cloud-storage==1.43.0",
-    "gcsfs": "gcsfs~=2022.11",
-    "great-expectations": "great-expectations~=0.18.0",
+    "gcsfs": "gcsfs==2023.12.1",
+    "great-expectations": "great-expectations>=0.18.0,<0.18.14",
     "grpc-tools": "grpcio-tools>=1.47.2",
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
     "pandas": "pandas~=2.0.0",
+    "fsspec": "fsspec==2023.12.1",
+    "s3fs": "s3fs==2023.12.1",
+    "openpyxl": "openpyxl~=3.1.3",
     "pyarrow": "pyarrow~=14.0",
     "pydantic": "pydantic~=1.10",
     "pydomo": "pydomo~=0.3",
     "pymysql": "pymysql>=1.0.2",
     "pyodbc": "pyodbc>=4.0.35,<5",
     "scikit-learn": "scikit-learn~=1.0",  # Python 3.7 only goes up to 1.0.2
-    "packaging": "packaging==22.0",
+    "packaging": "packaging==21.3",
     "azure-storage-blob": "azure-storage-blob~=12.14",
     "azure-identity": "azure-identity~=1.12",
     "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
@@ -110,11 +113,12 @@ base_requirements = {
     "PyYAML~=6.0",
     "requests>=2.23",
     "requests-aws4auth~=1.1",  # Only depends on requests as external package. Leaving as base.
-    "setuptools~=66.0.0",
     "sqlalchemy>=1.4.0,<2",
-    "collate-sqllineage~=1.3.0",
+    "collate-sqllineage~=1.4.0",
     "tabulate==0.9.0",
     "typing-inspect",
+    "packaging",  # For version parsing
+    "google-auth"
 }
 
 
@@ -177,7 +181,7 @@ plugins: Dict[str, Set[str]] = {
         # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
         # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
         # Leaving this marked to the automatic resolution to speed up installation.
-        "s3fs==0.4.2",
+        "s3fs==2023.12.1",
         *COMMONS["datalake"],
     },
     "deltalake": {"delta-spark<=2.3.0"},
@@ -271,6 +275,10 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["pandas"],
         "presidio-analyzer==2.2.32",
     },
+    # jblim : MinIO 저장소 데이터 가상화를 위해 추가
+    "fsspec": {VERSIONS["fsspec"]},
+    "s3fs": {VERSIONS["s3fs"]},
+    "openpyxl": {VERSIONS["openpyxl"]},
 }
 
 dev = {
@@ -322,6 +330,9 @@ test = {
     "testcontainers==3.7.1;python_version<'3.9'",
     "testcontainers==4.4.0;python_version>='3.9'",
     "minio==7.2.5",
+    *plugins["mlflow"],
+    *plugins["datalake-s3"],
+    "requests==2.31.0",
 }
 
 e2e_test = {

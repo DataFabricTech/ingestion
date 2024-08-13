@@ -106,7 +106,14 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         )
         for index, df in enumerate(self.complex_dataframe_sample):
             if index == 0:
-                for col in self.table.columns:
+                columns: List[Column]
+                # JBLIM : For Container Data Type
+                if hasattr(self.table, "dataModel"):
+                    columns = self.table.dataModel.columns
+                else:
+                    columns = self.table.columns
+
+                for col in columns:
                     coltype = next(
                         (
                             key
@@ -413,7 +420,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
 
     @property
     def table(self):
-        """OM Table entity"""
+        """OM Table/Container entity"""
         return self.table_entity
 
     def get_columns(self) -> List[Optional[SQALikeColumn]]:

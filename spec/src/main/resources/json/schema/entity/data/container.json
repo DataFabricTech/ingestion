@@ -38,17 +38,25 @@
       "description": "This schema defines the file formats for the object/files within a container.",
       "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
       "type": "string",
-      "enum": ["zip", "gz", "zstd", "csv", "tsv", "json", "parquet", "avro"],
+      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro"],
       "javaEnums": [
         {"name": "Zip"},
         {"name": "Gz"},
         {"name": "Zstd"},
         {"name": "Csv"},
         {"name": "Tsv"},
+        {"name": "Xls"},
+        {"name": "Xlsx"},
         {"name": "Json"},
         {"name": "Parquet"},
         {"name": "Avro"}
       ]
+    },
+    "tableProfilerConfig": {
+      "$ref": "../data/table.json#/definitions/tableProfilerConfig"
+    },
+    "tableProfile": {
+      "$ref": "../data/table.json#/definitions/tableProfile"
     }
   },
   "properties": {
@@ -109,6 +117,27 @@
       "$ref": "#/definitions/containerDataModel",
       "default": null
     },
+    "tableProfilerConfig": {
+      "description": "Table Profiler Config to include or exclude columns from profiling.",
+      "$ref": "#/definitions/tableProfilerConfig"
+    },
+    "customMetrics": {
+      "description": "List of Custom Metrics registered for a table.",
+      "type": "array",
+      "items": {
+        "$ref": "../../tests/customMetric.json"
+      },
+      "default": null
+    },
+    "profile": {
+      "description": "Latest Data profile for a table data.",
+      "$ref": "#/definitions/tableProfile",
+      "default": null
+    },
+    "testSuite": {
+      "description": "Executable test suite associated with this table",
+      "$ref": "../../type/entityReference.json"
+    },
     "prefix": {
       "description": "Optional prefix path defined for this container",
       "type": "string",
@@ -146,6 +175,15 @@
       "items": {
         "$ref": "../../type/tagLabel.json"
       },
+      "default": null
+    },
+    "sampleData": {
+      "description": "Sample data for a table.",
+      "oneOf": [
+        {
+          "$ref": "../data/table.json#/definitions/tableData"
+        }
+      ],
       "default": null
     },
     "changeDescription": {

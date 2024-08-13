@@ -56,6 +56,7 @@ class TestSQAProfiler(TestCase):
                     service_name=type(container).__name__,
                     service_config=container_config,
                     source_config=source_config,
+                    hostport="http://localhost:8585/api"
                 )
                 ingestion_workflow = MetadataWorkflow.create(
                     json.loads(config),
@@ -97,7 +98,9 @@ class TestSQAProfiler(TestCase):
                 config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
                     type=container.connector_type,
                     service_config=container.get_config(),
+                    Profiler="Profiler",
                     service_name=type(container).__name__,
+                    hostport="http://localhost:8585/api",
                 )
                 profiler_workflow = ProfilerWorkflow.create(
                     json.loads(config),
@@ -147,6 +150,7 @@ class TestSQAProfiler(TestCase):
                 config = PROFILER_INGESTION_CONFIG_TEMPLATE.format(
                     type=container.connector_type,
                     service_config=container.get_config(),
+                    Profiler="Profiler",
                     service_name=type(container).__name__,
                 )
                 profiler_workflow = ProfilerWorkflow.create(

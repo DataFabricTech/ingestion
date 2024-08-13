@@ -236,14 +236,24 @@ class Profiler(Generic[TMetric]):
             return self.profiler_interface.table_entity.customMetrics or None
 
         # if we have a column we'll get the custom metrics for this column
-        column = next(
-            (
-                clmn
-                for clmn in self.profiler_interface.table_entity.columns
-                if clmn.name.__root__ == column_name
-            ),
-            None,
-        )
+        if hasattr(self.profiler_interface.table_entity, "dataModel"):
+            column = next(
+                (
+                    clmn
+                    for clmn in self.profiler_interface.table_entity.dataModel.columns
+                    if clmn.name.__root__ == column_name
+                ),
+                None,
+            )
+        else:
+            column = next(
+                (
+                    clmn
+                    for clmn in self.profiler_interface.table_entity.columns
+                    if clmn.name.__root__ == column_name
+                ),
+                None,
+            )
         if column:
             return column.customMetrics or None
         return None

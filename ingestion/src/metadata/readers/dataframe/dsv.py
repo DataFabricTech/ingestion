@@ -28,7 +28,11 @@ from metadata.generated.schema.entity.services.connections.database.datalake.s3C
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
+from metadata.generated.schema.security.credentials.minioCredentials import (
+    MinioCredentials
+)
 from metadata.readers.dataframe.base import DataFrameReader, FileFormatException
+from metadata.readers.dataframe.common import PANDAS_ENCODINGS
 from metadata.readers.dataframe.models import DatalakeColumnWrapper
 from metadata.readers.file.adls import AZURE_PATH, return_azure_storage_options
 from metadata.readers.models import ConfigSource
@@ -45,34 +49,36 @@ class DSVDataFrameReader(DataFrameReader):
     """
 
     def __init__(
-        self,
-        config_source: ConfigSource,
-        client: Optional[Any],
-        separator: str = CSV_SEPARATOR,
+            self,
+            config_source: ConfigSource,
+            client: Optional[Any],
+            separator: str = CSV_SEPARATOR,
     ):
         self.separator = separator
         super().__init__(config_source, client)
 
     def read_from_pandas(
-        self, path: str, storage_options: Optional[Dict[str, Any]] = None
+            self, path: str, storage_options: Optional[Dict[str, Any]] = None, **kwargs
     ) -> DatalakeColumnWrapper:
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
         chunk_list = []
         with pd.read_csv(
-            path,
-            sep=self.separator,
-            chunksize=CHUNKSIZE,
-            storage_options=storage_options,
+                path,
+                sep=self.separator,
+                chunksize=CHUNKSIZE,
+                storage_options=storage_options,
+                **kwargs
         ) as reader:
             for chunks in reader:
                 chunk_list.append(chunks)
 
+        # columns = [Column(name=col) for col in chunk_list[0].columns]
         return DatalakeColumnWrapper(dataframes=chunk_list)
 
     @singledispatchmethod
     def _read_dsv_dispatch(
-        self, config_source: ConfigSource, key: str, bucket_name: str
+            self, config_source: ConfigSource, key: str, bucket_name: str
     ) -> DatalakeColumnWrapper:
         raise FileFormatException(config_source=config_source, file_name=key)
 
@@ -90,6 +96,27 @@ class DSVDataFrameReader(DataFrameReader):
         return self.read_from_pandas(path=path)
 
     @_read_dsv_dispatch.register
+    def _(self, _: MinioCredentials, key: str, bucket_name: str) -> DatalakeColumnWrapper:
+        import urllib.parse  # pylint: disable=import-outside-toplevel
+        key = urllib.parse.unquote_plus(key)
+        storage_options = {
+            "key": f"{self.config_source.accessKeyId}",
+            "secret": f"{self.config_source.secretKey}",
+            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
+
+        for encoding in PANDAS_ENCODINGS:
+            try:
+                return self.read_from_pandas(path=f"s3://{bucket_name}/{key}",
+                                             storage_options=storage_options, encoding=encoding)
+            except UnicodeDecodeError as err:
+                continue
+            except Exception as err:
+                raise err
+
+        # res = self.client.head_object(Bucket=bucket_name, Key=key)
+        # data.raw_data = res
+
+    @_read_dsv_dispatch.register
     def _(self, _: AzureConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:
         storage_options = return_azure_storage_options(self.config_source)
         path = AZURE_PATH.format(
@@ -104,14 +131,13 @@ class DSVDataFrameReader(DataFrameReader):
 
     @_read_dsv_dispatch.register
     def _(  # pylint: disable=unused-argument
-        self, _: LocalConfig, key: str, bucket_name: str
+            self, _: LocalConfig, key: str, bucket_name: str
     ) -> DatalakeColumnWrapper:
         return self.read_from_pandas(path=key)
 
     def _read(self, *, key: str, bucket_name: str, **__) -> DatalakeColumnWrapper:
         return self._read_dsv_dispatch(
-            self.config_source, key=key, bucket_name=bucket_name
-        )
+            self.config_source, key=key, bucket_name=bucket_name)
 
 
 def get_dsv_reader_by_separator(separator: str) -> functools.partial:

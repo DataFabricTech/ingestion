@@ -18,8 +18,10 @@ from metadata.ingestion.api.steps import Processor, Sink
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.pii.processor import PIIProcessor
 from metadata.profiler.processor.processor import ProfilerProcessor
+from metadata.profiler.processor.minio_processor import MinioProfilerProcessor
 from metadata.profiler.source.metadata import OpenMetadataSource
 from metadata.profiler.source.metadata_ext import OpenMetadataSourceExt
+from metadata.profiler.source.metadata_minio import MetadataSourceForMinio
 from metadata.utils.importer import import_sink_class
 from metadata.utils.logger import profiler_logger
 from metadata.workflow.ingestion import IngestionWorkflow
@@ -42,6 +44,9 @@ class ProfilerWorkflow(IngestionWorkflow):
         self.test_connection()
 
     def _get_source_class(self):
+        # jblim : ProfilerType 을 이용해 MinIO 데이터를 처리할 수 있는 SourceClass 를 가져올 수 있도록 함.
+        if self.config.source.sourceConfig.config.type.value == "StorageProfiler":
+            return MetadataSourceForMinio
         if self.config.source.serviceName:
             return OpenMetadataSource
         logger.info(
@@ -77,6 +82,8 @@ class ProfilerWorkflow(IngestionWorkflow):
         return sink
 
     def _get_profiler_processor(self) -> Processor:
+        if self.config.source.sourceConfig.config.type.value == "StorageProfiler":
+            return MinioProfilerProcessor.create(self.config.dict(), self.metadata)
         return ProfilerProcessor.create(self.config.dict(), self.metadata)
 
     def _get_pii_processor(self) -> Processor:

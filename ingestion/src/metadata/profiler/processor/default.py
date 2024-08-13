@@ -14,6 +14,8 @@ Default simple profiler to use
 """
 from typing import List, Optional
 
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioType
+from metadata.generated.schema.entity.services.storageService import StorageService
 from sqlalchemy.orm import DeclarativeMeta
 
 from metadata.generated.schema.configuration.profilerConfiguration import (
@@ -29,9 +31,9 @@ from metadata.profiler.processor.core import Profiler
 
 
 def get_default_metrics(
-    table: DeclarativeMeta,
-    ometa_client: Optional[OpenMetadata] = None,
-    db_service: Optional[DatabaseService] = None,
+        table: DeclarativeMeta,
+        ometa_client: Optional[OpenMetadata] = None,
+        db_service: Optional[DatabaseService] = None,
 ) -> List[Metric]:
     return [
         # Table Metrics
@@ -64,6 +66,41 @@ def get_default_metrics(
     ]
 
 
+def get_default_metrics_for_storage_service(
+        table: DeclarativeMeta,
+        ometa_client: Optional[OpenMetadata] = None,
+        storage_service: Optional[StorageService] = None,
+) -> List[Metric]:
+    return [
+        # Table Data Metrics
+        Metrics.ROW_COUNT.value,
+        add_props(table=table)(Metrics.COLUMN_COUNT.value),
+        add_props(table=table)(Metrics.COLUMN_NAMES.value),
+        add_props(table=table, ometa_client=ometa_client, storage_service=storage_service)(
+            Metrics.SYSTEM.value
+        ),
+        # Column Metrics
+        Metrics.MEDIAN.value,
+        Metrics.FIRST_QUARTILE.value,
+        Metrics.THIRD_QUARTILE.value,
+        Metrics.MEAN.value,
+        Metrics.COUNT.value,
+        Metrics.DISTINCT_COUNT.value,
+        Metrics.DISTINCT_RATIO.value,
+        Metrics.MIN.value,
+        Metrics.MAX.value,
+        Metrics.NULL_COUNT.value,
+        Metrics.NULL_RATIO.value,
+        Metrics.STDDEV.value,
+        Metrics.SUM.value,
+        Metrics.UNIQUE_COUNT.value,
+        Metrics.UNIQUE_RATIO.value,
+        Metrics.IQR.value,
+        Metrics.HISTOGRAM.value,
+        Metrics.NON_PARAMETRIC_SKEW.value,
+    ]
+
+
 class DefaultProfiler(Profiler):
     """
     Pre-built profiler with a simple
@@ -72,15 +109,21 @@ class DefaultProfiler(Profiler):
     """
 
     def __init__(
-        self,
-        profiler_interface: ProfilerInterface,
-        include_columns: Optional[List[ColumnProfilerConfig]] = None,
-        exclude_columns: Optional[List[str]] = None,
-        global_profiler_configuration: Optional[ProfilerConfiguration] = None,
+            self,
+            profiler_interface: ProfilerInterface,
+            include_columns: Optional[List[ColumnProfilerConfig]] = None,
+            exclude_columns: Optional[List[str]] = None,
+            global_profiler_configuration: Optional[ProfilerConfiguration] = None,
     ):
-        _metrics = get_default_metrics(
-            table=profiler_interface.table, ometa_client=profiler_interface.ometa_client
-        )
+        if profiler_interface.service_connection_config.type == MinioType.MinIO:
+            _metrics = get_default_metrics_for_storage_service(
+                table=profiler_interface.table,
+                ometa_client=profiler_interface.ometa_client,
+            )
+        else:
+            _metrics = get_default_metrics(
+                table=profiler_interface.table, ometa_client=profiler_interface.ometa_client
+            )
 
         super().__init__(
             *_metrics,

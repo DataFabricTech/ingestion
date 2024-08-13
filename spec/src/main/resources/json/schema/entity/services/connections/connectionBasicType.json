@@ -40,8 +40,8 @@
       "type": "boolean",
       "default": true
     },
-    "supportsDDL": {
-      "description": "Supports DDL",
+    "supportsStorageProfiler": {
+      "description": "Supports Storage Profiler",
       "type": "boolean",
       "default": true
     },
@@ -103,6 +103,10 @@
             {
               "title": "AWS S3 Storage Config",
               "$ref": "../../../security/credentials/awsCredentials.json"
+            },
+            {
+              "title": "Minio Storage Config",
+              "$ref": "../../../security/credentials/minioCredentials.json"
             },
             {
               "title": "OpenMetadata Storage",

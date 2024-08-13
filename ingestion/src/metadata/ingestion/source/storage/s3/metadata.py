@@ -13,7 +13,6 @@ import json
 import secrets
 import traceback
 from datetime import datetime, timedelta
-from enum import Enum
 from typing import Dict, Iterable, List, Optional
 
 from pydantic import ValidationError
@@ -51,6 +50,7 @@ from metadata.ingestion.source.storage.s3.models import (
 from metadata.ingestion.source.storage.storage_service import (
     KEY_SEPARATOR,
     OPENMETADATA_TEMPLATE_FILE_NAME,
+    Metric,
     StorageServiceSource,
 )
 from metadata.readers.file.base import ReadException
@@ -62,11 +62,6 @@ from metadata.utils.logger import ingestion_logger
 logger = ingestion_logger()
 
 S3_CLIENT_ROOT_RESPONSE = "Contents"
-
-
-class S3Metric(Enum):
-    NUMBER_OF_OBJECTS = "NumberOfObjects"
-    BUCKET_SIZE_BYTES = "BucketSizeBytes"
 
 
 class S3Source(StorageServiceSource):
@@ -84,7 +79,7 @@ class S3Source(StorageServiceSource):
 
     @classmethod
     def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
+            cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
     ):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: S3Connection = config.serviceConnection.__root__.config
@@ -158,7 +153,7 @@ class S3Source(StorageServiceSource):
                 )
 
     def yield_create_container_requests(
-        self, container_details: S3ContainerDetails
+            self, container_details: S3ContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
         container_request = CreateContainerRequest(
             name=container_details.name,
@@ -176,10 +171,10 @@ class S3Source(StorageServiceSource):
         self.register_record(container_request=container_request)
 
     def _generate_container_details(
-        self,
-        bucket_response: S3BucketResponse,
-        metadata_entry: MetadataEntry,
-        parent: Optional[EntityReference] = None,
+            self,
+            bucket_response: S3BucketResponse,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
     ) -> Optional[S3ContainerDetails]:
         bucket_name = bucket_response.name
         sample_key = self._get_sample_file_path(
@@ -207,10 +202,10 @@ class S3Source(StorageServiceSource):
                     if bucket_response.creation_date
                     else None,
                     number_of_objects=self._fetch_metric(
-                        bucket_name=bucket_name, metric=S3Metric.NUMBER_OF_OBJECTS
+                        bucket_name=bucket_name, metric=Metric.NUMBER_OF_OBJECTS
                     ),
                     size=self._fetch_metric(
-                        bucket_name=bucket_name, metric=S3Metric.BUCKET_SIZE_BYTES
+                        bucket_name=bucket_name, metric=Metric.BUCKET_SIZE_BYTES
                     ),
                     file_formats=[container.FileFormat(metadata_entry.structureFormat)],
                     data_model=ContainerDataModel(
@@ -226,10 +221,10 @@ class S3Source(StorageServiceSource):
         return None
 
     def _generate_structured_containers(
-        self,
-        bucket_response: S3BucketResponse,
-        entries: List[MetadataEntry],
-        parent: Optional[EntityReference] = None,
+            self,
+            bucket_response: S3BucketResponse,
+            entries: List[MetadataEntry],
+            parent: Optional[EntityReference] = None,
     ) -> List[S3ContainerDetails]:
         result: List[S3ContainerDetails] = []
         for metadata_entry in entries:
@@ -260,8 +255,8 @@ class S3Source(StorageServiceSource):
             # No pagination required, as there is a hard 1000 limit on nr of buckets per aws account
             for bucket in self.s3_client.list_buckets().get("Buckets") or []:
                 if filter_by_container(
-                    self.source_config.containerFilterPattern,
-                    container_name=bucket["Name"],
+                        self.source_config.containerFilterPattern,
+                        container_name=bucket["Name"],
                 ):
                     self.status.filter(bucket["Name"], "Bucket Filtered Out")
                 else:
@@ -271,7 +266,7 @@ class S3Source(StorageServiceSource):
             logger.error(f"Failed to fetch buckets list - {err}")
         return results
 
-    def _fetch_metric(self, bucket_name: str, metric: S3Metric) -> float:
+    def _fetch_metric(self, bucket_name: str, metric: Metric) -> float:
         try:
             raw_result = self.cloudwatch_client.get_metric_data(
                 MetricDataQueries=[
@@ -287,7 +282,7 @@ class S3Source(StorageServiceSource):
                                         "Name": "StorageType",
                                         # StandardStorage-only support for BucketSizeBytes for now
                                         "Value": "StandardStorage"
-                                        if metric == S3Metric.BUCKET_SIZE_BYTES
+                                        if metric == Metric.BUCKET_SIZE_BYTES
                                         else "AllStorageTypes",
                                     },
                                 ],
@@ -295,7 +290,7 @@ class S3Source(StorageServiceSource):
                             "Period": 60,
                             "Stat": "Average",
                             "Unit": "Bytes"
-                            if metric == S3Metric.BUCKET_SIZE_BYTES
+                            if metric == Metric.BUCKET_SIZE_BYTES
                             else "Count",
                         },
                     },
@@ -317,7 +312,7 @@ class S3Source(StorageServiceSource):
         return 0
 
     def _generate_unstructured_container(
-        self, bucket_response: S3BucketResponse
+            self, bucket_response: S3BucketResponse
     ) -> S3ContainerDetails:
         return S3ContainerDetails(
             name=bucket_response.name,
@@ -326,10 +321,10 @@ class S3Source(StorageServiceSource):
             if bucket_response.creation_date
             else None,
             number_of_objects=self._fetch_metric(
-                bucket_name=bucket_response.name, metric=S3Metric.NUMBER_OF_OBJECTS
+                bucket_name=bucket_response.name, metric=Metric.NUMBER_OF_OBJECTS
             ),
             size=self._fetch_metric(
-                bucket_name=bucket_response.name, metric=S3Metric.BUCKET_SIZE_BYTES
+                bucket_name=bucket_response.name, metric=Metric.BUCKET_SIZE_BYTES
             ),
             file_formats=[],
             data_model=None,
@@ -355,7 +350,7 @@ class S3Source(StorageServiceSource):
         return full_path
 
     def _get_sample_file_path(
-        self, bucket_name: str, metadata_entry: MetadataEntry
+            self, bucket_name: str, metadata_entry: MetadataEntry
     ) -> Optional[str]:
         """
         Given a bucket and a metadata entry, returns the full path key to a file which can then be used to infer schema

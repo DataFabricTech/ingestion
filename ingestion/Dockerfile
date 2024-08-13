@@ -84,10 +84,11 @@ ARG INGESTION_DEPENDENCY="all"
 ENV PIP_NO_CACHE_DIR=1
 # Make pip silent
 ENV PIP_QUIET=1
-ARG RI_VERSION="1.4.0.0rc2"
+ARG RI_VERSION="1.4.0.1"
 RUN pip install --upgrade pip
-RUN pip install "openmetadata-managed-apis~=${RI_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.3/constraints-3.10.txt"
-RUN pip install "openmetadata-ingestion[${INGESTION_DEPENDENCY}]~=${RI_VERSION}"
+
+#RUN pip install "openmetadata-managed-apis~=${RI_VERSION}" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.7.3/constraints-3.10.txt"
+#RUN pip install "openmetadata-ingestion[${INGESTION_DEPENDENCY}]~=${RI_VERSION}"
 
 # Temporary workaround for https://github.com/open-metadata/OpenMetadata/issues/9593
 RUN echo "Image built for $(uname -m)"
@@ -98,6 +99,7 @@ RUN if [[ $(uname -m) != "aarch64" ]]; \
 
 # bump python-daemon for https://github.com/apache/airflow/pull/29916
 RUN pip install "python-daemon>=3.0.0"
+
 # remove all airflow providers except for docker and cncf kubernetes
 RUN pip freeze | grep "apache-airflow-providers" | grep --invert-match -E "docker|http|cncf" | xargs pip uninstall -y
 # Uninstalling psycopg2-binary and installing psycopg2 instead 

@@ -1,0 +1,14 @@
+.git/**
+.idea/**
+airflow-apis/.idea/**
+airflow-apis/build/**
+
+ingestion/.idea/**
+ingestion/.pytest_cache/**
+ingestion/build/**
+ingestion/dist/**
+ingestion/venv/**
+
+logs/**
+
+.DS_Store

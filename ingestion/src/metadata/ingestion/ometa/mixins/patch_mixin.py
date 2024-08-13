@@ -24,6 +24,7 @@ from metadata.generated.schema.entity.automations.workflow import (
     Workflow as AutomationWorkflow,
 )
 from metadata.generated.schema.entity.automations.workflow import WorkflowStatus
+from metadata.generated.schema.entity.data.container import Container
 from metadata.generated.schema.entity.data.table import Column, Table, TableConstraint
 from metadata.generated.schema.entity.domains.domain import Domain
 from metadata.generated.schema.entity.services.connections.testConnectionResult import (
@@ -395,6 +396,47 @@ class OMetaPatchMixin(OMetaPatchMixinBase):
             logger.debug(
                 f"Empty PATCH result. Either everything is up to date or the "
                 f"column names are  not in [{table.fullyQualifiedName.__root__}]"
+            )
+
+        return patched_entity
+
+    def patch_container_column_tags(
+            self,
+            container: Container,
+            column_tags: List[ColumnTag],
+            operation: Union[
+                PatchOperation.ADD, PatchOperation.REMOVE
+            ] = PatchOperation.ADD,
+    ) -> Optional[T]:
+        """Given an Entity ID, JSON PATCH the tag of the column
+
+        Args
+            entity_id: ID
+            tag_label: TagLabel to add or remove
+            column_name: column to update
+            operation: Patch Operation to add or remove
+        Returns
+            Updated Entity
+        """
+        instance: Optional[Container] = self._fetch_entity_if_exists(
+            entity=Container, entity_id=container.id, fields=["dataModel"]
+        )
+
+        if not instance:
+            return None
+
+        # Make sure we run the patch against the last updated data from the API
+        container.dataModel.columns = instance.dataModel.columns
+
+        destination = container.copy(deep=True)
+        for column_tag in column_tags or []:
+            update_column_tags(destination.dataModel.columns, column_tag, operation)
+
+        patched_entity = self.patch(entity=Container, source=container, destination=destination)
+        if patched_entity is None:
+            logger.debug(
+                f"Empty PATCH result. Either everything is up to date or the "
+                f"column names are  not in [{container.fullyQualifiedName.__root__}]"
             )
 
         return patched_entity
