@@ -58,7 +58,7 @@ from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
 from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.logger import profiler_logger
 
-from ingestion.src.metadata.generated.schema.entity.services.storageService import StorageServiceType
+from metadata.generated.schema.entity.services.storageService import StorageServiceType
 
 logger = profiler_logger()
 
