@@ -58,6 +58,8 @@ from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
 from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.logger import profiler_logger
 
+from ingestion.src.metadata.generated.schema.entity.services.storageService import StorageServiceType
+
 logger = profiler_logger()
 
 
@@ -236,7 +238,7 @@ class Profiler(Generic[TMetric]):
             return self.profiler_interface.table_entity.customMetrics or None
 
         # if we have a column we'll get the custom metrics for this column
-        if hasattr(self.profiler_interface.table_entity, "dataModel"):
+        if self.profiler_interface.table_entity.serviceType.value == StorageServiceType.MinIO.value:
             column = next(
                 (
                     clmn
