@@ -80,7 +80,7 @@ run_python_tests:  ## Run all Python tests with coverage
 # 		-Dproject.settings=sonar-project.properties
 
 .PHONY: run_apis_tests
-run_apis_tests:  ## Run the openmetadata airflow apis tests
+run_apis_tests:  ## Run the airflow apis tests
 	coverage erase
 	coverage run --rcfile $(ROOT_DIR)/airflow-apis/pyproject.toml -a --branch -m pytest -c $(INGESTION_DIR)/pyproject.toml --junitxml=$(ROOT_DIR)/airflow-apis/junit/test-results.xml $(ROOT_DIR)/airflow-apis/tests
 	coverage report --rcfile $(ROOT_DIR)/airflow-apis/pyproject.toml

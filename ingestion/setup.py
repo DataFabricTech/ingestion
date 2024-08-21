@@ -227,7 +227,7 @@ plugins: Dict[str, Set[str]] = {
         "gitpython~=3.1.34",
         VERSIONS["giturlparse"],
     },
-    "mlflow": {"mlflow-skinny>=2.3.0", "alembic~=1.10.2"},
+    "mlflow": {"mlflow-skinny==2.14.3", "alembic~=1.10.2"},
     "mongo": {VERSIONS["mongo"], VERSIONS["pandas"]},
     "couchbase": {"couchbase~=4.1"},
     "mssql": {"sqlalchemy-pytds~=0.3"},
@@ -284,7 +284,7 @@ plugins: Dict[str, Set[str]] = {
 dev = {
     "black==22.3.0",
     "datamodel-code-generator==0.24.2",
-    "boto3-stubs[essential]",
+    "boto3-stubs[essential]==1.35.1",
     "isort",
     "pre-commit",
     "pycln",

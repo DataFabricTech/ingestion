@@ -1,4 +1,4 @@
-# OpenMetadata Ingestion Docker Operator
+# Metadata Ingestion Docker Operator
 
 Utilities required to handle metadata ingestion in Airflow using `DockerOperator`.
 
