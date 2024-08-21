@@ -189,6 +189,9 @@ class ProfilerSource(ProfilerSourceInterface):
 
         return config_copy
 
+    def create_storage_profiler_interface(self, entity, config, profiler_config, storage_service) -> ProfilerInterface:
+        pass
+
     def create_profiler_interface(
         self,
         entity: Table,
