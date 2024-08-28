@@ -27,7 +27,7 @@ def render_query_header(ometa_version: str) -> str:
     Render the query header for OpenMetadata Queries
     """
 
-    header_obj = {"app": "OpenMetadata", "version": ometa_version}
+    header_obj = {"app": "DataFabric", "version": ometa_version}
     return f"/* {json.dumps(header_obj)} */"
 
 

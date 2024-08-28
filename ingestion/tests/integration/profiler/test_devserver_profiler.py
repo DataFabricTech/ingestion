@@ -41,41 +41,41 @@ class TestDevServerProfiler:
 
     def setup(self):
         self.metadata = int_admin_ometa(url=self.openmetadata_url)
-        try:
-            config = METADATA_INGESTION_CONFIG_TEMPLATE.format(
-                type=self.service_type,
-                service_name=self.service_name,
-                service_config=json.dumps(
-                    {
-                        "authType": {"password": "fabric12#$"},
-                        "hostPort": f"192.168.106.12:5432",
-                        "username": "postgres",
-                        "type": "Postgres",
-                        "database": "datafabric",
-                    }
-                ),
-                source_config=json.dumps(
-                    {
-                        "schemaFilterPattern": {
-                            "includes": ["public"],
-                        }
-                    },
-                ),
-                hostport=self.openmetadata_url,
-            )
-            ingestion_workflow = MetadataWorkflow.create(
-                json.loads(config),
-            )
-            ingestion_workflow.execute()
-            ingestion_workflow.raise_from_status()
-            ingestion_workflow.stop()
-        except Exception as e:
-            raise e
+        # try:
+        #     config = METADATA_INGESTION_CONFIG_TEMPLATE.format(
+        #         type=self.service_type,
+        #         service_name=self.service_name,
+        #         service_config=json.dumps(
+        #             {
+        #                 "authType": {"password": "fabric12#$"},
+        #                 "hostPort": f"192.168.106.12:5432",
+        #                 "username": "postgres",
+        #                 "type": "Postgres",
+        #                 "database": "datafabric",
+        #             }
+        #         ),
+        #         source_config=json.dumps(
+        #             {
+        #                 "schemaFilterPattern": {
+        #                     "includes": ["public"],
+        #                 }
+        #             },
+        #         ),
+        #         hostport=self.openmetadata_url,
+        #     )
+        #     ingestion_workflow = MetadataWorkflow.create(
+        #         json.loads(config),
+        #     )
+        #     ingestion_workflow.execute()
+        #     ingestion_workflow.raise_from_status()
+        #     ingestion_workflow.stop()
+        # except Exception as e:
+        #     raise e
 
     def tear_down(self):
-        db_entities = self.metadata.get_by_name(DatabaseService, self.service_name)
-        for db_entity in db_entities:
-            self.metadata.delete(DatabaseService, db_entity.id, True, True)
+        # db_entities = self.metadata.get_by_name(DatabaseService, self.service_name)
+        # for db_entity in db_entities:
+        #     self.metadata.delete(DatabaseService, db_entity.id, True, True)
         self._clean_up_settings()
 
     def _clean_up_settings(self):

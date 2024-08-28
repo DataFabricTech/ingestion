@@ -14,6 +14,7 @@ Workflow definition for the profiler
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
+from metadata.glossary.processor import GlossaryProcessorForDatabaseService
 from metadata.ingestion.api.steps import Processor, Sink
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.pii.processor import PIIProcessor
@@ -62,8 +63,9 @@ class ProfilerWorkflow(IngestionWorkflow):
 
         profiler_processor = self._get_profiler_processor()
         pii_processor = self._get_pii_processor()
+        glossary_processor = self._get_glossary_processor()
         sink = self._get_sink()
-        self.steps = (profiler_processor, pii_processor, sink)
+        self.steps = (profiler_processor, pii_processor, glossary_processor, sink)
 
     def test_connection(self):
         service_config = self.config.source.serviceConnection.__root__.config
@@ -88,3 +90,6 @@ class ProfilerWorkflow(IngestionWorkflow):
 
     def _get_pii_processor(self) -> Processor:
         return PIIProcessor.create(self.config.dict(), self.metadata)
+
+    def _get_glossary_processor(self) -> Processor:
+        return GlossaryProcessorForDatabaseService.create(self.config.dict(), self.metadata)
