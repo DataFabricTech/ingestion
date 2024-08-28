@@ -19,7 +19,7 @@ import traceback
 from typing import Generic, Iterable, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
-from requests.utils import quote
+from requests.compat import quote
 
 from metadata.generated.schema.entity.data.container import Container
 from metadata.generated.schema.entity.data.query import Query

@@ -73,7 +73,7 @@ class OMetaServerMixin:
         client_version = get_client_version()
 
         logger.info(
-            f"OpenMetadata client running with Server version [{server_version}] and Client version [{client_version}]"
+            f"DataFabric client running with Server version [{server_version}] and Client version [{client_version}]"
         )
 
         if not match_versions(server_version, client_version):

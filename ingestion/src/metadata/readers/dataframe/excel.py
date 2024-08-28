@@ -92,15 +92,12 @@ class ExcelDataFrameReader(DataFrameReader):
             "secret": f"{self.config_source.secretKey}",
             "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
 
-        for encoding in PANDAS_ENCODINGS:
-            try:
-                return self.read_from_pandas(path=f"s3://{bucket_name}/{key}",
-                                             storage_options=storage_options)
-            except UnicodeDecodeError as err:
-                continue
-            except Exception as err:
-                print(f"Error: {err} - traceback: {err.__traceback__ }")
-                raise err
+        ## Excel 파일은 encoding 옵션이 필요하지 않음.
+        try:
+            return self.read_from_pandas(path=f"s3://{bucket_name}/{key}", storage_options=storage_options)
+        except Exception as err:
+            print(f"Error: {err} - traceback: {err.__traceback__ }")
+            raise err
 
         # res = self.client.head_object(Bucket=bucket_name, Key=key)
         # data.raw_data = res

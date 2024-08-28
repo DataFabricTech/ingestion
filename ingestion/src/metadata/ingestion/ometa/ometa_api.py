@@ -44,6 +44,7 @@ from metadata.ingestion.ometa.mixins.custom_property_mixin import (
 from metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
 from metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
 from metadata.ingestion.ometa.mixins.es_mixin import ESMixin
+from metadata.ingestion.ometa.mixins.glossary_mixin import OMetaGlossaryMixin
 from metadata.ingestion.ometa.mixins.ingestion_pipeline_mixin import (
     OMetaIngestionPipelineMixin,
 )
@@ -103,6 +104,7 @@ class OpenMetadata(
     OMetaTopicMixin,
     OMetaVersionMixin,
     OMetaServiceMixin,
+    OMetaGlossaryMixin,
     ESMixin,
     OMetaServerMixin,
     OMetaDashboardMixin,

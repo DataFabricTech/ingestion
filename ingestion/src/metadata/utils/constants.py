@@ -62,7 +62,7 @@ ES_SOURCE_IGNORE_KEYS = {
     "type",
 }
 
-QUERY_WITH_OM_VERSION = '/* {"app": "OpenMetadata"'
+QUERY_WITH_OM_VERSION: str = '/* {"app": "Datafabric"'
 
 QUERY_WITH_DBT = '/* {"app": "dbt"'
 

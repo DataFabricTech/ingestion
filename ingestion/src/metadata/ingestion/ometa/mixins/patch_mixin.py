@@ -74,6 +74,8 @@ def update_column_tags(
                     if tag.tagFQN == column_tag.tag_label.tagFQN:
                         col.tags.remove(tag)
             else:
+                if col.tags is None:
+                    col.tags = []
                 col.tags.append(column_tag.tag_label)
             break
 
