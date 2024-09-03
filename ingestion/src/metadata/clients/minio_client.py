@@ -23,6 +23,7 @@ from metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 
+
 class MinioClient:
     """
     MinioClient creates based on MinioCredentials.

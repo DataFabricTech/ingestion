@@ -18,11 +18,7 @@ import traceback
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel
-# from requests.utils import quote
 from requests.compat import quote
-# from urllib.parse import (
-#     quote
-# )
 
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
@@ -68,6 +64,10 @@ from metadata.ingestion.ometa.utils import get_entity_type, model_str
 from metadata.utils.logger import ometa_logger
 from metadata.utils.secrets.secrets_manager_factory import SecretsManagerFactory
 from metadata.utils.ssl_registry import get_verify_ssl_fn
+
+# from urllib.parse import (
+#     quote
+# )
 
 logger = ometa_logger()
 
@@ -138,9 +138,9 @@ class OpenMetadata(
     data_path = "data"
 
     def __init__(
-        self,
-        config: OpenMetadataConnection,
-        raw_data: bool = False,
+            self,
+            config: OpenMetadataConnection,
+            raw_data: bool = False,
     ):
         self.config = config
 
@@ -288,11 +288,11 @@ class OpenMetadata(
         return self._create(data=data, method="post")
 
     def get_by_name(
-        self,
-        entity: Type[T],
-        fqn: Union[str, FullyQualifiedEntityName],
-        fields: Optional[List[str]] = None,
-        nullable: bool = True,
+            self,
+            entity: Type[T],
+            fqn: Union[str, FullyQualifiedEntityName],
+            fields: Optional[List[str]] = None,
+            nullable: bool = True,
     ) -> Optional[T]:
         """
         Return entity by name or None
@@ -306,11 +306,11 @@ class OpenMetadata(
         )
 
     def get_by_id(
-        self,
-        entity: Type[T],
-        entity_id: Union[str, basic.Uuid],
-        fields: Optional[List[str]] = None,
-        nullable: bool = True,
+            self,
+            entity: Type[T],
+            entity_id: Union[str, basic.Uuid],
+            fields: Optional[List[str]] = None,
+            nullable: bool = True,
     ) -> Optional[T]:
         """
         Return entity by ID or None
@@ -323,11 +323,11 @@ class OpenMetadata(
         )
 
     def _get(
-        self,
-        entity: Type[T],
-        path: str,
-        fields: Optional[List[str]] = None,
-        nullable: bool = True,
+            self,
+            entity: Type[T],
+            path: str,
+            fields: Optional[List[str]] = None,
+            nullable: bool = True,
     ) -> Optional[T]:
         """
         Generic GET operation for an entity
@@ -361,7 +361,7 @@ class OpenMetadata(
             raise err
 
     def get_entity_reference(
-        self, entity: Type[T], fqn: str
+            self, entity: Type[T], fqn: str
     ) -> Optional[EntityReference]:
         """
         Helper method to obtain an EntityReference from
@@ -384,13 +384,13 @@ class OpenMetadata(
 
     # pylint: disable=too-many-locals
     def list_entities(
-        self,
-        entity: Type[T],
-        fields: Optional[List[str]] = None,
-        after: Optional[str] = None,
-        limit: int = 100,
-        params: Optional[Dict[str, str]] = None,
-        skip_on_failure: bool = False,
+            self,
+            entity: Type[T],
+            fields: Optional[List[str]] = None,
+            after: Optional[str] = None,
+            limit: int = 100,
+            params: Optional[Dict[str, str]] = None,
+            skip_on_failure: bool = False,
     ) -> EntityList[T]:
         """
         Helps us paginate over the collection
@@ -428,12 +428,12 @@ class OpenMetadata(
         return EntityList(entities=entities, total=total, after=after)
 
     def list_all_entities(
-        self,
-        entity: Type[T],
-        fields: Optional[List[str]] = None,
-        limit: int = 100,
-        params: Optional[Dict[str, str]] = None,
-        skip_on_failure: bool = False,
+            self,
+            entity: Type[T],
+            fields: Optional[List[str]] = None,
+            limit: int = 100,
+            params: Optional[Dict[str, str]] = None,
+            skip_on_failure: bool = False,
     ) -> Iterable[T]:
         """
         Utility method that paginates over all EntityLists
@@ -471,7 +471,7 @@ class OpenMetadata(
             after = entity_list.after
 
     def list_versions(
-        self, entity_id: Union[str, basic.Uuid], entity: Type[T]
+            self, entity_id: Union[str, basic.Uuid], entity: Type[T]
     ) -> EntityVersionHistory:
         """
         Version history of an entity
@@ -497,11 +497,11 @@ class OpenMetadata(
         return [entity(**p) for p in resp["data"]]
 
     def delete(
-        self,
-        entity: Type[T],
-        entity_id: Union[str, basic.Uuid],
-        recursive: bool = False,
-        hard_delete: bool = False,
+            self,
+            entity: Type[T],
+            entity_id: Union[str, basic.Uuid],
+            recursive: bool = False,
+            hard_delete: bool = False,
     ) -> None:
         """
         API call to delete an entity from entity ID

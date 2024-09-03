@@ -183,7 +183,7 @@ class S3Source(StorageServiceSource):
         # if we have a sample file to fetch a schema from
         if sample_key:
             columns = self._get_columns(
-                container_name=bucket_name,
+                bucket_name=bucket_name,
                 sample_key=sample_key,
                 metadata_entry=metadata_entry,
                 config_source=S3Config(

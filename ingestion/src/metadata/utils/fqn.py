@@ -89,7 +89,11 @@ def _build(*args, quote: bool = True) -> str:
     Equivalent of Java's FullyQualifiedName#build
     """
     if quote:
-        quoted = [quote_name(name) for name in args]
+        quoted = []
+        for name in args:
+            if name is not None:
+                quoted.append(quote_name(name))
+        # quoted = [quote_name(name) for name in args]
         return FQN_SEPARATOR.join(quoted)
 
     return FQN_SEPARATOR.join(args)

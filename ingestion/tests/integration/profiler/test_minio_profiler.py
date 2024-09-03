@@ -24,7 +24,7 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.workflow.profiler import ProfilerWorkflow
 from tests.integration.integration_base import (
     PROFILER_INGESTION_CONFIG_TEMPLATE,
-    int_admin_ometa, TEST2,
+    int_admin_ometa, MINIO_PROFILER_TEST,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ def get_service_config():
             "type": "MinIO",
             "minioConfig": {"accessKeyId": "fabric", "secretKey": "fabric12##",
                             "endPointURL": "http://192.168.106.12:9000"},
-            "bucketNames": ["fabric"],
+            "bucketNames": ["datafabric"],
         }
     )
 
@@ -89,7 +89,7 @@ class MinioProfiler:
             # )
 
             profiler_workflow = ProfilerWorkflow.create(
-                json.loads(TEST2),
+                json.loads(MINIO_PROFILER_TEST),
             )
             profiler_workflow.execute()
             profiler_workflow.raise_from_status()
@@ -97,9 +97,9 @@ class MinioProfiler:
         except Exception as e:
             logger.exception(e)
 
-        containers = self.metadata.list_all_entities(entity=Container, limit=1000)
-        for container in containers:
-            logger.debug(f"container: {container}")
+        # containers = self.metadata.list_all_entities(entity=Container, limit=1000)
+        # for container in containers:
+        #     logger.debug(f"container: {container}")
         #     self.metadata.get_latest_table_profile()
         # #     self.assertIsNotNone(table.profile)
         #     for column in columns:

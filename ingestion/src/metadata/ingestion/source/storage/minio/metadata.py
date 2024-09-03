@@ -12,10 +12,10 @@
 import os
 import traceback
 import urllib.parse
-from enum import Enum
-from typing import Any, Dict, Iterable, List, Optional
+from pathlib import Path
+from typing import Dict, Iterable, List, Optional
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
 from metadata.generated.schema.entity.data.container import (
@@ -35,6 +35,7 @@ from metadata.generated.schema.metadataIngestion.storage.containerMetadataConfig
 from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
+from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
@@ -53,7 +54,7 @@ from metadata.readers.dataframe.dsv import (
     TSV_SEPARATOR
 )
 from metadata.utils import fqn
-from metadata.utils.filters import filter_by_container
+from metadata.utils.filters import filter_by_container, filter_by_bucket
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.s3_utils import list_s3_objects
 
@@ -86,7 +87,8 @@ class MinioSource(StorageServiceSource):
         super().__init__(config, metadata)
         self.minio_client = self.connection.client
 
-        self._bucket_cache: Dict[str, Container] = {}
+        # self._bucket_cache: Dict[str, Container] = {}
+        self._dir_cache: Dict[str, List[str]] = {}
         self._metadata_cache: Dict[str, MetadataEntry] = {}
 
     @classmethod
@@ -99,46 +101,19 @@ class MinioSource(StorageServiceSource):
             raise InvalidSourceException(f"Expected MinIOConnection, but got {connection}")
         return cls(config, metadata)
 
-    def get_containers(self) -> Iterable[MinioContainerDetails]:
+    def get_buckets(self) -> Iterable[MinioContainerDetails]:
         bucket_results = self.fetch_buckets()
-
         for bucket_response in bucket_results:
-            bucket_name = bucket_response.name
             try:
                 # We always generate the parent container (the bucket)
-                yield self._generate_unstructured_container(
+                yield self._generate_bucket_container(
                     bucket_response=bucket_response
-                )
-                container_fqn = fqn._build(  # pylint: disable=protected-access
-                    *(
-                        self.context.get().objectstore_service,
-                        self.context.get().container,
-                    )
-                )
-                container_entity = self.metadata.get_by_name(
-                    entity=Container, fqn=container_fqn
-                )
-                self._bucket_cache[bucket_name] = container_entity
-                parent_entity: EntityReference = EntityReference(
-                    id=self._bucket_cache[bucket_name].id.__root__, type="container"
-                )
-                yield from self._generate_structured_containers(
-                    bucket_response=bucket_response,
-                    parent=parent_entity,
-                )
-            except ValidationError as err:
-                self.status.failed(
-                    StackTraceError(
-                        name=bucket_response.name,
-                        error=f"Validation error while creating Container from bucket details - {err}",
-                        stackTrace=traceback.format_exc(),
-                    )
                 )
             except Exception as err:
                 self.status.failed(
                     StackTraceError(
                         name=bucket_response.name,
-                        error=f"Wild error while creating Container from bucket details - {err}",
+                        error=f"Wild error while creating bucket(container) from bucket details - {err}",
                         stackTrace=traceback.format_exc(),
                     )
                 )
@@ -149,16 +124,13 @@ class MinioSource(StorageServiceSource):
             # if the service connection(minio connection setting) has bucket names, use them
             if self.service_connection.bucketNames:
                 return [
-                    MinioBucketResponse(Name=bucket_name)
+                    MinioBucketResponse(name=bucket_name)
                     for bucket_name in self.service_connection.bucketNames
                 ]
             # No pagination required, as there is a hard 1000 limit on nr of buckets per account
             for bucket in self.minio_client.list_buckets().get("Buckets") or []:
                 # if there is a filter pattern(in metadata ingestion setting), check if the bucket name matches it
-                if filter_by_container(
-                        self.source_config.containerFilterPattern,
-                        container_name=bucket["Name"],
-                ):
+                if filter_by_bucket(self.source_config.bucketFilterPattern, bucket["Name"]):
                     self.status.filter(bucket["Name"], "Bucket Filtered Out")
                 else:
                     results.append(MinioBucketResponse.parse_obj(bucket))
@@ -167,11 +139,273 @@ class MinioSource(StorageServiceSource):
             logger.error(f"Failed to fetch buckets list - {err}")
         return results
 
+    def _generate_bucket_container(
+            self, bucket_response: MinioBucketResponse
+    ) -> MinioContainerDetails:
+
+        self._metadata_cache.clear()
+        self._dir_cache.clear()
+        total_count, total_size = self._set_bucket_obj_info(bucket_name=bucket_response.name)
+
+        return MinioContainerDetails(
+            name=bucket_response.name,
+            prefix=KEY_SEPARATOR,
+            creation_date=(bucket_response.creation_date.isoformat() if bucket_response.creation_date else None),
+            number_of_objects=total_count,
+            size=total_size,
+            file_formats=[],
+            data_model=None,
+            fullPath=self._get_full_path(bucket_name=bucket_response.name),
+            sourceUrl=self._get_bucket_source_url(bucket_name=bucket_response.name),
+        )
+
+    def _set_bucket_obj_info(self, bucket_name: str):
+        total_count = 0
+        total_size = 0
+        try:
+            for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url'):
+                total_count += 1
+                decoded_key = urllib.parse.unquote_plus(obj['Key'])
+                total_size += obj['Size']
+                file_format, separator = get_file_format(decoded_key)
+                self._metadata_cache[decoded_key] = MetadataEntry(
+                    dataPath=f"{decoded_key}",
+                    contentSize=obj['Size'],
+                    structureFormat=file_format,
+                    separator=separator,
+                )
+                logger.debug(
+                    f"key : {decoded_key}, format : {file_format}, size : {obj['Size']}")
+        except Exception as exc:
+            logger.debug(traceback.format_exc())
+            logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
+        return total_count, total_size
+
+    def get_directories(self):
+        directory = []
+        bucket_container = self.get_bucket_entity()
+        bucket_name = bucket_container.name.__root__
+
+        service = self.context.get().objectstore_service
+        self._dir_cache[bucket_name] = [service, bucket_name]
+        for file_name, entity in self._metadata_cache.items():
+            # 촤상위 디렉토리에 대한 처리
+            if '/' not in file_name:
+                if '/' not in directory:
+                    directory.append('/')
+                    self._dir_cache[bucket_name].append('/')
+                    yield self._generate_directory_container(bucket_name, ['/'], bucket_container)
+                    self._dir_cache[bucket_name].remove('/')
+            else:
+                dir_path = os.path.dirname(file_name)
+                path_parts = dir_path.split('/')
+                for i in range(1, len(path_parts) + 1):
+                    prefix = '/'.join(path_parts[:i])
+                    if prefix not in directory:
+                        directory.append(prefix)
+                        parent_entity = self.get_parent_entity(path_parts[:i-1])
+                        self._dir_cache[bucket_name].extend(path_parts[:i])
+                        yield self._generate_directory_container(bucket_name, path_parts[:i], parent_entity)
+                        self._dir_cache[bucket_name] = [item for item in self._dir_cache[bucket_name] if item not in path_parts[:i]]
+
+    def get_bucket_entity(self) -> Container:
+        container_fqn = fqn._build(  # pylint: disable=protected-access
+            *(
+                self.context.get().objectstore_service,
+                self.context.get().bucket,
+            )
+        )
+        container_entity = self.metadata.get_by_name(
+            entity=Container, fqn=container_fqn
+        )
+        # self._bucket_cache[self.context.get().bucket] = container_entity
+        return container_entity
+
+    def get_parent_entity(self, path_parts: [str]) -> Container:
+        container_fqn = fqn._build(  # pylint: disable=protected-access
+            *(
+                self.context.get().objectstore_service,
+                self.context.get().bucket,
+                *path_parts
+            )
+        )
+        container_entity = self.metadata.get_by_name(
+            entity=Container, fqn=container_fqn
+        )
+        # self._bucket_cache[self.context.get().bucket] = container_entity
+        return container_entity
+
+    def _generate_directory_container(self, bucket_name: str, path: [str],
+                                      parent_container: Container) -> MinioContainerDetails:
+        if path == ['/']:
+            # Bucket 내 디렉토리 하위에 있지 않은 데이터를 위한 껍데기 데이터
+            # 최상위 디렉토리 컨테이너는 생성하지 않는다.
+            dir_container = MinioContainerDetails(
+                name=path[0],
+                prefix=KEY_SEPARATOR,
+                number_of_objects=0,
+                size=0,
+                file_formats=[],
+                data_model=None,
+            )
+            return dir_container
+        else:
+            count, size = self.get_directory_info(bucket_name, '/'.join(path))
+            dir_container = MinioContainerDetails(
+                name=path[-1],
+                prefix=('/' if len(path) == 1 else '/'.join(path[:-1])),
+                creation_date=None,
+                number_of_objects=count,
+                size=size,
+                file_formats=[],
+                data_model=None,
+                parent=EntityReference(id=parent_container.id, type="container"),
+                fullPath=self._get_full_path(bucket_name=bucket_name, prefix='/'.join(path)),
+                sourceUrl=self._get_bucket_source_url(bucket_name=bucket_name),
+            )
+            return dir_container
+
+    def get_directory_info(self, bucket_name: str, dir_path: str):
+        total_count = 0
+        total_size = 0
+        try:
+            for entry in self._metadata_cache.values():
+                if entry.dataPath.startswith(dir_path):
+                    total_count += 1
+                    total_size += entry.contentSize
+        except Exception as exc:
+            logger.debug(traceback.format_exc())
+            logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
+        return total_count, total_size
+
+    def yield_create_directory_requests(self, container_details: MinioContainerDetails) -> (
+            Iterable)[Either[CreateContainerRequest]]:
+        if container_details.name == '/':
+            # bucket: Container = self.get_bucket_entity()
+            # container_request = CreateContainerRequest(
+            #     name=bucket.name,
+            #     prefix=bucket.prefix,
+            #     numberOfObjects=bucket.numberOfObjects,
+            #     size=bucket.size,
+            #     fileFormats=[],
+            #     dataModel=None,
+            #     service=self.context.get().objectstore_service,
+            #     sourceUrl=bucket.sourceUrl,
+            #     fullPath=bucket.fullPath,
+            # )
+            yield Either(right=None)
+        else:
+            yield from self.yield_create_container_requests(container_details)
+
+    def get_containers(self) -> Iterable[MinioContainerDetails]:
+        service = self.context.get().objectstore_service
+        bucket = self.context.get().bucket
+        directory = self.context.get().directory
+
+        parent_container_fqn = self.get_parent_container_fqn()
+        parent_container: Container = self.metadata.get_by_name(
+            entity=Container, fqn=parent_container_fqn
+        )
+        if parent_container is None:
+            # self.status.failed(
+            #     StackTraceError(
+            #         name=bucket,
+            #         error=f"Validation error while get parent Container from bucket/directory - {service}/{bucket}/{directory}",
+            #     )
+            # )
+            return Either(left=StackTraceError(
+                name=bucket,
+                error=f"Validation error while get parent Container from bucket/directory - {service}/{bucket}/{directory}",
+            ))
+
+        for abs_file_name, metadata_entry in self._metadata_cache.items():
+            try:
+                if directory is None:
+                    if '/' in abs_file_name:
+                        continue
+                else:
+                    directory = '/'.join(self._dir_cache[bucket][2:])
+                    if directory not in abs_file_name or directory != os.path.dirname(abs_file_name):
+                        continue
+
+                if (metadata_entry.structureFormat not in
+                        [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
+                    logger.debug(f"Unsupported format {metadata_entry.structureFormat}")
+                    self.status.filter(abs_file_name, f"Unsupported format {metadata_entry.structureFormat}")
+                    continue
+
+                # file_name 은 Path/File 형태이다. 순수한 file_name을 가져온다.
+                file_name = Path(abs_file_name).name
+
+                container_fqn = fqn.build(
+                    self.metadata,
+                    entity_type=Container,
+                    service_name=service,
+                    parent_container=parent_container_fqn,
+                    container_name=file_name,
+                )
+                if filter_by_container(
+                        self.source_config.containerFilterPattern,
+                        container_fqn
+                        if self.source_config.useFqnForFiltering
+                        else file_name
+                ):
+                    logger.warn(f"{container_fqn} Filtered")
+                    self.status.filter(abs_file_name, "Container Name pattern not allowed")
+                    continue
+
+                logger.info(f"Metadata Ingestion From {file_name}")
+
+                structured_container: Optional[
+                    MinioContainerDetails
+                ] = self._generate_container_details(
+                    bucket_name=bucket,
+                    metadata_entry=metadata_entry,
+                    parent=EntityReference(id=parent_container.id, type="container"),
+                )
+                if structured_container:
+                    for col in structured_container.data_model.columns:
+                        logger.debug(f"Column: {col.name.__root__}")
+                yield structured_container
+            except ValidationError as err:
+                self.status.failed(
+                    StackTraceError(
+                        name=bucket,
+                        error=f"Validation error while creating Container from bucket details - {err}",
+                        stackTrace=traceback.format_exc(),
+                    )
+                )
+            except Exception as err:
+                self.status.failed(
+                    StackTraceError(
+                        name=bucket,
+                        error=f"Wild error while creating Container from bucket details - {err}",
+                        stackTrace=traceback.format_exc(),
+                    )
+                )
+
+    def get_parent_container_fqn(self) -> str:
+        service = self.context.get().objectstore_service
+        bucket = self.context.get().bucket
+        directory = self.context.get().directory
+
+        if directory == '/':
+            return fqn._build(  # pylint: disable=protected-access
+                *(
+                    service,
+                    bucket,
+                )
+            )
+        else:
+            return fqn._build(  # pylint: disable=protected-access
+                *self._dir_cache[bucket]
+            )
+
     def yield_create_container_requests(
             self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
         container_request = CreateContainerRequest(
-            name=container_details.name,
+            name=basic.EntityName(__root__=container_details.name),
             prefix=container_details.prefix,
             numberOfObjects=container_details.number_of_objects,
             size=container_details.size,
@@ -184,75 +418,6 @@ class MinioSource(StorageServiceSource):
         )
         yield Either(right=container_request)
         self.register_record(container_request=container_request)
-
-    def _generate_unstructured_container(
-            self, bucket_response: MinioBucketResponse
-    ) -> MinioContainerDetails:
-        return MinioContainerDetails(
-            name=bucket_response.name,
-            prefix=KEY_SEPARATOR,
-            creation_date=(bucket_response.creation_date.isoformat() if bucket_response.creation_date else None),
-            number_of_objects=self.list_objects(bucket_name=bucket_response.name),
-            size=self.get_bucket_size(bucket_response.name),
-            file_formats=[],
-            data_model=None,
-            fullPath=self._get_full_path(bucket_name=bucket_response.name),
-            sourceUrl=self._get_bucket_source_url(bucket_name=bucket_response.name),
-        )
-
-    def list_objects(self, bucket_name: str) -> int:
-        """
-        Method to list the objects in the bucket
-        """
-        count = 0
-        try:
-            kwargs = {
-                'Bucket': bucket_name,
-                'EncodingType': 'url',
-            }
-            for key in list_s3_objects(self.minio_client, **kwargs):
-                # Object Filtering
-                # if filter_by_container(
-                #         self.source_config.containerFilterPattern,
-                #         container_name=bucket["Name"],
-                # ):
-                #     self.status.filter(bucket["Name"], "Bucket Filtered Out")
-                # else:
-                #     results.append(MinioBucketResponse.parse_obj(bucket))
-                count += 1
-                decoded_key = urllib.parse.unquote_plus(key['Key'])
-                file_format, separator = get_file_format(decoded_key)
-                self._metadata_cache[decoded_key] = MetadataEntry(
-                    dataPath=f"{decoded_key}",
-                    structureFormat=file_format,
-                    separator=separator,
-                )
-                logger.debug(
-                    f"key : {decoded_key}, format : {file_format}, size : {key['Size']}, "
-                    f"storageClass : {key['StorageClass']}")
-            return count
-        except Exception as exc:
-            logger.debug(traceback.format_exc())
-            logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
-        return count
-
-    def get_bucket_size(self, bucket_name: str) -> Optional[int]:
-        """
-        get the size of the bucket
-        """
-        try:
-            response = self.minio_client.list_objects_v2(Bucket=bucket_name)
-            return sum(
-                [
-                    obj["Size"]
-                    for obj in response[S3_CLIENT_ROOT_RESPONSE]
-                    if obj and obj.get("Size")
-                ]
-            )
-        except Exception as exc:
-            logger.debug(traceback.format_exc())
-            logger.error(f"Unable to get the size of the bucket: {bucket_name} - {exc}")
-        return None
 
     def _clean_path(self, path: str) -> str:
         return path.strip(KEY_SEPARATOR)
@@ -369,46 +534,46 @@ class MinioSource(StorageServiceSource):
     #             )
     #     return ret_data
 
-    def _generate_structured_containers(
-            self,
-            bucket_response: MinioBucketResponse,
-            parent: Optional[EntityReference] = None,
-    ) -> List[MinioContainerDetails]:
-        result: List[MinioContainerDetails] = []
-        for key, metadata_entry in self._metadata_cache.items():
-            if (metadata_entry.structureFormat not in
-                    [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
-                logger.debug(f"Unsupported format {metadata_entry.structureFormat}")
-                self.status.filter(key, f"Unsupported format {metadata_entry.structureFormat}")
-                continue
-            logger.info(
-                f"Extracting metadata from path {metadata_entry.dataPath.strip(KEY_SEPARATOR)} "
-                f"and generating structured container"
-            )
-            structured_container: Optional[
-                MinioContainerDetails
-            ] = self._generate_container_details(
-                bucket_response=bucket_response,
-                metadata_entry=metadata_entry,
-                parent=parent,
-            )
-            if structured_container:
-                for col in structured_container.data_model.columns:
-                    logger.debug(f"Column: {col.name.__root__}")
-                result.append(structured_container)
-
-        return result
+    # def _generate_structured_containers(
+    #         self,
+    #         bucket: str, obj: str,
+    #         bucket_response: MinioBucketResponse,
+    #         parent: Optional[EntityReference] = None,
+    # ) -> MinioContainerDetails:
+    #     result: List[MinioContainerDetails] = []
+    #     for key, metadata_entry in self._metadata_cache.items():
+    #         if (metadata_entry.structureFormat not in
+    #                 [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
+    #             logger.debug(f"Unsupported format {metadata_entry.structureFormat}")
+    #             self.status.filter(key, f"Unsupported format {metadata_entry.structureFormat}")
+    #             continue
+    #         logger.info(
+    #             f"Extracting metadata from path {metadata_entry.dataPath.strip(KEY_SEPARATOR)} "
+    #             f"and generating structured container"
+    #         )
+    #         structured_container: Optional[
+    #             MinioContainerDetails
+    #         ] = self._generate_container_details(
+    #             bucket_name=bucket,
+    #             metadata_entry=metadata_entry,
+    #             parent=parent,
+    #         )
+    #         if structured_container:
+    #             for col in structured_container.data_model.columns:
+    #                 logger.debug(f"Column: {col.name.__root__}")
+    #             result.append(structured_container)
+    #
+    #     return result
 
     def _generate_container_details(
             self,
-            bucket_response: MinioBucketResponse,
+            bucket_name: str,
             metadata_entry: MetadataEntry,
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
-        bucket_name = bucket_response.name
 
         columns = self._get_columns(
-            container_name=bucket_name,
+            bucket_name=bucket_name,
             sample_key=metadata_entry.dataPath.strip(KEY_SEPARATOR),
             metadata_entry=metadata_entry,
             config_source=self.config.serviceConnection.__root__.config.minioConfig,
@@ -419,7 +584,7 @@ class MinioSource(StorageServiceSource):
                 f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
             )
             return MinioContainerDetails(
-                name=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+                name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
                 prefix=prefix,
                 creation_date=self._fetch_metric(bucket_name=bucket_name,
                                                  key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),

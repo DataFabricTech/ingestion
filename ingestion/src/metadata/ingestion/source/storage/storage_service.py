@@ -87,8 +87,40 @@ class StorageServiceTopology(ServiceTopology):
                 cache_entities=True,
             ),
         ],
-        children=["container"],
-        post_process=["mark_containers_as_deleted"],
+        # children=["container"],
+        children=["bucket"],
+        post_process=["mark_containers_as_deleted"]
+    )
+
+    bucket = TopologyNode(
+        producer="get_buckets",
+        stages=[
+            NodeStage(
+                type_=Container,
+                context="bucket",
+                processor="yield_create_container_requests",
+                consumer=["objectstore_service"],
+                cache_entities=True,
+                use_cache=True,
+            )
+        ],
+        children=["directory"]
+    )
+
+    directory = TopologyNode(
+        producer="get_directories",
+        stages=[
+            NodeStage(
+                type_=Container,
+                context="directory",
+                processor="yield_create_directory_requests",
+                consumer=["objectstore_service", "bucket"],
+                cache_entities=True,
+                use_cache=True,
+                nullable=True,
+            )
+        ],
+        children=["container"]
     )
 
     container = TopologyNode(
@@ -98,7 +130,8 @@ class StorageServiceTopology(ServiceTopology):
                 type_=Container,
                 context="container",
                 processor="yield_create_container_requests",
-                consumer=["objectstore_service"],
+                # consumer=["objectstore_service"],
+                consumer=["objectstore_service", "bucket", "directory"],
                 nullable=True,
                 use_cache=True,
             )
@@ -292,7 +325,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     def _get_columns(
             self,
-            container_name: str,
+            bucket_name: str,
             sample_key: str,
             metadata_entry: MetadataEntry,
             config_source: ConfigSource,
@@ -300,6 +333,6 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
     ) -> Optional[List[Column]]:
         """Get the columns from the file and partition information"""
         extracted_cols = self.extract_column_definitions(
-            container_name, sample_key, config_source, client, metadata_entry
+            bucket_name, sample_key, config_source, client, metadata_entry
         )
         return (metadata_entry.partitionColumns or []) + (extracted_cols or [])

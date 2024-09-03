@@ -29,6 +29,7 @@ from metadata.workflow.workflow_output_handler import (
 logger = cli_logger()
 logger.setLevel(logging.DEBUG)
 
+
 def run_ingest(config_path: Path) -> None:
     """
     Run the ingestion workflow from a config path
