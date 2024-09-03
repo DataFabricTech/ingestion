@@ -38,7 +38,7 @@ from metadata.utils.sqa_utils import (
     dispatch_to_date_or_datetime,
     get_integer_range_filter,
     get_partition_col_type,
-    get_value_filter,
+    get_value_filter, table_name_to_short_hash,
 )
 
 logger = profiler_interface_registry_logger()
@@ -87,6 +87,10 @@ class SQASampler(SamplerInterface):
     def get_sample_query(self, *, column=None) -> Query:
         """get query for sample data"""
         if self.profile_sample_type == ProfileSampleType.PERCENTAGE:
+            """Make Random Table Name and Sample Table Name From Table Name Hash"""
+            hash_table_name = table_name_to_short_hash(self.table.__tablename__)
+            rnd_table_name = f"{hash_table_name}_rnd"
+            sample_table_name = f"{hash_table_name}_sample"
             rnd = (
                 self._base_sample_query(
                     column,
@@ -96,12 +100,12 @@ class SQASampler(SamplerInterface):
                     f"SAMPLE BERNOULLI ({self.profile_sample or 100})",
                     dialect=Dialects.Snowflake,
                 )
-                .cte(f"{self.table.__tablename__}_rnd")
+                .cte(rnd_table_name)
+                # .cte(f"{self.table.__tablename__}_rnd")
             )
             session_query = self.client.query(rnd)
-            return session_query.where(rnd.c.random <= self.profile_sample).cte(
-                f"{self.table.__tablename__}_sample"
-            )
+            return (session_query.where(rnd.c.random <= self.profile_sample).cte(sample_table_name))
+                # .cte(f"{self.table.__tablename__}_sample"))
 
         table_query = self.client.query(self.table)
         session_query = self._base_sample_query(

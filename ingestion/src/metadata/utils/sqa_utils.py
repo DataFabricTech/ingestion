@@ -37,7 +37,7 @@ logger = query_runner_logger()
 
 # pylint: disable=cell-var-from-loop
 def build_query_filter(
-    filters: List[Tuple[Column, str, Any]], or_filter: bool = False
+        filters: List[Tuple[Column, str, Any]], or_filter: bool = False
 ) -> Optional[BinaryExpression]:
     """Dynamically build query filter
 
@@ -55,13 +55,13 @@ def build_query_filter(
         column, operator, value = filter_
         try:
             filter_attr = (
-                next(
-                    filter(
-                        lambda x: hasattr(column, x % operator), ["%s", "%s_", "__%s__"]
-                    ),
-                    None,
-                )
-                % operator
+                    next(
+                        filter(
+                            lambda x: hasattr(column, x % operator), ["%s", "%s_", "__%s__"]
+                        ),
+                        None,
+                    )
+                    % operator
             )  # type: ignore
         except TypeError as err:
             logger.debug(traceback.format_exc())
@@ -79,7 +79,7 @@ def build_query_filter(
 
 
 def get_integer_range_filter(
-    partition_field, integer_range_start, integer_range_end
+        partition_field, integer_range_start, integer_range_end
 ) -> Optional[BinaryExpression]:
     """Get the query filter for integer range
 
@@ -131,9 +131,9 @@ def get_value_filter(partition_field, values) -> Optional[BinaryExpression]:
 
 
 def dispatch_to_date_or_datetime(
-    partition_interval: int,
-    partition_interval_unit: TextClause,
-    type_,
+        partition_interval: int,
+        partition_interval_unit: TextClause,
+        type_,
 ):
     """Dispatch to date or datetime function based on the type
 
@@ -165,7 +165,7 @@ def get_partition_col_type(partition_column_name: str, columns: List[Column]):
 
     col = columns.get(partition_field)
     if (
-        col is not None
+            col is not None
     ):  # if col is None, this means we have BQ pseudo columns _PARTITIONDATE or _PARTITIONTIME
         return col.type
     if partition_field == "_partitiondate":
@@ -192,7 +192,7 @@ def get_query_filter_for_runner(kwargs: Dict) -> Optional[BinaryExpression]:
 
 
 def handle_array(
-    query: Query, column: Column, table: Union[DeclarativeMeta, AliasedClass]
+        query: Query, column: Column, table: Union[DeclarativeMeta, AliasedClass]
 ) -> Query:
     """Handle query for array. The curent implementation is
     specific to BigQuery. This should be refactored in the future
@@ -261,3 +261,16 @@ def update_mssql_ischema_names(ischema_names):
             "xml": create_sqlalchemy_type("XML"),
         }
     )
+
+
+def table_name_to_short_hash(table_name: str) -> str:
+    """Hash the table name
+    테이블 이름을 해싱하고 앞 16자리만을 리턴
+
+    Args:
+        table_name (str): table name
+
+    Returns:
+        str: hashed table name
+    """
+    return str(hash(table_name))[:16]
