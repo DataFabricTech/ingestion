@@ -24,9 +24,19 @@
       "$ref": "#/definitions/storageMetadataConfigType",
       "default": "StorageMetadata"
     },
+    "bucketFilterPattern": {
+      "description": "Regex to only fetch buckets that matches the pattern.",
+      "$ref": "../type/filterPattern.json#/definitions/filterPattern"
+    },
     "containerFilterPattern": {
       "description": "Regex to only fetch containers that matches the pattern.",
       "$ref": "../type/filterPattern.json#/definitions/filterPattern"
+    },
+    "useFqnForFiltering": {
+      "description": "Regex will be applied on fully qualified name (e.g service_name.bucket.container_name) instead of raw name (e.g. container_name)",
+      "type": "boolean",
+      "default": false,
+      "title": "Use FQN For Filtering"
     },
     "storageMetadataConfigSource": {
       "mask": true,

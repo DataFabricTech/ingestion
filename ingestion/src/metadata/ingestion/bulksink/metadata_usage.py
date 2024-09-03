@@ -90,7 +90,7 @@ class MetadataUsageBulkSink(BulkSink):
 
     @property
     def name(self) -> str:
-        return "OpenMetadata"
+        return "BulkSink"
 
     @classmethod
     def create(

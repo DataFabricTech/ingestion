@@ -39,7 +39,7 @@ from metadata.utils.logger import profiler_logger
 logger = profiler_logger()
 
 #CONTAINER_FIELDS = ["tableProfilerConfig", "dataModel", "customMetrics"]
-CONTAINER_FIELDS = ["dataModel"]
+CONTAINER_FIELDS = ["dataModel", "parent"]
 TAGS_FIELD = ["tags"]
 
 
@@ -195,7 +195,7 @@ class MetadataSourceForMinio(Source):
             self.metadata,
             entity_type=Container,
             service_name=self.config.source.serviceName,
-            parent_container=container.parent,
+            parent_container=(container.parent.fullyQualifiedName if container.parent is not None else None),
             container_name=container.name.__root__,
         )
         if filter_by_container(

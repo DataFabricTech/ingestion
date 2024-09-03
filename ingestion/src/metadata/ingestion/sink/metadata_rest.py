@@ -129,7 +129,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
 
     @property
     def name(self) -> str:
-        return "OpenMetadata"
+        return "Sink"
 
     @singledispatchmethod
     def _run_dispatch(self, record: Entity) -> Either[Any]:

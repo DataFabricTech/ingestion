@@ -214,6 +214,21 @@ def filter_by_mlmodel(
     return _filter(mlmodel_filter_pattern, mlmodel_name)
 
 
+def filter_by_bucket(
+        bucket_filter_pattern: Optional[FilterPattern], bucket_name: str
+) -> bool:
+    """
+    Return True if the bucket needs to be filtered, False otherwise
+
+    Include takes precedence over exclude
+
+    :param bucket_filter_pattern: Bucket defining the bucket filtering logic
+    :param bucket_name: bucket name
+    :return: True for filtering, False otherwise
+    """
+    return _filter(bucket_filter_pattern, bucket_name)
+
+
 def filter_by_container(
     container_filter_pattern: Optional[FilterPattern], container_name: str
 ) -> bool:

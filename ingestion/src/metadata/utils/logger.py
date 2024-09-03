@@ -43,7 +43,7 @@ class Loggers(Enum):
     Enum for loggers
     """
 
-    OMETA = "OMetaAPI"
+    OMETA = "ServerAPI"
     CLI = "Metadata"
     PROFILER = "Profiler"
     PII = "PII"

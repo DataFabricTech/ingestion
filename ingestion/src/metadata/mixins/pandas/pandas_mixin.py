@@ -93,7 +93,7 @@ class PandasInterfaceMixin:
                 config_source=service_connection_config.minioConfig,
                 client=client,
                 file_fqn=DatalakeTableSchemaWrapper(
-                    key=table.name.__root__,
+                    key=str(table.prefix).strip('/'),
                     bucket_name=bucket_name,
                     file_extension=table.fileFormats[0],
                 ),

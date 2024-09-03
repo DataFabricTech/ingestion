@@ -145,7 +145,15 @@ PROFILER_INGESTION_CONFIG_TEMPLATE = dedent(
             "serviceConnection": {{
                 "config": {service_config}
             }},
-            "sourceConfig": {{"config": {{"type":"{Profiler}", "generateSampleData": true}}}}
+            "sourceConfig": {{
+                "config": {{
+                    "type":"{Profiler}", 
+                    "generateSampleData": true, 
+                    "profileSampleType": "PERCENTAGE", 
+                    "profileSample": 60,
+                    "sampleDataCount": 100
+                }}
+            }}
         }},
         "processor": {{"type": "orm-profiler", "config": {{}}}},
         "sink": {{"type": "metadata-rest", "config": {{}}}},
@@ -162,7 +170,65 @@ PROFILER_INGESTION_CONFIG_TEMPLATE = dedent(
     }}"""
 )
 
-TEST2 = '{"source": {"type": "minio", "serviceName": "test", "serviceConnection": {"config": {"type": "MinIO", "minioConfig": {"accessKeyId": "fabric", "secretKey": "fabric12##", "sessionToken": null, "region": null, "endPointURL": "http://192.168.106.12:9000"}, "bucketNames": [], "connectionOptions": null, "connectionArguments": null, "supportsMetadataExtraction": true, "supportsStorageProfiler": true}}, "sourceConfig": {"config": {"type": "StorageProfiler", "bucketFilterPattern": null, "containerFilterPattern": null, "useFqnForFiltering": false, "generateSampleData": true, "computeMetrics": true, "processPiiSensitive": false, "confidence": 80.0, "profileSampleType": "PERCENTAGE", "profileSample": null, "sampleDataCount": 50, "threadCount": 5.0, "timeoutSeconds": 43200}}}, "processor": {"type": "orm-profiler", "config": {}}, "sink": {"type": "metadata-rest", "config": {}}, "stage": null, "bulkSink": null, "workflowConfig": {"loggerLevel": "DEBUG", "openMetadataServerConfig": {"clusterName": "metadata", "type": "OpenMetadata", "hostPort": "http://192.168.105.51:8585/api", "authProvider": "openmetadata", "verifySSL": "no-ssl", "sslConfig": null, "securityConfig": {"jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTcxNjAxNzExMiwiZXhwIjpudWxsfQ.MgzchNADcN3nyYKz2LmAg1rGREYQEJPVyfvUTvIlqLYgV7_D9EUezctL9hpPYP_TUomHPezWNmkb5SfSyLGnGQa0N7m9QilZpKdSqNF8gE10D16fAolluwtaDqNunNQesIzoj1Pn5HLkOUexkLlYNVE9XtgL1eXR_feLWuzUIfjO6zlmaMuN6IFtADIcQy1LGRp-IP4gam0bwMVAGLe-_0_Sn_o5HvkznZmN1gssJ5nTFc8v-GrE7BwM3Rd4dqLSabiWf_EyleFf34oP6PEg7-TZidxqPtDqTxbPdqbN6mSv-Zilc92qXB6GlHWHMV9iQMRK5n8sGTK19PTDIYj6dA"}, "secretsManagerProvider": "db", "secretsManagerLoader": "noop", "apiVersion": "v1", "includeTopics": true, "includeTables": true, "includeDashboards": true, "includePipelines": true, "includeMlModels": true, "includeUsers": true, "includeTeams": true, "includeGlossaryTerms": true, "includeTags": true, "includePolicy": true, "includeMessagingServices": true, "enableVersionValidation": true, "includeDatabaseServices": true, "includePipelineServices": true, "limitRecords": 1000, "forceEntityOverwriting": false, "storeServiceConnection": true, "elasticsSearch": null, "supportsDataInsightExtraction": true, "supportsElasticSearchReindexingExtraction": true, "extraHeaders": null}, "config": null}, "ingestionPipelineFQN": "test.7d69dd42-379a-4440-bc43-89c1dbf70e0c", "pipelineRunId": "6378b0bd-9ac5-4820-9133-20f7e1047dfb"}'
+MINIO_PROFILER_TEST = """
+{
+    "source": {
+        "type": "minio", 
+        "serviceName": 
+        "fabric-minio", 
+        "serviceConnection": {
+            "config": {
+                "type": "MinIO", 
+                "minioConfig": {
+                    "accessKeyId": "fabric", 
+                    "secretKey": "fabric12##", 
+                    "sessionToken": null, 
+                    "region": null, 
+                    "endPointURL": "http://192.168.106.12:9000"
+                }, 
+                "bucketNames": [], 
+                "supportsMetadataExtraction": true, 
+                "supportsStorageProfiler": true
+            }
+        }, 
+        "sourceConfig": {
+            "config": {
+                "type": "StorageProfiler", 
+                "bucketFilterPattern": {
+                    "includes": ["datafabric"],
+                    "excludes": []
+                }, 
+                "containerFilterPattern": null, 
+                "useFqnForFiltering": false, 
+                "generateSampleData": true, 
+                "computeMetrics": true, 
+                "processPiiSensitive": false, 
+                "confidence": 80.0, 
+                "profileSampleType": "PERCENTAGE", 
+                "profileSample": 60, 
+                "sampleDataCount": 70, 
+                "threadCount": 5.0, 
+                "timeoutSeconds": 43200
+            }
+        }
+    }, 
+    "processor": {
+        "type": "orm-profiler", "config": {}
+    }, 
+    "sink": {
+        "type": "metadata-rest", "config": {}
+    }, 
+    "workflowConfig": {
+        "loggerLevel": "DEBUG", 
+        "openMetadataServerConfig": {
+            "hostPort": "http://192.168.105.51:8585/api", 
+            "authProvider": "openmetadata",
+            "securityConfig": {
+                "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTcxNjAxNzExMiwiZXhwIjpudWxsfQ.MgzchNADcN3nyYKz2LmAg1rGREYQEJPVyfvUTvIlqLYgV7_D9EUezctL9hpPYP_TUomHPezWNmkb5SfSyLGnGQa0N7m9QilZpKdSqNF8gE10D16fAolluwtaDqNunNQesIzoj1Pn5HLkOUexkLlYNVE9XtgL1eXR_feLWuzUIfjO6zlmaMuN6IFtADIcQy1LGRp-IP4gam0bwMVAGLe-_0_Sn_o5HvkznZmN1gssJ5nTFc8v-GrE7BwM3Rd4dqLSabiWf_EyleFf34oP6PEg7-TZidxqPtDqTxbPdqbN6mSv-Zilc92qXB6GlHWHMV9iQMRK5n8sGTK19PTDIYj6dA"
+            }
+        }
+    } 
+}"""
 
 
 def int_admin_ometa(url: str = "http://localhost:8585/api") -> OpenMetadata:

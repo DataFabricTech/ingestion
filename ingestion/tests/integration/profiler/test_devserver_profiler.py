@@ -32,7 +32,7 @@ from tests.integration.integration_base import (
 
 class TestDevServerProfiler:
     service_type = "postgres"
-    service_name = "dev-postgres-test"
+    service_name = "fabric-post"
     openmetadata_url = "http://192.168.105.51:8585/api"
 
     # init
@@ -97,13 +97,13 @@ class TestDevServerProfiler:
                     {
                         "authType": {"password": "fabric12#$"},
                         "hostPort": f"192.168.106.12:5432",
-                        "username": "postgres",
+                        "username": "fabric",
                         "type": "Postgres",
-                        "database": "datafabric",
+                        "database": "fabric",
                     }
                 ),
                 Profiler="Profiler",
-                service_name="dev-postgres-test",
+                service_name="fabric-post",
                 hostport=self.openmetadata_url,
             )
             profiler_workflow = ProfilerWorkflow.create(

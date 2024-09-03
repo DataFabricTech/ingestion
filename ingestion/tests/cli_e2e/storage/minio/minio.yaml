@@ -1,6 +1,6 @@
 source:
   type : minio
-  serviceName: test
+  serviceName: fabric-minio
   serviceConnection:
     config:
       type: "MinIO"
@@ -12,6 +12,11 @@ source:
   sourceConfig:
     config:
       type: StorageMetadata
+      bucketFilterPattern:
+        includes:
+          - "datafabric"
+        excludes: []
+      useFqnForFiltering: false
 sink:
   type: metadata-rest
   config: {}

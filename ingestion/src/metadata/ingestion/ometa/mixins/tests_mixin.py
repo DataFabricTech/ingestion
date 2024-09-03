@@ -221,7 +221,7 @@ class OMetaTestsMixin:
         )
         if not table_entity:
             raise RuntimeError(
-                f"Unable to find table {entity_fqn} in OpenMetadata. "
+                f"Unable to find table {entity_fqn} in DataFabricServer. "
                 "This could be because the table has not been ingested yet or your JWT Token is expired or missing."
             )
 
