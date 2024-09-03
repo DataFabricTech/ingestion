@@ -202,13 +202,17 @@ class MinioSource(StorageServiceSource):
             else:
                 dir_path = os.path.dirname(file_name)
                 path_parts = dir_path.split('/')
+                # 디렉토리 -> 디렉토리 -> 컨테이너 구조를 처리하기 위해 '/' 를 구분자로 부모 자식 관계를 만들고,
+                # 최하위 노드(컨테이너)를 처리할 수 있도록 구조 변경
                 for i in range(1, len(path_parts) + 1):
                     prefix = '/'.join(path_parts[:i])
                     if prefix not in directory:
                         directory.append(prefix)
                         parent_entity = self.get_parent_entity(path_parts[:i-1])
+                        # 디렉토리 하위의 컨테이너에서 FQN 생성을 위해 상위 개체 정보를 저장한다.
                         self._dir_cache[bucket_name].extend(path_parts[:i])
                         yield self._generate_directory_container(bucket_name, path_parts[:i], parent_entity)
+                        # 다른 디렉토리를 위해 현재 디렉토리 정보를 삭제한다.
                         self._dir_cache[bucket_name] = [item for item in self._dir_cache[bucket_name] if item not in path_parts[:i]]
 
     def get_bucket_entity(self) -> Container:
@@ -262,7 +266,7 @@ class MinioSource(StorageServiceSource):
                 size=size,
                 file_formats=[],
                 data_model=None,
-                parent=EntityReference(id=parent_container.id, type="container"),
+                parent=EntityReference(id=parent_container.id, type="container", fullyQualifiedName=parent_container.fullyQualifiedName.__root__),
                 fullPath=self._get_full_path(bucket_name=bucket_name, prefix='/'.join(path)),
                 sourceUrl=self._get_bucket_source_url(bucket_name=bucket_name),
             )
@@ -364,11 +368,11 @@ class MinioSource(StorageServiceSource):
                 ] = self._generate_container_details(
                     bucket_name=bucket,
                     metadata_entry=metadata_entry,
-                    parent=EntityReference(id=parent_container.id, type="container"),
+                    parent=EntityReference(id=parent_container.id, type="container", fullyQualifiedName=parent_container_fqn),
                 )
-                if structured_container:
-                    for col in structured_container.data_model.columns:
-                        logger.debug(f"Column: {col.name.__root__}")
+                # if structured_container:
+                #     for col in structured_container.data_model.columns:
+                #         logger.debug(f"Column: {col.name.__root__}")
                 yield structured_container
             except ValidationError as err:
                 self.status.failed(
@@ -407,8 +411,8 @@ class MinioSource(StorageServiceSource):
     def yield_create_container_requests(
             self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
-        """ 미분류 카테고리만을 가져온 것 """
-        tag_label = self.get_classification_tag_label()
+        """ Get 태그 """
+        tag_label = self.get_classification_tag_label(container_details)
         container_request = CreateContainerRequest(
             name=basic.EntityName(__root__=container_details.name),
             prefix=container_details.prefix,
@@ -425,11 +429,29 @@ class MinioSource(StorageServiceSource):
         yield Either(right=container_request)
         self.register_record(container_request=container_request)
 
-    def get_classification_tag_label(self) -> Optional[TagLabel]:
-        classification_tag = self.metadata.get_by_name(entity=Tag, fqn="ovp_category.미분류")
+    def get_classification_tag_label(self, container_details: MinioContainerDetails) -> Optional[TagLabel]:
+        if container_details.parent is None:
+            # parent 가 없는 경우 bucket 컨테이너이다.
+            # 또한 최상위 '/' 디렉토리 컨테이너는 생성되지 않는다.
+            # bucket -> '/' -> 'a' , '/a/b' 로 이어지는 관계를 만들지 않기 위함이다.
+            container_fqn = fqn._build(
+                *(
+                    self.context.get().objectstore_service,
+                    container_details.name
+                )
+            )
+        else:
+            container_fqn = fqn.FQN_SEPARATOR.join([container_details.parent.fullyQualifiedName, fqn.quote_name(container_details.name)])
+        container_entity: Container = self.metadata.get_by_name(entity=Container, fqn=container_fqn, fields=["tags"])
+        if container_entity and container_entity.tags:
+            for tag in container_entity.tags:
+                if "ovp_category" in tag.tagFQN.__root__:
+                    return None
+
+        classification_tag: Tag = self.metadata.get_by_name(entity=Tag, fqn="ovp_category.미분류")
         if classification_tag:
             return TagLabel(
-                tagFQN=TagFQN(__root__="ovp_category.미분류"),
+                tagFQN=TagFQN(__root__=classification_tag.fullyQualifiedName),
                 labelType=LabelType.Automated.value,
                 state=State.Suggested.value,
                 source=TagSource.Classification,

@@ -441,18 +441,24 @@ class DatabaseServiceSource(
             table_name=table_name,
             skip_es_search=True,
         )
-        tags = self.get_tag_by_fqn(entity_fqn=table_fqn)
+        tag_labels = self.get_tag_by_fqn(entity_fqn=table_fqn)
+
+        table_entity: Table = self.metadata.get_by_name(entity=Table, fqn=table_fqn, fields=["tags"])
+        if table_entity and table_entity.tags:
+            for tag in table_entity.tags:
+                if "ovp_category" in tag.tagFQN.__root__:
+                    return tag_labels
 
         classification_tag = get_tag_label(
             metadata=self.metadata,
             tag_name="미분류",
             classification_name="ovp_category"
         )
-        if tags:
-            tags.append(classification_tag)
+        if tag_labels:
+            tag_labels.append(classification_tag)
         else:
-            tags = [classification_tag]
-        return tags
+            tag_labels = [classification_tag]
+        return tag_labels
 
     def get_column_tag_labels(
         self, table_name: str, column: dict
