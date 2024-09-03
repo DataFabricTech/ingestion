@@ -15,6 +15,9 @@ import urllib.parse
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
+from metadata.generated.schema.type.tagLabel import TagLabel, LabelType, State, TagSource, TagFQN
+
+from metadata.generated.schema.entity.classification.tag import Tag
 from pydantic import ValidationError
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
@@ -404,6 +407,8 @@ class MinioSource(StorageServiceSource):
     def yield_create_container_requests(
             self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
+        """ 미분류 카테고리만을 가져온 것 """
+        tag_label = self.get_classification_tag_label()
         container_request = CreateContainerRequest(
             name=basic.EntityName(__root__=container_details.name),
             prefix=container_details.prefix,
@@ -412,12 +417,24 @@ class MinioSource(StorageServiceSource):
             dataModel=container_details.data_model,
             service=self.context.get().objectstore_service,
             parent=container_details.parent,
+            tags=[tag_label] if tag_label else None,
             sourceUrl=container_details.sourceUrl,
             fileFormats=container_details.file_formats,
             fullPath=container_details.fullPath,
         )
         yield Either(right=container_request)
         self.register_record(container_request=container_request)
+
+    def get_classification_tag_label(self) -> Optional[TagLabel]:
+        classification_tag = self.metadata.get_by_name(entity=Tag, fqn="ovp_category.미분류")
+        if classification_tag:
+            return TagLabel(
+                tagFQN=TagFQN(__root__="ovp_category.미분류"),
+                labelType=LabelType.Automated.value,
+                state=State.Suggested.value,
+                source=TagSource.Classification,
+            )
+        return None
 
     def _clean_path(self, path: str) -> str:
         return path.strip(KEY_SEPARATOR)
