@@ -454,10 +454,11 @@ class DatabaseServiceSource(
             tag_name="미분류",
             classification_name="ovp_category"
         )
-        if tag_labels:
-            tag_labels.append(classification_tag)
-        else:
-            tag_labels = [classification_tag]
+        if classification_tag:
+            if tag_labels:
+                tag_labels.append(classification_tag)
+            else:
+                tag_labels = [classification_tag]
         return tag_labels
 
     def get_column_tag_labels(

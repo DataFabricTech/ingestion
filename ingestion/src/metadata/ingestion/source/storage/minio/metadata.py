@@ -127,7 +127,7 @@ class MinioSource(StorageServiceSource):
             # if the service connection(minio connection setting) has bucket names, use them
             if self.service_connection.bucketNames:
                 return [
-                    MinioBucketResponse(name=bucket_name)
+                    MinioBucketResponse(Name=bucket_name)
                     for bucket_name in self.service_connection.bucketNames
                 ]
             # No pagination required, as there is a hard 1000 limit on nr of buckets per account
