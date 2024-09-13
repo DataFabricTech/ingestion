@@ -8,15 +8,14 @@ source:
         accessKeyId: "fabric"
         secretKey: "fabric12##"
         endPointURL: "http://192.168.106.12:9000"
-      bucketNames: []
+#      bucketNames: ["datafabric"]
   sourceConfig:
     config:
       type: StorageMetadata
-      bucketFilterPattern:
-        includes:
-          - "datafabric"
-        excludes: []
-      useFqnForFiltering: false
+#      bucketFilterPattern:
+#        includes: []
+#        excludes: []
+#      useFqnForFiltering: false
 sink:
   type: metadata-rest
   config: {}
