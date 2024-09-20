@@ -46,7 +46,9 @@ VERSIONS = {
     "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
     "databricks-sdk": "databricks-sdk>=0.18.0,<0.20.0",
     "trino": "trino[sqlalchemy]",
+    "tika": "tika==2.6.0",
     "spacy": "spacy==3.5.0",
+    "python-docx": "python-docx==1.1.2",
     "looker-sdk": "looker-sdk>=22.20.0",
     "lkml": "lkml~=1.3",
     "tableau": "tableau-api-lib~=0.1",
@@ -118,7 +120,9 @@ base_requirements = {
     "tabulate==0.9.0",
     "typing-inspect",
     "packaging",  # For version parsing
-    "google-auth"
+    "google-auth",
+    "python-docx==1.1.2",
+    "tika==2.6.0"
 }
 
 

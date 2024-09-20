@@ -55,6 +55,12 @@ ALLOWED_COLUMN_FIELDS = {
     "jsonSchema": True,
 }
 
+ALLOWED_RDFS_FIELDS = {
+    "predicate": True,
+    "object": True,
+    "tags": True,
+}
+
 ALLOWED_TASK_FIELDS = {
     "name": True,
     "displayName": True,
@@ -129,6 +135,8 @@ ALLOWED_COMMON_PATCH_FIELDS = {
     "searchIndexSettings": True,
     # Container Entity Fields
     "parent": ALLOWED_ENTITY_REFERENCE_FIELDS,
+    # JB : Add Container Entity Fields
+    "rdfs": {"__all__": ALLOWED_RDFS_FIELDS},
     "children": {"__all__": ALLOWED_ENTITY_REFERENCE_FIELDS},
     "dataModel": ALLOWED_CONTAINER_DATAMODEL_FIELDS,
     "prefix": True,
@@ -139,7 +147,7 @@ ALLOWED_COMMON_PATCH_FIELDS = {
 
 RESTRICT_UPDATE_LIST = ["description", "tags", "owner"]
 
-ARRAY_ENTITY_FIELDS = ["columns", "tasks", "fields"]
+ARRAY_ENTITY_FIELDS = ["columns", "tasks", "fields", "rdfs"]
 
 
 PathTuple = Tuple[str]

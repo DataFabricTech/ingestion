@@ -63,6 +63,14 @@
       "description": "Owner of this database",
       "$ref": "../../type/entityReference.json"
     },
+    "rdfs": {
+      "description": "List of rdf(metadata) for the container",
+      "type": "array",
+      "items": {
+        "$ref": "../../entity/data/container.json#/definitions/rdf"
+      },
+      "default": null
+    },
     "tags": {
       "description": "Tags for this Container Model",
       "type": "array",
