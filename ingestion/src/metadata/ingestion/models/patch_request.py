@@ -56,7 +56,7 @@ ALLOWED_COLUMN_FIELDS = {
 }
 
 ALLOWED_RDFS_FIELDS = {
-    "predicate": True,
+    "name": True,
     "object": True,
     "tags": True,
 }
@@ -397,6 +397,8 @@ def _sort_array_entity_fields(
             destination_attributes = getattr(destination, field)
             source_attributes = getattr(source, field)
 
+            if not destination_attributes:
+                continue
             # Create a dictionary of destination attributes for easy lookup
             destination_dict = {
                 model_str(attr.name): attr for attr in destination_attributes

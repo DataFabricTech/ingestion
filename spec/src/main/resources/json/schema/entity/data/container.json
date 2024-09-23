@@ -38,7 +38,7 @@
       "description": "This schema defines the file formats for the object/files within a container.",
       "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
       "type": "string",
-      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro", "doc", "docx", "hwp"],
+      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro", "doc", "docx", "hwp", "hwpx"],
       "javaEnums": [
         {"name": "Zip"},
         {"name": "Gz"},
@@ -52,7 +52,8 @@
         {"name": "Avro"},
         {"name": "Doc"},
         {"name": "Docx"},
-        {"name": "Hwp"}
+        {"name": "Hwp"},
+        {"name": "Hwpx"}
       ]
     },
     "tableProfilerConfig": {
@@ -66,8 +67,8 @@
       "javaType": "org.openmetadata.schema.type.Rdf",
       "description": "This schema defines the metadata.",
       "properties": {
-        "predicate": {
-          "description": "A predicate defines the relationship between the subject and the object in a RDF(triple)",
+        "name": {
+          "description": "A name(predicate) defines the relationship between the subject and the object in a RDF(triple)",
           "type": "string"
         },
         "object": {
@@ -84,7 +85,7 @@
         }
       },
       "required": [
-        "predicate",
+        "name",
         "object"
       ],
       "additionalProperties": false

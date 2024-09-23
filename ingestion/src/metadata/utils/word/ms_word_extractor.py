@@ -3,6 +3,7 @@ import os
 from docx import Document
 from tika import parser
 
+
 class MsWordMetadataExtractor:
     def __init__(self, file_path: str):
         self.file_path = file_path
