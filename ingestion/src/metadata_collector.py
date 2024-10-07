@@ -135,13 +135,13 @@ def metadataExecute(system_name, sink="file", sink_host="localhost"):
 if __name__ == "__main__":
     pass
 
-    # metadataExecute(system_name=sys.argv[1],
-    #                 sink='metadata-rest',
-    #                 sink_host='<INTERNAL_HOST>')
-    #
-    metadataExecute(system_name='Test-Postgres',
+    metadataExecute(system_name=sys.argv[1],
                     sink='metadata-rest',
-                    sink_host='localhost')
+                    sink_host='<INTERNAL_HOST>')
+
+    # metadataExecute(system_name='Test-Postgres',
+    #                 sink='metadata-rest',
+    #                 sink_host='localhost')
 
     # metadataExecute(system_name=sys.argv[1], sink="file", sink_host="localhost")
     # metadataExecute(system_name="Test-S3", sink="file", sink_host="localhost")
