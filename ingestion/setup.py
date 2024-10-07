@@ -28,7 +28,7 @@ from setuptools import find_namespace_packages, setup
 
 # Add here versions required for multiple plugins
 VERSIONS = {
-    "airflow": "apache-airflow==2.6.3",
+    #"airflow": "apache-airflow==2.6.3",
     "avro": "avro~=1.11",
     "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
     "geoalchemy2": "GeoAlchemy2~=0.12",
@@ -135,7 +135,7 @@ base_requirements = {
 
 plugins: Dict[str, Set[str]] = {
     "airflow": {
-        VERSIONS["airflow"],
+        # VERSIONS["airflow"],
         "attrs",
     },  # Same as ingestion container. For development.
     # "amundsen": {VERSIONS["neo4j"]},

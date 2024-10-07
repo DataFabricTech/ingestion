@@ -47,7 +47,6 @@ def parse_column(self, line, state):
     :param line: Any column-bearing line from SHOW CREATE TABLE
     """
 
-    print(line)
     spec = None
     re_match = self._re_column.match(line)
     if re_match:

@@ -153,7 +153,6 @@ def get_columns(self, connection, table_name, schema=None, **kw):
         text += " AND col.owner = :owner "
     text += " ORDER BY col.column_id"
 
-    print(text)
     cols = connection.execute(sql.text(text), params)
 
     for row in cols:

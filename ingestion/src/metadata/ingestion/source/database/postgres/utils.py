@@ -121,8 +121,6 @@ def get_columns(  # pylint: disable=too-many-locals
         .bindparams(sql.bindparam("table_oid", type_=sqltypes.Integer))
         .columns(attname=sqltypes.Unicode, default=sqltypes.Unicode)
     )
-    print(sql_col_query)
-    print(table_oid)
     conn = connection.execute(sql_col_query, {"table_oid": table_oid})
     rows = conn.fetchall()
 
