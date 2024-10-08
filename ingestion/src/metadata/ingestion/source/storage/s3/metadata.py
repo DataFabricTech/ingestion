@@ -22,7 +22,7 @@ from metadata.generated.schema.api.data.createContainer import CreateContainerRe
 from metadata.generated.schema.entity.data import container
 from metadata.generated.schema.entity.data.container import (
     Container,
-    ContainerDataModel,
+    ContainerDataModel
 )
 from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
     S3Config,
@@ -43,7 +43,7 @@ from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.storage.s3.models import (
     S3BucketResponse,
-    S3ContainerDetails,
+    S3ContainerDetails
 )
 from metadata.ingestion.source.storage.storage_service import (
     KEY_SEPARATOR,
@@ -74,7 +74,7 @@ class S3Source(StorageServiceSource):
     def __init__(self, config: WorkflowSource, metadata: OpenMetadata):
         super().__init__(config, metadata)
         self.s3_client = self.connection.s3_client
-        self.cloudwatch_client = self.connection.cloudwatch_client
+        # self.cloudwatch_client = self.connection.cloudwatch_client
 
         self._bucket_cache: Dict[str, Container] = {}
         self.s3_reader = get_reader(config_source=S3Config(), client=self.s3_client)
@@ -185,7 +185,8 @@ class S3Source(StorageServiceSource):
                 parent=container_details.parent,
                 sourceUrl=container_details.sourceUrl,
                 fileFormats=container_details.file_formats,
-                systemType=self.config.systemType
+                systemType=self.config.systemType,
+                objects=container_details.objects
             )
         )
 
@@ -211,7 +212,7 @@ class S3Source(StorageServiceSource):
                 client=self.s3_client,
             )
             if columns:
-                number_of_objects, size = self._fetch_metric(bucket_response.name)
+                number_of_objects, size, object_list = self._fetch_metric(bucket_response.name)
                 return S3ContainerDetails(
                     name=metadata_entry.dataPath.strip(KEY_SEPARATOR),
                     prefix=f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}",
@@ -227,6 +228,7 @@ class S3Source(StorageServiceSource):
                         bucket_name=bucket_name,
                         prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
                     ),
+                    objects=object_list
                 )
         return None
 
@@ -278,13 +280,26 @@ class S3Source(StorageServiceSource):
 
             bucket_size = 0
             object_len = 0
+            object_list = []
             if 'Contents' in bucket_objects:
                 contents = bucket_objects['Contents']
                 object_len = len(contents)
-                bucket_size = sum(obj['Size'] for obj in contents)
-                print(contents)
+
+                # bucket_size = sum(obj['Size'] for obj in contents)
+                for obj in contents:
+                    bucket_size += obj['Size']
+                    object_list.append({
+                        "name": obj['Key'],
+                        "lastModified": obj['LastModified'],
+                        "size": obj['Size'],
+                        "owner": {
+                            "id": obj['Owner']['ID'],
+                            "displayName": obj['Owner']['DisplayName']
+                        }
+                    })
+
             print(f"bucket name : {bucket_name}, size : {bucket_size}, object number : {object_len}")
-            return object_len, bucket_size
+            return object_len, bucket_size, object_list
 
         except Exception:
             logger.debug(traceback.format_exc())
@@ -297,7 +312,7 @@ class S3Source(StorageServiceSource):
     def _generate_unstructured_container(
         self, bucket_response: S3BucketResponse
     ) -> S3ContainerDetails:
-        number_of_objects, size = self._fetch_metric(bucket_response.name)
+        number_of_objects, size, object_list = self._fetch_metric(bucket_response.name)
         return S3ContainerDetails(
             name=bucket_response.name,
             prefix=KEY_SEPARATOR,
@@ -307,6 +322,7 @@ class S3Source(StorageServiceSource):
             file_formats=[],
             data_model=None,
             sourceUrl=self._get_bucket_source_url(bucket_name=bucket_response.name),
+            objects=object_list
         )
 
     def _get_sample_file_path(

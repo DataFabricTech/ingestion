@@ -78,3 +78,6 @@ class CreateContainerRequest(BaseModel):
     systemType: Optional[str] = Field(
         None, description='system type'
     )
+    objects: Optional[List[container.Object]] = Field(
+        None, description='Object in this container.'
+    )

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from enum import Enum
 from typing import List, Optional
+from datetime import datetime
 
 from pydantic import BaseModel, Extra, Field, constr
 
@@ -51,6 +52,29 @@ class ContainerDataModel(BaseModel):
     columns: List[table.Column] = Field(
         ..., description="Columns belonging to this container's schema"
     )
+
+class Owner(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    id: str = Field(
+        ..., description='Owner Id of object'
+    )
+    displayName: Optional[str] = Field(
+        None, description='Display Name of object'
+    )
+
+class Object(BaseModel):
+    class Config:
+        extra = Extra.forbid
+    name: str = Field(..., description="Object name")
+    lastModified: datetime = Field(..., description='Object last modified time.')
+    size: float = Field(
+        ...,
+        description="size in bytes of objects",
+        title="size(bytes) of objects",
+    )
+    owner: Owner = Field(..., description="owner ID of object")
 
 
 class Container(BaseModel):
@@ -156,3 +180,4 @@ class Container(BaseModel):
     systemType: Optional[str] = Field(
         None, description='system type'
     )
+    objects: Optional[List[Object]] = Field(None, description='Object in this container.')

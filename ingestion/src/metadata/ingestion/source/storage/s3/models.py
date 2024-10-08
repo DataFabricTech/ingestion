@@ -19,6 +19,7 @@ from pydantic import BaseModel, Extra, Field
 from metadata.generated.schema.entity.data.container import (
     ContainerDataModel,
     FileFormat,
+    Object
 )
 from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.entityReference import EntityReference
@@ -38,7 +39,6 @@ class S3BucketResponse(BaseModel):
         description="Timestamp of Bucket creation in ISO format",
         alias="CreationDate",
     )
-
 
 class S3ContainerDetails(BaseModel):
     """
@@ -78,3 +78,5 @@ class S3ContainerDetails(BaseModel):
     sourceUrl: Optional[basic.SourceUrl] = Field(
         None, description="Source URL of the container."
     )
+    objects: Optional[List[Object]] = Field(..., description='Object in this Bucket.')
+
