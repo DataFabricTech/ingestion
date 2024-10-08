@@ -20,7 +20,7 @@ from metadata.ingestion.source.database.custom.tibero.utils import (
 # TiberoDialect.get_table_names = get_table_names
 # TiberoDialect.get_columns = get_columns
 
-from sqlalchemy_tibero.base import TiberoDialect
+# from sqlalchemy_tibero.base import TiberoDialect
 # TiberoDialect.get_columns = get_columns
 
 class TiberoSource(CommonCustomDbSourceService):
