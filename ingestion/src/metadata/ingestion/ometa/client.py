@@ -297,6 +297,20 @@ class REST:
         """
         return self._request("PUT", path, data)
 
+    @calculate_execution_time(context="PUT")
+    def put_plain_text(self, path, data=None):
+        """
+        PUT method
+
+        Parameters:
+            path (str):
+            data ():
+
+        Returns:
+            Response
+        """
+        return self._request("PUT", path, data, headers={"Content-Type": "text/plain"})
+
     @calculate_execution_time(context="PATCH")
     def patch(self, path, data=None):
         """

@@ -18,7 +18,7 @@ from pydantic import BaseModel, Extra, Field
 
 from metadata.generated.schema.entity.data.container import (
     ContainerDataModel,
-    FileFormat,
+    FileFormat, Rdf,
 )
 from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.entityReference import EntityReference
@@ -78,9 +78,12 @@ class MinioContainerDetails(BaseModel):
     sourceUrl: Optional[basic.SourceUrl] = Field(
         None, description="Source URL of the container."
     )
-
     fullPath: Optional[str] = Field(
         None, description="Full path of the container/file."
+    )
+    rdfs: Optional[List[Rdf]] = Field(
+        None,
+        description="RDFs",
     )
 
 

@@ -38,7 +38,7 @@
       "description": "This schema defines the file formats for the object/files within a container.",
       "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
       "type": "string",
-      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro"],
+      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro", "doc", "docx", "hwp", "hwpx"],
       "javaEnums": [
         {"name": "Zip"},
         {"name": "Gz"},
@@ -49,7 +49,11 @@
         {"name": "Xlsx"},
         {"name": "Json"},
         {"name": "Parquet"},
-        {"name": "Avro"}
+        {"name": "Avro"},
+        {"name": "Doc"},
+        {"name": "Docx"},
+        {"name": "Hwp"},
+        {"name": "Hwpx"}
       ]
     },
     "tableProfilerConfig": {
@@ -57,6 +61,34 @@
     },
     "tableProfile": {
       "$ref": "../data/table.json#/definitions/tableProfile"
+    },
+    "rdf": {
+      "type": "object",
+      "javaType": "org.openmetadata.schema.type.Rdf",
+      "description": "This schema defines the metadata.",
+      "properties": {
+        "name": {
+          "description": "A name(predicate) defines the relationship between the subject and the object in a RDF(triple)",
+          "type": "string"
+        },
+        "object": {
+          "description": "The object is the value or resource connected to the subject through the predicate in a RDF",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for a this metadata.",
+          "type": "array",
+          "items": {
+            "$ref": "../../type/tagLabel.json"
+          },
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "object"
+      ],
+      "additionalProperties": false
     }
   },
   "properties": {
@@ -231,6 +263,14 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 32
+    },
+    "rdfs": {
+      "description": "This is a rdf(metadata) list.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/rdf"
+      },
+      "default": null
     }
   },
   "required": [

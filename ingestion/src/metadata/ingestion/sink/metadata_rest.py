@@ -41,7 +41,7 @@ from metadata.generated.schema.entity.data.searchIndex import (
     SearchIndexSampleData,
 )
 from metadata.generated.schema.entity.data.table import DataModel, Table
-from metadata.generated.schema.entity.data.container import Container
+from metadata.generated.schema.entity.data.container import Container, FileFormat
 from metadata.generated.schema.entity.data.topic import TopicSampleData
 from metadata.generated.schema.entity.teams.role import Role
 from metadata.generated.schema.entity.teams.team import Team
@@ -522,6 +522,27 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
     @_run_dispatch.register
     def write_profiler_response(self, record: ProfilerResponse) -> Either[Any]:
         """Cleanup "`" character in columns and ingest"""
+        if isinstance(record.table, Container):
+            if (record.table.fileFormats is not None and
+                record.table.fileFormats[0] in [FileFormat.doc, FileFormat.docx, FileFormat.hwp, FileFormat.hwpx]):
+                logger.info(f"profile update for document file")
+                if record.unstructured_sample_data:
+                    res = self.metadata.ingest_container_doc_sample_data(
+                        container=record.table, sample_data=record.unstructured_sample_data
+                    )
+                    # if not table_data:
+                    #     self.status.failed(
+                    #         StackTraceError(
+                    #             name=container.fullyQualifiedName.__root__,
+                    #             error="Error trying to ingest sample data for container",
+                    #         )
+                    #     )
+                    # else:
+                    #     logger.debug(
+                    #         f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
+                    #     )
+                    return Either(right=res)
+
         column_profile = record.profile.columnProfile
         for column in column_profile:
             column.name = column.name.replace("`", "")

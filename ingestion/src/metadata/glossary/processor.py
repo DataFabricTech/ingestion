@@ -13,14 +13,12 @@
 Processor util to fetch pii sensitive columns
 """
 import traceback
-from typing import List, Optional, cast
+from typing import List, Optional
 
+from metadata.generated.schema.entity.data.container import FileFormat
 from metadata.generated.schema.entity.data.table import Column, TableData
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
-)
-from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
-    DatabaseServiceProfilerPipeline,
 )
 from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import ProfilerConfigType
 from metadata.generated.schema.metadataIngestion.workflow import (
@@ -32,13 +30,13 @@ from metadata.generated.schema.type.tagLabel import (
     TagLabel,
     TagSource, TagFQN,
 )
+from metadata.glossary.matcher.glossary_terms_matcher import GlossaryTermsMatcher
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Processor
 from metadata.ingestion.models.table_metadata import ColumnTag
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.glossary.matcher.glossary_terms_matcher import GlossaryTermsMatcher
 from metadata.profiler.api.models import ProfilerResponse
 from metadata.utils.logger import profiler_logger
 
@@ -51,9 +49,9 @@ class GlossaryProcessorForDatabaseService(Processor):
     """
 
     def __init__(
-        self,
-        config: OpenMetadataWorkflowConfig,
-        metadata: OpenMetadata,
+            self,
+            config: OpenMetadataWorkflowConfig,
+            metadata: OpenMetadata,
     ):
         logger.info("Glossary Processor Initialized")
         super().__init__()
@@ -69,10 +67,10 @@ class GlossaryProcessorForDatabaseService(Processor):
 
     @classmethod
     def create(
-        cls,
-        config_dict: dict,
-        metadata: OpenMetadata,
-        pipeline_name: Optional[str] = None,
+            cls,
+            config_dict: dict,
+            metadata: OpenMetadata,
+            pipeline_name: Optional[str] = None,
     ) -> "Step":
         config = parse_workflow_config_gracefully(config_dict)
         return cls(config=config, metadata=metadata)
@@ -96,10 +94,10 @@ class GlossaryProcessorForDatabaseService(Processor):
         return ColumnTag(column_fqn=column_fqn, tag_label=tag_label)
 
     def process_column(
-        self,
-        idx: int,
-        column: Column,
-        table_data: Optional[TableData],
+            self,
+            idx: int,
+            column: Column,
+            table_data: Optional[TableData],
     ) -> Optional[List[ColumnTag]]:
         """
         테이블 이름과 컬럼 이름을 데이터 사전에서 검색하여 사전 태그 추가
@@ -136,8 +134,8 @@ class GlossaryProcessorForDatabaseService(Processor):
         return None
 
     def _run(
-        self,
-        record: ProfilerResponse,
+            self,
+            record: ProfilerResponse,
     ) -> Either[ProfilerResponse]:
         """
         Main entrypoint for the glossary.
@@ -145,12 +143,20 @@ class GlossaryProcessorForDatabaseService(Processor):
         데이터 사전 정보를 이용해 테이블, 컬럼 정보를 업데이트.
         """
 
+        logger.info("Glossary Processor")
+
+        #  JBLIM : 문서 파일을 위한 데이터 사전 기능은 아직..
+        if (record.table.fileFormats is not None and len(record.table.fileFormats) > 0 and
+                record.table.fileFormats[0] in [FileFormat.docx, FileFormat.doc, FileFormat.hwpx, FileFormat.hwp]):
+            logger.info("Storage(MinIO) - Unstructured File Format(Document) Pass...")
+            return Either(right=record)
+
         column_tags = []
         if self.config.source.sourceConfig.config.type == ProfilerConfigType.StorageProfiler:
-            logger.info("StorageServiceProfilerPipeline Glossary Processor")
+            logger.info("Storage(MinIO) - Structured File Format")
             columns = record.table.dataModel.columns
         else:
-            logger.info("DatabaseServiceProfilerPipeline(..) Glossary Processor")
+            logger.info("Database")
             columns = record.table.columns
         for idx, column in enumerate(columns):
             try:

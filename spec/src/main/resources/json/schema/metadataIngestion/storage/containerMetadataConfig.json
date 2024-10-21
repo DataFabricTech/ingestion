@@ -16,6 +16,12 @@
           "description": "The path where the data resides in the container, excluding the bucket name",
           "type": "string"
         },
+        "contentSize": {
+          "title": "Content size",
+          "description": "content size",
+          "type": "integer",
+          "default": null
+        },
         "structureFormat": {
           "title": "Schema format",
           "description": "What's the schema format for the container, eg. avro, parquet, csv.",
