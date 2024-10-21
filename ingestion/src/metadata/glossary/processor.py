@@ -15,7 +15,7 @@ Processor util to fetch pii sensitive columns
 import traceback
 from typing import List, Optional
 
-from metadata.generated.schema.entity.data.container import FileFormat
+from metadata.generated.schema.entity.data.container import FileFormat, Container
 from metadata.generated.schema.entity.data.table import Column, TableData
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
@@ -145,19 +145,23 @@ class GlossaryProcessorForDatabaseService(Processor):
 
         logger.info("Glossary Processor")
 
-        #  JBLIM : 문서 파일을 위한 데이터 사전 기능은 아직..
-        if (record.table.fileFormats is not None and len(record.table.fileFormats) > 0 and
-                record.table.fileFormats[0] in [FileFormat.docx, FileFormat.doc, FileFormat.hwpx, FileFormat.hwp]):
-            logger.info("Storage(MinIO) - Unstructured File Format(Document) Pass...")
-            return Either(right=record)
-
         column_tags = []
+
+        #  JBLIM : 문서 파일을 위한 데이터 사전 기능은 아직..
+        if isinstance(record.table, Container):
+            logger.info("For Storage(Container)")
+            if (record.table.fileFormats is not None and len(record.table.fileFormats) > 0 and
+                    record.table.fileFormats[0] in [FileFormat.docx, FileFormat.doc, FileFormat.hwpx, FileFormat.hwp]):
+                logger.info("Unstructured File Format(Document) Pass...")
+                return Either(right=record)
+
         if self.config.source.sourceConfig.config.type == ProfilerConfigType.StorageProfiler:
-            logger.info("Storage(MinIO) - Structured File Format")
+            logger.info("Structured File Format")
             columns = record.table.dataModel.columns
         else:
             logger.info("Database")
             columns = record.table.columns
+
         for idx, column in enumerate(columns):
             try:
                 col_tags = self.process_column(

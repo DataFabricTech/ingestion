@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker buildx build . --platform linux/amd64 --push -t repo.iris.tools/datafabric/ingestion:v1.1.16 -f Dockerfile
+docker buildx build . --platform linux/amd64 --push -t repo.iris.tools/datafabric/ingestion:v1.1.17 -f Dockerfile
