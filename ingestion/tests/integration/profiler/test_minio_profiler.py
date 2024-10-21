@@ -50,7 +50,7 @@ def get_service_config():
 
 
 service_type = "minio"
-service_name = "test"
+service_name = "fabric-minio"
 openmetadata_url = "http://192.168.105.51:8585/api"
 
 

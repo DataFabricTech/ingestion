@@ -13,7 +13,7 @@ source:
     config:
       type: StorageMetadata
       bucketFilterPattern:
-        includes: ["fabric"]
+        includes: ["datafabric"]
         excludes: []
 #      useFqnForFiltering: false
 sink:

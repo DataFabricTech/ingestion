@@ -408,7 +408,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                     continue
                 if isinstance(v, str) and v == "":
                     continue
-                rdfs.append(Rdf(name=k, object=v))
+                rdfs.append(Rdf(name=k, object=f'{v}'))
             return rdfs
         finally:
             os.remove(local_file_path)

@@ -39,7 +39,7 @@ from metadata.utils.logger import profiler_logger
 logger = profiler_logger()
 
 #CONTAINER_FIELDS = ["tableProfilerConfig", "dataModel", "customMetrics"]
-CONTAINER_FIELDS = ["dataModel", "parent"]
+CONTAINER_FIELDS = ["dataModel", "parent", "fileFormats"]
 TAGS_FIELD = ["tags"]
 
 
@@ -127,7 +127,11 @@ class MetadataSourceForMinio(Source):
             FileFormat.csv,
             FileFormat.tsv,
             FileFormat.xls,
-            FileFormat.xlsx
+            FileFormat.xlsx,
+            FileFormat.hwp,
+            FileFormat.hwpx,
+            FileFormat.doc,
+            FileFormat.docx,
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats

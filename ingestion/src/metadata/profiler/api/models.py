@@ -117,8 +117,9 @@ class ProfilerResponse(ConfigModel):
     """
 
     table: Union[Table, Container]
-    profile: CreateTableProfileRequest
+    profile: Optional[CreateTableProfileRequest] = None
     sample_data: Optional[TableData] = None
+    unstructured_sample_data: Optional[str] = None
     column_tags: Optional[List[ColumnTag]] = None
 
     def __str__(self):
