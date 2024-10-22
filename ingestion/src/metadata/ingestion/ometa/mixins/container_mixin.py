@@ -104,7 +104,7 @@ class OMetaContainerMixin:
         try:
             resp = self.client.put_plain_text(
                 f"{self.get_suffix(Container)}/{container.id.__root__}/unstruct_sampleData",
-                data=f'{sample_data}'
+                data=f'{sample_data}'.encode("utf-8"),
             )
         except Exception as exc:
             logger.debug(traceback.format_exc())
