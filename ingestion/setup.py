@@ -40,6 +40,8 @@ VERSIONS = {
     "mongo": "pymongo~=4.3",
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
+    "nltk": "nltk==3.9.1",
+    "transformers": "transformers==4.46.3",
     "openpyxl": "openpyxl~=3.1.3",
     "packaging": "packaging==21.3",
     "pandas": "pandas~=2.0.0",
@@ -60,6 +62,7 @@ VERSIONS = {
     "tableau": "tableau-api-lib~=0.1",
     "tika": "tika==2.6.0",
     "trino": "trino[sqlalchemy]",
+    "torch": "torch==2.5.1",
     "validators": "validators~=0.22.0",
 }
 
@@ -123,6 +126,9 @@ base_requirements = {
     "typing-inspect",
     "packaging",  # For version parsing
     "google-auth",
+    "nltk==3.9.1",
+    "transformers==4.46.3",
+    "torch==2.5.1",
     "python-docx==1.1.2",
     "lxml==5.3.0",
     "tika==2.6.0",

@@ -385,23 +385,20 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         file_extension = path.split('.')[-1]
 
         if file_extension == "hwp" or file_extension == "hwpx":
-            return self._get_hwp_meta(local_file_path, file_extension)
+            return self._get_hwp_meta(local_file_path)
         elif file_extension == "docx" or file_extension == "doc":
             return self._get_word_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
             return None
 
-    def _get_hwp_meta(self, local_file_path: str, file_extention: str) -> Optional[List[Rdf]]:
+    def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from hwp/hwpx file
         """
         try:
             extractor = HwpMetadataExtractor(local_file_path)
-            if file_extention == "hwp":
-                metas = extractor.extract_metadata()
-            else:
-                metas = extractor.extract_hwpx_metadata()
+            metas = extractor.get_metadata()
             rdfs = []
             for k, v in metas.items():
                 if v is None:
@@ -459,7 +456,6 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                     rdfs.append(Rdf(name="Title", object=v))
                 if k == 'Version':
                     rdfs.append(Rdf(name="Version", object=v))
-
                 if k == "cp:revision":
                     rdfs.append(Rdf(name="Revision", object=v))
                 if k == "meta:word_count":
@@ -485,6 +481,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                     rdfs.append(Rdf(name="Page_count", object=v))
                 if k == "dc:language":
                     rdfs.append(Rdf(name="Language", object=v if isinstance(v, str) else v[0]))
+                if k == "Summary":
+                    rdfs.append(Rdf(name="Summary", object=v if isinstance(v, str) else v[0]))
                 # if v is not None:
                 #     rdfs.append(Rdf(name=k, object=v))
             return rdfs_delete_duplicated(rdfs)

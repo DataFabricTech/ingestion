@@ -106,7 +106,7 @@ class DocumentProfilerInterface(ProfilerInterface):
                 return None
             file_extension = path.split('.')[-1]
             if file_extension == "hwp" or file_extension == "hwpx":
-                return self.get_hwp_sample(local_file_path, file_extension)
+                return self.get_hwp_sample(local_file_path)
             elif file_extension == "docx" or file_extension == "doc":
                 return self.get_word_sample(local_file_path)
             else:
@@ -117,18 +117,14 @@ class DocumentProfilerInterface(ProfilerInterface):
         finally:
             os.remove(local_file_path)
 
-    def get_hwp_sample(self, local_file_path, file_extension):
+    def get_hwp_sample(self, local_file_path):
         hwp_extractor = HwpMetadataExtractor(local_file_path)
-        if file_extension == "hwp":
-            sample_data = hwp_extractor.get_text(1000)
-            return sample_data
-        else:
-            sample_data = hwp_extractor.get_text_hwpx(1000)
-            return sample_data
+        sample_data = hwp_extractor.get_sample_data(1000)
+        return sample_data
 
     def get_word_sample(self, local_file_path):
         word_extractor = MsWordMetadataExtractor(local_file_path)
-        sample_text = word_extractor.extract_sample_text(500)
+        sample_text = word_extractor.get_sample_data(1000)
         return sample_text
 
     def _get_sampler(self):

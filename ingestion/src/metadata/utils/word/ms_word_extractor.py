@@ -3,10 +3,13 @@ import os
 from docx import Document
 from tika import parser
 
+from metadata.ml.summarization import Summarization
+
 
 class MsWordMetadataExtractor:
     def __init__(self, file_path: str):
         self.file_path = file_path
+        self.summarizer = Summarization()
 
     def extract_metadata(self) -> dict:
 
@@ -52,28 +55,27 @@ class MsWordMetadataExtractor:
             metadata['Title'] = core_properties.title
         if core_properties.version is not None:
             metadata['Version'] = core_properties.version
+
+        sample_data = self.get_sample_data(-1)
+        if sample_data is not None:
+            str_summary = self.summarizer.summarize(sample_data)
+            metadata['Summary'] = str_summary
         return metadata
 
-    def extract_sample_text(self, max_paragraphs: int = 50) -> str:
-        # Word 문서를 불러옵니다.
+    def get_sample_data(self, chunk_size: int = 1000) -> str:
+        sample_text = ""
+        # Word 문서를 불러 옵니다.
         doc = Document(self.file_path)
-
-        # 문서의 모든 텍스트를 한 줄씩 저장할 리스트
-        paragraphs = []
-
         # 문서의 모든 단락을 순회
         for para in doc.paragraphs:
-            # 단락이 비어있지 않으면 리스트에 추가
+            # 단락이 비어 있지 않으면 추가
             if para.text.strip():
-                paragraphs.append(para.text)
-
-        # 지정된 수(max_paragraphs)의 단락만 추출
-        sample_paragraphs = paragraphs[:max_paragraphs]
-
-        # 리스트에 저장된 단락을 문자열로 결합
-        sample_text = "\n".join(sample_paragraphs)
-
+                sample_text += para.text
+                sample_text += "\n"
+                if 0 < chunk_size < len(sample_text):
+                    break
         return sample_text
+
 
 # # 3. Word 문서로부터 텍스트를 추출하고 주제를 예측하는 함수
 # def predict_topic(docx_file, model):

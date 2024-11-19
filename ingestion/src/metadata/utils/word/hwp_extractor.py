@@ -9,6 +9,8 @@ import struct
 import re
 import unicodedata
 
+from metadata.ml.summarization import Summarization
+
 
 class HwpMetadataExtractor:
     FILE_HEADER_SECTION = "FileHeader"
@@ -18,10 +20,28 @@ class HwpMetadataExtractor:
     HWP_TEXT_TAGS = [67]
 
     def __init__(self, file_path: str):
+        self.summarizer = Summarization()
         self._compressed = None
         self._valid = None
         self._ole = None
         self.file_path = file_path
+
+        if zipfile.is_zipfile(file_path):
+            self.is_zip = True
+        else:
+            self.is_zip = False
+
+        if file_path.endswith(".hwp"):
+            self.is_hwp = True
+        elif file_path.endswith(".hwpx") and self.is_zip:
+            self.is_hwp = False
+        else:
+            self.is_hwp = True
+
+    def get_metadata(self) -> dict:
+        if self.is_hwp:
+            return self.extract_metadata()
+        return self.extract_hwpx_metadata()
 
     def extract_metadata(self) -> dict:
         olestg = OleStorage(self.file_path)
@@ -49,6 +69,12 @@ class HwpMetadataExtractor:
             metadata["last_save_dtm"] = summary.lastSavedTime
         if summary.lastPrintedTime is not None:
             metadata["last_printed"] = summary.lastPrintedTime
+
+        sample_data = self.get_sample_data(-1)
+        if sample_data is not None:
+            str_summary = self.summarizer.summarize(sample_data)
+            metadata["Summary"] = str_summary
+
         return metadata
 
     def extract_hwpx_metadata(self):
@@ -85,17 +111,18 @@ class HwpMetadataExtractor:
                                     metadata_dict[tag] = meta.text
                         else:
                             print("Metadata not found.")
+
+        sample_data = self.get_sample_data(-1)
+        if sample_data is not None:
+            str_summary = self.summarizer.summarize(sample_data)
+            metadata_dict["Summary"] = str_summary
+
         return metadata_dict
 
-    def get_text_hwpx(self, chunk_size: int = 1000):
-        # HWPX 파일을 ZIP 형식으로 열기
-        with zipfile.ZipFile(self.file_path, 'r') as zip_ref:
-            # text 파일을 찾아서
-            for file in zip_ref.filelist:
-                if file.filename == "Preview/PrvText.txt":
-                    with zip_ref.open("Preview/PrvText.txt") as preview_file:
-                        return preview_file.read().decode('utf-8')[:chunk_size]
-        return ""
+    def get_sample_data(self, chunk_size: int = 1000):
+        if self.is_hwp:
+            return self.get_sample_data_from_hwp(chunk_size)
+        return self.get_sample_data_from_hwpx(chunk_size)
 
     # 파일 불러오기
     def load(self):
@@ -123,8 +150,8 @@ class HwpMetadataExtractor:
 
         return ["BodyText/Section" + str(x) for x in sorted(m)]
 
-    # 전체 text 추출
-    def get_text(self, chunk_size):
+    # text 추출
+    def get_sample_data_from_hwp(self, chunk_size):
         _ole = self.load()
         _dirs = _ole.listdir()
         _valid = self.is_valid(_dirs)
@@ -137,6 +164,9 @@ class HwpMetadataExtractor:
         for section in sections:
             text += self.get_text_from_section(_ole, _compressed, section)
             text += "\n"
+
+        if chunk_size < 0:
+            return text
 
         return text[0:chunk_size]
 
@@ -172,6 +202,33 @@ class HwpMetadataExtractor:
 
         return text
 
+    def get_sample_data_from_hwpx(self, chunk_size: int = 1000):
+        extracted_text = ""
+        try:
+            # HWPX 파일 열기
+            with zipfile.ZipFile(self.file_path, 'r') as z:
+                # Contents/ 디렉터리의 Section*.xml 파일 찾기
+                section_files = [f for f in z.namelist() if f.startswith("Contents/section") and f.endswith(".xml")]
+
+                for section_file in section_files:
+                    # XML 파일 읽기
+                    with z.open(section_file) as file:
+                        tree = ET.parse(file)
+                        root = tree.getroot()
+
+                        # 텍스트 추출 (hwp:paragraph 태그 안의 텍스트)
+                        for para in root.findall(".//{http://www.hancom.co.kr/hwpml/2011/paragraph}p"):
+                            texts = para.findall(".//{http://www.hancom.co.kr/hwpml/2011/paragraph}t")
+                            for text in texts:
+                                extracted_text += text.text if text.text else ""
+                            extracted_text += "\n"  # 문단 구분
+                            if 0 < chunk_size < len(extracted_text):
+                                break
+        except Exception as e:
+            print(f"오류 발생: {e}")
+
+        return extracted_text
+
 #################### 텍스트 정제 함수 #######################
 # 중국어 제거
 def remove_chinese_characters(s: str):
@@ -182,14 +239,23 @@ def remove_chinese_characters(s: str):
 def remove_control_characters(s):
     return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
-# if __name__ == "__main__":
-    # extractor = HwpMetadataExtractor("/Users/jblim/2023년도_연차보고서_임준범_231222-1.hwp")
-    # metadatas = extractor.extract_metadata()
-    # for key, value in metadatas.items():
-    #     print(f"{key}: {value}")
-    # text = extractor._get_text()
-    # print(text)
-    # extractor = HwpMetadataExtractor("/Users/jblim/hello world.hwpx")
-    # preview_text = extractor.get_text_hwpx()
-    # print(f'{preview_text}')
 
+def gettext(path: str):
+
+    f = olefile.OleFileIO(path)
+
+# if __name__ == "__main__":
+#     summary = Summarization()
+#
+#     extractor = HwpMetadataExtractor("/Users/jblim/Downloads/사업타당성_검토.hwp")
+#     result = summary.summarize(extractor.get_sample_data(-1))
+#     print(result)
+#     # metadatas = extractor.extract_metadata()
+#     # for key, value in metadatas.items():
+#     #     print(f"{key}: {value}")
+#
+#     extractor = HwpMetadataExtractor("/Users/jblim/Downloads/뉴스.hwpx")
+#     sampledata = extractor.get_sample_data(-1)
+#     result = summary.summarize(sampledata)
+#     print(result)
+#
