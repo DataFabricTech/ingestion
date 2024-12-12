@@ -13,6 +13,7 @@
 Generic Delimiter-Separated-Values implementation
 """
 import functools
+import io
 from functools import singledispatchmethod
 from typing import Any, Dict, Optional
 
@@ -76,6 +77,17 @@ class DSVDataFrameReader(DataFrameReader):
         # columns = [Column(name=col) for col in chunk_list[0].columns]
         return DatalakeColumnWrapper(dataframes=chunk_list)
 
+    def read_from_pandas_with_raw(self, body) -> DatalakeColumnWrapper:
+        import pandas as pd  # pylint: disable=import-outside-toplevel
+
+        chunk_list = []
+        with pd.read_csv(body, sep=self.separator, chunksize=CHUNKSIZE) as reader:
+            for chunks in reader:
+                chunk_list.append(chunks)
+
+        # columns = [Column(name=col) for col in chunk_list[0].columns]
+        return DatalakeColumnWrapper(dataframes=chunk_list)
+
     @singledispatchmethod
     def _read_dsv_dispatch(
             self, config_source: ConfigSource, key: str, bucket_name: str
@@ -102,7 +114,7 @@ class DSVDataFrameReader(DataFrameReader):
         storage_options = {
             "key": f"{self.config_source.accessKeyId}",
             "secret": f"{self.config_source.secretKey}",
-            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
+            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}", "region_name": "ap-northeast-2"},}
 
         for encoding in PANDAS_ENCODINGS:
             try:
@@ -110,6 +122,13 @@ class DSVDataFrameReader(DataFrameReader):
                                              storage_options=storage_options, encoding=encoding)
             except UnicodeDecodeError as err:
                 continue
+            except PermissionError as err:
+                try:
+                    response = self.client.get_object(Bucket=bucket_name, Key=key)
+                    data = response['Body'].read()
+                    return self.read_from_pandas_with_raw(io.BytesIO(data))
+                except Exception as err:
+                    raise err
             except Exception as err:
                 raise err
 
