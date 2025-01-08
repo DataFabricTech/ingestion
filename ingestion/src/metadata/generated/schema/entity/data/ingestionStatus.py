@@ -5,6 +5,6 @@ class IngestionStatus(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    systemname: str = Field(
+    system_name: str = Field(
         ..., description='ingestion system name'
     )
