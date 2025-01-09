@@ -28,6 +28,7 @@ from . import (
     searchServiceMetadataPipeline,
     storageServiceMetadataPipeline,
     # testSuitePipeline,
+    filesystemServiceMetadataPipeline
 )
 
 
@@ -100,6 +101,8 @@ class SourceConfig(BaseModel):
             # dataInsightPipeline.DataInsightPipeline,
             # dbtPipeline.DbtPipeline,
             # applicationPipeline.ApplicationPipeline,
+            filesystemServiceMetadataPipeline.FilesystemServiceMetadataPipeline,
+
         ]
     ] = None
 

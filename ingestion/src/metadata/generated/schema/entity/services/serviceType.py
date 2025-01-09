@@ -16,3 +16,5 @@ class ServiceType(Enum):
     Pipeline = 'Pipeline'
     Storage = 'Storage'
     Search = 'Search'
+    Filesystem = 'Filesystem'
+

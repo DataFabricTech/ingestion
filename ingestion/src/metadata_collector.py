@@ -1,10 +1,10 @@
 from typing import Union
-import sys
 
 from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
+from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
 
 from metadata.utils.logger import ingestion_logger
 
@@ -16,6 +16,7 @@ def getSourceFilter(sourceFileter):
 
     #profile phy
     # return {'type': 'Profiler'}
+
     if sourceFileter == None:
         return {
                 "type": "DatabaseMetadata",
@@ -48,7 +49,7 @@ def getMetaSystemInfo(system_name):
     from app.utils.client import SqlalchemyOrmClient, postgresql_url
     client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
     client.__enter__()
-    result = client.select_one(f"select <columns> from <table> where systemname = '{system_name}'")
+    result = client.select_one(f"select <columns> from <table> where system_name = '{system_name}'")
     client.__exit__(None, None, None)
 
     hostport = result[1]
@@ -60,7 +61,7 @@ def getMetaSystemInfo(system_name):
     return result[0], hostport, result[3], result[4], result[5], sourceFilter
 
 
-def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
+def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, FilesystemServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
                sink_type, sink_host,
                source_hostport, source_user, source_password, source_database, source_filter):
@@ -72,6 +73,7 @@ def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, Sea
     from services.database.hive.source import HiveSource
     from services.database.mssql.source import MssqlSource
     from services.storage.s3.source import S3Source
+    from services.filesystem.linux.source import LinuxSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -79,6 +81,8 @@ def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, Sea
         pass
     elif service_type in StorageServiceType.__members__:
         service_type = StorageServiceType(service_type)
+    elif service_type in FilesystemServiceType.__members__:
+        service_type = FilesystemServiceType(service_type)
     else:
         raise Exception(f"system_type invalid. {service_type}")
 
@@ -105,6 +109,9 @@ def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, Sea
     elif service_type == StorageServiceType.S3:
         source = S3Source(service_type=service_type, sink_type=sink_type, sink_host=sink_host,
                           source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == FilesystemServiceType.Linux:
+        source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+                             source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
 
     return source
 
@@ -135,13 +142,13 @@ def metadataExecute(system_name, sink="file", sink_host="localhost"):
 if __name__ == "__main__":
     pass
 
-    metadataExecute(system_name=sys.argv[1],
-                    sink='metadata-rest',
-                    sink_host='<INTERNAL_HOST>')
-
-    # metadataExecute(system_name='Test-Postgres',
+    # metadataExecute(system_name=sys.argv[1],
     #                 sink='metadata-rest',
-    #                 sink_host='localhost')
+    #                 sink_host='<INTERNAL_HOST>')
+    #
+    metadataExecute(system_name='Test-Oracle',
+                    sink='metadata-rest',
+                    sink_host='localhost')
 
     # metadataExecute(system_name=sys.argv[1], sink="file", sink_host="localhost")
-    # metadataExecute(system_name="Test-S3", sink="file", sink_host="localhost")
+    # metadataExecute(system_name="Test-Oracle", sink="file", sink_host="localhost")

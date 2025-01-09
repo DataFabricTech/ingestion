@@ -171,25 +171,6 @@ class S3Source(StorageServiceSource):
                     )
                 )
 
-    def yield_create_container_requests(
-        self, container_details: S3ContainerDetails
-    ) -> Iterable[Either[CreateContainerRequest]]:
-        yield Either(
-            right=CreateContainerRequest(
-                name=container_details.name,
-                prefix=container_details.prefix,
-                numberOfObjects=container_details.number_of_objects,
-                size=container_details.size,
-                dataModel=container_details.data_model,
-                service=self.context.objectstore_service,
-                parent=container_details.parent,
-                sourceUrl=container_details.sourceUrl,
-                fileFormats=container_details.file_formats,
-                systemType=self.config.systemType,
-                objects=container_details.objects
-            )
-        )
-
     def _generate_container_details(
         self,
         bucket_response: S3BucketResponse,
@@ -231,6 +212,25 @@ class S3Source(StorageServiceSource):
                     objects=object_list
                 )
         return None
+
+    def yield_create_container_requests(
+        self, container_details: S3ContainerDetails
+    ) -> Iterable[Either[CreateContainerRequest]]:
+        yield Either(
+            right=CreateContainerRequest(
+                name=container_details.name,
+                prefix=container_details.prefix,
+                numberOfObjects=container_details.number_of_objects,
+                size=container_details.size,
+                dataModel=container_details.data_model,
+                service=self.context.objectstore_service,
+                parent=container_details.parent,
+                sourceUrl=container_details.sourceUrl,
+                fileFormats=container_details.file_formats,
+                systemType=self.config.systemType,
+                objects=container_details.objects
+            )
+        )
 
     def _generate_structured_containers(
         self,

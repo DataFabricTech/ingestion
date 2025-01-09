@@ -17,6 +17,7 @@ from .. import (
     pipelineService,
     searchService,
     storageService,
+    filesystemService,
 )
 
 
@@ -33,6 +34,7 @@ class ServiceConnection(BaseModel):
         # mlmodelService.MlModelConnection,
         storageService.StorageConnection,
         searchService.SearchConnection,
+        filesystemService.FilesystemConnection,
     ] = Field(..., description='Supported services')
 
 
