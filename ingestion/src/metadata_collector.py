@@ -144,13 +144,13 @@ def metadataExecute(system_name, sink="file", sink_host="localhost"):
 if __name__ == "__main__":
     pass
 
-    # metadataExecute(system_name=sys.argv[1],
-    #                 sink='metadata-rest',
-    #                 sink_host='<INTERNAL_HOST>')
-
-    metadataExecute(system_name='Test-Oracle',
+    metadataExecute(system_name=sys.argv[1],
                     sink='metadata-rest',
-                    sink_host='localhost')
+                    sink_host='<INTERNAL_HOST>')
+
+    # metadataExecute(system_name='Test-Oracle',
+    #                 sink='metadata-rest',
+    #                 sink_host='localhost')
 
     # metadataExecute(system_name=sys.argv[1], sink="file", sink_host="localhost")
     # metadataExecute(system_name="Test-Oracle", sink="file", sink_host="localhost")
