@@ -19,7 +19,11 @@ class CommonSource(ABC):
                  source_user=None,
                  source_password=None,
                  source_database=None,
-                 source_filter=None):
+                 source_filter=None,
+                 system_id=None):
+
+        if system_id is None:
+            raise ValueError("system_id 는 필수 값 입니다.")
 
         self.service_type = service_type
         self.sink_type = sink_type
@@ -29,6 +33,7 @@ class CommonSource(ABC):
         self.source_password = source_password
         self.source_database = source_database
         self.source_filter = source_filter
+        self.system_id = system_id
 
     def getMetadataWorkflowConfig(self) -> OpenMetadataWorkflowConfig:
         service_type_str = self.service_type if type(self.service_type) == str else self.service_type.value

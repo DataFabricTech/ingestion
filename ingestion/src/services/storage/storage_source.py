@@ -10,13 +10,13 @@ class StorageSource(CommonSource):
         serviceConnection = self.getServiceConnection()
         sourceConfig = self.getSourceConfig()
         serviceTypeStr = self.service_type.value if type(self.service_type) == StorageServiceType else 'Custom'
-        serviceNameStr = self.service_type.value if type(self.service_type) == StorageServiceType else self.service_type
+        serviceNameStr = self.system_id
 
         source = Source(type=serviceTypeStr,
-                        serviceName='-'.join(['Test', serviceNameStr]),  # 없으면 오류 발생
+                        serviceName=serviceNameStr,  # 없으면 오류 발생
                         serviceConnection=serviceConnection,
                         sourceConfig=sourceConfig,
-                        systemType=serviceNameStr)
+                        systemType=serviceTypeStr)
 
         return source
 
