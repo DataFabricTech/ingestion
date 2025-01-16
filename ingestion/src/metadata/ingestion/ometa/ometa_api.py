@@ -289,9 +289,9 @@ class OpenMetadata(
             )
         return entity_class(**resp)
 
-    def update_ingestion_status(self, service_name):
+    def update_ingestion_status(self, systemId):
 
-        data = IngestionStatus(system_name = service_name)
+        data = IngestionStatus(system_id = systemId)
 
         try:
             self.client.put(
@@ -300,7 +300,7 @@ class OpenMetadata(
         except Exception as exc:
             logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
 
-        logger.info(f"ingestion status check [{service_name}]")
+        logger.info(f"ingestion status check [{systemId}]")
         # if not resp:
         #     raise EmptyPayloadException(
         #         f"Got an empty response when trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}"
