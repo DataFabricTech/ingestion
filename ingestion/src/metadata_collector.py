@@ -144,7 +144,7 @@ def metadataExecute(system_id, sink="file", sink_host="localhost"):
 if __name__ == "__main__":
     pass
 
-    metadataExecute(system_name=sys.argv[1],
+    metadataExecute(system_id=sys.argv[1],
                     sink='metadata-rest',
                     sink_host='<INTERNAL_HOST>')
 
