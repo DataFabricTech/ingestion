@@ -46,11 +46,11 @@ def getSourceFilter(sourceFileter):
     else:
         return sourceFileter
 
-def getMetaSystemInfo(system_name):
+def getMetaSystemInfo(system_id):
     from app.utils.client import SqlalchemyOrmClient, postgresql_url
     client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
     client.__enter__()
-    result = client.select_one(f"select <columns> from <table> where system_name = '{system_name}'")
+    result = client.select_one(f"select <columns> from <table> where system_id = '{system_id}'")
     client.__exit__(None, None, None)
 
     hostport = result[2]
@@ -119,9 +119,9 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
 
 
-def metadataExecute(system_name, sink="file", sink_host="localhost"):
+def metadataExecute(system_id, sink="file", sink_host="localhost"):
 
-    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = getMetaSystemInfo(system_name)
+    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = getMetaSystemInfo(system_id)
     print(system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter)
 
     if (source_hostport is None) or (source_user is None):
@@ -148,7 +148,8 @@ if __name__ == "__main__":
                     sink='metadata-rest',
                     sink_host='<INTERNAL_HOST>')
 
-    # metadataExecute(system_name='Test-Oracle',
+    # oracle 910eb81e-7dcd-40c7-8a72-c6ecb134b605
+    # metadataExecute(system_id='910eb81e-7dcd-40c7-8a72-c6ecb134b605',
     #                 sink='metadata-rest',
     #                 sink_host='localhost')
 
