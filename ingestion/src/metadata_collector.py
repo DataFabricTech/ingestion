@@ -122,7 +122,6 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 def metadataExecute(system_id, sink="file", sink_host="localhost"):
 
     system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = getMetaSystemInfo(system_id)
-    print(system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter)
 
     if (source_hostport is None) or (source_user is None):
         raise Exception('source config invalid.')
