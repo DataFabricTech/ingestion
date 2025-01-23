@@ -71,25 +71,27 @@ class CommonSource(ABC):
                 "hostPort": f"http://{self.sink_host}:8585/api",  # 필수항목만 기재
             })
         else:
-            if self.sink_host == 'localhost':
-                jwtToken = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3MDc4MDQ5MjcsImV4cCI6bnVsbH0.qL5qwh-QAk2YdfBFAX9rDgMQLdVC9Ge1i_I7h3GS7hUV_gZfJcqe5RMp0K5ONT5cu8KIuSDK13Jk-nlQmXxGL9ppYD7nMuTiDwyGbEH_dxSSupihi1kE4UcbWsGuHnfQhQYfYUdNtabCn2fY3Y6r0PGQiXWSp3e94LTKHbvZljikxvu8jBoh5QCc2q1WvQGn41HJaGxQ0HK2b0twQq9G52v3-F0O1WgfC8yDykS5gOof2N45Fbx4ilDDWEmsTEz6mtLJ5j_n7b0tpq4hD3gSoNZcPtva8sclFepe2MB46_LELiEphZfQHEVNeBPHYBX03WRUOxoh2gGnY3CDIIugOw"
-            elif self.sink_host == '<INTERNAL_HOST>':
-                jwtToken = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3MDc4MTMyMjEsImV4cCI6bnVsbH0.E5UJHrIDRBzldqXP6WzoCOgCSW90YYjmWvQNWYXyInMX8decD4vwemRJdfH5jz7hLvrQNw8zOXpnMEQNoA-OiblcHehpQACUfb4QVbbmE7XMQ_N8h1W2x5dhzWe-u23Lndx0UvVPYc6ksZ2V6PktU7lA-aYpttYQ3J15APSETY_SD5EPuMZHXqHy8DUGDi7C8Y7wARmVWmb_ai-6u9t3HbrbkzhMXk4sLUAn5PQ5okfintNNGItCEfQNe-RNC-mgER3AF1piD72qjVFk8ykJ35GoH72omhXP3FnIdunCi7p0OVi0CQdFhsUXW2-gABOffhn7IHtM19PY9cckV0Psnw"
-
+            # if self.sink_host == 'localhost':
+            #     jwtToken = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3MDc4MDQ5MjcsImV4cCI6bnVsbH0.qL5qwh-QAk2YdfBFAX9rDgMQLdVC9Ge1i_I7h3GS7hUV_gZfJcqe5RMp0K5ONT5cu8KIuSDK13Jk-nlQmXxGL9ppYD7nMuTiDwyGbEH_dxSSupihi1kE4UcbWsGuHnfQhQYfYUdNtabCn2fY3Y6r0PGQiXWSp3e94LTKHbvZljikxvu8jBoh5QCc2q1WvQGn41HJaGxQ0HK2b0twQq9G52v3-F0O1WgfC8yDykS5gOof2N45Fbx4ilDDWEmsTEz6mtLJ5j_n7b0tpq4hD3gSoNZcPtva8sclFepe2MB46_LELiEphZfQHEVNeBPHYBX03WRUOxoh2gGnY3CDIIugOw"
+            # elif self.sink_host == '<INTERNAL_HOST>':
+            #     jwtToken = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3MDc4MTMyMjEsImV4cCI6bnVsbH0.E5UJHrIDRBzldqXP6WzoCOgCSW90YYjmWvQNWYXyInMX8decD4vwemRJdfH5jz7hLvrQNw8zOXpnMEQNoA-OiblcHehpQACUfb4QVbbmE7XMQ_N8h1W2x5dhzWe-u23Lndx0UvVPYc6ksZ2V6PktU7lA-aYpttYQ3J15APSETY_SD5EPuMZHXqHy8DUGDi7C8Y7wARmVWmb_ai-6u9t3HbrbkzhMXk4sLUAn5PQ5okfintNNGItCEfQNe-RNC-mgER3AF1piD72qjVFk8ykJ35GoH72omhXP3FnIdunCi7p0OVi0CQdFhsUXW2-gABOffhn7IHtM19PY9cckV0Psnw"
+            #
+            # jwtToken = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJlbWFpbCI6ImluZ2VzdGlvbi1ib3RAb3Blbm1ldGFkYXRhLm9yZyIsImlzQm90Ijp0cnVlLCJ0b2tlblR5cGUiOiJCT1QiLCJpYXQiOjE3MDc4MDQ5MjcsImV4cCI6bnVsbH0.qL5qwh-QAk2YdfBFAX9rDgMQLdVC9Ge1i_I7h3GS7hUV_gZfJcqe5RMp0K5ONT5cu8KIuSDK13Jk-nlQmXxGL9ppYD7nMuTiDwyGbEH_dxSSupihi1kE4UcbWsGuHnfQhQYfYUdNtabCn2fY3Y6r0PGQiXWSp3e94LTKHbvZljikxvu8jBoh5QCc2q1WvQGn41HJaGxQ0HK2b0twQq9G52v3-F0O1WgfC8yDykS5gOof2N45Fbx4ilDDWEmsTEz6mtLJ5j_n7b0tpq4hD3gSoNZcPtva8sclFepe2MB46_LELiEphZfQHEVNeBPHYBX03WRUOxoh2gGnY3CDIIugOw"
 
             server_config = OpenMetadataConnection(**{
                 "clusterName": "openmetadata",
                 "type": "OpenMetadata",
                 "hostPort": f"http://{self.sink_host}:8585/api",
                 # "hostPort": f"http://{self.sink_host}:8000/api",
-                "authProvider": "openmetadata",
-                "verifySSL": "no-ssl",
-                "sslConfig": None,
-                "securityConfig": {
-                    "jwtToken": jwtToken
-                },
-                "secretsManagerProvider": "noop",
-                "secretsManagerLoader": "noop",
+                "authProvider": "no-auth",
+                # "authProvider": "openmetadata",
+                # "verifySSL": "no-ssl",
+                # "sslConfig": None,
+                # "securityConfig": {
+                #     "jwtToken": jwtToken
+                # },
+                # "secretsManagerProvider": "noop",
+                # "secretsManagerLoader": "noop",
                 "apiVersion": "v1",
                 "includeTopics": True,
                 "includeTables": True,

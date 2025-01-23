@@ -15,11 +15,14 @@ class MetadataExecutor:
         from metadata.workflow.metadata import MetadataWorkflow
         from metadata.workflow.workflow_output_handler import print_status
         workflow = MetadataWorkflow(workflow_config)
-        workflow.execute()
-        workflow.raise_from_status()
-        print_status(workflow)
-        workflow.update_ingestion_status(workflow_config.source.serviceName)
-        #workflow.stop()
+        try:
+            workflow.execute()
+            workflow.raise_from_status()
+            print_status(workflow)
+            workflow.check_ingestion_status(workflow_config.source.serviceName)
+            #workflow.stop()
+        except Exception as e:
+            print(e)
 
 
 

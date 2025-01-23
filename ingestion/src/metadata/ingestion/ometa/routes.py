@@ -116,7 +116,7 @@ from metadata.generated.schema.entity.data.searchIndex import SearchIndex
 # from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
 from metadata.generated.schema.entity.data.table import Table
 # from metadata.generated.schema.entity.data.topic import Topic
-from metadata.generated.schema.entity.data.ingestionStatus import IngestionStatus
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck
 # from metadata.generated.schema.entity.domains.dataProduct import DataProduct
 # from metadata.generated.schema.entity.domains.domain import Domain
 # from metadata.generated.schema.entity.policies.policy import Policy
@@ -234,5 +234,5 @@ ROUTES = {
     # CreateDomainRequest.__name__: "/domains",
     # DataProduct.__name__: "/dataProducts",
     # CreateDataProductRequest.__name__: "/dataProducts",
-    IngestionStatus.__name__: "/ingestionStatus"
+    IngestionCheck.__name__: "/ingestion/check"
 }

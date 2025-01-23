@@ -30,7 +30,7 @@ from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityHistory import EntityVersionHistory
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.generated.schema.entity.data.ingestionStatus import IngestionStatus
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck
 from metadata.ingestion.models.encoders import show_secrets_encoder
 from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
 from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
@@ -289,9 +289,9 @@ class OpenMetadata(
             )
         return entity_class(**resp)
 
-    def update_ingestion_status(self, systemId):
+    def check_ingestion_status(self, system_id):
 
-        data = IngestionStatus(system_id = systemId)
+        data = IngestionCheck(system_id = system_id)
 
         try:
             self.client.put(
@@ -300,7 +300,7 @@ class OpenMetadata(
         except Exception as exc:
             logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
 
-        logger.info(f"ingestion status check [{systemId}]")
+        logger.info(f"ingestion status check [{system_id}]")
         # if not resp:
         #     raise EmptyPayloadException(
         #         f"Got an empty response when trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}"

@@ -32,7 +32,7 @@ from metadata.generated.schema.entity.services.databaseService import DatabaseSe
 # from metadata.generated.schema.entity.services.pipelineService import PipelineService
 # from metadata.generated.schema.entity.services.searchService import SearchService
 # from metadata.generated.schema.entity.services.storageService import StorageService
-from metadata.generated.schema.entity.data.ingestionStatus import IngestionStatus
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck
 
 DOT = "_DOT_"
 TEN_MIN = 10 * 60
@@ -93,5 +93,5 @@ ENTITY_REFERENCE_TYPE_MAP = {
     # SearchIndex.__name__: "searchIndex",
     # MlModel.__name__: "mlmodel",
     # Container.__name__: "container",
-    IngestionStatus.__name__: "ingestionStatus"
+    IngestionCheck.__name__: "IngestionCheck"
 }
