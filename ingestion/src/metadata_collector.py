@@ -13,36 +13,54 @@ logger.setLevel("INFO")
 
 import sys
 
-def getSourceFilter(sourceFileter):
+def getSourceFilter(service_type, database, sourceFileter):
 
     #profile phy
     # return {'type': 'Profiler'}
 
     if sourceFileter == None:
-        return {
-                "type": "DatabaseMetadata",
-                "markDeletedTables": False,
-                "markDeletedStoredProcedures": False,
-                "includeTables": True,
-                "includeViews": False,
-                "includeTags": False,
-                "includeStoredProcedures": False,
-                "queryLogDuration": 1,
-                "queryParsingTimeoutLimit": 300,
-                "useFqnForFiltering": False,
-                "schemaFilterPattern": {
-                    "includes": [],
-                    "excludes": []
-                },
-                "tableFilterPattern": {
-                    "includes": [],
-                    "excludes": []
-                },
-                "databaseFilterPattern": {
-                    "includes": [],
-                    "excludes": []
-                }
+        database_filter = {
+            "type": "DatabaseMetadata",
+            "markDeletedTables": False,
+            "markDeletedStoredProcedures": False,
+            "includeTables": True,
+            "includeViews": False,
+            "includeTags": False,
+            "includeStoredProcedures": False,
+            "queryLogDuration": 1,
+            "queryParsingTimeoutLimit": 300,
+            "useFqnForFiltering": False,
+            "schemaFilterPattern": {
+                "includes": [],
+                "excludes": []
+            },
+            "tableFilterPattern": {
+                "includes": [],
+                "excludes": []
+            },
+            "databaseFilterPattern": {
+                "includes": [],
+                "excludes": []
             }
+        }
+
+        if service_type == DatabaseServiceType.Oracle.value:
+            database_filter["schemaFilterPattern"] = {
+                "includes": [database],
+                "excludes": []
+            }
+        elif service_type == DatabaseServiceType.Postgres.value:
+            database_filter["schemaFilterPattern"] = {
+                "includes": ['public'],
+                "excludes": []
+            }
+            database_filter["databaseFilterPattern"] = {
+                "includes": [database],
+                "excludes": []
+            }
+
+
+        return database_filter
     else:
         return sourceFileter
 
@@ -57,7 +75,7 @@ def getMetaSystemInfo(system_id):
     if result[3] != None:
         hostport = f"{result[2]}:{result[3]}"
 
-    sourceFilter = getSourceFilter(result[7])
+    sourceFilter = getSourceFilter(result[1], result[6], result[7])
 
     return result[0], result[1], hostport, result[4], result[5], result[6], sourceFilter
 
@@ -144,13 +162,16 @@ if __name__ == "__main__":
     pass
 
     metadataExecute(system_id=sys.argv[1],
+    # metadataExecute(system_id="phy-test",
                     sink='metadata-rest',
                     sink_host='<INTERNAL_HOST>')
 
-    # oracle 910eb81e-7dcd-40c7-8a72-c6ecb134b605
     # metadataExecute(system_id='910eb81e-7dcd-40c7-8a72-c6ecb134b605',
     #                 sink='metadata-rest',
     #                 sink_host='localhost')
 
     # metadataExecute(system_name=sys.argv[1], sink="file", sink_host="localhost")
     # metadataExecute(system_name="Test-Oracle", sink="file", sink_host="localhost")
+
+    # oracle 910eb81e-7dcd-40c7-8a72-c6ecb134b605
+    # postgred 109ae637-9e13-44f9-9686-a79cf1e12499
