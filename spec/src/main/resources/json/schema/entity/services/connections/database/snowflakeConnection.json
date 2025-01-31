@@ -1,21 +1,24 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/snowflakeConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/snowflakeConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SnowflakeConnection",
   "description": "Snowflake Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.SnowflakeConnection",
   "definitions": {
     "snowflakeType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Snowflake"],
+      "enum": [
+        "Snowflake"
+      ],
       "default": "Snowflake"
     },
     "snowflakeScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["snowflake"],
+      "enum": [
+        "snowflake"
+      ],
       "default": "snowflake"
     }
   },
@@ -55,7 +58,7 @@
     },
     "database": {
       "title": "Database",
-      "description": "Database of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single database. When left blank, OpenMetadata Ingestion attempts to scan all the databases.",
+      "description": "Database of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single database. When left blank, Metadata Ingestion attempts to scan all the databases.",
       "type": "string"
     },
     "warehouse": {
@@ -131,5 +134,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["username", "account", "warehouse"]
+  "required": [
+    "username",
+    "account",
+    "warehouse"
+  ]
 }

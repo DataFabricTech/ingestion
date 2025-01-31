@@ -39,8 +39,8 @@ from metadata.ingestion.models.topology import (
     get_topology_node,
     get_topology_root,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.utils import model_str
 from metadata.utils.execution_time_tracker import ExecutionTimeTrackerContextMap
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.source_hash import generate_source_hash

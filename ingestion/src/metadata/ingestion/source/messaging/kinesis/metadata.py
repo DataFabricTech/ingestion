@@ -31,7 +31,7 @@ from metadata.generated.schema.type.schema import Topic
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.models.ometa_topic_data import OMetaTopicSampleData
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.messaging.kinesis.models import (
     KinesisArgs,
     KinesisData,

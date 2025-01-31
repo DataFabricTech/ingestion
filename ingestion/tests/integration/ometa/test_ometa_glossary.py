@@ -37,8 +37,8 @@ from metadata.generated.schema.security.client.openMetadataJWTClientConfig impor
 )
 from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.utils import model_str
 from metadata.utils import fqn
 
 

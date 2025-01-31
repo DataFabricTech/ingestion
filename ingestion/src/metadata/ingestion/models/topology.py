@@ -22,7 +22,7 @@ from metadata.generated.schema.api.data.createStoredProcedure import (
     CreateStoredProcedureRequest,
 )
 from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.utils import model_str
 from metadata.utils import fqn
 
 T = TypeVar("T", bound=BaseModel)

@@ -26,7 +26,7 @@ from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline 
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.api.models import ProfilerProcessorConfig, TableConfig
 from metadata.profiler.interface.document.profiler_interface import DocumentProfilerInterface
 from metadata.profiler.interface.profiler_interface import ProfilerInterface

@@ -47,8 +47,8 @@ from metadata.ingestion.lineage.sql_lineage import (
     get_column_fqn,
     get_table_entities_from_query,
 )
-from metadata.ingestion.ometa.client import APIError
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.client import APIError
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils import fqn
 from metadata.utils.constants import UTF_8
 from metadata.utils.life_cycle_utils import get_query_type

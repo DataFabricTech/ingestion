@@ -50,17 +50,17 @@ You can get the `server_config` variable using the `OpenMetadataHook` as shown a
 directly:
 
 ```python
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 
-server_config = OpenMetadataConnection(
+server_config = MetadataConnection(
     hostPort="http://localhost:8585/api",
     authProvider="openmetadata",
-    securityConfig=OpenMetadataJWTClientConfig(
+    securityConfig=MetadataJWTClientConfig(
         jwtToken="<token>"
     ),
 )

@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/security/client/auth0SSOClientConfig.json",
+  "$id": "https://mobigen.com/schema/security/client/auth0SSOClientConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Auth0SSOClientConfig",
   "description": "Auth0 SSO client security configs.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.security.client.Auth0SSOClientConfig",
   "properties": {
     "clientId": {
       "description": "Auth0 Client ID.",
@@ -21,5 +20,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["clientId", "secretKey", "domain"]
+  "required": [
+    "clientId",
+    "secretKey",
+    "domain"
+  ]
 }

@@ -33,7 +33,7 @@ from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Source
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.source.base.profiler_source import ProfilerSource
 from metadata.profiler.source.profiler_source_factory import profiler_source_factory
 from metadata.utils import fqn
@@ -120,7 +120,7 @@ class OpenMetadataSource(Source):
 
     def test_connection(self) -> None:
         """
-        Our source is the ometa client. Validate the
+        Our source is the server client. Validate the
         health check before moving forward
         """
         self.metadata.health_check()

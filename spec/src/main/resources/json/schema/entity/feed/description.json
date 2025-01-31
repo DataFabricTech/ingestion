@@ -1,8 +1,7 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/feed/description.json",
+  "$id": "https://mobigen.com/schema/entity/feed/description.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DescriptionFeedInfo",
-  "javaType": "org.openmetadata.schema.entity.feed.DescriptionFeedInfo",
   "description": "This schema defines the schema for Description Updates.",
   "type": "object",
   "properties": {
@@ -16,7 +15,7 @@
     },
     "diffMessage": {
       "description": "The difference between the previous and new descriptions.",
-        "type": "string"
+      "type": "string"
     }
   },
   "additionalProperties": false

@@ -61,7 +61,7 @@ from metadata.generated.schema.entity.data.table import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.iceberg.metadata import IcebergSource
 from metadata.utils import fqn
 
@@ -74,7 +74,7 @@ MOCK_COLUMN_MAP = {
             required=False,
             doc="Binary",
         ),
-        "ometa": Column(
+        "server": Column(
             name="binary",
             description="Binary",
             dataType=DataType.BINARY,
@@ -89,7 +89,7 @@ MOCK_COLUMN_MAP = {
             field_type=BooleanType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="boolean",
             dataType=DataType.BOOLEAN,
             dataTypeDisplay=str(BooleanType()),
@@ -102,7 +102,7 @@ MOCK_COLUMN_MAP = {
             field_type=DateType(),
             required=True,
         ),
-        "ometa": Column(
+        "server": Column(
             name="date",
             dataType=DataType.DATE,
             dataTypeDisplay=str(DateType()),
@@ -116,7 +116,7 @@ MOCK_COLUMN_MAP = {
             field_type=DecimalType(9, 3),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="decimal",
             dataType=DataType.DECIMAL,
             dataTypeDisplay=str(DecimalType(9, 3)),
@@ -131,7 +131,7 @@ MOCK_COLUMN_MAP = {
             field_type=DoubleType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="double",
             dataType=DataType.DOUBLE,
             dataTypeDisplay=str(DoubleType()),
@@ -144,7 +144,7 @@ MOCK_COLUMN_MAP = {
             field_type=FixedType(10),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="fixed",
             dataType=DataType.FIXED,
             dataTypeDisplay=str(FixedType(10)),
@@ -157,7 +157,7 @@ MOCK_COLUMN_MAP = {
             field_type=FloatType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="float",
             dataType=DataType.FLOAT,
             dataTypeDisplay=str(FloatType()),
@@ -170,7 +170,7 @@ MOCK_COLUMN_MAP = {
             field_type=IntegerType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="integer",
             dataType=DataType.INT,
             dataTypeDisplay=str(IntegerType()),
@@ -186,7 +186,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="list",
             dataType=DataType.ARRAY,
             dataTypeDisplay=str(
@@ -205,7 +205,7 @@ MOCK_COLUMN_MAP = {
             field_type=LongType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="long",
             dataType=DataType.LONG,
             dataTypeDisplay=str(LongType()),
@@ -223,7 +223,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="map",
             dataType=DataType.MAP,
             dataTypeDisplay=str(
@@ -243,7 +243,7 @@ MOCK_COLUMN_MAP = {
             field_type=StringType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="string",
             dataType=DataType.STRING,
             dataTypeDisplay=str(StringType()),
@@ -272,7 +272,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="struct",
             dataType=DataType.STRUCT,
             dataTypeDisplay=str(
@@ -317,7 +317,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimeType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="time",
             dataType=DataType.TIME,
             dataTypeDisplay=str(TimeType()),
@@ -330,7 +330,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimestampType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="timestamp",
             dataType=DataType.TIMESTAMP,
             dataTypeDisplay=str(TimestampType()),
@@ -343,7 +343,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimestamptzType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="timestamptz",
             dataType=DataType.TIMESTAMPZ,
             dataTypeDisplay=str(TimestamptzType()),
@@ -356,7 +356,7 @@ MOCK_COLUMN_MAP = {
             field_type=UUIDType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="uuid",
             dataType=DataType.UUID,
             dataTypeDisplay=str(UUIDType()),
@@ -794,7 +794,7 @@ class IcebergUnitTest(TestCase):
             description="Table Description",
             owner=ref,
             columns=[
-                MOCK_COLUMN_MAP[field]["ometa"] for field in MOCK_COLUMN_MAP.keys()
+                MOCK_COLUMN_MAP[field]["server"] for field in MOCK_COLUMN_MAP.keys()
             ],
             tablePartition=TablePartition(
                 columns=[

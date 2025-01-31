@@ -38,7 +38,7 @@ from metadata.ingestion.api.status import Status
 from metadata.ingestion.lineage.models import ConnectionTypeDialectMapper
 from metadata.ingestion.lineage.sql_lineage import get_lineage_by_query
 from metadata.ingestion.models.topology import TopologyContextManager
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.stored_procedures import get_procedure_name_from_call
 from metadata.utils.time_utils import convert_timestamp_to_milliseconds

@@ -64,7 +64,7 @@ from metadata.generated.schema.entity.teams.user import User
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName, SqlQuery
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.generated.schema.type.usageRequest import UsageRequest
-from metadata.ingestion.ometa.client import REST
+from metadata.ingestion.server.client import REST
 
 from ..integration_base import int_admin_ometa
 

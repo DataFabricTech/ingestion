@@ -32,7 +32,7 @@ from metadata.ingestion.api.models import Either, Entity
 from metadata.ingestion.api.status import Status
 from metadata.ingestion.models.life_cycle import OMetaLifeCycleData
 from metadata.ingestion.models.topology import TopologyContextManager
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils import fqn
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.time_utils import convert_timestamp_to_milliseconds

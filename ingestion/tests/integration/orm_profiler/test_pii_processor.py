@@ -62,7 +62,7 @@ from metadata.generated.schema.security.client.openMetadataJWTClientConfig impor
 from metadata.generated.schema.type.basic import Timestamp
 from metadata.generated.schema.type.tagLabel import TagFQN, TagLabel
 from metadata.ingestion.models.table_metadata import ColumnTag
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.pii.processor import PIIProcessor
 from metadata.profiler.api.models import ProfilerResponse
 

@@ -29,7 +29,7 @@ from metadata.generated.schema.entity.services.connections.database.domoDatabase
 from metadata.generated.schema.entity.services.connections.pipeline.domoPipelineConnection import (
     DomoPipelineConnection,
 )
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()

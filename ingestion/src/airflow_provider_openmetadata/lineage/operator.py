@@ -22,7 +22,7 @@ from airflow_provider_openmetadata.lineage.runner import AirflowLineageRunner
 from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.pipeline.airflow.lineage_parser import (
     XLets,
     get_xlets_from_dag,
@@ -35,7 +35,7 @@ class OpenMetadataLineageOperator(BaseOperator):
     and push the lineage to OpenMetadata.
 
     It requires the OpenMetadataConnection to be passed as
-    an argument to instantiate the ometa client.
+    an argument to instantiate the server client.
 
     if `only_keep_dag` is True, we will remove any lineage related
     to the DAG that is not part of the inlets/outlets of its tasks.

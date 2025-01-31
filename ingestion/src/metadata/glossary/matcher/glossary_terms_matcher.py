@@ -14,7 +14,7 @@ from typing import List, Optional, Dict
 from metadata.generated.schema.entity.data.glossaryTerm import GlossaryTerm
 from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import profiler_logger
 from metadata.glossary.constants import GlossaryConstants
 

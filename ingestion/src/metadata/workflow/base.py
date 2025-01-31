@@ -35,8 +35,8 @@ from metadata.generated.schema.metadataIngestion.workflow import LogLevels
 from metadata.generated.schema.tests.testSuite import ServiceType
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.step import Step
-from metadata.ingestion.ometa.client_utils import create_ometa_client
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.client_utils import create_ometa_client
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.timer.repeated_timer import RepeatedTimer
 from metadata.utils import fqn
 from metadata.utils.class_helper import (
@@ -99,7 +99,7 @@ class BaseWorkflow(ABC, WorkflowStatusMixin):
 
         set_loggers_level(log_level.value)
 
-        # We create the ometa client at the workflow level and pass it to the steps
+        # We create the server client at the workflow level and pass it to the steps
         self.metadata_config = metadata_config
         self.metadata = create_ometa_client(metadata_config)
         self.set_ingestion_pipeline_status(state=PipelineState.running)

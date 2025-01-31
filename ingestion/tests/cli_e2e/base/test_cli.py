@@ -23,7 +23,7 @@ import yaml
 
 from metadata.config.common import load_config_file
 from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.constants import UTF_8
 from metadata.workflow.metadata import MetadataWorkflow
 

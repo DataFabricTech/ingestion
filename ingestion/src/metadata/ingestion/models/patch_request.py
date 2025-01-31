@@ -18,8 +18,8 @@ import jsonpatch
 from pydantic import BaseModel
 
 from metadata.ingestion.api.models import Entity, T
-from metadata.ingestion.ometa.mixins.patch_mixin_utils import PatchOperation
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.mixins.patch_mixin_utils import PatchOperation
+from metadata.ingestion.server.utils import model_str
 
 
 class PatchRequest(BaseModel):

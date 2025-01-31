@@ -44,7 +44,7 @@ from metadata.generated.schema.entity.services.databaseService import (
     DatabaseServiceType,
 )
 from metadata.generated.schema.tests.testCase import TestCase
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.workflow.data_quality import TestSuiteWorkflow
 
 test_suite_config = {

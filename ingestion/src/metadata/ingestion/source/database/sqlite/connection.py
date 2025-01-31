@@ -27,7 +27,7 @@ from metadata.ingestion.connections.builders import (
     get_connection_args_common,
 )
 from metadata.ingestion.connections.test_connections import test_connection_db_common
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 def get_connection_url(connection: SQLiteConnection) -> str:

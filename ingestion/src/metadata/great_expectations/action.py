@@ -70,7 +70,7 @@ from metadata.great_expectations.utils.ometa_config_handler import (
     create_ometa_connection_obj,
     render_template,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils import fqn
 from metadata.utils.entity_link import get_entity_link
 

@@ -24,7 +24,7 @@ from metadata.generated.schema.entity.services.connections.database.unityCatalog
     UnityCatalogConnection,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.unitycatalog.client import UnityCatalogClient
 from metadata.ingestion.source.database.unitycatalog.models import DatabricksTable
 from metadata.utils.db_utils import get_host_from_host_port

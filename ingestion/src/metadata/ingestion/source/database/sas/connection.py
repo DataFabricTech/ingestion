@@ -21,7 +21,7 @@ from metadata.generated.schema.entity.services.connections.database.sasConnectio
     SASConnection,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.sas.client import SASClient
 from metadata.utils.logger import ingestion_logger
 

@@ -23,7 +23,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
     SourceConfig,
     WorkflowConfig,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.workflow.metadata import MetadataWorkflow
 
 if not sys.version_info >= (3, 9):

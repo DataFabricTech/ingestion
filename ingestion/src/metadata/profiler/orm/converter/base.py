@@ -22,7 +22,7 @@ from sqlalchemy.orm import DeclarativeMeta, declarative_base
 from metadata.generated.schema.entity.data.database import Database, databaseService
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import Column, Table
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.orm.converter.converter_registry import converter_registry
 
 Base = declarative_base()

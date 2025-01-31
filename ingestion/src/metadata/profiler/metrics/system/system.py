@@ -25,7 +25,7 @@ from metadata.generated.schema.entity.services.connections.database.bigQueryConn
     BigQueryConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.metrics.core import SystemMetric
 from metadata.profiler.metrics.system.dml_operation import (
     DML_OPERATION_MAP,

@@ -1,14 +1,3 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
 """
 Validate metadata ingestion workflow generation
 """
@@ -17,24 +6,24 @@ import uuid
 from unittest import TestCase
 from unittest.mock import patch
 
-from openmetadata_managed_apis.workflows.ingestion.lineage import (
+from metadata_managed_apis.workflows.ingestion.lineage import (
     build_lineage_workflow_config,
 )
-from openmetadata_managed_apis.workflows.ingestion.metadata import (
+from metadata_managed_apis.workflows.ingestion.metadata import (
     build_metadata_workflow_config,
 )
-from openmetadata_managed_apis.workflows.ingestion.profiler import (
+from metadata_managed_apis.workflows.ingestion.profiler import (
     build_profiler_workflow_config,
 )
-from openmetadata_managed_apis.workflows.ingestion.test_suite import (
+from metadata_managed_apis.workflows.ingestion.test_suite import (
     build_test_suite_workflow_config,
 )
-from openmetadata_managed_apis.workflows.ingestion.usage import (
+from metadata_managed_apis.workflows.ingestion.usage import (
     build_usage_workflow_config,
 )
 
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
 from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
@@ -61,13 +50,13 @@ from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
 from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.models.encoders import show_secrets_encoder
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.workflow.data_quality import TestSuiteWorkflow
 from metadata.workflow.metadata import MetadataWorkflow
 from metadata.workflow.profiler import ProfilerWorkflow

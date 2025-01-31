@@ -1,19 +1,19 @@
 source:
   type : minio
-  serviceName: fabric-minio
+  serviceName: ltech-minio
   serviceConnection:
     config:
       type: "MinIO"
       minioConfig:
-        accessKeyId: "fabric"
-        secretKey: "fabric12##"
-        endPointURL: "http://192.168.106.12:9000"
+        accessKeyId: "tta"
+        secretKey: "asdfqwer1234"
+        endPointURL: "http://221.153.191.95:9000"
 #      bucketNames: ["datafabric"]
   sourceConfig:
     config:
       type: StorageMetadata
       bucketFilterPattern:
-        includes: ["datafabric"]
+        includes: ["sensor-data"]
         excludes: []
 #      useFqnForFiltering: false
 sink:
@@ -23,10 +23,14 @@ workflowConfig:
   loggerLevel: DEBUG
   openMetadataServerConfig:
     authProvider: openmetadata
-    hostPort: http://192.168.105.51:8585/api
+#    hostPort: http://192.168.105.51:8585/api
+    hostPort: http://192.168.109.254:30595/api
 #    hostPort: http://localhost:8585/api
     securityConfig:
-      jwtToken: "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBtZXRhZGF0YS5vcmciLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzI3MDgwNTY1LCJleHAiOm51bGx9.pL8fVWI9QPjL8Cc5jxereIbvNmO_CDTXp0_LotFGywltaX-42N-IZVSkGLJcG7sTCqqPnERQyFghVV1i45bPXHcXYeq9k0LQkfDOEnV4dYcN0RPwUK35EKeidM5UiRXr39sjy8qSS_OAH7KraWX_wucZPXoPLzrHGgo2N_8yl-huaLLhzEwPqggsofOFyaVd6MMCr4HLxIniRMBOJLU3qnRcj--HINru3dK9I_mM8uESJNfl9wRmObhXyRwUrVIqTMejG6XgjO6L4USiyKOlMyIbupgFvq7SP2lL-soEzT7mw_mZOWD1ZdUWoasCRjysFpqQ3pCwf94XTAxWtTfppA"
+#      192.168.105.51
+#      jwtToken: "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBtZXRhZGF0YS5vcmciLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzI5NDg2MDM1LCJleHAiOm51bGx9.r0FLbBGS4uamshohTA7JwftHxmA8VOcXVHd20B4TaOrOzCVUDKNgLPD5EstUvizTH4Ll1LKV-u_9Ung0mXOqkO6TRZ6pqNwdxioPf9HjusSEjt9VRH_0_fTszyv4lF56hKLphFV5ow5gIARY1LbQ1h2fOHFf1MM1LiD1EPC2OHHUjTCEdUxq8SVr3tHA--J940-i0EuKe_4V1H_rOjQ9vmFORLok-gtlf-rbKU-EWc4FyDfq0X8cNtrV3kojDgWrYX--LnRMkdxaVTb_m4MSx_NFeW-YIHCtbmUQle-Vf4cMag2o_K96X4OzBJU9EWG4Dlc94TBR2qymBqTwp_IAVw"
+#      192.168.109.254:30595
+      jwtToken: "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTczMzg5NTUwOCwiZXhwIjpudWxsfQ.HPsRx5CLN79VIX8oZIMTWeMGiAnubCdat4yR5tDRDfvlIRJXGbjXeTy31Ia9HbZLuRZNZklr3p9H9FIg6UMcidCao0KtZ5gpG2ETGhMdHQnPHRCCa33ozgQ2PcaKu60xMTN8tuIecvW883e6KZBzcrKCEhH-pDuKv3z3sJKn5hMopEFf_8cxkfmRjGUoC3fygBDfuJhhlItg0ZUebHm1wL0SMfu8xLT7WR48b7WmqSPJ9jVnMJs6rJY5tdE1JCiahbRkVzXZNRPCXqo9_NWIW79_2DDecTIaCPZc8aEVhQZ5PCauvW0-N55braKgjqDbAsJlKfYW2PD27DFgSV0bFQ"
     enableVersionValidation: false
 
 

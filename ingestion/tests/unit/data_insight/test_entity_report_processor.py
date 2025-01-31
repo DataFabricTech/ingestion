@@ -58,7 +58,7 @@ class EntityReportProcessorTest(unittest.TestCase):
             ),  # type: ignore
         )  # type: ignore
 
-    @patch("metadata.ingestion.ometa.ometa_api.OpenMetadata", return_value=MagicMock())
+    @patch("metadata.ingestion.server.ometa_api.OpenMetadata", return_value=MagicMock())
     def test_fetch_owner(self, mocked_ometa):
         """Check fecth owner returns the expected value"""
 
@@ -77,7 +77,7 @@ class EntityReportProcessorTest(unittest.TestCase):
         owner = processor._get_team(self.chart.owner)
         assert owner is None
 
-    @patch("metadata.ingestion.ometa.ometa_api.OpenMetadata", return_value=MagicMock())
+    @patch("metadata.ingestion.server.ometa_api.OpenMetadata", return_value=MagicMock())
     def test__flatten_results(self, mocked_om):
         """test flatten method returns expected results
 

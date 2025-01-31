@@ -144,7 +144,7 @@ def _(config: DbtCloudConfig):  # pylint: disable=too-many-locals
     dbt_manifest = None
     dbt_run_results = None
     try:
-        from metadata.ingestion.ometa.client import (  # pylint: disable=import-outside-toplevel
+        from metadata.ingestion.server.client import (  # pylint: disable=import-outside-toplevel
             REST,
             ClientConfig,
         )

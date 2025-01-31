@@ -2,9 +2,9 @@
   "serviceConnection": {
     "config": {
       "type": "MySQL",
-      "username": "openmetadata_user",
+      "username": "datastorage_user",
       "authType":{
-        "password": "openmetadata_password"
+        "password": "datastorage_password"
         },
       "hostPort": "localhost:3306"
     }

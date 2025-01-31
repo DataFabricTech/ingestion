@@ -17,8 +17,8 @@ import traceback
 from metadata.generated.schema.entity.services.connections.dashboard.supersetConnection import (
     SupersetConnection,
 )
-from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.auth_provider import AuthenticationProvider
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.ingestion.source.dashboard.superset.models import (
     ListDatabaseResult,
     SupersetChart,

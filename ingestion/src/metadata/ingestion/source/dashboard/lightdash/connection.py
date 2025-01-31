@@ -25,7 +25,7 @@ from metadata.ingestion.connections.test_connections import (
     SourceConnectionException,
     test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.dashboard.lightdash.client import LightdashApiClient
 from metadata.utils.logger import ingestion_logger
 

@@ -58,7 +58,7 @@ from metadata.ingestion.models.custom_properties import (
     CustomPropertyDataTypes,
     OMetaCustomProperties,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.constants import ENTITY_REFERENCE_TYPE_MAP
 
 

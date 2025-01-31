@@ -36,9 +36,9 @@ from metadata.generated.schema.security.client.openMetadataJWTClientConfig impor
     OpenMetadataJWTClientConfig,
 )
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.mixins.patch_mixin_utils import PatchOperation
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.mixins.patch_mixin_utils import PatchOperation
+from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.utils import model_str
 
 # Conditions
 CONDITION_IS_OWNER: str = "isOwner()"

@@ -17,7 +17,7 @@ from typing import Optional, Union
 from metadata.generated.schema.entity.data.table import Table
 from metadata.generated.schema.tests.testSuite import TestSuite
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.dbt.constants import (
     NONE_KEYWORDS_LIST,
     CompiledQueriesEnum,

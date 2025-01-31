@@ -1,0 +1,96 @@
+"""
+Generic Workflow entrypoint to execute Applications
+"""
+import json
+
+from airflow import DAG
+from metadata_managed_apis.utils.logger import set_operator_logger
+from metadata_managed_apis.workflows.ingestion.common import (
+    build_dag,
+    build_workflow_config_property,
+)
+
+from metadata.generated.schema.entity.applications.configuration.applicationConfig import (
+    AppConfig,
+    PrivateConfig,
+)
+from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
+    IngestionPipeline,
+)
+from metadata.generated.schema.metadataIngestion.application import (
+    MetadataApplicationConfig,
+)
+from metadata.generated.schema.metadataIngestion.applicationPipeline import (
+    ApplicationPipeline,
+)
+from metadata.ingestion.models.encoders import show_secrets_encoder
+from metadata.workflow.application import ApplicationWorkflow
+from metadata.workflow.application_output_handler import print_status
+
+
+def application_workflow(workflow_config: MetadataApplicationConfig):
+    """
+    Task that creates and runs the ingestion workflow.
+
+    The workflow_config gets cooked form the incoming
+    ingestionPipeline.
+
+    This is the callable used to create the PythonOperator
+    """
+
+    set_operator_logger(workflow_config)
+
+    config = json.loads(workflow_config.json(encoder=show_secrets_encoder))
+    workflow = ApplicationWorkflow.create(config)
+
+    workflow.execute()
+    workflow.raise_from_status()
+    print_status(workflow)
+    workflow.stop()
+
+
+def build_application_workflow_config(
+    ingestion_pipeline: IngestionPipeline,
+) -> MetadataApplicationConfig:
+    """
+    Given an airflow_pipeline, prepare the workflow config JSON
+    """
+
+    # Here we have an application pipeline, so the Source Config is of type ApplicationPipeline
+    application_pipeline_conf: ApplicationPipeline = (
+        ingestion_pipeline.sourceConfig.config
+    )
+
+    application_workflow_config = MetadataApplicationConfig(
+        sourcePythonClass=application_pipeline_conf.sourcePythonClass,
+        # We pass the generic class and let each app cast the actual object
+        appConfig=AppConfig(
+            __root__=application_pipeline_conf.appConfig.__root__,
+        )
+        if application_pipeline_conf.appConfig
+        else None,
+        appPrivateConfig=PrivateConfig(
+            __root__=application_pipeline_conf.appPrivateConfig.__root__
+        )
+        if application_pipeline_conf.appPrivateConfig
+        else None,
+        workflowConfig=build_workflow_config_property(ingestion_pipeline),
+        ingestionPipelineFQN=ingestion_pipeline.fullyQualifiedName.__root__,
+    )
+
+    return application_workflow_config
+
+
+def build_application_dag(ingestion_pipeline: IngestionPipeline) -> DAG:
+    """
+    Build a simple metadata workflow DAG
+    """
+    application_workflow_config = build_application_workflow_config(ingestion_pipeline)
+    dag = build_dag(
+        task_name="application_task",
+        ingestion_pipeline=ingestion_pipeline,
+        workflow_config=application_workflow_config,
+        workflow_fn=application_workflow,
+    )
+
+    return dag

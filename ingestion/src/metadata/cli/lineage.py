@@ -22,7 +22,7 @@ from pydantic import BaseModel
 from metadata.config.common import load_config_file
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
 from metadata.generated.schema.metadataIngestion.workflow import WorkflowConfig
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.constants import UTF_8
 from metadata.utils.logger import cli_logger
 from metadata.workflow.workflow_output_handler import WorkflowType, print_init_error

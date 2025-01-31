@@ -45,7 +45,7 @@ from metadata.generated.schema.entity.services.databaseService import (
 from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
     OpenMetadataJWTClientConfig,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.orm.converter.base import ometa_to_sqa_orm
 from metadata.profiler.orm.types.custom_timestamp import CustomTimestamp
 

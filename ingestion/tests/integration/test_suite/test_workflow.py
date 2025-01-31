@@ -45,7 +45,7 @@ from metadata.generated.schema.entity.services.databaseService import (
 )
 from metadata.generated.schema.tests.testCase import TestCase, TestCaseParameterValue
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.workflow.data_quality import TestSuiteWorkflow
 
 sqlite_shared = "file:cachedb?mode=memory&cache=shared&check_same_thread=False"

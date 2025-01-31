@@ -12,7 +12,7 @@
 REST Auth & Client for Redash
 """
 
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.utils.logger import utils_logger
 
 logger = utils_logger()

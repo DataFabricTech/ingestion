@@ -44,7 +44,7 @@ from metadata.generated.schema.entity.services.connections.database.unityCatalog
     UnityCatalogConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import test_suite_logger
 
 logger: Logger = test_suite_logger()

@@ -85,7 +85,7 @@ class PandasInterfaceMixin:
         self, service_connection_config, client, table, profile_sample_config
     ):
         """
-        returns sampled ometa dataframes
+        returns sampled server dataframes
         """
         if hasattr(service_connection_config, "minioConfig"):
             bucket_name = table.fullPath.replace("s3://", "").split("/")[0]

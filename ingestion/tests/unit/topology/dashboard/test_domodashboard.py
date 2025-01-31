@@ -30,7 +30,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.client import REST
+from metadata.ingestion.server.client import REST
 from metadata.ingestion.source.dashboard.domodashboard.metadata import (
     DomoDashboardDetails,
     DomodashboardSource,

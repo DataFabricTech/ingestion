@@ -1,9 +1,8 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/dbtconfig/dbtBucketDetails.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/dbtconfig/dbtBucketDetails.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DBT Bucket Details",
   "description": "Details of the bucket where the dbt files are stored",
-  "javaType": "org.openmetadata.schema.metadataIngestion.dbtconfig.DbtBucketDetails",
   "type": "object",
   "properties": {
     "dbtBucketName": {

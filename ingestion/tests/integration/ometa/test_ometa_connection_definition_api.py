@@ -22,7 +22,7 @@ from metadata.generated.schema.entity.services.connections.testConnectionDefinit
 from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
     OpenMetadataJWTClientConfig,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 server_config = OpenMetadataConnection(
     hostPort="http://localhost:8585/api",

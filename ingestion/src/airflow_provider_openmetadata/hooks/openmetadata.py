@@ -18,18 +18,18 @@ from typing import Any, Dict
 from airflow.hooks.base import BaseHook
 from airflow.models import Connection
 
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
     AuthProvider,
-    OpenMetadataConnection,
+    MetadataConnection,
 )
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 from metadata.generated.schema.security.ssl.validateSSLClientConfig import (
     ValidateSslClientConfig,
 )
 from metadata.generated.schema.security.ssl.verifySSLConfig import VerifySSL
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 class OpenMetadataHook(BaseHook):
@@ -51,7 +51,7 @@ class OpenMetadataHook(BaseHook):
         self.default_verify_ssl = VerifySSL.no_ssl
         self.default_ssl_config = None
 
-    def get_conn(self) -> OpenMetadataConnection:
+    def get_conn(self) -> MetadataConnection:
         conn: Connection = self.get_connection(self.openmetadata_conn_id)
         jwt_token = conn.get_password()
         if not jwt_token:
@@ -71,10 +71,10 @@ class OpenMetadataHook(BaseHook):
             else self.default_ssl_config
         )
 
-        om_conn = OpenMetadataConnection(
+        om_conn = MetadataConnection(
             hostPort=f"{schema}://{conn.host}:{port}/api",
             authProvider=AuthProvider.openmetadata,
-            securityConfig=OpenMetadataJWTClientConfig(jwtToken=jwt_token),
+            securityConfig=MetadataJWTClientConfig(jwtToken=jwt_token),
             verifySSL=verify_ssl,
             sslConfig=ssl_config,
         )
@@ -82,7 +82,7 @@ class OpenMetadataHook(BaseHook):
         return om_conn
 
     def test_connection(self):
-        """Test that we can instantiate the ometa client with the given connection"""
+        """Test that we can instantiate the server client with the given connection"""
         try:
             OpenMetadata(self.get_conn())
             return True, "Connection successful"

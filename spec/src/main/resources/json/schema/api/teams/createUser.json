@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/teams/createUser.json",
+  "$id": "https://mobigen.com/schema/api/teams/createUser.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateUserRequest",
   "description": "Request to create User entity",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.teams.CreateUser",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
   "properties": {
     "name": {
       "$ref": "../../type/basic.json#/definitions/entityName"
@@ -76,7 +74,10 @@
     "createPasswordType": {
       "description": "User Password Method",
       "type": "string",
-      "enum": ["ADMIN_CREATE", "USER_CREATE"],
+      "enum": [
+        "ADMIN_CREATE",
+        "USER_CREATE"
+      ],
       "default": "USER_CREATE"
     },
     "password": {
@@ -88,6 +89,9 @@
       "type": "string"
     }
   },
-  "required": ["name", "email"],
+  "required": [
+    "name",
+    "email"
+  ],
   "additionalProperties": false
 }

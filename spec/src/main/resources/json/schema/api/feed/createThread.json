@@ -1,12 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/api/feed/createThread.json",
+  "$id": "https://mobigen.com/schema/api/feed/createThread.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateThreadRequest",
   "description": "Create thread request",
   "type": "object",
   "definitions": {
     "createTaskDetails": {
-      "javaType": "org.openmetadata.schema.api.CreateTaskDetails",
       "description": "Details about the task. This is only applicable if thread is of type task.",
       "type": "object",
       "properties": {
@@ -26,7 +25,10 @@
           "type": "string"
         }
       },
-      "required": ["assignees", "type"],
+      "required": [
+        "assignees",
+        "type"
+      ],
       "additionalProperties": false
     }
   },
@@ -61,6 +63,10 @@
       "$ref": "../../entity/feed/thread.json#/definitions/chatbotDetails"
     }
   },
-  "required": ["message", "from", "about"],
+  "required": [
+    "message",
+    "from",
+    "about"
+  ],
   "additionalProperties": false
 }

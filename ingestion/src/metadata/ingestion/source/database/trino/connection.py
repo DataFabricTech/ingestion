@@ -39,7 +39,7 @@ from metadata.ingestion.connections.secrets import connection_with_options_secre
 from metadata.ingestion.connections.test_connections import (
     test_connection_db_schema_sources,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.trino.queries import TRINO_GET_DATABASE
 
 

@@ -1,12 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/data/createMlModel.json",
+  "$id": "https://mobigen.com/schema/api/data/createMlModel.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateMlModelRequest",
   "description": "Create Ml Model entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.data.CreateMlModel",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
-
   "properties": {
     "name": {
       "description": "Name that identifies this ML model.",
@@ -46,7 +43,7 @@
     },
     "dashboard": {
       "description": "Performance Dashboard fqn to track metric evolution",
-      "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
     },
     "mlStore": {
       "description": "Location containing the ML Model. It can be a storage layer and/or a container repository.",
@@ -80,15 +77,15 @@
       "description": "Source URL of mlModel.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the MLModel belongs to.",
       "type": "string"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
     "lifeCycle": {
@@ -102,6 +99,10 @@
       "maxLength": 32
     }
   },
-  "required": ["name", "algorithm", "service"],
+  "required": [
+    "name",
+    "algorithm",
+    "service"
+  ],
   "additionalProperties": false
 }

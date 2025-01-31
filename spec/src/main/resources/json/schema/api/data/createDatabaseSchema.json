@@ -1,13 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/data/createDatabaseSchema.json",
+  "$id": "https://mobigen.com/schema/api/data/createDatabaseSchema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDatabaseSchemaRequest",
   "description": "Create Database Schema entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.data.CreateDatabaseSchema",
-  "javaInterfaces": [
-    "org.openmetadata.schema.CreateEntity"
-  ],
   "properties": {
     "name": {
       "description": "Name that identifies this database schema instance uniquely.",
@@ -29,11 +25,11 @@
       "description": "Link to the database fully qualified name where this schema is hosted in",
       "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
     "tags": {
@@ -44,7 +40,7 @@
       },
       "default": null
     },
-    "retentionPeriod" : {
+    "retentionPeriod": {
       "description": "Retention period of the data in the database. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`.",
       "$ref": "../../type/basic.json#/definitions/duration"
     },
@@ -56,7 +52,7 @@
       "description": "Source URL of database schema.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the Database Schema belongs to.",
       "type": "string"
     },

@@ -42,7 +42,7 @@ class NoSQLSampler(SamplerInterface):
 
     def _fetch_sample_data(self, columns: List[SQALikeColumn]):
         """
-        returns sampled ometa dataframes
+        returns sampled server dataframes
         """
         limit = self._get_limit()
         records = self.client.scan(self.table, self.table.columns, limit)

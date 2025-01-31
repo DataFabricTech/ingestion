@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/configuration/external/automator/addTierAction.json",
+  "$id": "https://mobigen.com/schema/entity/applications/configuration/external/automator/addTierAction.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AddTierAction",
   "description": "Add an owner to the selected assets.",
@@ -8,7 +8,9 @@
     "addTierActionType": {
       "description": "Add Tier Action Type.",
       "type": "string",
-      "enum": ["AddTierAction"],
+      "enum": [
+        "AddTierAction"
+      ],
       "default": "AddTierAction"
     }
   },
@@ -30,6 +32,9 @@
       "default": false
     }
   },
-  "required": ["type", "tier"],
+  "required": [
+    "type",
+    "tier"
+  ],
   "additionalProperties": false
 }

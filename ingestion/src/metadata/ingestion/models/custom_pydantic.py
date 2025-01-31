@@ -81,7 +81,7 @@ class CustomSecretStr(SecretStr):
     def get_secret_value(self, skip_secret_manager: bool = False) -> str:
         """
         This function should only be called after the SecretsManager has properly
-        been initialized (e.g., after instantiating the ometa client).
+        been initialized (e.g., after instantiating the server client).
 
         Since the SecretsManagerFactory is a singleton, getting it here
         will pick up the object with all the necessary info already in it.

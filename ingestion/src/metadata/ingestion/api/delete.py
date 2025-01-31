@@ -20,7 +20,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 )
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.models.delete_entity import DeleteEntity
-from metadata.ingestion.ometa.ometa_api import OpenMetadata, T
+from metadata.ingestion.server.server_api import OpenMetadata, T
 from metadata.utils.logger import utils_logger
 
 logger = utils_logger()

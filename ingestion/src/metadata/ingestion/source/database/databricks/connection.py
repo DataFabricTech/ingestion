@@ -34,7 +34,7 @@ from metadata.ingestion.connections.test_connections import (
     test_connection_engine_step,
     test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.databricks.client import DatabricksClient
 from metadata.ingestion.source.database.databricks.queries import (
     DATABRICKS_GET_CATALOGS,

@@ -39,7 +39,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Source
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()

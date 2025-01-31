@@ -1,18 +1,20 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/pipeline.json",
+  "$id": "https://mobigen.com/schema/entity/data/pipeline.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Pipeline",
   "$comment": "@om-entity-type",
   "description": "This schema defines the Pipeline entity. A pipeline enables the flow of data from source to destination through a series of processing steps. ETL is a type of pipeline where the series of steps Extract, Transform and Load the data.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.Pipeline",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "statusType": {
-      "javaType": "org.openmetadata.schema.type.StatusType",
       "description": "Enum defining the possible Status.",
       "type": "string",
-      "enum": ["Successful", "Failed", "Pending", "Skipped"],
+      "enum": [
+        "Successful",
+        "Failed",
+        "Pending",
+        "Skipped"
+      ],
       "javaEnums": [
         {
           "name": "Successful"
@@ -30,7 +32,6 @@
     },
     "taskStatus": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.Status",
       "description": "This schema defines a time series of the status of a Pipeline or Task.",
       "properties": {
         "name": {
@@ -56,11 +57,13 @@
         }
       },
       "additionalProperties": false,
-      "required": ["name", "executionStatus"]
+      "required": [
+        "name",
+        "executionStatus"
+      ]
     },
     "task": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.Task",
       "properties": {
         "name": {
           "description": "Name that identifies this task instance uniquely.",
@@ -119,7 +122,9 @@
           "$ref": "../../type/entityReference.json"
         }
       },
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "additionalProperties": false
     },
     "pipelineStatus": {
@@ -144,7 +149,10 @@
         }
       },
       "additionalProperties": false,
-      "required": ["timestamp", "executionStatus"]
+      "required": [
+        "timestamp",
+        "executionStatus"
+      ]
     }
   },
   "properties": {
@@ -168,9 +176,9 @@
       "description": "Description of this Pipeline.",
       "$ref": "../../type/basic.json#/definitions/markdown"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
     "version": {
       "description": "Metadata version of the entity.",
@@ -259,11 +267,11 @@
       "type": "string",
       "default": null
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the Pipeline belongs to. When not set, the pipeline inherits the domain from the Pipeline service it belongs to.",
       "$ref": "../../type/entityReference.json"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "lifeCycle": {
@@ -277,6 +285,10 @@
       "maxLength": 32
     }
   },
-  "required": ["id", "name", "service"],
+  "required": [
+    "id",
+    "name",
+    "service"
+  ],
   "additionalProperties": false
 }

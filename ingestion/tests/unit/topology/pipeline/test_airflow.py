@@ -17,7 +17,7 @@ from unittest.mock import patch
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.pipeline.airflow.metadata import AirflowSource
 from metadata.ingestion.source.pipeline.airflow.models import (
     AirflowDag,

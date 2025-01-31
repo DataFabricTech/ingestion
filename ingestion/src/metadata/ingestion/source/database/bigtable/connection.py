@@ -27,7 +27,7 @@ from metadata.ingestion.connections.test_connections import (
     SourceConnectionException,
     test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.bigtable.client import MultiProjectClient
 from metadata.utils.credentials import set_google_credentials
 from metadata.utils.logger import ingestion_logger

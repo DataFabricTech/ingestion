@@ -36,7 +36,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.generated.schema.type.schema import SchemaType, Topic
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.models.ometa_topic_data import OMetaTopicSampleData
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.messaging.messaging_service import (
     BrokerTopicDetails,
     MessagingServiceSource,

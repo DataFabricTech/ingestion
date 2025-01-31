@@ -1,16 +1,13 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/testConnectionDefinition.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/testConnectionDefinition.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "TestConnectionDefinition",
   "description": "TestConnection is the definition that will encapsulate the steps required to test a connection to a specific service.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.services.connections.TestConnectionDefinition",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "testConnectionStep": {
       "description": "Function that tests one specific element of the service. E.g., listing schemas, lineage, or tags.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.entity.services.connections.TestConnectionStep",
       "properties": {
         "name": {
           "description": "Name of the step being tested",
@@ -36,7 +33,11 @@
         }
       },
       "additionalProperties": false,
-      "required": ["name", "mandatory", "description"]
+      "required": [
+        "name",
+        "mandatory",
+        "description"
+      ]
     }
   },
   "properties": {
@@ -99,5 +100,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["name", "steps"]
+  "required": [
+    "name",
+    "steps"
+  ]
 }

@@ -1,11 +1,10 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/connectionBasicType.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/connectionBasicType.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ConnectionType",
   "description": "This schema defines basic common types that are used by other schemas.",
   "definitions": {
     "connectionOptions": {
-      "javaType": "org.openmetadata.schema.services.connections.database.ConnectionOptions",
       "description": "Additional connection options to build the URL that can be sent to service during the connection.",
       "type": "object",
       "additionalProperties": {
@@ -13,11 +12,12 @@
       }
     },
     "connectionArguments": {
-      "javaType": "org.openmetadata.schema.services.connections.database.ConnectionArguments",
       "description": "Additional connection arguments such as security or protocol configs that can be sent to service during connection.",
       "type": "object",
       "additionalProperties": {
-        ".{1,}": { "type": "string" }
+        ".{1,}": {
+          "type": "string"
+        }
       }
     },
     "supportsMetadataExtraction": {
@@ -51,7 +51,7 @@
       "default": true
     },
     "supportsQueryComment": {
-      "description": "For Database Services using SQLAlchemy, True to enable running a comment for all queries run from OpenMetadata.",
+      "description": "For Database Services using SQLAlchemy, True to enable running a comment for all queries run from VDAP.",
       "type": "boolean",
       "default": true
     },
@@ -107,11 +107,6 @@
             {
               "title": "Minio Storage Config",
               "$ref": "../../../security/credentials/minioCredentials.json"
-            },
-            {
-              "title": "OpenMetadata Storage",
-              "type": "object",
-              "additionalProperties": false
             }
           ]
         }
@@ -120,7 +115,6 @@
     "sampleDataStorageConfig": {
       "description": "Storage config to store sample data",
       "type": "object",
-      "javaType": "org.openmetadata.schema.services.connections.database.SampleDataStorageConfig",
       "properties": {
         "config": {
           "oneOf": [

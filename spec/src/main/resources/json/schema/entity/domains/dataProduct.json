@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/domains/dataProduct.json",
+  "$id": "https://mobigen.com/schema/entity/domains/dataProduct.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DataProduct",
   "description": "A `Data Product` or `Data as a Product` is a logical unit that contains all components to process and store data for analytical or data-intensive use cases made available to data consumers.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.domains.DataProduct",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "properties": {
     "id": {
       "description": "Unique ID of the Data Product",
@@ -53,7 +51,7 @@
     "experts": {
       "description": "List of users who are experts for this Data Product.",
       "$ref": "../../type/entityReferenceList.json",
-      "default" : null
+      "default": null
     },
     "domain": {
       "description": "Domain or sub-domain to which this Data Product belongs to.",
@@ -61,13 +59,17 @@
     },
     "assets": {
       "description": "Data assets collection that is part of this data product.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
     "changeDescription": {
       "description": "Change that lead to this version of the entity.",
       "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
     }
   },
-  "required": ["id", "name", "description"],
+  "required": [
+    "id",
+    "name",
+    "description"
+  ],
   "additionalProperties": false
 }

@@ -21,7 +21,7 @@ from metadata.generated.schema.entity.services.connections.dashboard.metabaseCon
     MetabaseConnection,
 )
 from metadata.ingestion.connections.test_connections import SourceConnectionException
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.ingestion.source.dashboard.metabase.models import (
     MetabaseCollection,
     MetabaseCollectionList,

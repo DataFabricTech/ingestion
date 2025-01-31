@@ -34,7 +34,7 @@ from metadata.generated.schema.type.tagLabel import (
 )
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils import fqn
 from metadata.utils.logger import ingestion_logger
 

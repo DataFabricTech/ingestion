@@ -15,7 +15,7 @@ defines the interface for all data insight producers.
 
 from abc import ABC, abstractmethod
 
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 class ProducerInterface(ABC):

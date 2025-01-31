@@ -54,7 +54,7 @@ from metadata.generated.schema.type.basic import (
 )
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.dashboard.superset.api_source import SupersetAPISource
 from metadata.ingestion.source.dashboard.superset.db_source import SupersetDBSource
 from metadata.ingestion.source.dashboard.superset.metadata import SupersetSource

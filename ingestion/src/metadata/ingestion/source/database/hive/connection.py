@@ -44,7 +44,7 @@ from metadata.ingestion.connections.builders import (
 from metadata.ingestion.connections.test_connections import (
     test_connection_db_schema_sources,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 HIVE_POSTGRES_SCHEME = "hive+postgres"
 HIVE_MYSQL_SCHEME = "hive+mysql"

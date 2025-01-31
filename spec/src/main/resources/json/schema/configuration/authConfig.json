@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/configuration/authConfig.json",
+  "$id": "https://mobigen.com/schema/entity/configuration/authConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AuthConfiguration",
   "description": "This schema defines the Auth Config.",
   "type": "object",
-  "javaType": "org.openmetadata.api.configuration.airflow.AuthConfiguration",
   "properties": {
     "google": {
       "description": "Google SSO Configuration",
@@ -26,9 +25,9 @@
       "description": "Custom OIDC SSO Configuration",
       "$ref": "../security/client/customOidcSSOClientConfig.json"
     },
-    "openmetadata": {
-      "description": "OpenMetadata SSO Configuration",
-      "$ref": "../security/client/openMetadataJWTClientConfig.json"
+    "vdapSelf": {
+      "description": "VDAP SSO Configuration",
+      "$ref": "../security/client/metadataJWTClientConfig.json"
     }
   },
   "additionalProperties": false

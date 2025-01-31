@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/prestoConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/prestoConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PrestoConnection",
   "description": "Presto Database Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.PrestoConnection",
   "definitions": {
     "prestoType": {
       "description": "Service type.",
@@ -54,7 +53,7 @@
     },
     "databaseSchema": {
       "title": "Database Schema",
-      "description": "Database Schema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single schema. When left blank, OpenMetadata Ingestion attempts to scan all the schemas.",
+      "description": "Database Schema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single schema. When left blank, Metadata Ingestion attempts to scan all the schemas.",
       "type": "string"
     },
     "catalog": {

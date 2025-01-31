@@ -19,7 +19,7 @@ from metadata.data_insight.producer.producer_interface import ProducerInterface
 from metadata.generated.schema.analytics.webAnalyticEventData import (
     WebAnalyticEventData,
 )
-from metadata.ingestion.ometa.models import EntityList
+from metadata.ingestion.server.models import EntityList
 from metadata.utils.time_utils import (
     get_beginning_of_day_timestamp_mill,
     get_end_of_day_timestamp_mill,

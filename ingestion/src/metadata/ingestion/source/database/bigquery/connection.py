@@ -41,7 +41,7 @@ from metadata.ingestion.connections.test_connections import (
     test_connection_steps,
     test_query,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.bigquery.queries import BIGQUERY_TEST_STATEMENT
 from metadata.utils.credentials import set_google_credentials
 from metadata.utils.logger import ingestion_logger

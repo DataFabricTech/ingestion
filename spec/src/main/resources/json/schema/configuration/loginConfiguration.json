@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/configuration/loginConfiguration.json",
+  "$id": "https://mobigen.com/schema/entity/configuration/loginConfiguration.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LogoConfiguration",
   "description": "This schema defines the Login Configuration",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.configuration.LoginConfiguration",
   "properties": {
     "maxLoginFailAttempts": {
       "description": "Failed Login Attempts allowed for user.",

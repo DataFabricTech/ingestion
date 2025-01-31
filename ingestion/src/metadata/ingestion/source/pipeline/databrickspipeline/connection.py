@@ -22,7 +22,7 @@ from metadata.generated.schema.entity.services.connections.pipeline.databricksPi
     DatabricksPipelineConnection,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.databricks.client import DatabricksClient
 
 

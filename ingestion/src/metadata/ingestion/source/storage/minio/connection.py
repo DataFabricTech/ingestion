@@ -27,7 +27,7 @@ from metadata.generated.schema.entity.services.connections.storage.minioConnecti
 )
 
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 @dataclass

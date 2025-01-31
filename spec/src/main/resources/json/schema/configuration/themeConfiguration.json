@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/configuration/themeConfiguration.json",
+  "$id": "https://mobigen.com/schema/entity/configuration/themeConfiguration.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ThemeConfiguration",
   "description": "This schema defines the Theme Configuration for UI elements.",
   "type": "object",
-  "javaType": "org.openmetadata.api.configuration.ThemeConfiguration",
   "properties": {
     "primaryColor": {
       "description": "Primary color used in the UI, in hex code format or empty.",
@@ -32,6 +31,12 @@
       "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^$"
     }
   },
-  "required": ["primaryColor", "errorColor", "successColor","warningColor","infoColor"],
+  "required": [
+    "primaryColor",
+    "errorColor",
+    "successColor",
+    "warningColor",
+    "infoColor"
+  ],
   "additionalProperties": false
 }

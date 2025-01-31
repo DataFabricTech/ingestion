@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/events/eventSubscriptionOffset.json",
+  "$id": "https://mobigen.com/schema/events/eventSubscriptionOffset.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "EventSubscriptionOffset",
   "description": "Event Subscription Offset",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.events.EventSubscriptionOffset",
   "properties": {
     "offset": {
       "description": "Name of this Event Filter.",
@@ -16,6 +15,8 @@
       "$ref": "../type/basic.json#/definitions/timestamp"
     }
   },
-  "required": ["offset"],
+  "required": [
+    "offset"
+  ],
   "additionalProperties": false
 }

@@ -33,7 +33,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException, Source
 from metadata.ingestion.models.search_index_data import OMetaIndexSampleData
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.search.elasticsearch.parser import parse_es_index_mapping
 from metadata.ingestion.source.search.search_service import SearchServiceSource
 from metadata.utils import fqn

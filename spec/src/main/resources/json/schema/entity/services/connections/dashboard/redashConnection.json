@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/redashConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/redashConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RedashConnection",
   "description": "Redash Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dashboard.RedashConnection",
   "definitions": {
     "redashType": {
       "description": "Redash service type",
       "type": "string",
-      "enum": ["Redash"],
+      "enum": [
+        "Redash"
+      ],
       "default": "Redash"
     }
   },
@@ -51,5 +52,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "username", "apiKey"]
+  "required": [
+    "hostPort",
+    "username",
+    "apiKey"
+  ]
 }

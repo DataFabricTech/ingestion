@@ -55,8 +55,8 @@ from metadata.ingestion.api.common import Entity
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException, Source
 from metadata.ingestion.models.user import OMetaUserProfile
-from metadata.ingestion.ometa.client_utils import get_chart_entities_from_id
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.client_utils import get_chart_entities_from_id
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.ingestion.source.database.column_type_parser import ColumnTypeParser
 from metadata.ingestion.source.metadata.amundsen.queries import (

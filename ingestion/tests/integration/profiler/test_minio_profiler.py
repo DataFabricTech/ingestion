@@ -20,7 +20,7 @@ import json
 import logging
 
 from metadata.generated.schema.entity.data.container import Container
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.workflow.profiler import ProfilerWorkflow
 from tests.integration.integration_base import (
     PROFILER_INGESTION_CONFIG_TEMPLATE,
@@ -50,9 +50,8 @@ def get_service_config():
 
 
 service_type = "minio"
-service_name = "fabric-minio"
-openmetadata_url = "http://192.168.105.51:8585/api"
-
+service_name = "ltech-minio"
+openmetadata_url = "http://192.168.109.254:30595/api"
 
 class MinioProfiler:
     def __init__(self):

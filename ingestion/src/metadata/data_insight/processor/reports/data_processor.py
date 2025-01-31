@@ -21,7 +21,7 @@ from typing import Callable, Iterable, Optional
 
 from metadata.generated.schema.analytics.reportData import ReportData
 from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 class DataProcessor(abc.ABC):

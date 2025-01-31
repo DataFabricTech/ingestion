@@ -1,15 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/databaseSchema.json",
+  "$id": "https://mobigen.com/schema/entity/data/databaseSchema.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Database Schema",
   "$comment": "@om-entity-type",
   "description": "This schema defines the Database Schema entity. A `Database Schema` is collection of tables, views, stored procedures, and other database objects.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.DatabaseSchema",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
-"definitions": {
-   
-  },
+  "definitions": {},
   "properties": {
     "id": {
       "description": "Unique identifier that identifies this schema instance.",
@@ -31,9 +27,9 @@
       "description": "Description of the schema instance.",
       "$ref": "../../type/basic.json#/definitions/markdown"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
     "version": {
       "description": "Metadata version of the entity.",
@@ -93,7 +89,7 @@
       "type": "boolean",
       "default": false
     },
-    "retentionPeriod" : {
+    "retentionPeriod": {
       "description": "Retention period of the data in the database schema. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`. When not set, the retention period is inherited from the parent database, if it exists.",
       "$ref": "../../type/basic.json#/definitions/duration"
     },
@@ -105,11 +101,11 @@
       "description": "Source URL of database schema.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the Database Schema belongs to. When not set, the Schema inherits the domain from the database it belongs to.",
       "$ref": "../../type/entityReference.json"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "lifeCycle": {
@@ -124,7 +120,6 @@
     },
     "databaseSchemaProfilerConfig": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.DatabaseSchemaProfilerConfig",
       "description": "This schema defines the type for Schema profile config.",
       "properties": {
         "profileSample": {
@@ -148,6 +143,10 @@
       }
     }
   },
-  "required": ["name", "database", "service"],
+  "required": [
+    "name",
+    "database",
+    "service"
+  ],
   "additionalProperties": false
 }

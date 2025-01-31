@@ -76,7 +76,7 @@ import attr
 from pydantic import BaseModel
 
 from metadata.generated.schema.entity.data.table import Table
-from metadata.ingestion.ometa.models import T
+from metadata.ingestion.server.models import T
 from metadata.utils.constants import ENTITY_REFERENCE_CLASS_MAP
 from metadata.utils.deprecation import deprecated
 from metadata.utils.importer import import_from_module

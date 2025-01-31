@@ -20,8 +20,8 @@ from metadata.generated.schema.security.secrets.secretsManagerClientLoader impor
 from metadata.generated.schema.security.secrets.secretsManagerProvider import (
     SecretsManagerProvider,
 )
-from metadata.ingestion.ometa.auth_provider import OpenMetadataAuthenticationProvider
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.auth_provider import OpenMetadataAuthenticationProvider
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.secrets.aws_secrets_manager import AWSSecretsManager
 from metadata.utils.secrets.db_secrets_manager import DBSecretsManager
 from metadata.utils.singleton import Singleton

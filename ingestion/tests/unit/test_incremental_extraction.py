@@ -23,7 +23,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipel
 from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     Incremental,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.incremental_metadata_extraction import (
     MILLISECONDS_IN_ONE_DAY,
     IncrementalConfig,

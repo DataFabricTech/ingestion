@@ -30,7 +30,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.dashboard.qlikcloud.client import QlikCloudClient
 from metadata.ingestion.source.dashboard.qlikcloud.metadata import QlikcloudSource
 from metadata.ingestion.source.dashboard.qlikcloud.models import QlikApp

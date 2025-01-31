@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/analytics/webAnalyticEvent.json",
+  "$id": "https://mobigen.com/schema/analytics/webAnalyticEvent.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "WebAnalyticEvent",
   "description": "Web Analytic Event",
   "type": "object",
-  "javaType": "org.openmetadata.schema.analytics.WebAnalyticEvent",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "properties": {
     "id": {
       "description": "Unique identifier of the report.",
@@ -67,6 +65,9 @@
       "default": true
     }
   },
-  "required": ["eventType", "name"],
+  "required": [
+    "eventType",
+    "name"
+  ],
   "additionalProperties": false
 }

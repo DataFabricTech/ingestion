@@ -1,21 +1,26 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/mssqlConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/mssqlConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MssqlConnection",
   "description": "Mssql Database Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.MssqlConnection",
   "definitions": {
     "mssqlType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Mssql"],
+      "enum": [
+        "Mssql"
+      ],
       "default": "Mssql"
     },
     "mssqlScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["mssql+pyodbc", "mssql+pytds", "mssql+pymssql"],
+      "enum": [
+        "mssql+pyodbc",
+        "mssql+pytds",
+        "mssql+pymssql"
+      ],
       "default": "mssql+pytds"
     }
   },
@@ -50,7 +55,7 @@
     },
     "database": {
       "title": "Database",
-      "description": "Database of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single database. When left blank, OpenMetadata Ingestion attempts to scan all the databases.",
+      "description": "Database of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single database. When left blank, Metadata Ingestion attempts to scan all the databases.",
       "type": "string"
     },
     "driver": {
@@ -104,5 +109,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["database"]
+  "required": [
+    "database"
+  ]
 }

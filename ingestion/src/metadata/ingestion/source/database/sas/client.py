@@ -18,7 +18,7 @@ import requests
 from metadata.generated.schema.entity.services.connections.database.sasConnection import (
     SASConnection,
 )
-from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
+from metadata.ingestion.server.client import REST, APIError, ClientConfig
 from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()

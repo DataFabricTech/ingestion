@@ -1,9 +1,8 @@
 {
-  "$id": "https://open-metadata.org/schema/analytics/rawCostAnalysisReportData.json",
+  "$id": "https://mobigen.com/schema/analytics/rawCostAnalysisReportData.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "rawCostAnalysisReportData",
   "type": "object",
-  "javaType": "org.openmetadata.schema.analytics.RawCostAnalysisReportData",
   "description": "Raw data for Cost Analysis Report.",
   "properties": {
     "entity": {
@@ -19,6 +18,8 @@
       "type": "number"
     }
   },
-  "required": ["entity"],
+  "required": [
+    "entity"
+  ],
   "additionalProperties": false
 }

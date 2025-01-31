@@ -1,9 +1,8 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/storage/storageMetadataGCSConfig.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/storage/storageMetadataGCSConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Storage Metadata GCS Config",
   "description": "Storage Metadata Manifest file GCS path config.",
-  "javaType": "org.openmetadata.schema.metadataIngestion.storage.StorageMetadataGCSConfig",
   "type": "object",
   "properties": {
     "securityConfig": {
@@ -16,5 +15,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["prefixConfig"]
+  "required": [
+    "prefixConfig"
+  ]
 }

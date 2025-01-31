@@ -1,21 +1,24 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/druidConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/druidConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DruidConnection",
   "description": "Druid Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.DruidConnection",
   "definitions": {
     "druidType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Druid"],
+      "enum": [
+        "Druid"
+      ],
       "default": "Druid"
     },
     "druidScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["druid"],
+      "enum": [
+        "druid"
+      ],
       "default": "druid"
     }
   },
@@ -50,7 +53,7 @@
     },
     "databaseName": {
       "title": "Database Name",
-      "description": "Optional name to give to the database in OpenMetadata. If left blank, we will use default as the database name.",
+      "description": "Optional name to give to the database in Metadata. If left blank, we will use default as the database name.",
       "type": "string"
     },
     "connectionOptions": {
@@ -82,5 +85,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort"]
+  "required": [
+    "hostPort"
+  ]
 }

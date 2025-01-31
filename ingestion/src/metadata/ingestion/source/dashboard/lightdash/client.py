@@ -14,7 +14,7 @@ REST Auth & Client for Lightdash
 import traceback
 from typing import List
 
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.ingestion.source.dashboard.lightdash.models import (
     LightdashChart,
     LightdashDashboard,

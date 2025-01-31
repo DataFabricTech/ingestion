@@ -19,7 +19,7 @@ from metadata.config.common import ConfigModel
 from metadata.ingestion.api.common import Entity
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import Sink
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.constants import UTF_8
 from metadata.utils.logger import get_log_name, ingestion_logger
 

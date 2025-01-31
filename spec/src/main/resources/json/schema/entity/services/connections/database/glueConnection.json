@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/glueConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/glueConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "GlueConnection",
   "description": "Glue Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.GlueConnection",
   "definitions": {
     "glueType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Glue"],
+      "enum": [
+        "Glue"
+      ],
       "default": "Glue"
     }
   },
@@ -26,7 +27,7 @@
     },
     "databaseName": {
       "title": "Database Name",
-      "description": "Optional name to give to the database in OpenMetadata. If left blank, we will use default as the database name.",
+      "description": "Optional name to give to the database in Metadata. If left blank, we will use default as the database name.",
       "type": "string"
     },
     "connectionOptions": {
@@ -46,5 +47,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["awsConfig"]
+  "required": [
+    "awsConfig"
+  ]
 }

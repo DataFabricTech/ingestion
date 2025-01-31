@@ -37,7 +37,7 @@ from metadata.ingestion.connections.test_connections import (
     test_connection_steps,
     test_query,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.dashboard.superset.client import SupersetAPIClient
 from metadata.ingestion.source.dashboard.superset.queries import (
     FETCH_ALL_CHARTS_TEST,

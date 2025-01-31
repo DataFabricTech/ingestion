@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/dataInsight/dataInsightChartResult.json",
+  "$id": "https://mobigen.com/schema/dataInsight/dataInsightChartResult.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DataInsightChartResult",
   "description": "DataInsightChartResult represents data that will be consumed by a specific chart",
   "type": "object",
-  "javaType": "org.openmetadata.schema.dataInsight.DataInsightChartResult",
   "definitions": {
     "dataInsightChartType": {
       "description": "chart type. Must match `name` of a `dataInsightChartDefinition`.",
@@ -42,25 +41,57 @@
       "type": "array",
       "items": {
         "anyOf": [
-          {"$ref": "./type/percentageOfEntitiesWithDescriptionByType.json"},
-          {"$ref": "./type/percentageOfEntitiesWithOwnerByType.json"},
-          {"$ref": "./type/totalEntitiesByTier.json"},
-          {"$ref": "./type/totalEntitiesByType.json"},
-          {"$ref": "./type/dailyActiveUsers.json"},
-          {"$ref": "./type/pageViewsByEntities.json"},
-          {"$ref": "type/mostActiveUsers.json"},
-          {"$ref": "type/mostViewedEntities.json"},
-          {"$ref": "type/percentageOfServicesWithDescription.json"},
-          {"$ref": "type/percentageOfServicesWithOwner.json"},
-          {"$ref": "type/unusedAssets.json"},
-          {"$ref": "type/aggregatedUnusedAssetsSize.json"},
-          {"$ref": "type/aggregatedUnusedAssetsCount.json"},
-          {"$ref": "type/aggregatedUsedVsUnusedAssetsSize.json"},
-          {"$ref": "type/aggregatedUsedVsUnusedAssetsCount.json"}
+          {
+            "$ref": "./type/percentageOfEntitiesWithDescriptionByType.json"
+          },
+          {
+            "$ref": "./type/percentageOfEntitiesWithOwnerByType.json"
+          },
+          {
+            "$ref": "./type/totalEntitiesByTier.json"
+          },
+          {
+            "$ref": "./type/totalEntitiesByType.json"
+          },
+          {
+            "$ref": "./type/dailyActiveUsers.json"
+          },
+          {
+            "$ref": "./type/pageViewsByEntities.json"
+          },
+          {
+            "$ref": "type/mostActiveUsers.json"
+          },
+          {
+            "$ref": "type/mostViewedEntities.json"
+          },
+          {
+            "$ref": "type/percentageOfServicesWithDescription.json"
+          },
+          {
+            "$ref": "type/percentageOfServicesWithOwner.json"
+          },
+          {
+            "$ref": "type/unusedAssets.json"
+          },
+          {
+            "$ref": "type/aggregatedUnusedAssetsSize.json"
+          },
+          {
+            "$ref": "type/aggregatedUnusedAssetsCount.json"
+          },
+          {
+            "$ref": "type/aggregatedUsedVsUnusedAssetsSize.json"
+          },
+          {
+            "$ref": "type/aggregatedUsedVsUnusedAssetsCount.json"
+          }
         ]
       }
     }
   },
-  "required": ["chartType"],
+  "required": [
+    "chartType"
+  ],
   "additionalProperties": false
 }

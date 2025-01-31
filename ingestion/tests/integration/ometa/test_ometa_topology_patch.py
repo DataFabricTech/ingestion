@@ -44,7 +44,7 @@ from metadata.ingestion.models.patch_request import (
     ARRAY_ENTITY_FIELDS,
     RESTRICT_UPDATE_LIST,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 class TopologyPatchTest(TestCase):

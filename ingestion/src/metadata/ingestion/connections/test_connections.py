@@ -36,7 +36,7 @@ from metadata.generated.schema.entity.services.connections.testConnectionResult 
     TestConnectionResult,
     TestConnectionStepResult,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.orm.functions.conn_test import ConnTestFn
 from metadata.utils.logger import cli_logger
 from metadata.utils.timeout import timeout

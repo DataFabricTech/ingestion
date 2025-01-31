@@ -20,7 +20,7 @@ from metadata.generated.schema.entity.automations.testServiceConnection import (
 from metadata.generated.schema.entity.automations.workflow import (
     Workflow as AutomationWorkflow,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.utils.ssl_manager import SSLManager, check_ssl_and_init
 

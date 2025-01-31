@@ -23,7 +23,7 @@ from metadata.generated.schema.type.tagLabel import (
     TagSource,
 )
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.dbt.dbt_utils import (
     generate_entity_link,
     get_corrected_name,
@@ -285,7 +285,7 @@ class DbtUnitTest(TestCase):
         set_loggers_level("DEBUG")
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_v4_v5_v6(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.side_effect = MOCK_TABLE_ENTITIES
@@ -296,7 +296,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_v7(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.side_effect = MOCK_TABLE_ENTITIES
@@ -307,7 +307,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     @patch("metadata.utils.tag_utils.get_tag_label")
     def test_dbt_manifest_v8(self, get_tag_label, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
@@ -333,7 +333,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_null_db(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.return_value = MOCK_NULL_DB_TABLE
@@ -458,7 +458,7 @@ class DbtUnitTest(TestCase):
         self.assertEqual(expected_query, result)
 
     @patch(
-        "metadata.ingestion.ometa.mixins.user_mixin.OMetaUserMixin.get_reference_by_name"
+        "metadata.ingestion.server.mixins.user_mixin.OMetaUserMixin.get_reference_by_name"
     )
     def test_dbt_owner(self, get_reference_by_name):
         """

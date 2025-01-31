@@ -17,7 +17,7 @@ from typing import Optional
 
 from requests._internal_utils import to_native_string
 
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.utils.logger import utils_logger
 
 logger = utils_logger()

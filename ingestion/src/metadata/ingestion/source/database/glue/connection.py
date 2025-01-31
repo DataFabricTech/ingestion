@@ -24,7 +24,7 @@ from metadata.generated.schema.entity.services.connections.database.glueConnecti
     GlueConnection,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 def get_connection(connection: GlueConnection) -> Engine:

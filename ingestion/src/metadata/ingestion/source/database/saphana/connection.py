@@ -40,7 +40,7 @@ from metadata.ingestion.connections.test_connections import (
     test_connection_engine_step,
     test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 def get_database_connection_url(connection: SapHanaConnection) -> str:

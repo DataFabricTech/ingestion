@@ -5,20 +5,15 @@ build-backend = "setuptools.build_meta"
 # We will keep handling dependencies in setup.py
 # since it helps us organize and isolate version management
 [project]
-name = "openmetadata-ingestion"
+name = "metadata-ingestion"
 version = "1.4.0.1"
 dynamic = ["readme", "dependencies", "optional-dependencies"]
 authors = [
-    {name = "OpenMetadata Committers"}
+    {name = "Metadata Committers"}
 ]
 license = {file = "LICENSE"}
-description = "Ingestion Framework for OpenMetadata"
+description = "Ingestion Framework"
 requires-python = ">=3.8"
-
-[project.urls]
-Homepage = "https://open-metadata.org/"
-Documentation = "https://docs.open-metadata.org/"
-Source = "https://github.com/open-metadata/OpenMetadata"
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"]}
@@ -135,7 +130,6 @@ skip_glob = [
     "src/metadata/generated/*",
     "build/*",
     "env/*",
-    "../openmetadata-airflow-apis/build/*"
 ]
 profile = "black"
 indent = "    "

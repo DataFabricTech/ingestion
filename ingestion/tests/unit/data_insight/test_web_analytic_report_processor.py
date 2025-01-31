@@ -91,7 +91,7 @@ USER_DETAILS = {"name": "aaron_johnson0", "team": "sales"}
 
 
 class WebAnalyticEntityViewReportDataProcessorTest(unittest.TestCase):
-    @patch("metadata.ingestion.ometa.ometa_api.OpenMetadata", return_value=MagicMock())
+    @patch("metadata.ingestion.server.ometa_api.OpenMetadata", return_value=MagicMock())
     def test_refine(self, mocked_ometa):
         """Check fecth owner returns the expected value"""
         web_analytic_entity_report_data = {}
@@ -118,7 +118,7 @@ class WebAnalyticEntityViewReportDataProcessorTest(unittest.TestCase):
 
 
 class WebAnalyticUserActivityReportDataProcessorTest(unittest.TestCase):
-    @patch("metadata.ingestion.ometa.ometa_api.OpenMetadata", return_value=MagicMock())
+    @patch("metadata.ingestion.server.ometa_api.OpenMetadata", return_value=MagicMock())
     @patch.object(
         WebAnalyticUserActivityReportDataProcessor,
         "_get_user_details",

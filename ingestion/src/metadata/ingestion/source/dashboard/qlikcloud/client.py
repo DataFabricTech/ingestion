@@ -18,7 +18,7 @@ from typing import Dict, List, Optional
 from metadata.generated.schema.entity.services.connections.dashboard.qlikCloudConnection import (
     QlikCloudConnection,
 )
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.ingestion.source.dashboard.qlikcloud.constants import (
     APP_LOADMODEL_REQ,
     CREATE_SHEET_SESSION,

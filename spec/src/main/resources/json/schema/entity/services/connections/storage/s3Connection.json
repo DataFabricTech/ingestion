@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/storage/s3Connection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/storage/s3Connection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "S3 Connection",
   "description": "S3 Connection.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.storage.S3Connection",
   "definitions": {
     "s3Type": {
       "description": "S3 service type",
       "type": "string",
-      "enum": ["S3"],
+      "enum": [
+        "S3"
+      ],
       "default": "S3"
     }
   },

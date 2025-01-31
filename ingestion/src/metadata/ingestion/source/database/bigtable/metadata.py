@@ -30,7 +30,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.bigtable.client import MultiProjectClient
 from metadata.ingestion.source.database.bigtable.models import Row
 from metadata.ingestion.source.database.common_nosql_source import (

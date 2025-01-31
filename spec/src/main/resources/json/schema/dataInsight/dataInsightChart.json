@@ -1,15 +1,12 @@
 {
-  "$id": "https://open-metadata.org/schema/dataInsight/dataInsightChart.json",
+  "$id": "https://mobigen.com/schema/dataInsight/dataInsightChart.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DataInsightChart",
   "description": "DataInsightChart represents the definition of a chart with its parameters",
   "type": "object",
-  "javaType": "org.openmetadata.schema.dataInsight.DataInsightChart",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "chartParameterValues": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.dataInsight.ChartParameterValues",
       "description": "This schema defines the parameter values for a chart.",
       "properties": {
         "name": {
@@ -21,7 +18,6 @@
           "type": "string"
         },
         "chartDataType": {
-          "javaType": "org.openmetadata.schema.type.DataInsightChartDataType",
           "description": "Data type of the parameter (int, date etc.).",
           "type": "string",
           "enum": [
@@ -45,7 +41,6 @@
       }
     },
     "dataReportIndex": {
-      "javaType": "org.openmetadata.schema.type.DataReportIndex",
       "description": "Index where data are stored",
       "type": "string",
       "enum": [
@@ -124,6 +119,8 @@
       "default": false
     }
   },
-  "required": ["name"],
+  "required": [
+    "name"
+  ],
   "additionalProperties": false
 }

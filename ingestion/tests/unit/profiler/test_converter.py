@@ -10,7 +10,7 @@
 #  limitations under the License.
 
 """
-Test ometa to orm converter
+Test server to orm converter
 """
 
 from unittest.mock import patch

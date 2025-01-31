@@ -1,12 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/feed/thread.json",
+  "$id": "https://mobigen.com/schema/entity/feed/thread.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Thread",
   "description": "This schema defines the Thread entity. A Thread is a collection of posts made by the users. The first post that starts a thread is **about** a data asset **from** a user. Other users can respond to this post by creating new posts in the thread. Note that bot users can also interact with a thread. A post can contains links that mention Users or other Data Assets.",
   "type": "object",
   "definitions": {
     "taskType": {
-      "javaType": "org.openmetadata.schema.type.TaskType",
       "description": "Type of a task.",
       "type": "string",
       "enum": [
@@ -43,7 +42,6 @@
       ]
     },
     "taskDetails": {
-      "javaType": "org.openmetadata.schema.type.TaskDetails",
       "description": "Details about the task. This is only applicable if thread is of type task.",
       "type": "object",
       "properties": {
@@ -86,14 +84,20 @@
           "$ref": "../../type/basic.json#/definitions/uuid"
         }
       },
-      "required": ["id", "assignees", "type"],
+      "required": [
+        "id",
+        "assignees",
+        "type"
+      ],
       "additionalProperties": false
     },
     "threadTaskStatus": {
-      "javaType": "org.openmetadata.schema.type.TaskStatus",
       "type": "string",
       "description": "Status of a task.",
-      "enum": ["Open", "Closed"],
+      "enum": [
+        "Open",
+        "Closed"
+      ],
       "javaEnums": [
         {
           "name": "Open"
@@ -105,10 +109,14 @@
       "default": "Open"
     },
     "threadType": {
-      "javaType": "org.openmetadata.schema.type.ThreadType",
       "type": "string",
       "description": "Type of thread.",
-      "enum": ["Conversation", "Task", "Announcement", "Chatbot"],
+      "enum": [
+        "Conversation",
+        "Task",
+        "Announcement",
+        "Chatbot"
+      ],
       "javaEnums": [
         {
           "name": "Conversation"
@@ -126,7 +134,6 @@
       "default": "Conversation"
     },
     "announcementDetails": {
-      "javaType": "org.openmetadata.schema.type.AnnouncementDetails",
       "description": "Details about the announcement. This is only applicable if thread is of type announcement.",
       "type": "object",
       "properties": {
@@ -143,11 +150,13 @@
           "$ref": "../../type/basic.json#/definitions/timestamp"
         }
       },
-      "required": ["startTime", "endTime"],
+      "required": [
+        "startTime",
+        "endTime"
+      ],
       "additionalProperties": false
     },
     "chatbotDetails": {
-      "javaType": "org.openmetadata.schema.type.ChatbotDetails",
       "description": "Details about the Chatbot conversation. This is only applicable if thread is of type Chatbot.",
       "type": "object",
       "properties": {
@@ -158,7 +167,6 @@
       }
     },
     "post": {
-      "javaType": "org.openmetadata.schema.type.Post",
       "type": "object",
       "description": "Post within a feed.",
       "properties": {
@@ -183,7 +191,11 @@
           "$ref": "../../type/reaction.json#/definitions/reactionList"
         }
       },
-      "required": ["id", "message", "from"],
+      "required": [
+        "id",
+        "message",
+        "from"
+      ],
       "additionalProperties": false
     }
   },
@@ -222,7 +234,10 @@
     "generatedBy": {
       "description": "User or team that generated the thread.",
       "type": "string",
-      "enum": ["user", "system"],
+      "enum": [
+        "user",
+        "system"
+      ],
       "default": "user"
     },
     "cardStyle": {
@@ -247,7 +262,12 @@
     "fieldOperation": {
       "description": "Operation on thread, whether the field was added, or updated or deleted.",
       "type": "string",
-      "enum": ["added", "updated", "deleted", "none"],
+      "enum": [
+        "added",
+        "updated",
+        "deleted",
+        "none"
+      ],
       "default": "updated"
     },
     "feedInfo": {
@@ -343,6 +363,10 @@
       "$ref": "#/definitions/chatbotDetails"
     }
   },
-  "required": ["id", "about", "message"],
+  "required": [
+    "id",
+    "about",
+    "message"
+  ],
   "additionalProperties": false
 }

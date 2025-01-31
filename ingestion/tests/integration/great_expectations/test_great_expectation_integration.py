@@ -32,7 +32,7 @@ from metadata.generated.schema.security.client.openMetadataJWTClientConfig impor
 )
 from metadata.generated.schema.tests.testSuite import TestSuite
 from metadata.ingestion.connections.session import create_and_bind_session
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.time_utils import (
     get_beginning_of_day_timestamp_mill,
     get_end_of_day_timestamp_mill,
@@ -194,7 +194,7 @@ class TestGreatExpectationIntegration(TestCase):
         ometa_config = os.path.join(ge_folder, "ometa_config")
         context = DataContext(ge_folder)
         checkpoint = context.get_checkpoint("sqlite")
-        # update our checkpoint file at runtime to dynamically pass the ometa config file
+        # update our checkpoint file at runtime to dynamically pass the server config file
         checkpoint.action_list[-1].update(
             {
                 "name": "ometa_ingestion",

@@ -23,7 +23,7 @@ from metadata.generated.schema.configuration.profilerConfiguration import (
 )
 from metadata.generated.schema.entity.data.table import ColumnProfilerConfig
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.core import Metric, add_props
 from metadata.profiler.metrics.registry import Metrics

@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/mlmodelServiceMetadataPipeline.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/mlmodelServiceMetadataPipeline.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MlModelServiceMetadataPipeline",
   "description": "MlModelService Metadata Pipeline Configuration.",
@@ -8,7 +8,9 @@
     "mlModelMetadataConfigType": {
       "description": "MlModel Source Config Metadata Pipeline type",
       "type": "string",
-      "enum": ["MlModelMetadata"],
+      "enum": [
+        "MlModelMetadata"
+      ],
       "default": "MlModelMetadata"
     }
   },
@@ -24,7 +26,7 @@
       "title": "ML Model Filter Pattern"
     },
     "markDeletedMlModels": {
-      "description": "Optional configuration to soft delete MlModels in OpenMetadata if the source MlModels are deleted. Also, if the MlModel is deleted, all the associated entities like lineage, etc., with that MlModels will be deleted",
+      "description": "Optional configuration to soft delete MlModels in Metadata if the source MlModels are deleted. Also, if the MlModel is deleted, all the associated entities like lineage, etc., with that MlModels will be deleted",
       "type": "boolean",
       "default": true,
       "title": "Mark Deleted ML Models"

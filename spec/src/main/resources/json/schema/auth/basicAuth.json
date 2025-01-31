@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/auth/basicAuth.json",
+  "$id": "https://mobigen.com/schema/api/auth/basicAuth.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "BasicAuthMechanism",
   "description": "User basic Auth Mechanism.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.auth.BasicAuthMechanism",
   "properties": {
     "password": {
       "description": "User Password",
@@ -12,5 +11,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["password"]
+  "required": [
+    "password"
+  ]
 }

@@ -44,7 +44,7 @@ from metadata.generated.schema.entity.data import (
 )
 from metadata.generated.schema.entity.teams.user import User
 from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.helpers import get_entity_tier_from_tags
 from metadata.utils.logger import data_insight_logger
 from metadata.utils.time_utils import (

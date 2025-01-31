@@ -1,26 +1,24 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/topic.json",
+  "$id": "https://mobigen.com/schema/entity/data/topic.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Topic",
   "$comment": "@om-entity-type",
   "description": "A `Topic` is a feed or an event stream in a `Messaging Service` into which publishers publish messages and consumed by consumers.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.Topic",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "cleanupPolicy": {
-      "javaType": "org.openmetadata.schema.type.topic.CleanupPolicy",
       "description": "Topic clean up policy. For Kafka - `cleanup.policy` configuration.",
-      "enum": ["delete", "compact"]
+      "enum": [
+        "delete",
+        "compact"
+      ]
     },
     "topicConfig": {
-      "javaType": "org.openmetadata.schema.type.topic.TopicConfig",
       "description": "Contains key/value pair of topic configuration.",
       "type": "object"
     },
     "topicSampleData": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.topic.TopicSampleData",
       "description": "This schema defines the type to capture sample data for a topic.",
       "properties": {
         "messages": {
@@ -76,7 +74,7 @@
       "$ref": "../services/messagingService.json#/definitions/messagingServiceType"
     },
     "messageSchema": {
-        "$ref": "../../type/schema.json"
+      "$ref": "../../type/schema.json"
     },
     "partitions": {
       "description": "Number of partitions into which the topic is divided.",
@@ -158,15 +156,15 @@
       "description": "Source URL of topic.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the Topic belongs to. When not set, the Topic inherits the domain from the messaging service it belongs to.",
       "$ref": "../../type/entityReference.json"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "lifeCycle": {
@@ -180,6 +178,11 @@
       "maxLength": 32
     }
   },
-  "required": ["id", "name", "partitions", "service"],
+  "required": [
+    "id",
+    "name",
+    "partitions",
+    "service"
+  ],
   "additionalProperties": false
 }

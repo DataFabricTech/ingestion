@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/metadata/AlationConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/metadata/AlationConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AlationConnection",
   "description": "Alation Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.metadata.AlationConnection",
   "definitions": {
     "alationType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Alation"],
+      "enum": [
+        "Alation"
+      ],
       "default": "Alation"
     }
   },
@@ -39,7 +40,7 @@
         }
       ]
     },
-    "connection":{
+    "connection": {
       "title": "Alation Database Connection",
       "description": "Choose between mysql and postgres connection for alation database",
       "oneOf": [
@@ -112,7 +113,7 @@
     },
     "alationTagClassificationName": {
       "title": "Alation Tags Classification Name",
-      "description": "Custom OpenMetadata Classification name for alation tags.",
+      "description": "Custom Metadata Classification name for alation tags.",
       "type": "string",
       "default": "alationTags"
     },
@@ -126,6 +127,9 @@
       "$ref": "../connectionBasicType.json#/definitions/supportsMetadataExtraction"
     }
   },
-  "required": ["hostPort", "authType"],
+  "required": [
+    "hostPort",
+    "authType"
+  ],
   "additionalProperties": false
 }

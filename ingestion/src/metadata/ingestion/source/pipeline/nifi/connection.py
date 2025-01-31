@@ -22,7 +22,7 @@ from metadata.generated.schema.entity.services.connections.pipeline.nifiConnecti
     NifiConnection,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.pipeline.nifi.client import NifiClient
 
 

@@ -56,7 +56,7 @@ from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection
 from metadata.profiler.api.models import (
     DatabaseAndSchemaConfig,
@@ -173,7 +173,7 @@ class ProfilerInterface(ABC):
             profiler_config (Optional[ProfilerProcessorConfig]): Profiler config object
             source_config (Union[DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline]): source config object
             service_connection_config (_type_): connection for the service
-            ometa_client (Optional[OpenMetadata]): ometa client object
+            ometa_client (Optional[OpenMetadata]): server client object
 
         Raises:
             NotImplementedError: if the profiler type is not supported

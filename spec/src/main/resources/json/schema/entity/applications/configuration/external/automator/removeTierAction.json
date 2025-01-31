@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/configuration/external/automator/removeTierAction.json",
+  "$id": "https://mobigen.com/schema/entity/applications/configuration/external/automator/removeTierAction.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RemoveTierAction",
   "description": "Remove Owner Action Type",
@@ -8,7 +8,9 @@
     "removeTierActionType": {
       "description": "Remove Tier Action Type",
       "type": "string",
-      "enum": ["RemoveTierAction"],
+      "enum": [
+        "RemoveTierAction"
+      ],
       "default": "RemoveTierAction"
     }
   },
@@ -20,6 +22,8 @@
       "default": "RemoveTierAction"
     }
   },
-  "required": ["type"],
+  "required": [
+    "type"
+  ],
   "additionalProperties": false
 }

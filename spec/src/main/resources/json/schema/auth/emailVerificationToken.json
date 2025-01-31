@@ -1,14 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/auth/emailVerificationToken.json",
+  "$id": "https://mobigen.com/schema/auth/emailVerificationToken.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "EmailVerificationToken",
   "description": "This schema defines Email Verification Token Schema.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.auth.EmailVerificationToken",
-  "javaInterfaces": ["org.openmetadata.schema.TokenInterface"],
   "definitions": {
     "tokenType": {
-      "javaType": "org.openmetadata.schema.auth.TokenType",
       "description": "Different Type of User token",
       "type": "string",
       "enum": [
@@ -36,7 +33,10 @@
     "tokenStatus": {
       "description": "Refresh Count",
       "type": "string",
-      "enum": ["STATUS_PENDING", "STATUS_CONFIRMED"]
+      "enum": [
+        "STATUS_PENDING",
+        "STATUS_CONFIRMED"
+      ]
     },
     "expiryDate": {
       "description": "Expiry Date-Time of the token",

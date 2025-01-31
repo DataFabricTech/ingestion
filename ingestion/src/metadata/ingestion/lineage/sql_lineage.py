@@ -33,7 +33,7 @@ from metadata.ingestion.lineage.models import (
     QueryParsingFailures,
 )
 from metadata.ingestion.lineage.parser import LINEAGE_PARSING_TIMEOUT, LineageParser
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils import fqn
 from metadata.utils.fqn import build_es_fqn_search_string
 from metadata.utils.logger import utils_logger

@@ -1,16 +1,17 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/customDatabaseConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/customDatabaseConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CustomDatabaseConnection",
-  "description": "Custom Database Service connection to build a source that is not supported by OpenMetadata yet.",
+  "description": "Custom Database Service connection to build a source that is not supported by Metadata yet.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.CustomDatabaseConnection",
   "definitions": {
     "customDatabaseType": {
       "title": "Service Type",
       "description": "Custom database service type",
       "type": "string",
-      "enum": ["CustomDatabase"],
+      "enum": [
+        "CustomDatabase"
+      ],
       "default": "CustomDatabase"
     }
   },
@@ -32,5 +33,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["type"]
+  "required": [
+    "type"
+  ]
 }

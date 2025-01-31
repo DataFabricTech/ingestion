@@ -1,9 +1,8 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/storage/storageBucketDetails.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/storage/storageBucketDetails.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Storage Metadata Bucket Details",
   "description": "Details of the bucket where the storage metadata manifest file is stored",
-  "javaType": "org.openmetadata.schema.metadataIngestion.storage.StorageMetadataBucketDetails",
   "type": "object",
   "properties": {
     "containerName": {
@@ -18,5 +17,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["containerName"]
+  "required": [
+    "containerName"
+  ]
 }

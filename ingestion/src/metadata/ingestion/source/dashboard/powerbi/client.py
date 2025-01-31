@@ -24,7 +24,7 @@ from metadata.generated.schema.entity.services.connections.dashboard.powerBIConn
     PowerBIConnection,
 )
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.server.client import REST, ClientConfig
 from metadata.ingestion.source.dashboard.powerbi.file_client import PowerBiFileClient
 from metadata.ingestion.source.dashboard.powerbi.models import (
     DashboardsResponse,

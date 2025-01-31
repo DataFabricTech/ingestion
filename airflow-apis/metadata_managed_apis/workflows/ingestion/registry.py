@@ -1,0 +1,40 @@
+"""
+DAG builder registry.
+
+Add a function for each type from PipelineType
+"""
+from metadata_managed_apis.workflows.ingestion.application import (
+    build_application_dag,
+)
+from metadata_managed_apis.workflows.ingestion.data_insight import (
+    build_data_insight_dag,
+)
+from metadata_managed_apis.workflows.ingestion.dbt import build_dbt_dag
+from metadata_managed_apis.workflows.ingestion.es_reindex import (
+    build_es_reindex_dag,
+)
+from metadata_managed_apis.workflows.ingestion.lineage import build_lineage_dag
+from metadata_managed_apis.workflows.ingestion.metadata import build_metadata_dag
+from metadata_managed_apis.workflows.ingestion.profiler import build_profiler_dag
+from metadata_managed_apis.workflows.ingestion.test_suite import (
+    build_test_suite_dag,
+)
+from metadata_managed_apis.workflows.ingestion.usage import build_usage_dag
+
+from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
+    PipelineType,
+)
+from metadata.utils.dispatch import enum_register
+
+build_registry = enum_register()
+
+build_registry.add(PipelineType.metadata.value)(build_metadata_dag)
+build_registry.add(PipelineType.usage.value)(build_usage_dag)
+build_registry.add(PipelineType.lineage.value)(build_lineage_dag)
+build_registry.add(PipelineType.dbt.value)(build_dbt_dag)
+build_registry.add(PipelineType.profiler.value)(build_profiler_dag)
+build_registry.add(PipelineType.storageProfiler.value)(build_profiler_dag)
+build_registry.add(PipelineType.TestSuite.value)(build_test_suite_dag)
+build_registry.add(PipelineType.dataInsight.value)(build_data_insight_dag)
+build_registry.add(PipelineType.elasticSearchReindex.value)(build_es_reindex_dag)
+build_registry.add(PipelineType.application.value)(build_application_dag)

@@ -43,7 +43,7 @@ from metadata.generated.schema.type.entityLineage import EntitiesEdge, LineageDe
 from metadata.generated.schema.type.entityLineage import Source as LineageSource
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.dashboard.metabase import metadata as MetabaseMetadata
 from metadata.ingestion.source.dashboard.metabase.metadata import MetabaseSource
 from metadata.ingestion.source.dashboard.metabase.models import (

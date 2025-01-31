@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/services/createDashboardService.json",
+  "$id": "https://mobigen.com/schema/api/services/createDashboardService.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDashboardServiceRequest",
   "description": "Create Dashboard service entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.services.CreateDashboardService",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
   "properties": {
     "name": {
       "description": "Name that identifies the this entity instance uniquely",
@@ -37,18 +35,21 @@
       "description": "Owner of this dashboard service.",
       "$ref": "../../type/entityReference.json"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the Dashboard Service belongs to.",
       "type": "string"
     }
   },
-  "required": ["name", "serviceType"],
+  "required": [
+    "name",
+    "serviceType"
+  ],
   "additionalProperties": false
 }

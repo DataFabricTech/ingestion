@@ -25,7 +25,7 @@ from metadata.ingestion.connections.test_connections import (
     SourceConnectionException,
     test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.metadata.amundsen.client import Neo4JConfig, Neo4jHelper
 from metadata.ingestion.source.metadata.amundsen.queries import (
     NEO4J_AMUNDSEN_USER_QUERY,

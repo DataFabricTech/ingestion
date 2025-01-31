@@ -1,12 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/feed/thread.json",
+  "$id": "https://mobigen.com/schema/entity/feed/thread.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Suggestion",
   "description": "This schema defines the Suggestion entity. A suggestion can be applied to an asset to give the owner context about possible changes or improvements to descriptions, tags,...",
   "type": "object",
   "definitions": {
     "suggestionType": {
-      "javaType": "org.openmetadata.schema.type.SuggestionType",
       "description": "Type of a Suggestion.",
       "type": "string",
       "enum": [
@@ -23,7 +22,6 @@
       ]
     },
     "suggestionStatus": {
-      "javaType": "org.openmetadata.schema.type.SuggestionStatus",
       "type": "string",
       "description": "Status of a Suggestion.",
       "enum": [
@@ -93,7 +91,23 @@
       "default": null
     }
   },
-  "oneOf": [{"required": ["id", "entityLink", "description", "suggestionType"]},
-    {"required": ["id", "entityLink", "tagLabels", "suggestionType"]}],
+  "oneOf": [
+    {
+      "required": [
+        "id",
+        "entityLink",
+        "description",
+        "suggestionType"
+      ]
+    },
+    {
+      "required": [
+        "id",
+        "entityLink",
+        "tagLabels",
+        "suggestionType"
+      ]
+    }
+  ],
   "additionalProperties": false
 }

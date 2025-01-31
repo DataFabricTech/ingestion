@@ -41,7 +41,7 @@ from metadata.generated.schema.security.credentials.gcpValues import (
     SingleProjectId,
 )
 from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.credentials import GOOGLE_CREDENTIALS, set_google_credentials
 
 

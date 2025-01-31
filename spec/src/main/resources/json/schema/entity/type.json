@@ -1,22 +1,22 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/type.json",
+  "$id": "https://mobigen.com/schema/entity/type.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Type",
   "description": "This schema defines a type as an entity. Types includes property types and entity types. Custom types can also be defined by the users to extend the metadata system.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.Type",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "entityName": {
-      "description": "Name of the property or entity types. Note a property name must be unique for an entity. Property name must follow camelCase naming adopted by openMetadata - must start with lower case with no space, underscore, or dots.",
+      "description": "Name of the property or entity types. Note a property name must be unique for an entity. Property name must follow camelCase naming adopted by - must start with lower case with no space, underscore, or dots.",
       "type": "string",
       "pattern": "(?U)^[\\w]+$"
     },
     "category": {
       "description": "Metadata category to which a type belongs to.",
       "type": "string",
-      "javaType": "org.openmetadata.schema.entity.type.Category",
-      "enum": ["field", "entity"],
+      "enum": [
+        "field",
+        "entity"
+      ],
       "javaEnums": [
         {
           "name": "Field"
@@ -88,6 +88,9 @@
       "$ref": "../type/entityHistory.json#/definitions/changeDescription"
     }
   },
-  "required": ["name", "description"],
+  "required": [
+    "name",
+    "description"
+  ],
   "additionalProperties": false
 }

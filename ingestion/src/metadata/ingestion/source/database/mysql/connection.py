@@ -34,7 +34,7 @@ from metadata.ingestion.connections.builders import (
 from metadata.ingestion.connections.test_connections import (
     test_connection_db_schema_sources,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 
 def get_connection(connection: MysqlConnection) -> Engine:

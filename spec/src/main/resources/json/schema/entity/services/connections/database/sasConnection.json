@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/sasConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/sasConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SASConnection",
   "description": "SAS Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.SASConnection",
   "definitions": {
     "sasType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["SAS"],
+      "enum": [
+        "SAS"
+      ],
       "default": "SAS"
     }
   },
@@ -97,6 +98,10 @@
       ]
     }
   },
-  "required": ["username", "password", "serverHost"],
+  "required": [
+    "username",
+    "password",
+    "serverHost"
+  ],
   "additionalProperties": false
 }

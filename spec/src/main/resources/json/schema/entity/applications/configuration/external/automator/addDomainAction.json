@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/configuration/external/automator/addDomainAction.json",
+  "$id": "https://mobigen.com/schema/entity/applications/configuration/external/automator/addDomainAction.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AddDomainAction",
   "description": "Add an owner to the selected assets.",
@@ -8,7 +8,9 @@
     "addDomainActionType": {
       "description": "Add Owner Action Type.",
       "type": "string",
-      "enum": ["AddDomainAction"],
+      "enum": [
+        "AddDomainAction"
+      ],
       "default": "AddDomainAction"
     }
   },
@@ -30,6 +32,9 @@
       "default": false
     }
   },
-  "required": ["type", "domain"],
+  "required": [
+    "type",
+    "domain"
+  ],
   "additionalProperties": false
 }

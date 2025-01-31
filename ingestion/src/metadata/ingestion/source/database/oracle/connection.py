@@ -37,7 +37,7 @@ from metadata.ingestion.connections.builders import (
     get_connection_options_dict,
 )
 from metadata.ingestion.connections.test_connections import test_connection_db_common
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.database.oracle.queries import CHECK_ACCESS_TO_ALL
 from metadata.utils.logger import ingestion_logger
 

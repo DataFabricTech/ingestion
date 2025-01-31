@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/supersetConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/supersetConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SupersetConnection",
   "description": "Superset Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dashboard.SupersetConnection",
   "definitions": {
     "supersetType": {
       "description": "Superset service type",
       "type": "string",
-      "enum": ["Superset"],
+      "enum": [
+        "Superset"
+      ],
       "default": "Superset"
     }
   },
@@ -28,7 +29,7 @@
       "format": "uri",
       "default": "http://localhost:8088"
     },
-    "connection":{
+    "connection": {
       "title": "Superset Connection",
       "description": "Choose between API or database connection fetch metadata from superset.",
       "oneOf": [
@@ -49,5 +50,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort","connection"]
+  "required": [
+    "hostPort",
+    "connection"
+  ]
 }

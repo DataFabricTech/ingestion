@@ -96,7 +96,7 @@ from metadata.generated.schema.tests.testDefinition import (
 )
 from metadata.generated.schema.type.basic import EntityName, FullyQualifiedEntityName
 from metadata.ingestion.models.custom_pydantic import CustomSecretStr
-from metadata.ingestion.ometa.ometa_api import C, OpenMetadata, T
+from metadata.ingestion.server.server_api import C, OpenMetadata, T
 from metadata.utils.dispatch import class_register
 
 OM_JWT = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE2NjM5Mzg0NjIsImVtYWlsIjoiYWRtaW5Ab3Blbm1ldGFkYXRhLm9yZyJ9.tS8um_5DKu7HgzGBzS1VTA5uUjKWOCU0B_j08WXBiEC0mr0zNREkqVfwFDD-d24HlNEbrqioLsBuFRiwIWKc1m_ZlVQbG7P36RUxhuv2vbSp80FKyNM-Tj93FDzq91jsyNmsQhyNv_fNr3TXfzzSPjHt8Go0FMMP66weoKMgW2PbXlhVKwEuXUHyakLLzewm9UMeQaEiRzhiTMU3UkLXcKbYEJJvfNFcLwSl9W8JCO_l0Yj3ud-qt_nQYEZwqW6u5nfdQllN133iikV4fM5QZsMCnm8Rq1mvLR0y9bmJiD7fwM1tmJ791TUWqmKaTnP49U493VanKpUAfzIiOiIbhg"
@@ -174,16 +174,16 @@ MINIO_PROFILER_TEST = """
 {
     "source": {
         "type": "minio", 
-        "serviceName": "fabric-minio", 
+        "serviceName": "ltech-minio", 
         "serviceConnection": {
             "config": {
                 "type": "MinIO", 
                 "minioConfig": {
-                    "accessKeyId": "fabric", 
-                    "secretKey": "fabric12##", 
+                    "accessKeyId": "tta", 
+                    "secretKey": "asdfqwer1234",
                     "sessionToken": null, 
                     "region": null, 
-                    "endPointURL": "http://192.168.106.12:9000"
+                    "endPointURL": "http://221.153.191.95:9000"
                 }, 
                 "bucketNames": [], 
                 "supportsMetadataExtraction": true, 
@@ -194,7 +194,7 @@ MINIO_PROFILER_TEST = """
             "config": {
                 "type": "StorageProfiler", 
                 "bucketFilterPattern": {
-                    "includes": ["datafabric"],
+                    "includes": ["sensor-data"],
                     "excludes": []
                 }, 
                 "containerFilterPattern": null, 
@@ -220,18 +220,20 @@ MINIO_PROFILER_TEST = """
     "workflowConfig": {
         "loggerLevel": "DEBUG", 
         "openMetadataServerConfig": {
-            "hostPort": "http://192.168.105.51:8585/api", 
+            "hostPort": "http://192.168.109.254:30595/api",
             "authProvider": "openmetadata",
             "securityConfig": {
-                "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBtZXRhZGF0YS5vcmciLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzI3MDgwNTY1LCJleHAiOm51bGx9.pL8fVWI9QPjL8Cc5jxereIbvNmO_CDTXp0_LotFGywltaX-42N-IZVSkGLJcG7sTCqqPnERQyFghVV1i45bPXHcXYeq9k0LQkfDOEnV4dYcN0RPwUK35EKeidM5UiRXr39sjy8qSS_OAH7KraWX_wucZPXoPLzrHGgo2N_8yl-huaLLhzEwPqggsofOFyaVd6MMCr4HLxIniRMBOJLU3qnRcj--HINru3dK9I_mM8uESJNfl9wRmObhXyRwUrVIqTMejG6XgjO6L4USiyKOlMyIbupgFvq7SP2lL-soEzT7mw_mZOWD1ZdUWoasCRjysFpqQ3pCwf94XTAxWtTfppA"
+                "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTczMzg5NTUwOCwiZXhwIjpudWxsfQ.HPsRx5CLN79VIX8oZIMTWeMGiAnubCdat4yR5tDRDfvlIRJXGbjXeTy31Ia9HbZLuRZNZklr3p9H9FIg6UMcidCao0KtZ5gpG2ETGhMdHQnPHRCCa33ozgQ2PcaKu60xMTN8tuIecvW883e6KZBzcrKCEhH-pDuKv3z3sJKn5hMopEFf_8cxkfmRjGUoC3fygBDfuJhhlItg0ZUebHm1wL0SMfu8xLT7WR48b7WmqSPJ9jVnMJs6rJY5tdE1JCiahbRkVzXZNRPCXqo9_NWIW79_2DDecTIaCPZc8aEVhQZ5PCauvW0-N55braKgjqDbAsJlKfYW2PD27DFgSV0bFQ"
             }
         }
     } 
 }"""
 
+# "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBtZXRhZGF0YS5vcmciLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzI3MDgwNTY1LCJleHAiOm51bGx9.pL8fVWI9QPjL8Cc5jxereIbvNmO_CDTXp0_LotFGywltaX-42N-IZVSkGLJcG7sTCqqPnERQyFghVV1i45bPXHcXYeq9k0LQkfDOEnV4dYcN0RPwUK35EKeidM5UiRXr39sjy8qSS_OAH7KraWX_wucZPXoPLzrHGgo2N_8yl-huaLLhzEwPqggsofOFyaVd6MMCr4HLxIniRMBOJLU3qnRcj--HINru3dK9I_mM8uESJNfl9wRmObhXyRwUrVIqTMejG6XgjO6L4USiyKOlMyIbupgFvq7SP2lL-soEzT7mw_mZOWD1ZdUWoasCRjysFpqQ3pCwf94XTAxWtTfppA"
+
 
 def int_admin_ometa(url: str = "http://localhost:8585/api") -> OpenMetadata:
-    """Initialize the ometa connection with default admin:admin creds"""
+    """Initialize the server connection with default admin:admin creds"""
     server_config = OpenMetadataConnection(
         hostPort=url,
         authProvider=AuthProvider.openmetadata,

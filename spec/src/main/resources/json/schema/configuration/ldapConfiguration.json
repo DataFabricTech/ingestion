@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/configuration/ldapConfiguration.json",
+  "$id": "https://mobigen.com/schema/configuration/ldapConfiguration.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LdapConfiguration",
   "description": "LDAP Configuration",
   "type": "object",
-  "javaType": "org.openmetadata.schema.auth.LdapConfiguration",
   "properties": {
     "host": {
       "description": "LDAP server address without scheme(Example :- localhost)",
@@ -92,13 +91,25 @@
     "truststoreConfigType": {
       "description": "Truststore Type e.g. TrustAll, HostName, JVMDefault, CustomTrustStore.",
       "type": "string",
-      "enum": ["TrustAll", "JVMDefault", "HostName", "CustomTrustStore"]
+      "enum": [
+        "TrustAll",
+        "JVMDefault",
+        "HostName",
+        "CustomTrustStore"
+      ]
     },
     "trustStoreConfig": {
       "description": "Truststore Configuration",
       "$ref": "ldapTrustStoreConfig/truststoreConfig.json"
     }
   },
-  "required": ["host", "port", "dnAdminPrincipal","dnAdminPassword", "userBaseDN", "mailAttributeName"],
+  "required": [
+    "host",
+    "port",
+    "dnAdminPrincipal",
+    "dnAdminPassword",
+    "userBaseDN",
+    "mailAttributeName"
+  ],
   "additionalProperties": false
 }

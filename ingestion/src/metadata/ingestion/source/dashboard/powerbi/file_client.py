@@ -35,7 +35,7 @@ from metadata.generated.schema.entity.services.connections.dashboard.powerBIConn
     LocalConfig,
     PowerBIConnection,
 )
-from metadata.ingestion.ometa.client import REST
+from metadata.ingestion.server.client import REST
 from metadata.ingestion.source.dashboard.powerbi.models import (
     ConnectionFile,
     DataModelSchema,

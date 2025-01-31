@@ -24,7 +24,7 @@ from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import Processor
 from metadata.ingestion.lineage.models import ConnectionTypeDialectMapper, Dialect
 from metadata.ingestion.lineage.parser import LineageParser
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.time_utils import convert_timestamp_to_milliseconds
 

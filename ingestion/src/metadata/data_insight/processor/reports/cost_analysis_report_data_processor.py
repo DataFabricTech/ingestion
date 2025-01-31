@@ -30,8 +30,8 @@ from metadata.generated.schema.analytics.reportDataType.rawCostAnalysisReportDat
 )
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.generated.schema.type.lifeCycle import LifeCycle
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.utils import model_str
 from metadata.utils.constants import ENTITY_REFERENCE_TYPE_MAP
 from metadata.utils.logger import data_insight_logger
 from metadata.utils.time_utils import get_end_of_day_timestamp_mill

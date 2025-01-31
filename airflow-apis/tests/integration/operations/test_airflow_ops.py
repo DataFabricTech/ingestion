@@ -1,13 +1,3 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 """
 Test Airflow related operations
 """
@@ -30,8 +20,8 @@ from metadata.generated.schema.entity.services.connections.database.common.basic
 from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
     MysqlConnection,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
@@ -49,14 +39,14 @@ from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline
 from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
 from metadata.generated.schema.type.basic import Markdown
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 
 os.environ["AIRFLOW_HOME"] = "/tmp/airflow"
 os.environ[
     "AIRFLOW__DATABASE__SQL_ALCHEMY_CONN"
 ] = "mysql+pymysql://airflow_user:airflow_pass@localhost/airflow_db"
-os.environ["AIRFLOW__OPENMETADATA_AIRFLOW_APIS__DAG_GENERATED_CONFIGS"] = "/tmp/airflow"
-os.environ["AIRFLOW__OPENMETADATA_AIRFLOW_APIS__DAG_RUNNER_TEMPLATE"] = str(
+os.environ["AIRFLOW__METADATA_AIRFLOW_APIS__DAG_GENERATED_CONFIGS"] = "/tmp/airflow"
+os.environ["AIRFLOW__METADATA_AIRFLOW_APIS__DAG_RUNNER_TEMPLATE"] = str(
     (
         Path(__file__).parent.parent.parent.parent
         / "src/plugins/dag_templates/dag_runner.j2"
@@ -69,15 +59,15 @@ from airflow.operators.bash import BashOperator
 from airflow.utils import timezone
 from airflow.utils.state import DagRunState
 from airflow.utils.types import DagRunType
-from openmetadata_managed_apis.operations.delete import delete_dag_id
-from openmetadata_managed_apis.operations.deploy import DagDeployer
-from openmetadata_managed_apis.operations.kill_all import kill_all
-from openmetadata_managed_apis.operations.state import disable_dag, enable_dag
-from openmetadata_managed_apis.operations.status import status
-from openmetadata_managed_apis.operations.trigger import trigger
+from metadata_managed_apis.operations.delete import delete_dag_id
+from metadata_managed_apis.operations.deploy import DagDeployer
+from metadata_managed_apis.operations.kill_all import kill_all
+from metadata_managed_apis.operations.state import disable_dag, enable_dag
+from metadata_managed_apis.operations.status import status
+from metadata_managed_apis.operations.trigger import trigger
 
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 
 
@@ -85,10 +75,10 @@ class TestAirflowOps(TestCase):
     dagbag: DagBag
     dag: DAG
 
-    conn = OpenMetadataConnection(
+    conn = MetadataConnection(
         hostPort="http://localhost:8585/api",
-        authProvider="openmetadata",
-        securityConfig=OpenMetadataJWTClientConfig(
+        authProvider="metadata",
+        securityConfig=MetadataJWTClientConfig(
             jwtToken="eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE2NjM5Mzg0NjIsImVtYWlsIjoiYWRtaW5Ab3Blbm1ldGFkYXRhLm9yZyJ9.tS8um_5DKu7HgzGBzS1VTA5uUjKWOCU0B_j08WXBiEC0mr0zNREkqVfwFDD-d24HlNEbrqioLsBuFRiwIWKc1m_ZlVQbG7P36RUxhuv2vbSp80FKyNM-Tj93FDzq91jsyNmsQhyNv_fNr3TXfzzSPjHt8Go0FMMP66weoKMgW2PbXlhVKwEuXUHyakLLzewm9UMeQaEiRzhiTMU3UkLXcKbYEJJvfNFcLwSl9W8JCO_l0Yj3ud-qt_nQYEZwqW6u5nfdQllN133iikV4fM5QZsMCnm8Rq1mvLR0y9bmJiD7fwM1tmJ791TUWqmKaTnP49U493VanKpUAfzIiOiIbhg"
         ),
     )

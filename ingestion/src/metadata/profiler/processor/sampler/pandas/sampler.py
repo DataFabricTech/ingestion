@@ -82,7 +82,7 @@ class DatalakeSampler(SamplerInterface):
 
     def _get_sampled_dataframe(self):
         """
-        returns sampled ometa dataframes
+        returns sampled server dataframes
         """
         random.shuffle(self.table)  # we'll shuffle the list of dataframes
         # sampling data based on profiler config (if any)

@@ -1,18 +1,18 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/mlmodel.json",
+  "$id": "https://mobigen.com/schema/entity/data/mlmodel.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MlModel",
   "$comment": "@om-entity-type",
   "description": "This schema defines the Model entity. `Machine Learning Models` are algorithms trained on data to find patterns or make predictions.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.MlModel",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "featureType": {
-      "javaType": "org.openmetadata.schema.type.MlFeatureDataType",
       "description": "This enum defines the type of data stored in a ML Feature.",
       "type": "string",
-      "enum": ["numerical", "categorical"],
+      "enum": [
+        "numerical",
+        "categorical"
+      ],
       "javaEnums": [
         {
           "name": "Numerical"
@@ -23,7 +23,6 @@
       ]
     },
     "featureSourceDataType": {
-      "javaType": "org.openmetadata.schema.type.FeatureSourceDataType",
       "description": "This enum defines the type of data of a ML Feature source.",
       "type": "string",
       "enum": [
@@ -39,7 +38,6 @@
     },
     "featureSource": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.MlFeatureSource",
       "description": "This schema defines the sources of a ML Feature.",
       "additionalProperties": false,
       "properties": {
@@ -73,7 +71,6 @@
     },
     "mlFeature": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.MlFeature",
       "description": "This schema defines the type for an ML Feature used in an ML Model.",
       "additionalProperties": false,
       "properties": {
@@ -115,7 +112,6 @@
     },
     "mlHyperParameter": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.MlHyperParameter",
       "description": "This schema defines the type for an ML HyperParameter used in an ML Model.",
       "additionalProperties": false,
       "properties": {
@@ -135,7 +131,6 @@
     },
     "mlStore": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.MlStore",
       "description": "Location containing the ML Model. It can be a storage layer and/or a container repository.",
       "additionalProperties": false,
       "properties": {
@@ -269,15 +264,15 @@
       "description": "Source URL of mlModel.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the MLModel belongs to. When not set, the MLModel inherits the domain from the ML Model Service it belongs to.",
       "$ref": "../../type/entityReference.json"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "lifeCycle": {
@@ -291,6 +286,11 @@
       "maxLength": 32
     }
   },
-  "required": ["id", "name", "algorithm", "service"],
+  "required": [
+    "id",
+    "name",
+    "algorithm",
+    "service"
+  ],
   "additionalProperties": false
 }

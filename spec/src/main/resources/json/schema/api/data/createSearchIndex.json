@@ -1,12 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/data/createSearchIndex.json",
+  "$id": "https://mobigen.com/schema/api/data/createSearchIndex.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateSearchIndexRequest",
   "description": "Create a SearchIndex entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.data.CreateSearchIndex",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
-
   "properties": {
     "name": {
       "description": "Name that identifies this SearchIndex instance uniquely.",
@@ -52,16 +49,16 @@
       "description": "Entity extension data with custom attributes added to the entity.",
       "$ref": "../../type/basic.json#/definitions/entityExtension"
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the SearchIndex belongs to.",
       "type": "string",
-      "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
     "lifeCycle": {
@@ -75,6 +72,10 @@
       "maxLength": 32
     }
   },
-  "required": ["name", "service", "fields"],
+  "required": [
+    "name",
+    "service",
+    "fields"
+  ],
   "additionalProperties": false
 }

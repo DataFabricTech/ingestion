@@ -1,14 +1,15 @@
 {
-  "$id": "https://open-metadata.org/schema/system/ui/knowledgePanel.json",
+  "$id": "https://mobigen.com/schema/system/ui/knowledgePanel.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Team",
-  "description": "This schema defines the KnowledgePanel entity. A Knowledge panel is an information box used for UX customization in OpenMetadata.",
+  "description": "This schema defines the KnowledgePanel entity. A Knowledge panel is an information box used for UX customization in Metadata.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.system.ui.KnowledgePanel",
   "properties": {
     "entityType": {
       "description": "Entity Type.",
-      "enum": ["KnowledgePanel"],
+      "enum": [
+        "KnowledgePanel"
+      ],
       "default": "KnowledgePanel"
     },
     "configuration": {
@@ -16,6 +17,8 @@
       "type": "object"
     }
   },
-  "required": ["entityType"],
+  "required": [
+    "entityType"
+  ],
   "additionalProperties": false
 }

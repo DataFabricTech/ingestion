@@ -33,7 +33,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.utils import model_str
 from metadata.ingestion.source.database.databricks.metadata import DatabricksSource
 
 # pylint: disable=line-too-long

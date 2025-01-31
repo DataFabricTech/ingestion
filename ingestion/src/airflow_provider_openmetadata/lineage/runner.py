@@ -49,7 +49,7 @@ from metadata.ingestion.models.patch_request import (
     ALLOWED_COMMON_PATCH_FIELDS,
     RESTRICT_UPDATE_LIST,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.pipeline.airflow.lineage_parser import XLets
 from metadata.utils import fqn
 from metadata.utils.constants import ENTITY_REFERENCE_TYPE_MAP

@@ -42,7 +42,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 )
 from metadata.generated.schema.type.basic import EntityName, FullyQualifiedEntityName
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.ometa.utils import model_str
+from metadata.ingestion.server.utils import model_str
 from metadata.ingestion.source.database.mssql.metadata import MssqlSource
 
 mock_mssql_config = {

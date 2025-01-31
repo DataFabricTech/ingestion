@@ -17,7 +17,7 @@ import hashlib
 import traceback
 from typing import Dict, Optional
 
-from metadata.ingestion.ometa.ometa_api import C
+from metadata.ingestion.server.server_api import C
 from metadata.utils.logger import utils_logger
 
 logger = utils_logger()

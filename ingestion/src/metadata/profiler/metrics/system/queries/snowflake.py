@@ -21,7 +21,7 @@ from sqlalchemy.engine.row import Row
 
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
 from metadata.ingestion.lineage.sql_lineage import search_table_entities
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.utils.logger import profiler_logger
 from metadata.utils.profiler_utils import (
     SnowflakeQueryResult,

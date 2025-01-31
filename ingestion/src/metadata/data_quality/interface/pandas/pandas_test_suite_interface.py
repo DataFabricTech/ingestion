@@ -25,7 +25,7 @@ from metadata.generated.schema.entity.services.connections.database.datalakeConn
 from metadata.generated.schema.tests.basic import TestCaseResult
 from metadata.generated.schema.tests.testCase import TestCase
 from metadata.generated.schema.tests.testDefinition import TestDefinition
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection
 from metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
 from metadata.utils.importer import import_test_case_class

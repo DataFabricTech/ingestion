@@ -1,21 +1,25 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/clickhouseConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/clickhouseConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ClickhouseConnection",
   "description": "Clickhouse Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.ClickhouseConnection",
   "definitions": {
     "clickhouseType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Clickhouse"],
+      "enum": [
+        "Clickhouse"
+      ],
       "default": "Clickhouse"
     },
     "clickhouseScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["clickhouse+http", "clickhouse+native"],
+      "enum": [
+        "clickhouse+http",
+        "clickhouse+native"
+      ],
       "default": "clickhouse+http"
     }
   },
@@ -50,12 +54,12 @@
     },
     "databaseName": {
       "title": "Database Name",
-      "description": "Optional name to give to the database in OpenMetadata. If left blank, we will use default as the database name.",
+      "description": "Optional name to give to the database in Metadata. If left blank, we will use default as the database name.",
       "type": "string"
     },
     "databaseSchema": {
       "title": "Database Schema",
-      "description": "Database Schema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single schema. When left blank, OpenMetadata Ingestion attempts to scan all the schemas.",
+      "description": "Database Schema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single schema. When left blank, Metadata Ingestion attempts to scan all the schemas.",
       "type": "string"
     },
     "duration": {
@@ -113,5 +117,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort"]
+  "required": [
+    "hostPort"
+  ]
 }
