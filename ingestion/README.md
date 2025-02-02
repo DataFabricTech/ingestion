@@ -1,30 +1,49 @@
 ---
-This guide will help you setup the Ingestion framework and connectors
+본 문서는 이 서비스에 대해서 설명한다.
 ---
 
-![Python version 3.8+](https://img.shields.io/badge/python-3.8%2B-blue)
+## 개요
 
-OpenMetadata Ingestion is a simple framework to build connectors and ingest metadata of various systems through OpenMetadata APIs. It could be used in an orchestration framework(e.g. Apache Airflow) to ingest metadata.
-**Prerequisites**
+이 서비스(github.com/datafabrictech/ingestion)는 메타데이터 수집을 담당한다.  
+Airflow 위에서 동작하며, Open VDAP 서버의 메타데이터 수집 요청에의해 동작한다.
 
-- Python &gt;= 3.8.x
+## 코드 설명
 
-### Docs
+다음은 각 디렉토리 별 설명이다.
 
-Please refer to the documentation here https://docs.open-metadata.org/connectors
+1. airflow-apis  
+airflow 의 plugin 형태로 동작하며 RestAPI Server로 Open VDAP 서버의 요청을 수신, 
+airflow DAG 생성, 시작, 중지, 삭제를 수행한다.  
+2. ingestion   
+    DAG(Python Operator)에 의해 실제 실행되는 코드로 크게 다음과 같이 분류할 수 있다.  
+    - workflow  
+    DAG에 의해 실행되는 메타데이터 수집 프로세스
+    - ingestion  
+    메타데이터 수집
+    - profiler  
+    프로파일링 정보 수집(min, max, avg, sample)
+    - mixins  
+    수집된 정보를 서버로 전송하는 API
+3. scripts  
+spec 에 선언된 json 파일을 python 클래스로 변경한다.
+4. spec  
+메타데이터 수집을 위한 데이터 구조체 선언부(JSON)
 
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=c1a30c7c-6dc7-4928-95bf-6ee08ca6aa6a" />
+## 이미지 빌드
 
-### TopologyRunner
+이미지 빌드는 코드 수정 후 최상위 디렉토리에 build.sh를 이용해 수행할 수 있다.
 
-All the Ingestion Workflows run through the TopologyRunner.
+> 코드 내 에서 추가적인 라이브러리를 사용한 경우 `setup.py`를 수정한다.
 
-The flow is depicted in the images below.
+```shell
+./build.sh
+```
 
-**TopologyRunner Standard Flow**
+## 원 소스 대비 주요 변경 사항
 
-![image](../openmetadata-docs/images/v1.4/features/ingestion/workflows/metadata/multithreading/single-thread-flow.png)
-
-**TopologyRunner Multithread Flow**
-
-![image](../openmetadata-docs/images/v1.4/features/ingestion/workflows/metadata/multithreading/multi-thread-flow.png)
+- MinIO 데이터 저장소 
+    - CSV, Excel, Word, Hwp에 대한 메타데이터 수집
+    - CSV, Excel, Word, Hwp에 대한 프로파일링(min, max, avg, sample 등)
+- 프로파일링  
+    - 데이터 사전 연동
+- 서버 연동
