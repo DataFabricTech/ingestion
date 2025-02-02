@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Test airflow lineage operator and hook.
@@ -40,8 +46,8 @@ from metadata.generated.schema.entity.services.connections.database.common.basic
 from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
     MysqlConnection,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
@@ -49,10 +55,10 @@ from metadata.generated.schema.entity.services.databaseService import (
     DatabaseServiceType,
 )
 from metadata.generated.schema.entity.services.pipelineService import PipelineService
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 
 # These variables are just here to validate elements in the local deployment
 OM_HOST_PORT = "http://localhost:8585/api"
@@ -84,16 +90,16 @@ def get_task_status_type_by_name(pipeline: Pipeline, name: str) -> Optional[Stat
 class AirflowLineageTest(TestCase):
     """
     This test will trigger an Airflow DAG and validate that the
-    OpenMetadata Lineage Operator can properly handle the
+    Metadata Lineage Operator can properly handle the
     metadata ingestion and processes inlets and outlets.
     """
 
-    server_config = OpenMetadataConnection(
+    server_config = MetadataConnection(
         hostPort=OM_HOST_PORT,
-        authProvider="openmetadata",
-        securityConfig=OpenMetadataJWTClientConfig(jwtToken=OM_JWT),
+        authProvider="metadata",
+        securityConfig=MetadataJWTClientConfig(jwtToken=OM_JWT),
     )
-    metadata = OpenMetadata(server_config)
+    metadata = ServerInterface(server_config)
 
     assert metadata.health_check()
 
@@ -197,7 +203,7 @@ class AirflowLineageTest(TestCase):
         the task status afterward.
         """
 
-        # 1. Validate that the OpenMetadata connection exists
+        # 1. Validate that the Metadata connection exists
         res = requests.get(
             AIRFLOW_HOST_API_ROOT + f"connections/{DEFAULT_OM_AIRFLOW_CONNECTION}",
             headers=DEFAULT_AIRFLOW_HEADERS,

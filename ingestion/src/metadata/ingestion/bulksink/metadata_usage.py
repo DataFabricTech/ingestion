@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 BulkSink class used for Usage workflows.
 
@@ -48,7 +54,7 @@ from metadata.ingestion.lineage.sql_lineage import (
     get_table_entities_from_query,
 )
 from metadata.ingestion.server.client import APIError
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils import fqn
 from metadata.utils.constants import UTF_8
 from metadata.utils.life_cycle_utils import get_query_type
@@ -77,7 +83,7 @@ class MetadataUsageBulkSink(BulkSink):
     def __init__(
         self,
         config: MetadataUsageSinkConfig,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
     ):
         super().__init__()
         self.config = config
@@ -96,7 +102,7 @@ class MetadataUsageBulkSink(BulkSink):
     def create(
         cls,
         config_dict: dict,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
         pipeline_name: Optional[str] = None,
     ):
         config = MetadataUsageSinkConfig.parse_obj(config_dict)

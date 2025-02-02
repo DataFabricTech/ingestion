@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Default simple profiler to use
@@ -23,7 +29,7 @@ from metadata.generated.schema.configuration.profilerConfiguration import (
 )
 from metadata.generated.schema.entity.data.table import ColumnProfilerConfig
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.core import Metric, add_props
 from metadata.profiler.metrics.registry import Metrics
@@ -32,7 +38,7 @@ from metadata.profiler.processor.core import Profiler
 
 def get_default_metrics(
         table: DeclarativeMeta,
-        ometa_client: Optional[OpenMetadata] = None,
+        ometa_client: Optional[ServerInterface] = None,
         db_service: Optional[DatabaseService] = None,
 ) -> List[Metric]:
     return [
@@ -68,7 +74,7 @@ def get_default_metrics(
 
 def get_default_metrics_for_storage_service(
         table: DeclarativeMeta,
-        ometa_client: Optional[OpenMetadata] = None,
+        ometa_client: Optional[ServerInterface] = None,
         storage_service: Optional[StorageService] = None,
 ) -> List[Metric]:
     return [

@@ -1,13 +1,19 @@
-#  Copyright 2022 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Test database connectors with CLI
@@ -23,7 +29,7 @@ import yaml
 
 from metadata.config.common import load_config_file
 from metadata.ingestion.api.status import Status
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.constants import UTF_8
 from metadata.workflow.metadata import MetadataWorkflow
 
@@ -40,7 +46,7 @@ class CliBase(ABC):
     CLI Base class
     """
 
-    openmetadata: OpenMetadata
+    openmetadata: ServerInterface
     test_file_path: str
     config_file_path: str
 
@@ -102,7 +108,7 @@ class CliBase(ABC):
         output_clean_ansi = re.compile(r"\x1b[^m]*m")
         output_clean = output_clean_ansi.sub("", output_clean)
         regex = (
-            r".*OpenMetadata Status:%(log)s(.*?)%(log)sExecution.*Summary.*" % REGEX_AUX
+            r".*Metadata Status:%(log)s(.*?)%(log)sExecution.*Summary.*" % REGEX_AUX
         )
         output_clean_regex = re.findall(regex, output_clean.strip())[0].strip()
         return Status.parse_obj(literal_eval(output_clean_regex))

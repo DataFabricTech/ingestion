@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 This is the main used sink for all OM Workflows.
 It picks up the generated Entities and send them
@@ -80,7 +86,7 @@ from metadata.ingestion.models.tests_data import (
 )
 from metadata.ingestion.models.user import OMetaUserProfile
 from metadata.ingestion.server.client import APIError
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.dashboard.dashboard_service import DashboardUsage
 from metadata.ingestion.source.database.database_service import DataModelLink
 from metadata.profiler.api.models import ProfilerResponse
@@ -108,7 +114,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
     # We want to catch any errors that might happen during the sink
     # pylint: disable=broad-except
 
-    def __init__(self, config: MetadataRestSinkConfig, metadata: OpenMetadata):
+    def __init__(self, config: MetadataRestSinkConfig, metadata: ServerInterface):
         super().__init__()
         self.config = config
         self.wrote_something = False
@@ -121,7 +127,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
     def create(
         cls,
         config_dict: dict,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
         pipeline_name: Optional[str] = None,
     ):
         config = MetadataRestSinkConfig.parse_obj(config_dict)

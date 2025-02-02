@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Base workflow definition.
 """
@@ -20,8 +26,8 @@ from typing import Any, Dict, List, Optional, TypeVar, Union
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
     AirflowConfig,
@@ -36,7 +42,7 @@ from metadata.generated.schema.tests.testSuite import ServiceType
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.server.client_utils import create_ometa_client
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.timer.repeated_timer import RepeatedTimer
 from metadata.utils import fqn
 from metadata.utils.class_helper import (
@@ -74,15 +80,15 @@ class BaseWorkflow(ABC, WorkflowStatusMixin):
 
     config: Union[Any, Dict]
     _run_id: Optional[str] = None
-    metadata: OpenMetadata
-    metadata_config: OpenMetadataConnection
+    metadata: ServerInterface
+    metadata_config: MetadataConnection
     service_type: ServiceType
 
     def __init__(
         self,
         config: Union[Any, Dict],
         log_level: LogLevels,
-        metadata_config: OpenMetadataConnection,
+        metadata_config: MetadataConnection,
         service_type: ServiceType,
     ):
         """

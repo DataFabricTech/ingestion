@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 This Processor is in charge of executing the test cases
@@ -33,7 +39,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
     StackTraceError,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.tests.testCase import TestCase
 from metadata.generated.schema.tests.testDefinition import TestDefinition, TestPlatform
@@ -43,7 +49,7 @@ from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Processor
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils import entity_link, fqn
 from metadata.utils.logger import test_suite_logger
 
@@ -53,7 +59,7 @@ logger = test_suite_logger()
 class TestCaseRunner(Processor):
     """Execute the test suite tests and create test cases from the YAML config"""
 
-    def __init__(self, config: OpenMetadataWorkflowConfig, metadata: OpenMetadata):
+    def __init__(self, config: MetadataWorkflowConfig, metadata: ServerInterface):
         super().__init__()
 
         self.config = config
@@ -95,7 +101,7 @@ class TestCaseRunner(Processor):
                 )
             )
 
-        openmetadata_test_cases = self.filter_for_om_test_cases(test_cases)
+        metadata_test_cases = self.filter_for_om_test_cases(test_cases)
 
         test_suite_runner = test_suite_source_factory.create(
             record.service_type.lower(),
@@ -106,7 +112,7 @@ class TestCaseRunner(Processor):
 
         test_results = [
             test_case_result
-            for test_case in openmetadata_test_cases
+            for test_case in metadata_test_cases
             if (test_case_result := self._run_test_case(test_case, test_suite_runner))
         ]
 
@@ -279,9 +285,9 @@ class TestCaseRunner(Processor):
             test_definition: TestDefinition = self.metadata.get_by_id(
                 TestDefinition, test_case.testDefinition.id
             )
-            if TestPlatform.OpenMetadata not in test_definition.testPlatforms:
+            if TestPlatform.Metadata not in test_definition.testPlatforms:
                 logger.debug(
-                    f"Test case {test_case.name.__root__} is not an OpenMetadata test case."
+                    f"Test case {test_case.name.__root__} is not an Metadata test case."
                 )
                 continue
             om_test_cases.append(test_case)
@@ -313,7 +319,7 @@ class TestCaseRunner(Processor):
     def create(
         cls,
         config_dict: dict,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
         pipeline_name: Optional[str] = None,
     ) -> "Step":
         config = parse_workflow_config_gracefully(config_dict)

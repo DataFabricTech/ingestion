@@ -1,15 +1,25 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
+#
+#  Notice
+#
+
 """
-OpenMetadata source for the data insight workflow
+Metadata source for the data insight workflow
 """
 
 import traceback
@@ -39,14 +49,14 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Source
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 
 
 class DataInsightRecord(BaseModel):
-    """Return class for the OpenMetadata Profiler Source"""
+    """Return class for the Metadata Profiler Source"""
 
     class Config:
         arbitrary_types_allowed = True
@@ -69,7 +79,7 @@ class DataInsightSource(Source):
     We do this here as well.
     """
 
-    def __init__(self, metadata: OpenMetadata):
+    def __init__(self, metadata: ServerInterface):
         """Instantiate source object"""
         super().__init__()
         self.metadata = metadata
@@ -93,7 +103,7 @@ class DataInsightSource(Source):
 
     @property
     def name(self) -> str:
-        return "OpenMetadata Insights"
+        return "Metadata Insights"
 
     @property
     def processors(self) -> Dict[str, Optional[DataProcessor]]:
@@ -168,7 +178,7 @@ class DataInsightSource(Source):
 
     # pylint: disable=arguments-differ
     @classmethod
-    def create(cls, metadata: OpenMetadata) -> "Step":
+    def create(cls, metadata: ServerInterface) -> "Step":
         return cls(metadata)
 
     def close(self) -> None:

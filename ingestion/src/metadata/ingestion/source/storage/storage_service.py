@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Base class for ingesting Object Storage services
 """
@@ -48,7 +54,7 @@ from metadata.ingestion.models.topology import (
     TopologyContextManager,
     TopologyNode,
 )
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.ingestion.source.database.glue.models import Column
 from metadata.readers.dataframe.models import DatalakeTableSchemaWrapper
@@ -72,7 +78,7 @@ from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 logger = ingestion_logger()
 
 KEY_SEPARATOR = "/"
-OPENMETADATA_TEMPLATE_FILE_NAME = "openmetadata.json"
+TEMPLATE_FILE_NAME = "openmetadata.json"
 
 
 class Metric(Enum):
@@ -165,7 +171,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     source_config: StorageServiceMetadataPipeline
     config: WorkflowSource
-    metadata: OpenMetadata
+    metadata: ServerInterface
     # Big union of types we want to fetch dynamically
     service_connection: StorageConnection.__fields__["config"].type_
 
@@ -178,7 +184,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
     def __init__(
             self,
             config: WorkflowSource,
-            metadata: OpenMetadata,
+            metadata: ServerInterface,
     ):
         super().__init__()
         self.config = config

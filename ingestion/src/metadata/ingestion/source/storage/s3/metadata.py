@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """S3 object store extraction metadata"""
 import json
 import secrets
@@ -42,14 +48,14 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.storage.s3.models import (
     S3BucketResponse,
     S3ContainerDetails,
 )
 from metadata.ingestion.source.storage.storage_service import (
     KEY_SEPARATOR,
-    OPENMETADATA_TEMPLATE_FILE_NAME,
+    TEMPLATE_FILE_NAME,
     Metric,
     StorageServiceSource,
 )
@@ -69,7 +75,7 @@ class S3Source(StorageServiceSource):
     Source implementation to ingest S3 buckets data.
     """
 
-    def __init__(self, config: WorkflowSource, metadata: OpenMetadata):
+    def __init__(self, config: WorkflowSource, metadata: ServerInterface):
         super().__init__(config, metadata)
         self.s3_client = self.connection.s3_client
         self.cloudwatch_client = self.connection.cloudwatch_client
@@ -79,7 +85,7 @@ class S3Source(StorageServiceSource):
 
     @classmethod
     def create(
-            cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
+            cls, config_dict, metadata: ServerInterface, pipeline_name: Optional[str] = None
     ):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: S3Connection = config.serviceConnection.__root__.config
@@ -437,10 +443,10 @@ class S3Source(StorageServiceSource):
         """
         try:
             logger.info(
-                f"Looking for metadata template file at - s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
+                f"Looking for metadata template file at - s3://{bucket_name}/{TEMPLATE_FILE_NAME}"
             )
             response_object = self.s3_reader.read(
-                path=OPENMETADATA_TEMPLATE_FILE_NAME,
+                path=TEMPLATE_FILE_NAME,
                 bucket_name=bucket_name,
                 verbose=False,
             )
@@ -449,11 +455,11 @@ class S3Source(StorageServiceSource):
             return metadata_config
         except ReadException:
             logger.warning(
-                f"No metadata file found at s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}"
+                f"No metadata file found at s3://{bucket_name}/{TEMPLATE_FILE_NAME}"
             )
         except Exception as exc:
             logger.debug(traceback.format_exc())
             logger.warning(
-                f"Failed loading metadata file s3://{bucket_name}/{OPENMETADATA_TEMPLATE_FILE_NAME}-{exc}"
+                f"Failed loading metadata file s3://{bucket_name}/{TEMPLATE_FILE_NAME}-{exc}"
             )
         return None

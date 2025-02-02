@@ -29,9 +29,6 @@ namespaces = true
 [project.scripts]
 metadata = "metadata.cmd:metadata"
 
-[project.entry-points.apache_airflow_provider]
-provider_info = "airflow_provider_openmetadata:get_provider_config"
-
 [tool.coverage.run]
 source = [
     "env/lib/python3.9/site-packages/metadata"

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Snowflake System Metric Queries and query operations
@@ -21,7 +27,7 @@ from sqlalchemy.engine.row import Row
 
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
 from metadata.ingestion.lineage.sql_lineage import search_table_entities
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.logger import profiler_logger
 from metadata.utils.profiler_utils import (
     SnowflakeQueryResult,
@@ -86,7 +92,7 @@ def _parse_query(query: str) -> Optional[str]:
 
 
 def get_identifiers(
-    identifier: str, ometa_client: OpenMetadata, db_service: DatabaseService
+    identifier: str, ometa_client: ServerInterface, db_service: DatabaseService
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """Get query identifiers and if needed, fetch them from ES"""
     database_name, schema_name, table_name = get_identifiers_from_string(identifier)
@@ -129,7 +135,7 @@ def get_snowflake_system_queries(
     row: Row,
     database: str,
     schema: str,
-    ometa_client: OpenMetadata,
+    ometa_client: ServerInterface,
     db_service: DatabaseService,
 ) -> Optional[SnowflakeQueryResult]:
     """
@@ -142,7 +148,7 @@ def get_snowflake_system_queries(
         row (dict): row from the snowflake system queries table
         database (str): database name
         schema (str): schema name
-        ometa_client (OpenMetadata): OpenMetadata client to search against ES
+        ometa_client (ServerInterface): Metadata client to search against ES
         db_service (DatabaseService): DB service where the process is running against
     Returns:
         QueryResult: namedtuple with the query result

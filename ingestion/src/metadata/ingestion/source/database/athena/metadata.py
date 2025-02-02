@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """Athena source module"""
 
@@ -41,7 +47,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source import sqa_types
 from metadata.ingestion.source.database.athena.client import AthenaLakeFormationClient
 from metadata.ingestion.source.database.column_type_parser import ColumnTypeParser
@@ -123,7 +129,7 @@ def _get_column_type(self, type_):
         )
         col_type = col_map["array"]
         if parsed_type["arrayDataType"].lower().startswith("array"):
-            # as OpenMetadata doesn't store any details on children of array, we put
+            # as Metadata doesn't store any details on children of array, we put
             # in type as string as default to avoid Array item_type required issue
             # from sqlalchemy types
             args = [types.String]
@@ -238,7 +244,7 @@ class AthenaSource(CommonDbSourceService):
 
     @classmethod
     def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
+        cls, config_dict, metadata: ServerInterface, pipeline_name: Optional[str] = None
     ):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: AthenaConnection = config.serviceConnection.__root__.config
@@ -251,7 +257,7 @@ class AthenaSource(CommonDbSourceService):
     def __init__(
         self,
         config: WorkflowSource,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
     ):
         super().__init__(config, metadata)
         self.athena_lake_formation_client = AthenaLakeFormationClient(

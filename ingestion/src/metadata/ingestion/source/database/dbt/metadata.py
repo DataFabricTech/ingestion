@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 DBT source methods.
 """
@@ -54,7 +60,7 @@ from metadata.ingestion.lineage.models import ConnectionTypeDialectMapper
 from metadata.ingestion.lineage.sql_lineage import get_lineage_by_query
 from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
 from metadata.ingestion.models.table_metadata import ColumnDescription
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.database.column_type_parser import ColumnTypeParser
 from metadata.ingestion.source.database.database_service import DataModelLink
 from metadata.ingestion.source.database.dbt.constants import (
@@ -104,7 +110,7 @@ class DbtSource(DbtServiceSource):
     Class defines method to extract metadata from DBT
     """
 
-    def __init__(self, config: WorkflowSource, metadata: OpenMetadata):
+    def __init__(self, config: WorkflowSource, metadata: ServerInterface):
         super().__init__()
         self.config = config
         self.source_config = self.config.sourceConfig.config
@@ -117,7 +123,7 @@ class DbtSource(DbtServiceSource):
 
     @classmethod
     def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
+        cls, config_dict, metadata: ServerInterface, pipeline_name: Optional[str] = None
     ):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         return cls(config, metadata)
@@ -452,10 +458,10 @@ class DbtSource(DbtServiceSource):
                         self.context.get().data_model_links.append(data_model_link)
                     else:
                         logger.warning(
-                            f"Unable to find the table '{table_fqn}' in OpenMetadata"
-                            "Please check if the table exists and is ingested in OpenMetadata"
+                            f"Unable to find the table '{table_fqn}' in Metadata"
+                            "Please check if the table exists and is ingested in Metadata"
                             "Also name, database, schema of the manifest node matches with the table present "
-                            "in OpenMetadata"
+                            "in Metadata"
                         )
                 except Exception as exc:
                     yield Either(

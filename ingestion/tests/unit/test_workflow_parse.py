@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Test Workflow pydantic parsing
@@ -28,8 +34,8 @@ from metadata.generated.schema.entity.services.connections.database.glueConnecti
 from metadata.generated.schema.entity.services.connections.messaging.kafkaConnection import (
     KafkaConnection,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.dashboardService import (
     DashboardConnection,
@@ -106,7 +112,7 @@ class TestWorkflowParse(TestCase):
 
         source_type = "OpenMetadata"
         connection = get_connection_class(source_type, get_service_type(source_type))
-        self.assertEqual(connection, OpenMetadataConnection)
+        self.assertEqual(connection, MetadataConnection)
 
         source_type = "Kafka"
         connection = get_connection_class(source_type, get_service_type(source_type))
@@ -155,9 +161,9 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "WARN",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {"jwtToken": "token"},
                 },
             },
@@ -189,7 +195,7 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "WARN",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
                     "authProvider": "no-auth",
                 },
@@ -229,7 +235,7 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "WARN",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
                     "authProvider": "no-auth",
                 },
@@ -268,7 +274,7 @@ class TestWorkflowParse(TestCase):
             },
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
                     "authProvider": "no-auth",
                 }
@@ -301,7 +307,7 @@ class TestWorkflowParse(TestCase):
             },
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
                     "authProvider": "no-auth",
                 }
@@ -503,7 +509,7 @@ class TestWorkflowParse(TestCase):
                             "scheme": "mysql+pymysql",
                             "authType": {"password": "fernet:demo_password"},
                             "hostPort": "mysql:3306",
-                            "username": "admin@openmetadata.org",
+                            "username": "admin@metadata.org",
                             "databaseName": "airflow_db",
                             "supportsProfiler": True,
                             "supportsQueryComment": True,
@@ -544,7 +550,7 @@ class TestWorkflowParse(TestCase):
                             "scheme": "mysql+pymysql",
                             "authType": {"password": "fernet:demo_password"},
                             "hostPort": "mysql:3306",
-                            "username": "admin@openmetadata.org",
+                            "username": "admin@metadata.org",
                             "databaseName": "airflow_db",
                             "supportsProfiler": True,
                             "supportsQueryComment": True,
@@ -588,7 +594,7 @@ class TestWorkflowParse(TestCase):
                             "scheme": "mysql+pymysql",
                             "authType": {"password": "fernet:demo_password"},
                             "hostPort": "mysql:3306",
-                            "usernam": "admin@openmetadata.org",
+                            "usernam": "admin@metadata.org",
                             "databaseName": "airflow_db",
                             "supportsProfile": True,
                             "supportsQueryComment": True,
@@ -633,7 +639,7 @@ class TestWorkflowParse(TestCase):
                         "scheme": "awsathena+rest",
                         "awsConfig": {
                             "awsRegion": "us-east-2",
-                            "assumeRoleSessionName": "OpenMetadataSession",
+                            "assumeRoleSessionName": "MetadataSession",
                         },
                         "workgroup": "primary",
                         "s3StagingDir": "s3://athena-postgres/output/",
@@ -671,7 +677,7 @@ class TestWorkflowParse(TestCase):
                         "scheme": "awsathena+rest",
                         "awsConfig": {
                             "awsRegion": "us-east-2",
-                            "assumeRoleSessionName": "OpenMetadataSession",
+                            "assumeRoleSessionName": "MetadataSession",
                         },
                         "workgroup": "primary",
                         "s3StagingDir": "athena-postgres/output/",
@@ -737,9 +743,9 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "DEBUG",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {"jwtToken": "jwt_token"},
                 },
             },
@@ -783,9 +789,9 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "DEBUG",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {"jwtToken": "jwt_token"},
                 },
             },
@@ -834,9 +840,9 @@ class TestWorkflowParse(TestCase):
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
                 "loggerLevel": "DEBUG",
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {"jwtToken": "jwt_token"},
                 },
             },

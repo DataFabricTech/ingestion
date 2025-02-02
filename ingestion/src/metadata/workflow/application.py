@@ -1,3 +1,19 @@
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Generic Workflow entrypoint to execute Applications
 """
@@ -5,19 +21,19 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from metadata.config.common import WorkflowExecutionError
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.ingestionPipelines.status import (
     StackTraceError,
 )
 from metadata.generated.schema.entity.services.serviceType import ServiceType
 from metadata.generated.schema.metadataIngestion.application import (
-    OpenMetadataApplicationConfig,
+    MetadataApplicationConfig,
 )
 from metadata.generated.schema.metadataIngestion.workflow import LogLevels
 from metadata.ingestion.api.step import Step, Summary
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.importer import import_from_module
 from metadata.utils.logger import ingestion_logger
 from metadata.workflow.base import BaseWorkflow
@@ -38,8 +54,8 @@ class AppRunner(Step, ABC):
 
     def __init__(
         self,
-        config: OpenMetadataApplicationConfig,
-        metadata: OpenMetadata,
+        config: MetadataApplicationConfig,
+        metadata: ServerInterface,
     ):
         self.app_config = config.appConfig.__root__ if config.appConfig else None
         self.private_config = (
@@ -61,29 +77,29 @@ class AppRunner(Step, ABC):
     def create(
         cls,
         config_dict: dict,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
         pipeline_name: Optional[str] = None,
     ) -> "Step":
-        config = OpenMetadataApplicationConfig.parse_obj(config_dict)
+        config = MetadataApplicationConfig.parse_obj(config_dict)
         return cls(config=config, metadata=metadata)
 
 
 class ApplicationWorkflow(BaseWorkflow, ABC):
     """Base Application Workflow implementation"""
 
-    config: OpenMetadataApplicationConfig
+    config: MetadataApplicationConfig
     runner: Optional[AppRunner]
 
     def __init__(self, config_dict: dict):
         self.runner = None  # Will be passed in post-init
         # TODO: Create a parse_gracefully method
-        self.config = OpenMetadataApplicationConfig.parse_obj(config_dict)
+        self.config = MetadataApplicationConfig.parse_obj(config_dict)
 
-        # Applications are associated to the OpenMetadata Service
+        # Applications are associated to the Metadata Service
         self.service_type: ServiceType = ServiceType.Metadata
 
-        metadata_config: OpenMetadataConnection = (
-            self.config.workflowConfig.openMetadataServerConfig
+        metadata_config: MetadataConnection = (
+            self.config.workflowConfig.serverConfig
         )
         log_level: LogLevels = self.config.workflowConfig.loggerLevel
 

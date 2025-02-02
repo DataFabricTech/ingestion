@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Handle Airflow inlets and outlets.
@@ -101,7 +107,7 @@ class XLetsAttr(Enum):
 @attr.s(auto_attribs=True, kw_only=True)
 class OMEntity:
     """
-    Identifies one entity in OpenMetadata.
+    Identifies one entity in Metadata.
     We use attr annotated object similar to https://github.com/apache/airflow/blob/main/airflow/lineage/entities.py
     based on https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/lineage.html
     """
@@ -194,9 +200,6 @@ def parse_xlets(xlet: List[Any]) -> Optional[Dict[str, List[OMEntity]]]:
 def _parse_xlets(xlet: Any) -> None:
     """
     Default behavior to handle lineage.
-
-    We can use this function to register further inlets/outlets
-    representations, e.g., https://github.com/open-metadata/OpenMetadata/issues/11626
     """
     logger.warning(f"Inlet/Outlet type {type(xlet)} is not supported.")
 

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Source connection handler
@@ -39,7 +45,7 @@ from metadata.ingestion.connections.test_connections import (
     test_connection_steps,
     test_query,
 )
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.database.snowflake.queries import (
     SNOWFLAKE_GET_DATABASES,
     SNOWFLAKE_TEST_FETCH_TAG,
@@ -140,7 +146,7 @@ def get_connection(connection: SnowflakeConnection) -> Engine:
 
 
 def test_connection(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     engine: Engine,
     service_connection: SnowflakeConnection,
     automation_workflow: Optional[AutomationWorkflow] = None,
@@ -148,17 +154,6 @@ def test_connection(
     """
     Test connection. This can be executed either as part
     of a metadata workflow or during an Automation Workflow.
-
-    Note how we run a custom GetTables query:
-
-        The default inspector `get_table_names` runs a SHOW which
-        has a limit on 10000 rows in the result set:
-        https://github.com/open-metadata/OpenMetadata/issues/12798
-
-        This can cause errors if we are running tests against schemas
-        with more tables than that. There is no issues during the metadata
-        ingestion since in metadata.py we are overriding the default
-        `get_table_names` function with our custom queries.
     """
     engine_wrapper = SnowflakeEngineWrapper(
         service_connection=service_connection, engine=engine, database_name=None

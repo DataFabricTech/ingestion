@@ -1,17 +1,23 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Mixin class containing PATCH specific methods
 
-To be used by OpenMetadata class
+To be used by Metadata class
 """
 import json
 import traceback
@@ -110,9 +116,9 @@ def update_column_description(
 
 class OMetaPatchMixin(OMetaPatchMixinBase):
     """
-    OpenMetadata API methods related to Tables.
+    Metadata API methods related to Tables.
 
-    To be inherited by OpenMetadata
+    To be inherited by Metadata
     """
 
     client: REST
@@ -132,7 +138,7 @@ class OMetaPatchMixin(OMetaPatchMixinBase):
 
         Args
             entity (T): Entity Type
-            source: Source payload which is current state of the source in OpenMetadata
+            source: Source payload which is current state of the source in Metadata
             destination: payload with changes applied to the source.
             allowed_fields: List of field names to filter from source and destination models
             restrict_update_fields: List of field names which will only support add operation

@@ -1,17 +1,23 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Mixin class containing Lineage specific methods
 
-To be used by OpenMetadata class
+To be used by Metadata class
 """
 import traceback
 from typing import Any, Dict, Optional
@@ -48,9 +54,9 @@ logger = ometa_logger()
 
 class OMetaMlModelMixin(OMetaLineageMixin):
     """
-    OpenMetadata API methods related to MlModel.
+    Metadata API methods related to MlModel.
 
-    To be inherited by OpenMetadata
+    To be inherited by Metadata
     """
 
     client: REST
@@ -109,7 +115,7 @@ class OMetaMlModelMixin(OMetaLineageMixin):
         :param model: sklearn estimator
         :param description: MlModel description
         :param service_name: Service name to use when creating sklearn service
-        :return: OpenMetadata CreateMlModelRequest Entity
+        :return: Metadata CreateMlModelRequest Entity
         """
         try:
             # pylint: disable=import-outside-toplevel
@@ -120,7 +126,7 @@ class OMetaMlModelMixin(OMetaLineageMixin):
             logger.debug(traceback.format_exc())
             logger.error(
                 "Cannot import BaseEstimator, please install sklearn plugin: "
-                "pip install openmetadata-ingestion[sklearn], %s",
+                "pip install metadata-ingestion[sklearn], %s",
                 err,
             )
             raise err

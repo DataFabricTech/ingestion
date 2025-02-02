@@ -1,15 +1,21 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
-OpenMetadata base class for tests
+Metadata base class for tests
 """
 import uuid
 from datetime import datetime
@@ -63,9 +69,9 @@ from metadata.generated.schema.entity.services.connections.database.common.basic
 from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
     MysqlConnection,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
     AuthProvider,
-    OpenMetadataConnection,
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.connections.pipeline.customPipelineConnection import (
     CustomPipelineConnection,
@@ -86,8 +92,8 @@ from metadata.generated.schema.entity.services.pipelineService import (
     PipelineService,
     PipelineServiceType,
 )
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 from metadata.generated.schema.tests.testCase import TestCaseParameterValue
 from metadata.generated.schema.tests.testDefinition import (
@@ -96,7 +102,7 @@ from metadata.generated.schema.tests.testDefinition import (
 )
 from metadata.generated.schema.type.basic import EntityName, FullyQualifiedEntityName
 from metadata.ingestion.models.custom_pydantic import CustomSecretStr
-from metadata.ingestion.server.server_api import C, OpenMetadata, T
+from metadata.ingestion.server.server_api import C, ServerInterface, T
 from metadata.utils.dispatch import class_register
 
 OM_JWT = "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE2NjM5Mzg0NjIsImVtYWlsIjoiYWRtaW5Ab3Blbm1ldGFkYXRhLm9yZyJ9.tS8um_5DKu7HgzGBzS1VTA5uUjKWOCU0B_j08WXBiEC0mr0zNREkqVfwFDD-d24HlNEbrqioLsBuFRiwIWKc1m_ZlVQbG7P36RUxhuv2vbSp80FKyNM-Tj93FDzq91jsyNmsQhyNv_fNr3TXfzzSPjHt8Go0FMMP66weoKMgW2PbXlhVKwEuXUHyakLLzewm9UMeQaEiRzhiTMU3UkLXcKbYEJJvfNFcLwSl9W8JCO_l0Yj3ud-qt_nQYEZwqW6u5nfdQllN133iikV4fM5QZsMCnm8Rq1mvLR0y9bmJiD7fwM1tmJ791TUWqmKaTnP49U493VanKpUAfzIiOiIbhg"
@@ -126,9 +132,9 @@ METADATA_INGESTION_CONFIG_TEMPLATE = dedent(
         "sink": {{"type": "metadata-rest", "config": {{}}}},
         "workflowConfig": {{
             "loggerLevel": "DEBUG",
-            "openMetadataServerConfig": {{
+            "serverConfig": {{
                 "hostPort": "{hostport}",
-                "authProvider": "openmetadata",
+                "authProvider": "metadata",
                 "securityConfig": {{
                     "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTcxNjAxNzExMiwiZXhwIjpudWxsfQ.MgzchNADcN3nyYKz2LmAg1rGREYQEJPVyfvUTvIlqLYgV7_D9EUezctL9hpPYP_TUomHPezWNmkb5SfSyLGnGQa0N7m9QilZpKdSqNF8gE10D16fAolluwtaDqNunNQesIzoj1Pn5HLkOUexkLlYNVE9XtgL1eXR_feLWuzUIfjO6zlmaMuN6IFtADIcQy1LGRp-IP4gam0bwMVAGLe-_0_Sn_o5HvkznZmN1gssJ5nTFc8v-GrE7BwM3Rd4dqLSabiWf_EyleFf34oP6PEg7-TZidxqPtDqTxbPdqbN6mSv-Zilc92qXB6GlHWHMV9iQMRK5n8sGTK19PTDIYj6dA"
                 }}
@@ -159,9 +165,9 @@ PROFILER_INGESTION_CONFIG_TEMPLATE = dedent(
         "sink": {{"type": "metadata-rest", "config": {{}}}},
         "workflowConfig": {{
             "loggerLevel": "DEBUG",
-            "openMetadataServerConfig": {{
+            "serverConfig": {{
                 "hostPort": "{hostport}",
-                "authProvider": "openmetadata",
+                "authProvider": "metadata",
                 "securityConfig": {{
                     "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTcxNjAxNzExMiwiZXhwIjpudWxsfQ.MgzchNADcN3nyYKz2LmAg1rGREYQEJPVyfvUTvIlqLYgV7_D9EUezctL9hpPYP_TUomHPezWNmkb5SfSyLGnGQa0N7m9QilZpKdSqNF8gE10D16fAolluwtaDqNunNQesIzoj1Pn5HLkOUexkLlYNVE9XtgL1eXR_feLWuzUIfjO6zlmaMuN6IFtADIcQy1LGRp-IP4gam0bwMVAGLe-_0_Sn_o5HvkznZmN1gssJ5nTFc8v-GrE7BwM3Rd4dqLSabiWf_EyleFf34oP6PEg7-TZidxqPtDqTxbPdqbN6mSv-Zilc92qXB6GlHWHMV9iQMRK5n8sGTK19PTDIYj6dA"
                 }}
@@ -219,9 +225,9 @@ MINIO_PROFILER_TEST = """
     }, 
     "workflowConfig": {
         "loggerLevel": "DEBUG", 
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://192.168.109.254:30595/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {
                 "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBvcGVubWV0YWRhdGEub3JnIiwiaXNCb3QiOnRydWUsInRva2VuVHlwZSI6IkJPVCIsImlhdCI6MTczMzg5NTUwOCwiZXhwIjpudWxsfQ.HPsRx5CLN79VIX8oZIMTWeMGiAnubCdat4yR5tDRDfvlIRJXGbjXeTy31Ia9HbZLuRZNZklr3p9H9FIg6UMcidCao0KtZ5gpG2ETGhMdHQnPHRCCa33ozgQ2PcaKu60xMTN8tuIecvW883e6KZBzcrKCEhH-pDuKv3z3sJKn5hMopEFf_8cxkfmRjGUoC3fygBDfuJhhlItg0ZUebHm1wL0SMfu8xLT7WR48b7WmqSPJ9jVnMJs6rJY5tdE1JCiahbRkVzXZNRPCXqo9_NWIW79_2DDecTIaCPZc8aEVhQZ5PCauvW0-N55braKgjqDbAsJlKfYW2PD27DFgSV0bFQ"
             }
@@ -232,14 +238,14 @@ MINIO_PROFILER_TEST = """
 # "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJvcGVuLW1ldGFkYXRhLm9yZyIsInN1YiI6ImluZ2VzdGlvbi1ib3QiLCJyb2xlcyI6WyJJbmdlc3Rpb25Cb3RSb2xlIl0sImVtYWlsIjoiaW5nZXN0aW9uLWJvdEBtZXRhZGF0YS5vcmciLCJpc0JvdCI6dHJ1ZSwidG9rZW5UeXBlIjoiQk9UIiwiaWF0IjoxNzI3MDgwNTY1LCJleHAiOm51bGx9.pL8fVWI9QPjL8Cc5jxereIbvNmO_CDTXp0_LotFGywltaX-42N-IZVSkGLJcG7sTCqqPnERQyFghVV1i45bPXHcXYeq9k0LQkfDOEnV4dYcN0RPwUK35EKeidM5UiRXr39sjy8qSS_OAH7KraWX_wucZPXoPLzrHGgo2N_8yl-huaLLhzEwPqggsofOFyaVd6MMCr4HLxIniRMBOJLU3qnRcj--HINru3dK9I_mM8uESJNfl9wRmObhXyRwUrVIqTMejG6XgjO6L4USiyKOlMyIbupgFvq7SP2lL-soEzT7mw_mZOWD1ZdUWoasCRjysFpqQ3pCwf94XTAxWtTfppA"
 
 
-def int_admin_ometa(url: str = "http://localhost:8585/api") -> OpenMetadata:
+def int_admin_ometa(url: str = "http://localhost:8585/api") -> ServerInterface:
     """Initialize the server connection with default admin:admin creds"""
-    server_config = OpenMetadataConnection(
+    server_config = MetadataConnection(
         hostPort=url,
-        authProvider=AuthProvider.openmetadata,
-        securityConfig=OpenMetadataJWTClientConfig(jwtToken=CustomSecretStr(OM_JWT)),
+        authProvider=AuthProvider.metadata,
+        securityConfig=MetadataJWTClientConfig(jwtToken=CustomSecretStr(OM_JWT)),
     )
-    metadata = OpenMetadata(server_config)
+    metadata = ServerInterface(server_config)
     assert metadata.health_check()
     return metadata
 

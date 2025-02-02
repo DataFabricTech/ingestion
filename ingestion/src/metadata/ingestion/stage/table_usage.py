@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Given query data about tables, store the results
 in a temporary file (i.e., the stage)
@@ -30,7 +36,7 @@ from metadata.generated.schema.type.queryParserData import ParsedData, QueryPars
 from metadata.generated.schema.type.tableUsageCount import TableUsageCount
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import Stage
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.constants import UTF_8
 from metadata.utils.helpers import init_staging_dir
 from metadata.utils.logger import ingestion_logger
@@ -55,7 +61,7 @@ class TableUsageStage(Stage):
     def __init__(
         self,
         config: TableStageConfig,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
     ):
         super().__init__()
         self.config = config
@@ -73,7 +79,7 @@ class TableUsageStage(Stage):
     def create(
         cls,
         config_dict: dict,
-        metadata: OpenMetadata,
+        metadata: ServerInterface,
         pipeline_name: Optional[str] = None,
     ):
         config = TableStageConfig.parse_obj(config_dict)

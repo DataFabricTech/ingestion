@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Tests utils function for the profiler
@@ -24,20 +30,20 @@ from sqlalchemy.sql.sqltypes import Integer, String
 
 from metadata.generated.schema.entity.data.table import Column as OMetaColumn
 from metadata.generated.schema.entity.data.table import DataType, Table
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
     AuthProvider,
-    OpenMetadataConnection,
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseService,
     DatabaseServiceType,
 )
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
-    OpenMetadataJWTClientConfig,
+from metadata.generated.schema.security.client.metadataJWTClientConfig import (
+    MetadataJWTClientConfig,
 )
 from metadata.generated.schema.type.basic import EntityName, FullyQualifiedEntityName
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.profiler.metrics.hybrid.histogram import Histogram
 from metadata.profiler.metrics.system.queries.snowflake import (
     get_snowflake_system_queries,
@@ -222,12 +228,12 @@ def test_get_snowflake_system_queries_all_dll(query, expected):
 def test_get_snowflake_system_queries_from_es():
     """Test the ES integration"""
 
-    ometa_client = OpenMetadata(
-        OpenMetadataConnection(
+    ometa_client = ServerInterface(
+        MetadataConnection(
             hostPort="http://localhost:8585/api",
-            authProvider=AuthProvider.openmetadata,
+            authProvider=AuthProvider.metadata,
             enableVersionValidation=False,
-            securityConfig=OpenMetadataJWTClientConfig(jwtToken="token"),
+            securityConfig=MetadataJWTClientConfig(jwtToken="token"),
         )
     )
 
@@ -250,7 +256,7 @@ def test_get_snowflake_system_queries_from_es():
 
     # With too many responses, we won't return anything since we don't want false results
     # that we cannot properly assign
-    with patch.object(OpenMetadata, "es_search_from_fqn", return_value=[table] * 4):
+    with patch.object(ServerInterface, "es_search_from_fqn", return_value=[table] * 4):
         row = Row(
             query_id=1,
             query_type="INSERT",
@@ -267,7 +273,7 @@ def test_get_snowflake_system_queries_from_es():
         assert not query_result
 
     # Returning a single table should work fine
-    with patch.object(OpenMetadata, "es_search_from_fqn", return_value=[table]):
+    with patch.object(ServerInterface, "es_search_from_fqn", return_value=[table]):
         row = Row(
             query_id=1,
             query_type="INSERT",

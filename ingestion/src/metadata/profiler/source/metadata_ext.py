@@ -1,21 +1,27 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
-OpenMetadataExt source for the profiler
+MetadataExt source for the profiler
 
 This source is used in cases where the service name
 is not provided for the profiler workflow.
 In such situations, the profiler will perform a thorough scan 
 of the entire data source to locate the 
-corresponding table entity in OpenMetadata.
+corresponding table entity in Metadata.
 Subsequently, it will proceed to ingest relevant metrics 
 and sample data for that identified entity.
 """
@@ -37,10 +43,10 @@ from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline
     DatabaseServiceProfilerPipeline,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.connections import get_connection
 from metadata.profiler.source.metadata import (
     OpenMetadataSource,
@@ -69,8 +75,8 @@ class OpenMetadataSourceExt(OpenMetadataSource):
     # pylint: disable=super-init-not-called
     def __init__(
         self,
-        config: OpenMetadataWorkflowConfig,
-        metadata: OpenMetadata,
+        config: MetadataWorkflowConfig,
+        metadata: ServerInterface,
     ):
         self.init_steps()
 
@@ -229,7 +235,7 @@ class OpenMetadataSourceExt(OpenMetadataSource):
 
     def get_table_entities(self, database):
         """
-        List and filter OpenMetadata tables based on the
+        List and filter Metadata tables based on the
         source configuration.
 
         The listing will be based on the entities from the

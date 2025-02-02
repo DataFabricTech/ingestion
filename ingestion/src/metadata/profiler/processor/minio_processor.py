@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Profiler Processor Step
 """
@@ -19,13 +25,13 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 )
 from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Processor
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.profiler.api.models import ProfilerProcessorConfig, ProfilerResponse
 from metadata.profiler.processor.core import Profiler
 from metadata.profiler.source.metadata_minio import MinIoProfilerSourceAndEntity
@@ -34,10 +40,10 @@ from metadata.profiler.source.metadata_minio import MinIoProfilerSourceAndEntity
 class MinioProfilerProcessor(Processor):
     """
     This processor is in charge of getting the profiler source and entity coming from
-    the OpenMetadataSource and compute the metrics.
+    the MetadataSource and compute the metrics.
     """
 
-    def __init__(self, config: OpenMetadataWorkflowConfig):
+    def __init__(self, config: MetadataWorkflowConfig):
         super().__init__()
 
         self.config = config
@@ -83,7 +89,7 @@ class MinioProfilerProcessor(Processor):
 
     @classmethod
     def create(
-        cls, config_dict: dict, _: OpenMetadata, pipeline_name: Optional[str] = None
+        cls, config_dict: dict, _: ServerInterface, pipeline_name: Optional[str] = None
     ) -> "Step":
         config = parse_workflow_config_gracefully(config_dict)
         return cls(config=config)

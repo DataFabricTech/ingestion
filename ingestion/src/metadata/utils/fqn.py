@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Handle FQN building and splitting logic.
 Filter information has been taken from the
@@ -44,7 +50,7 @@ from metadata.generated.schema.entity.teams.team import Team
 from metadata.generated.schema.entity.teams.user import User
 from metadata.generated.schema.tests.testCase import TestCase
 from metadata.generated.schema.tests.testSuite import TestSuite
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.dispatch import class_register
 from metadata.utils.elasticsearch import get_entity_from_es_result
 
@@ -126,7 +132,7 @@ def quote_name(name: str) -> str:
 
 
 def build(
-    metadata: Optional[OpenMetadata], entity_type: Type[T], **kwargs
+    metadata: Optional[ServerInterface], entity_type: Type[T], **kwargs
 ) -> Optional[str]:
     """
     Given an Entity T, build the FQN of that Entity
@@ -137,7 +143,7 @@ def build(
         - schema
         - and table names.
 
-    :param metadata: OpenMetadata Client
+    :param metadata: Metadata Client
     :param entity_type: Pydantic Entity model
     :param kwargs: required to build the FQN
     :return: FQN as a string
@@ -152,7 +158,7 @@ def build(
 
 @fqn_build_registry.add(Table)
 def _(
-    metadata: Optional[OpenMetadata],
+    metadata: Optional[ServerInterface],
     *,
     service_name: str,
     database_name: Optional[str],
@@ -196,7 +202,7 @@ def _(
 
 @fqn_build_registry.add(DatabaseSchema)
 def _(
-    metadata: Optional[OpenMetadata],  # ES Search not enabled for Schemas
+    metadata: Optional[ServerInterface],  # ES Search not enabled for Schemas
     *,
     service_name: str,
     database_name: Optional[str],
@@ -228,7 +234,7 @@ def _(
 
 @fqn_build_registry.add(Database)
 def _(
-    _: Optional[OpenMetadata],  # ES Search not enabled for Databases
+    _: Optional[ServerInterface],  # ES Search not enabled for Databases
     *,
     service_name: str,
     database_name: str,
@@ -242,7 +248,7 @@ def _(
 
 @fqn_build_registry.add(Dashboard)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for dashboard FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for dashboard FQN building
     *,
     service_name: str,
     dashboard_name: str,
@@ -256,7 +262,7 @@ def _(
 
 @fqn_build_registry.add(Chart)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for dashboard FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for dashboard FQN building
     *,
     service_name: str,
     chart_name: str,
@@ -270,7 +276,7 @@ def _(
 
 @fqn_build_registry.add(MlModel)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for MlModel FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for MlModel FQN building
     *,
     service_name: str,
     mlmodel_name: str,
@@ -283,7 +289,7 @@ def _(
 
 
 @fqn_build_registry.add(TestSuite)
-def _(_: Optional[OpenMetadata], *, table_fqn: str) -> str:
+def _(_: Optional[ServerInterface], *, table_fqn: str) -> str:
     """
     We don't need to quote since this comes from a table FQN.
     We're replicating the backend logic of the FQN generation in the TestSuiteRepository
@@ -294,7 +300,7 @@ def _(_: Optional[OpenMetadata], *, table_fqn: str) -> str:
 
 @fqn_build_registry.add(Topic)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for Topic FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for Topic FQN building
     *,
     service_name: str,
     topic_name: str,
@@ -308,7 +314,7 @@ def _(
 
 @fqn_build_registry.add(Container)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for Container FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for Container FQN building
     *,
     service_name: str,
     parent_container: str,
@@ -327,7 +333,7 @@ def _(
 
 @fqn_build_registry.add(SearchIndex)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for Search Index FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for Search Index FQN building
     *,
     service_name: str,
     search_index_name: str,
@@ -341,7 +347,7 @@ def _(
 
 @fqn_build_registry.add(Tag)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for Tag FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for Tag FQN building
     *,
     classification_name: str,
     tag_name: str,
@@ -355,7 +361,7 @@ def _(
 
 @fqn_build_registry.add(DataModel)
 def _(
-    _: Optional[OpenMetadata],
+    _: Optional[ServerInterface],
     *,
     service_name: str,
     database_name: str,
@@ -367,7 +373,7 @@ def _(
 
 @fqn_build_registry.add(StoredProcedure)
 def _(
-    _: Optional[OpenMetadata],
+    _: Optional[ServerInterface],
     *,
     service_name: str,
     database_name: str,
@@ -379,7 +385,7 @@ def _(
 
 @fqn_build_registry.add(Pipeline)
 def _(
-    _: Optional[OpenMetadata],
+    _: Optional[ServerInterface],
     *,
     service_name: str,
     pipeline_name: str,
@@ -389,7 +395,7 @@ def _(
 
 @fqn_build_registry.add(Column)
 def _(
-    _: Optional[OpenMetadata],  # ES Search not enabled for Columns
+    _: Optional[ServerInterface],  # ES Search not enabled for Columns
     *,
     service_name: str,
     database_name: str,
@@ -402,7 +408,7 @@ def _(
 
 @fqn_build_registry.add(User)
 def _(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     *,
     user_name: str,
     fetch_multiple_entities: bool = False,
@@ -432,7 +438,7 @@ def _(
 
 @fqn_build_registry.add(Team)
 def _(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     *,
     team_name: str,
     fetch_multiple_entities: bool = False,
@@ -462,7 +468,7 @@ def _(
 
 @fqn_build_registry.add(TestCase)
 def _(
-    _: Optional[OpenMetadata],  # ES Search not enabled for TestCase
+    _: Optional[ServerInterface],  # ES Search not enabled for TestCase
     *,
     service_name: str,
     database_name: str,
@@ -491,7 +497,7 @@ def _(
 
 @fqn_build_registry.add(DashboardDataModel)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for dashboard FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for dashboard FQN building
     *,
     service_name: str,
     data_model_name: str,
@@ -505,7 +511,7 @@ def _(
 
 @fqn_build_registry.add(Query)
 def _(
-    _: Optional[OpenMetadata],  # ES Index not necessary for dashboard FQN building
+    _: Optional[ServerInterface],  # ES Index not necessary for dashboard FQN building
     *,
     service_name: str,
     query_checksum: str,
@@ -524,8 +530,6 @@ def split_table_name(table_name: str) -> Dict[str, Optional[str]]:
     :param table_name: raw table name
     :return: dict with data
     """
-    # Revisit: Check the antlr grammer for issue when string has double quotes
-    # Issue Link: https://github.com/open-metadata/OpenMetadata/issues/8874
     details: List[str] = split(table_name.replace('"', ""))
     # Pad None to the left until size of list is 3
     full_details: List[Optional[str]] = ([None] * (3 - len(details))) + details
@@ -596,7 +600,7 @@ def build_es_fqn_search_string(
 
 
 def search_database_schema_from_es(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     database_name: str,
     schema_name: str,
     service_name: str,
@@ -633,7 +637,7 @@ def search_database_schema_from_es(
 
 
 def search_table_from_es(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     database_name: str,
     schema_name: str,
     service_name: str,
@@ -657,7 +661,7 @@ def search_table_from_es(
 
 
 def search_database_from_es(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     database_name: str,
     service_name: Optional[str],
     fetch_multiple_entities: Optional[bool] = False,

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test iceberg source
 """
@@ -61,7 +67,7 @@ from metadata.generated.schema.entity.data.table import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.database.iceberg.metadata import IcebergSource
 from metadata.utils import fqn
 
@@ -381,9 +387,9 @@ MOCK_HIVE_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -406,9 +412,9 @@ MOCK_REST_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -438,9 +444,9 @@ MOCK_GLUE_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -471,9 +477,9 @@ MOCK_DYNAMO_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -523,7 +529,7 @@ class IcebergUnitTest(TestCase):
             self.config = parse_workflow_config_gracefully(config)
             self.iceberg = IcebergSource.create(
                 config["source"],
-                OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+                ServerInterface(self.config.workflowConfig.serverConfig),
             )
 
         self.iceberg.context.get().database_service = "test_iceberg"
@@ -540,9 +546,8 @@ class IcebergUnitTest(TestCase):
             "serviceConnection": {
                 "config": {
                     "type": "Mysql",
-                    "username": "openmetadata_user",
-                    "authType": {"password": "openmetadata_password"},
-                    "hostPort": "localhost:3306",
+                    "username": "metadata_user",
+                    "authType": {"password": "metadata_password"},                    "hostPort": "localhost:3306",
                     "databaseSchema": "openmetadata_db",
                 }
             },
@@ -557,7 +562,7 @@ class IcebergUnitTest(TestCase):
             InvalidSourceException,
             IcebergSource.create,
             not_looker_source,
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
 
     def test_get_database_name(self):
@@ -705,7 +710,7 @@ class IcebergUnitTest(TestCase):
             **iceberg_table_with_owner
         )
 
-        with patch.object(OpenMetadata, "get_reference_by_email", return_value=ref):
+        with patch.object(ServerInterface, "get_reference_by_email", return_value=ref):
             self.assertEqual(
                 self.iceberg.get_owner_ref(table_name),
                 ref,
@@ -809,7 +814,7 @@ class IcebergUnitTest(TestCase):
         )
 
         with patch.object(
-            OpenMetadata, "get_reference_by_email", return_value=ref
+            ServerInterface, "get_reference_by_email", return_value=ref
         ), patch.object(fqn, "build", return_value=fq_database_schema):
             result = next(self.iceberg.yield_table((table_name, table_type))).right
 

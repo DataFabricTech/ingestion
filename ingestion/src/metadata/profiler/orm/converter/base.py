@@ -1,16 +1,22 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
-Converter logic to transform an OpenMetadata Table Entity
+Converter logic to transform an Metadata Table Entity
 to an SQLAlchemy ORM class.
 """
 from typing import Optional, cast
@@ -22,7 +28,7 @@ from sqlalchemy.orm import DeclarativeMeta, declarative_base
 from metadata.generated.schema.entity.data.database import Database, databaseService
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import Column, Table
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.profiler.orm.converter.converter_registry import converter_registry
 
 Base = declarative_base()
@@ -91,10 +97,10 @@ def build_orm_col(idx: int, col: Column, table_service_type) -> sqlalchemy.Colum
 
 
 def ometa_to_sqa_orm(
-    table: Table, metadata: OpenMetadata, sqa_metadata_obj: Optional[MetaData] = None
+    table: Table, metadata: ServerInterface, sqa_metadata_obj: Optional[MetaData] = None
 ) -> DeclarativeMeta:
     """
-    Given an OpenMetadata instance, prepare
+    Given an Metadata instance, prepare
     the SQLAlchemy DeclarativeMeta class
     to run queries on top of it.
 
@@ -147,7 +153,7 @@ def ometa_to_sqa_orm(
     return orm
 
 
-def get_orm_schema(table: Table, metadata: OpenMetadata) -> str:
+def get_orm_schema(table: Table, metadata: ServerInterface) -> str:
     """
     Build a fully qualified schema name depending on the
     service type. For example:
@@ -169,12 +175,12 @@ def get_orm_schema(table: Table, metadata: OpenMetadata) -> str:
     return str(schema.name.__root__)
 
 
-def get_orm_database(table: Table, metadata: OpenMetadata) -> str:
+def get_orm_database(table: Table, metadata: ServerInterface) -> str:
     """get database name from database service
 
     Args:
         table (Table): table entity
-        metadata (OpenMetadata): metadata connection to OM server instance
+        metadata (ServerInterface): metadata connection to OM server instance
 
     Returns:
         str

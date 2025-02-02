@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Helper functions to handle SQL lineage operations
 """
@@ -33,7 +39,7 @@ from metadata.ingestion.lineage.models import (
     QueryParsingFailures,
 )
 from metadata.ingestion.lineage.parser import LINEAGE_PARSING_TIMEOUT, LineageParser
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils import fqn
 from metadata.utils.fqn import build_es_fqn_search_string
 from metadata.utils.logger import utils_logger
@@ -60,7 +66,7 @@ search_cache = LRUCache(LRU_CACHE_SIZE)
 
 
 def search_table_entities(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     service_name: str,
     database: Optional[str],
     database_schema: Optional[str],
@@ -162,7 +168,7 @@ def get_table_fqn_from_query_name(
 
 
 def get_table_entities_from_query(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     service_name: str,
     database_name: str,
     database_schema: str,
@@ -173,7 +179,7 @@ def get_table_entities_from_query(
 
     If the sys data is incorrect, use the table name ingredients.
 
-    :param metadata: OpenMetadata client
+    :param metadata: Metadata client
     :param service_name: Service being ingested.
     :param database_name: Name of the database informed on db sys results
     :param database_schema: Name of the schema informed on db sys results
@@ -284,7 +290,7 @@ def _build_table_lineage(
 
 # pylint: disable=too-many-arguments
 def _create_lineage_by_table_name(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     from_table: str,
     to_table: str,
     service_name: str,
@@ -370,7 +376,7 @@ def populate_column_lineage_map(raw_column_lineage):
 
 # pylint: disable=too-many-locals
 def get_lineage_by_query(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     service_name: str,
     database_name: Optional[str],
     schema_name: Optional[str],
@@ -449,7 +455,7 @@ def get_lineage_by_query(
 
 
 def get_lineage_via_table_entity(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     table_entity: Table,
     database_name: str,
     schema_name: str,

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Generic Workflow entrypoint to execute Ingestions
 
@@ -24,8 +30,8 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, cast
 
 from metadata.config.common import WorkflowExecutionError
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.connections.serviceConnection import (
     ServiceConnection,
@@ -35,7 +41,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
 )
 from metadata.generated.schema.entity.services.serviceType import ServiceType
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step, Summary
@@ -58,22 +64,22 @@ class IngestionWorkflow(BaseWorkflow, ABC):
     Base Ingestion Workflow implementation
     """
 
-    config: OpenMetadataWorkflowConfig
+    config: MetadataWorkflowConfig
 
     # All workflows require a source as a first step
     source: Source
     # All workflows execute a series of steps, aside from the source
     steps: Tuple[Step]
 
-    def __init__(self, config: OpenMetadataWorkflowConfig):
+    def __init__(self, config: MetadataWorkflowConfig):
         self.config = config
 
         self.service_type: ServiceType = get_service_type_from_source_type(
             self.config.source.type
         )
 
-        metadata_config: OpenMetadataConnection = (
-            self.config.workflowConfig.openMetadataServerConfig
+        metadata_config: MetadataConnection = (
+            self.config.workflowConfig.serverConfig
         )
 
         super().__init__(
@@ -189,7 +195,7 @@ class IngestionWorkflow(BaseWorkflow, ABC):
                     )
                 else:
                     raise InvalidWorkflowJSONException(
-                        f"Error getting the service [{service_name}] from the API. If it exists in OpenMetadata,"
+                        f"Error getting the service [{service_name}] from the API. If it exists in Metadata,"
                         " make sure the ingestion-bot JWT token is valid and that the Workflow is deployed"
                         " with the latest one. If this error persists, recreate the JWT token and"
                         " redeploy the Workflow."

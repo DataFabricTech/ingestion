@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Portions Copyright(c) 2023, TOSHIBA CORPORATION
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 #  limitations under the License.
 """
 PGSpider lineage module
@@ -23,7 +29,7 @@ from metadata.generated.schema.type.entityLineage import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.lineage.sql_lineage import search_table_entities
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.connections import get_connection
 from metadata.ingestion.source.database.postgres.pgspider.queries import (
     PGSPIDER_GET_CHILD_TABLES,
@@ -71,7 +77,7 @@ def _get_column_lineages(source_entity, target_entity):
 
 
 def get_lineage_from_multi_tenant_table(
-    metadata: OpenMetadata,
+    metadata: ServerInterface,
     connection: any,
     service_name: str,
 ) -> Iterator[Either[AddLineageRequest]]:

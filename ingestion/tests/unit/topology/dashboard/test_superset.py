@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test superset source
 """
@@ -45,7 +51,7 @@ from metadata.generated.schema.entity.services.databaseService import (
     DatabaseServiceType,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.basic import (
     EntityName,
@@ -54,7 +60,7 @@ from metadata.generated.schema.type.basic import (
 )
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.dashboard.superset.api_source import SupersetAPISource
 from metadata.ingestion.source.dashboard.superset.db_source import SupersetDBSource
 from metadata.ingestion.source.dashboard.superset.metadata import SupersetSource
@@ -360,9 +366,9 @@ class SupersetUnitTest(TestCase):
             },
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {
                         "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE2NjM5Mzg0NjIsImVtYWlsIjoiYWRtaW5Ab3Blbm1ldGFkYXRhLm9yZyJ9.tS8um_5DKu7HgzGBzS1VTA5uUjKWOCU0B_j08WXBiEC0mr0zNREkqVfwFDD-d24HlNEbrqioLsBuFRiwIWKc1m_ZlVQbG7P36RUxhuv2vbSp80FKyNM-Tj93FDzq91jsyNmsQhyNv_fNr3TXfzzSPjHt8Go0FMMP66weoKMgW2PbXlhVKwEuXUHyakLLzewm9UMeQaEiRzhiTMU3UkLXcKbYEJJvfNFcLwSl9W8JCO_l0Yj3ud-qt_nQYEZwqW6u5nfdQllN133iikV4fM5QZsMCnm8Rq1mvLR0y9bmJiD7fwM1tmJ791TUWqmKaTnP49U493VanKpUAfzIiOiIbhg"
                     },
@@ -398,18 +404,18 @@ class SupersetUnitTest(TestCase):
             },
             "sink": {"type": "metadata-rest", "config": {}},
             "workflowConfig": {
-                "openMetadataServerConfig": {
+                "serverConfig": {
                     "hostPort": "http://localhost:8585/api",
-                    "authProvider": "openmetadata",
+                    "authProvider": "metadata",
                     "securityConfig": {"jwtToken": "token"},
                 },
             },
         }
-        self.config = OpenMetadataWorkflowConfig.parse_obj(MOCK_SUPERSET_API_CONFIG)
+        self.config = MetadataWorkflowConfig.parse_obj(MOCK_SUPERSET_API_CONFIG)
 
         self.superset_api: SupersetSource = SupersetSource.create(
             MOCK_SUPERSET_API_CONFIG["source"],
-            OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+            ServerInterface(self.config.workflowConfig.serverConfig),
         )
         self.assertEqual(type(self.superset_api), SupersetAPISource)
         self.superset_api.context.get().__dict__[
@@ -418,7 +424,7 @@ class SupersetUnitTest(TestCase):
 
         self.superset_db: SupersetSource = SupersetSource.create(
             MOCK_SUPERSET_DB_CONFIG["source"],
-            OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+            ServerInterface(self.config.workflowConfig.serverConfig),
         )
         self.assertEqual(type(self.superset_db), SupersetDBSource)
         self.superset_db.context.get().__dict__[
@@ -435,9 +441,9 @@ class SupersetUnitTest(TestCase):
             "serviceConnection": {
                 "config": {
                     "type": "Mysql",
-                    "username": "openmetadata_user",
+                    "username": "metadata_user",
                     "authType": {
-                        "password": "openmetadata_password",
+                        "password": "metadata_password",
                     },
                     "hostPort": "localhost:3306",
                     "databaseSchema": "openmetadata_db",
@@ -454,7 +460,7 @@ class SupersetUnitTest(TestCase):
             InvalidSourceException,
             SupersetSource.create,
             not_superset_source,
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
 
     def test_api_get_dashboards_list(self):

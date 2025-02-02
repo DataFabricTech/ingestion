@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Validate redshift system metrics (will be disabled by default). To be ran manually
@@ -37,10 +43,10 @@ import pytest
 import yaml
 
 from metadata.generated.schema.entity.data.table import SystemProfile
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.time_utils import (
     get_beginning_of_day_timestamp_mill,
     get_end_of_day_timestamp_mill,
@@ -99,10 +105,10 @@ class TestRedshiftSystem(TestCase):
 
         # set metadata config
         cls.metadata_config_dict = cls.config["workflowConfig"][
-            "openMetadataServerConfig"
+            "serverConfig"
         ]
-        cls.metadata_config = OpenMetadataConnection.parse_obj(cls.metadata_config_dict)
-        cls.metadata = OpenMetadata(cls.metadata_config)
+        cls.metadata_config = MetadataConnection.parse_obj(cls.metadata_config_dict)
+        cls.metadata = ServerInterface(cls.metadata_config)
 
         # run the ingestion workflow
         ingestion_workflow = MetadataWorkflow.create(cls.config)

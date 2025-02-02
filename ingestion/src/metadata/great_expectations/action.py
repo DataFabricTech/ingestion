@@ -1,13 +1,19 @@
-#  Copyright 2022 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Great Expectations subpackage to send expectation results to
 Open Metadata table quality.
@@ -70,17 +76,17 @@ from metadata.great_expectations.utils.ometa_config_handler import (
     create_ometa_connection_obj,
     render_template,
 )
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils import fqn
 from metadata.utils.entity_link import get_entity_link
 
 logger = logging.getLogger(
-    "great_expectations.validation_operators.validation_operators.openmetadata"
+    "great_expectations.validation_operators.validation_operators.metadata"
 )
 
 
 class OpenMetadataValidationAction(ValidationAction):
-    """Open Metdata validation action. It inherits from
+    """validation action. It inherits from
     great expection validation action class and implements the
     `_run` method.
 
@@ -203,7 +209,7 @@ class OpenMetadataValidationAction(ValidationAction):
         """
         if not all([schema_name, table_name]):
             raise ValueError(
-                "No Schema or Table name provided. Can't fetch table entity from OpenMetadata."
+                "No Schema or Table name provided. Can't fetch table entity from Metadata."
             )
 
         if self.database_service_name:
@@ -284,12 +290,12 @@ class OpenMetadataValidationAction(ValidationAction):
             " expectations against a relational database"
         )
 
-    def _create_ometa_connection(self) -> OpenMetadata:
-        """Create OpenMetadata API connection"""
+    def _create_ometa_connection(self) -> ServerInterface:
+        """Create Metadata API connection"""
         environment = create_jinja_environment(self.config_file_path)
         rendered_config = render_template(environment)
 
-        return OpenMetadata(create_ometa_connection_obj(rendered_config))
+        return ServerInterface(create_ometa_connection_obj(rendered_config))
 
     def _build_test_case_fqn(self, table_fqn: str, result: Dict) -> str:
         """build test case fqn from table entity and GE test results

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Helper mixin to handle services
 """
@@ -15,8 +21,8 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel
 
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
@@ -32,12 +38,12 @@ T = TypeVar("T", bound=BaseModel)
 
 class OMetaServiceMixin:
     """
-    OpenMetadata API methods related to service.
+    Metadata API methods related to service.
 
-    To be inherited by OpenMetadata
+    To be inherited by Metadata
     """
 
-    config: OpenMetadataConnection
+    config: MetadataConnection
 
     def get_create_service_from_source(
         self, entity: Type[T], config: WorkflowSource
@@ -48,7 +54,7 @@ class OMetaServiceMixin:
         :param config: WorkflowSource
         :return: CreateService request
 
-        If the OpenMetadata Connection has storeServiceConnection set to false,
+        If the Metadata Connection has storeServiceConnection set to false,
         we won't pass the connection details when creating the service.
         """
 

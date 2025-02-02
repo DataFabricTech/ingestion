@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test looker source
 """
@@ -38,7 +44,7 @@ from metadata.generated.schema.entity.services.dashboardService import (
     DashboardServiceType,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityLineage import EntitiesEdge, LineageDetails
@@ -47,7 +53,7 @@ from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.generated.schema.type.usageDetails import UsageDetails, UsageStats
 from metadata.generated.schema.type.usageRequest import UsageRequest
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.dashboard.dashboard_service import DashboardUsage
 from metadata.ingestion.source.dashboard.looker.metadata import LookerSource
 from metadata.utils import fqn
@@ -72,9 +78,9 @@ MOCK_LOOKER_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         },
     },
@@ -136,12 +142,12 @@ class LookerUnitTest(TestCase):
     def __init__(self, methodName, test_connection) -> None:
         super().__init__(methodName)
         test_connection.return_value = False
-        self.config = OpenMetadataWorkflowConfig.parse_obj(MOCK_LOOKER_CONFIG)
+        self.config = MetadataWorkflowConfig.parse_obj(MOCK_LOOKER_CONFIG)
 
         # This already validates that the source can be initialized
         self.looker: LookerSource = LookerSource.create(
             MOCK_LOOKER_CONFIG["source"],
-            OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+            ServerInterface(self.config.workflowConfig.serverConfig),
         )
 
         self.looker.context.get().__dict__[
@@ -158,8 +164,8 @@ class LookerUnitTest(TestCase):
             "serviceConnection": {
                 "config": {
                     "type": "Mysql",
-                    "username": "openmetadata_user",
-                    "authType": {"password": "openmetadata_password"},
+                    "username": "metadata_user",
+                    "authType": {"password": "metadata_password"},
                     "hostPort": "localhost:3306",
                     "databaseSchema": "openmetadata_db",
                 }
@@ -175,7 +181,7 @@ class LookerUnitTest(TestCase):
             InvalidSourceException,
             LookerSource.create,
             not_looker_source,
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
 
     def test_get_dashboards_list(self):
@@ -253,7 +259,7 @@ class LookerUnitTest(TestCase):
         ref = EntityReference(id=uuid.uuid4(), type="user")
 
         with patch.object(Looker40SDK, "user", return_value=MOCK_USER), patch.object(
-            OpenMetadata,
+            ServerInterface,
             "get_reference_by_email",
             return_value=ref,
         ):
@@ -330,7 +336,7 @@ class LookerUnitTest(TestCase):
 
         # If no from_entity, return none
         with patch.object(fqn, "build", return_value=None), patch.object(
-            OpenMetadata, "get_by_name", return_value=None
+            ServerInterface, "get_by_name", return_value=None
         ):
             self.assertIsNone(
                 self.looker.build_lineage_request(source, db_service_name, to_entity)
@@ -344,7 +350,7 @@ class LookerUnitTest(TestCase):
             columns=[Column(name="id", dataType=DataType.BIGINT)],
         )
         with patch.object(fqn, "build", return_value=None), patch.object(
-            OpenMetadata, "get_by_name", return_value=table
+            ServerInterface, "get_by_name", return_value=table
         ):
             self.assertEqual(
                 self.looker.build_lineage_request(
@@ -408,7 +414,7 @@ class LookerUnitTest(TestCase):
             fullyQualifiedName="dashboard_service.dashboard_name",
             service=EntityReference(id=uuid.uuid4(), type="dashboardService"),
         )
-        with patch.object(OpenMetadata, "get_by_name", return_value=return_value):
+        with patch.object(ServerInterface, "get_by_name", return_value=return_value):
             self.assertEqual(
                 next(self.looker.yield_dashboard_usage(MOCK_LOOKER_DASHBOARD)).right,
                 DashboardUsage(
@@ -427,7 +433,7 @@ class LookerUnitTest(TestCase):
                 dailyStats=UsageStats(count=10), date=self.looker.today
             ),
         )
-        with patch.object(OpenMetadata, "get_by_name", return_value=return_value):
+        with patch.object(ServerInterface, "get_by_name", return_value=return_value):
             # Nothing is returned
             self.assertEqual(
                 len(list(self.looker.yield_dashboard_usage(MOCK_LOOKER_DASHBOARD))), 0
@@ -443,7 +449,7 @@ class LookerUnitTest(TestCase):
                 dailyStats=UsageStats(count=0), date=self.looker.today
             ),
         )
-        with patch.object(OpenMetadata, "get_by_name", return_value=return_value):
+        with patch.object(ServerInterface, "get_by_name", return_value=return_value):
             self.assertEqual(
                 next(self.looker.yield_dashboard_usage(MOCK_LOOKER_DASHBOARD)).right,
                 DashboardUsage(
@@ -463,7 +469,7 @@ class LookerUnitTest(TestCase):
                 date=datetime.strftime(datetime.now() - timedelta(1), "%Y-%m-%d"),
             ),
         )
-        with patch.object(OpenMetadata, "get_by_name", return_value=return_value):
+        with patch.object(ServerInterface, "get_by_name", return_value=return_value):
             self.assertEqual(
                 next(self.looker.yield_dashboard_usage(MOCK_LOOKER_DASHBOARD)).right,
                 DashboardUsage(
@@ -484,7 +490,7 @@ class LookerUnitTest(TestCase):
                 date=datetime.strftime(datetime.now() - timedelta(1), "%Y-%m-%d"),
             ),
         )
-        with patch.object(OpenMetadata, "get_by_name", return_value=return_value):
+        with patch.object(ServerInterface, "get_by_name", return_value=return_value):
             self.assertEqual(
                 len(list(self.looker.yield_dashboard_usage(MOCK_LOOKER_DASHBOARD))), 1
             )

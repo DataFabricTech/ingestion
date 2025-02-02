@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Add methods to the workflows for updating the IngestionPipeline status
 """
@@ -27,10 +33,10 @@ from metadata.generated.schema.entity.services.ingestionPipelines.status import 
     StepSummary,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.ingestion.api.step import Step, Summary
-from metadata.ingestion.server.server_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
@@ -46,9 +52,9 @@ class WorkflowStatusMixin:
     To be inherited by the Base Workflow
     """
 
-    config: OpenMetadataWorkflowConfig
+    config: MetadataWorkflowConfig
     _run_id: Optional[str] = None
-    metadata: OpenMetadata
+    metadata: ServerInterface
     _start_ts: int
     ingestion_pipeline: Optional[IngestionPipeline]
 
