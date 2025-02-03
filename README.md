@@ -12,7 +12,7 @@ Airflow 위에서 동작하며, Open VDAP 서버의 메타데이터 수집 요�
 다음은 각 디렉토리 별 설명이다.
 
 1. airflow-apis  
-airflow 의 plugin 형태로 동작하며 RestAPI Server로 Open VDAP 서버의 요청을 수신, 
+airflow 의 plugin 형태로 동작하는 RestAPI Server로 Open VDAP 서버의 요청을 수신, 
 airflow DAG 생성, 시작, 중지, 삭제를 수행한다.  
 2. ingestion   
     DAG(Python Operator)에 의해 실제 실행되는 코드로 크게 다음과 같이 분류할 수 있다.  
@@ -33,17 +33,8 @@ spec 에 선언된 json 파일을 python 클래스로 변경한다.
 
 이미지 빌드는 코드 수정 후 최상위 디렉토리에 build.sh를 이용해 수행할 수 있다.
 
-> 코드 내 에서 추가적인 라이브러리를 사용한 경우 `setup.py`를 수정한다.
+> 코드 내 추가적인 라이브러리를 사용한 경우 `setup.py`를 수정한다.
 
 ```shell
 ./build.sh
 ```
-
-## 원 소스 대비 주요 변경 사항
-
-- MinIO 데이터 저장소 
-    - CSV, Excel, Word, Hwp에 대한 메타데이터 수집
-    - CSV, Excel, Word, Hwp에 대한 프로파일링(min, max, avg, sample 등)
-- 프로파일링  
-    - 데이터 사전 연동
-- 서버 연동
