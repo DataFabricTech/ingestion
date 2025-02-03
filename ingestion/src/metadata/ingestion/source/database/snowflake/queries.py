@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 SQL Queries used during ingestion
 """
@@ -26,7 +32,7 @@ SNOWFLAKE_SQL_STATEMENT = textwrap.dedent(
       end_time,
       total_elapsed_time duration
     from snowflake.account_usage.query_history
-    WHERE query_text NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+    WHERE query_text NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
     AND query_text NOT LIKE '/* {{"app": "dbt", %%}} */%%'
     AND start_time between to_timestamp_ltz('{start_time}') and to_timestamp_ltz('{end_time}')
     {filters}
@@ -326,7 +332,7 @@ Q_HISTORY AS (
       DATABASE_NAME
     FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY SP
     WHERE QUERY_TYPE <> 'CALL'
-      AND QUERY_TEXT NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+      AND QUERY_TEXT NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
       AND QUERY_TEXT NOT LIKE '/* {{"app": "dbt", %%}} */%%'
       AND START_TIME >= '{start_date}'
 )

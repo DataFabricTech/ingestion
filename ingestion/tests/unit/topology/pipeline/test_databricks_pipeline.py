@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Databricks Pipeline utils tests
 """
@@ -31,7 +37,7 @@ from metadata.generated.schema.entity.services.pipelineService import (
     PipelineServiceType,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityReference import EntityReference
@@ -74,9 +80,9 @@ mock_databricks_config = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {
                 "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGc"
                 "iOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE"
@@ -101,7 +107,7 @@ MOCK_PIPELINE = Pipeline(
     id="2aaa012e-099a-11ed-861d-0242ac120002",
     name="606358633757175",
     fullyQualifiedName="databricks_pipeline_test.606358633757175",
-    displayName="OpenMetadata Databricks Workflow",
+    displayName="Metadata Databricks Workflow",
     tasks=[
         Task(
             name="task_1",
@@ -141,8 +147,8 @@ MOCK_PIPELINE = Pipeline(
 
 EXPECTED_CREATED_PIPELINES = CreatePipelineRequest(
     name="606358633757175",
-    displayName="OpenMetadata Databricks Workflow",
-    description="OpenMetadata Databricks Workflow",
+    displayName="Metadata Databricks Workflow",
+    description="Metadata Databricks Workflow",
     tasks=[
         Task(
             name="task_1",
@@ -230,11 +236,11 @@ class DatabricksPipelineTests(TestCase):
         super().__init__(methodName)
         log_ansi_encoded_string(message="init")
         test_connection.return_value = False
-        config = OpenMetadataWorkflowConfig.parse_obj(mock_databricks_config)
+        config = MetadataWorkflowConfig.parse_obj(mock_databricks_config)
 
         self.databricks = DatabrickspipelineSource.create(
             mock_databricks_config["source"],
-            config.workflowConfig.openMetadataServerConfig,
+            config.workflowConfig.serverConfig,
         )
         self.databricks.context.get().__dict__["pipeline"] = MOCK_PIPELINE.name.__root__
         self.databricks.context.get().__dict__[

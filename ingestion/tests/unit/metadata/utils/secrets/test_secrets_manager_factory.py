@@ -1,13 +1,19 @@
-#  Copyright 2022 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Test Secrets Manager Factory
@@ -16,8 +22,8 @@ import os
 from unittest import TestCase
 from unittest.mock import patch
 
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.security.secrets.secretsManagerClientLoader import (
     SecretsManagerClientLoader,
@@ -37,7 +43,7 @@ class TestSecretsManagerFactory(TestCase):
 
     def test_get_not_implemented_secret_manager(self):
         with self.assertRaises(NotImplementedError) as not_implemented_error:
-            om_connection: OpenMetadataConnection = self.build_open_metadata_connection(
+            om_connection: MetadataConnection = self.build_open_metadata_connection(
                 SecretsManagerProvider.db,
                 SecretsManagerClientLoader.noop,
             )
@@ -50,7 +56,7 @@ class TestSecretsManagerFactory(TestCase):
             )
 
     def test_get_none_secret_manager(self):
-        om_connection: OpenMetadataConnection = self.build_open_metadata_connection(
+        om_connection: MetadataConnection = self.build_open_metadata_connection(
             SecretsManagerProvider.db,
             SecretsManagerClientLoader.noop,
         )
@@ -75,7 +81,7 @@ class TestSecretsManagerFactory(TestCase):
             if secret_manager_provider is not SecretsManagerProvider.in_memory
         ]
         for secret_manager_provider in secret_manager_providers:
-            open_metadata_connection: OpenMetadataConnection = OpenMetadataConnection(
+            open_metadata_connection: MetadataConnection = MetadataConnection(
                 secretsManagerProvider=secret_manager_provider,
                 secretsManagerLoader=SecretsManagerClientLoader.env,
                 hostPort="http://localhost:8585",
@@ -92,8 +98,8 @@ class TestSecretsManagerFactory(TestCase):
     def build_open_metadata_connection(
         secret_manager_provider: SecretsManagerProvider,
         secret_manager_loader: SecretsManagerClientLoader,
-    ) -> OpenMetadataConnection:
-        return OpenMetadataConnection(
+    ) -> MetadataConnection:
+        return MetadataConnection(
             secretsManagerProvider=secret_manager_provider,
             secretsManagerLoader=secret_manager_loader,
             hostPort="http://localhost:8585/api",

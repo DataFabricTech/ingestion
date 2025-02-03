@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/messagingServiceMetadataPipeline.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/messagingServiceMetadataPipeline.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MessagingServiceMetadataPipeline",
   "description": "MessagingService Metadata Pipeline Configuration.",
@@ -8,7 +8,9 @@
     "messagingMetadataConfigType": {
       "description": "Messaging Source Config Metadata Pipeline type",
       "type": "string",
-      "enum": ["MessagingMetadata"],
+      "enum": [
+        "MessagingMetadata"
+      ],
       "default": "MessagingMetadata"
     }
   },
@@ -30,7 +32,7 @@
       "title": "Generate Sample Data"
     },
     "markDeletedTopics": {
-      "description": "Optional configuration to soft delete topics in OpenMetadata if the source topics are deleted. Also, if the topic is deleted, all the associated entities like sample data, lineage, etc., with that topic will be deleted",
+      "description": "Optional configuration to soft delete topics in Metadata if the source topics are deleted. Also, if the topic is deleted, all the associated entities like sample data, lineage, etc., with that topic will be deleted",
       "type": "boolean",
       "default": true,
       "title": "Mark Deleted Topics"

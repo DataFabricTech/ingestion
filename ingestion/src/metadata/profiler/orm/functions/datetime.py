@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Define Median function
@@ -186,7 +192,7 @@ def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
     if interval_unit.lower() in {"year", "month"}:
         raise ValueError(
             "Bigquery does not support `month` or `year` interval for table partitioned on timestamp",
-            "field types. You can set the `interval_unit to day or hour directly from OpenMetadata UI`."
+            "field types. You can set the `interval_unit to day or hour directly from Metadata UI`."
             # pylint: disable=line-too-long
             "Visit https://docs.open-metadata.org/connectors/ingestion/workflows/profiler#4-updating-profiler-setting-at-the-table-level for more details.",
         )

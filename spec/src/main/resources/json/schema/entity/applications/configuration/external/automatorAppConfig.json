@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/configuration/external/automatorAppConfig.json",
+  "$id": "https://mobigen.com/schema/entity/applications/configuration/external/automatorAppConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AutomatorAppConfig",
   "description": "Configuration for the Automator External Application.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.app.external.AutomatorAppConfig",
   "definitions": {
     "automatorAppType": {
       "description": "Application type.",
       "type": "string",
-      "enum": ["Automator"],
+      "enum": [
+        "Automator"
+      ],
       "default": "Automator"
     },
     "resource": {
@@ -90,6 +91,10 @@
       }
     }
   },
-  "required": ["type", "resources", "actions"],
+  "required": [
+    "type",
+    "resources",
+    "actions"
+  ],
   "additionalProperties": false
 }

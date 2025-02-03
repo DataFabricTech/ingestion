@@ -1,11 +1,10 @@
 {
-  "$id": "https://open-metadata.org/schema/dataInsight/kpi/basic.json",
+  "$id": "https://mobigen.com/schema/dataInsight/kpi/basic.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Basic",
   "description": "This schema defines basic types that are used by other Kpi Definitions",
   "definitions": {
     "kpiTargetType": {
-      "javaType": "org.openmetadata.schema.dataInsight.type.KpiTargetType",
       "description": "This enum defines the type of key Result",
       "type": "string",
       "enum": [
@@ -15,7 +14,6 @@
     },
     "kpiTarget": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.dataInsight.type.KpiTarget",
       "description": "This schema defines the parameter values that can be passed for a Kpi Parameter.",
       "properties": {
         "name": {
@@ -31,12 +29,14 @@
           "type": "boolean"
         }
       },
-      "required": ["name", "value"],
+      "required": [
+        "name",
+        "value"
+      ],
       "additionalProperties": false
     },
     "kpiResult": {
       "description": "Schema to capture kpi result.",
-      "javaType": "org.openmetadata.schema.dataInsight.type.KpiResult",
       "type": "object",
       "properties": {
         "timestamp": {
@@ -55,7 +55,10 @@
           }
         }
       },
-      "required": ["timestamp", "targetResult"],
+      "required": [
+        "timestamp",
+        "targetResult"
+      ],
       "additionalProperties": false
     }
   }

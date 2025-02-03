@@ -1,14 +1,13 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/application.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/application.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OpenMetadataApplicationConfig",
-  "description": "OpenMetadata Ingestion Framework definition for Applications, i.e., the YAML shape we require.",
-  "javaType": "org.openmetadata.schema.metadataIngestion.OpenMetadataAppConfig",
+  "title": "MetadataApplicationConfig",
+  "description": "Metadata Ingestion Framework definition for Applications, i.e., the YAML shape we require.",
   "type": "object",
   "properties": {
     "workflowConfig": {
       "$ref": "workflow.json#/definitions/workflowConfig",
-      "description": "General Workflow configuration, such as the OpenMetadata server connection and logging level"
+      "description": "General Workflow configuration, such as the Metadata server connection and logging level"
     },
     "sourcePythonClass": {
       "description": "Source Python Class Name to run the application",
@@ -31,6 +30,8 @@
       "$ref": "../type/basic.json#/definitions/uuid"
     }
   },
-  "required": ["workflowConfig"],
+  "required": [
+    "workflowConfig"
+  ],
   "additionalProperties": false
 }

@@ -1,13 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/domains/createDataProduct.json",
+  "$id": "https://mobigen.com/schema/entity/domains/createDataProduct.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDataProductRequest",
   "description": "Create DataProduct API request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.domains.CreateDataProduct",
-  "javaInterfaces": [
-    "org.openmetadata.schema.CreateEntity"
-  ],
   "properties": {
     "name": {
       "description": "A unique name of the DataProduct",
@@ -40,7 +36,7 @@
     },
     "experts": {
       "description": "List of user/login names of users who are experts in this DataProduct.",
-      "type" : "array",
+      "type": "array",
       "items": {
         "type": "string"
       },

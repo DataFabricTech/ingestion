@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/powerbi/gcsConfig.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/powerbi/gcsConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "GCSConfig",
   "description": "GCS storage config for pbit files",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dasboard.powerbi.GCSConfig",
   "properties": {
     "pbitFileConfigType": {
       "description": "pbit File Configuration type",
       "type": "string",
-      "enum": ["gcs"],
+      "enum": [
+        "gcs"
+      ],
       "default": "gcs"
     },
     "securityConfig": {
@@ -28,5 +29,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["securityConfig"]
+  "required": [
+    "securityConfig"
+  ]
 }

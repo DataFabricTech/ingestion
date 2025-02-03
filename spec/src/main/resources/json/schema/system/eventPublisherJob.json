@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/system/eventPublisherJob.json",
+  "$id": "https://mobigen.com/schema/system/eventPublisherJob.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "EventPublisherResult",
   "description": "This schema defines Event Publisher Job.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.system.EventPublisherJob",
   "definitions": {
     "stepStats": {
       "description": "Stats for Different Steps Reader, Processor, Writer.",

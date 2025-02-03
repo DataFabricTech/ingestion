@@ -1,16 +1,17 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/messaging/customMessagingConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/messaging/customMessagingConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CustomMessagingConnection",
-  "description": "Custom Messaging Service Connection to build a source that is not supported by OpenMetadata yet.",
+  "description": "Custom Messaging Service Connection to build a source that is not supported by Metadata yet.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.messaging.CustomMessagingConnection",
   "definitions": {
     "customMessagingType": {
       "title": "Service Type",
       "description": "Custom messaging service type",
       "type": "string",
-      "enum": ["CustomMessaging"],
+      "enum": [
+        "CustomMessaging"
+      ],
       "default": "CustomMessaging"
     }
   },
@@ -32,5 +33,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["type"]
+  "required": [
+    "type"
+  ]
 }

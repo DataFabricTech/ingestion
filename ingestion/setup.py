@@ -1,13 +1,18 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
 
 """
 Python Dependencies
@@ -43,6 +48,7 @@ VERSIONS = {
     "nltk": "nltk==3.9.1",
     "transformers": "transformers==4.46.3",
     "openpyxl": "openpyxl~=3.1.3",
+    "torch": "torch==2.5.1",
     "packaging": "packaging==21.3",
     "pandas": "pandas~=2.0.0",
     "pyarrow": "pyarrow~=14.0",

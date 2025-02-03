@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 SQL Queries used during ingestion
 """
@@ -115,7 +121,7 @@ WITH SP_HISTORY AS (SELECT
       NULL AS DATABASE_NAME
     FROM gv$sql
     WHERE UPPER(sql_text) NOT LIKE '%%CALL%%' AND UPPER(sql_text) NOT LIKE '%%BEGIN%%'
-      AND SQL_FULLTEXT NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+      AND SQL_FULLTEXT NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
       AND SQL_FULLTEXT NOT LIKE '/* {{"app": "dbt", %%}} */%%'
       AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'YYYY-MM-DD HH24:MI:SS') 
       >= TO_TIMESTAMP('{start_date}', 'YYYY-MM-DD HH24:MI:SS')
@@ -177,7 +183,7 @@ SELECT
 FROM gv$sql
 WHERE OBJECT_STATUS = 'VALID' 
   {filters}
-  AND SQL_FULLTEXT NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+  AND SQL_FULLTEXT NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
   AND SQL_FULLTEXT NOT LIKE '/* {{"app": "dbt", %%}} */%%'
   AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') >= TO_TIMESTAMP('{start_time}', 'yy-MM-dd HH24:MI:SS')
   AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000000, 'SECOND') 

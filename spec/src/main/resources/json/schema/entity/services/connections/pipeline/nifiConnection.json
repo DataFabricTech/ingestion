@@ -1,21 +1,22 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/pipeline/nifiConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/pipeline/nifiConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "NifiConnection",
   "description": "Nifi Metadata Pipeline Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.pipeline.NifiConnection",
   "definitions": {
     "NifiType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Nifi"],
+      "enum": [
+        "Nifi"
+      ],
       "default": "Nifi"
     },
     "basicAuthentication": {
       "title": "Username/Password Authentication",
       "description": "username/password auth",
-      "type":"object",
+      "type": "object",
       "properties": {
         "username": {
           "title": "Username",
@@ -40,20 +41,20 @@
     "clientCertificateAuthentication": {
       "title": "Client Certificate Authentication",
       "description": "client certificate auth",
-      "type":"object",
+      "type": "object",
       "properties": {
-        "certificateAuthorityPath":{
-          "title":"Certificat Authority Path",
+        "certificateAuthorityPath": {
+          "title": "Certificat Authority Path",
           "description": "Path to the root CA certificate",
           "type": "string"
         },
-        "clientCertificatePath":{
-          "title":"Client Certificat",
+        "clientCertificatePath": {
+          "title": "Client Certificat",
           "description": "Path to the client certificate",
           "type": "string"
         },
-        "clientkeyPath":{
-          "title":"Client Key",
+        "clientkeyPath": {
+          "title": "Client Key",
           "description": "Path to the client key",
           "type": "string"
         }
@@ -93,5 +94,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "nifiConfig"]
+  "required": [
+    "hostPort",
+    "nifiConfig"
+  ]
 }

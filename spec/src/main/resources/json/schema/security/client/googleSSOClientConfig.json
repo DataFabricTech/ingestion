@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/security/client/googleSSOClientConfig.json",
+  "$id": "https://mobigen.com/schema/security/client/googleSSOClientConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "GoogleSSOClientConfig",
   "description": "Google SSO client security configs.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.security.client.GoogleSSOClientConfig",
   "properties": {
     "secretKey": {
       "description": "Google SSO client secret key path or contents.",
@@ -18,5 +17,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["secretKey"]
+  "required": [
+    "secretKey"
+  ]
 }

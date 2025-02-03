@@ -1,14 +1,18 @@
 {
-  "$id": "https://open-metadata.org/schema/system/indexingError.json",
+  "$id": "https://mobigen.com/schema/system/indexingError.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "IndexingAppError",
   "description": "This schema defines Event Publisher Job Error Schema.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.system.IndexingError",
   "definitions": {
     "errorSource": {
       "type": "string",
-      "enum": ["Job" ,"Reader", "Processor", "Sink"]
+      "enum": [
+        "Job",
+        "Reader",
+        "Processor",
+        "Sink"
+      ]
     }
   },
   "properties": {

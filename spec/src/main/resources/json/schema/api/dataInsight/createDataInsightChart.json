@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/dataInsight/createDataInsightChart.json",
+  "$id": "https://mobigen.com/schema/api/dataInsight/createDataInsightChart.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDataInsightChart",
   "description": "Payload to create a data insight chart",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.dataInsight.CreateDataInsightChart",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
   "properties": {
     "name": {
       "description": "Name that identifies this data insight chart.",
@@ -42,6 +40,8 @@
       "$ref": "../../type/entityReference.json"
     }
   },
-  "required": ["name"],
+  "required": [
+    "name"
+  ],
   "additionalProperties": false
 }

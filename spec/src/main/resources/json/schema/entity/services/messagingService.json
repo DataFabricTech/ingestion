@@ -1,20 +1,19 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/messagingService.json",
+  "$id": "https://mobigen.com/schema/entity/services/messagingService.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Messaging Service",
   "description": "This schema defines the Messaging Service entity, such as Kafka and Pulsar.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.services.MessagingService",
-  "javaInterfaces": [
-    "org.openmetadata.schema.EntityInterface",
-    "org.openmetadata.schema.ServiceEntityInterface"
-  ],
   "definitions": {
     "messagingServiceType": {
       "description": "Type of messaging service - Kafka or Pulsar.",
       "type": "string",
-      "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
-      "enum": ["Kafka", "Redpanda", "Kinesis", "CustomMessaging"],
+      "enum": [
+        "Kafka",
+        "Redpanda",
+        "Kinesis",
+        "CustomMessaging"
+      ],
       "javaEnums": [
         {
           "name": "Kafka"
@@ -40,11 +39,7 @@
     },
     "messagingConnection": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.MessagingConnection",
       "description": "Dashboard Connection.",
-      "javaInterfaces": [
-        "org.openmetadata.schema.ServiceConnectionEntityInterface"
-      ],
       "properties": {
         "config": {
           "mask": true,
@@ -140,15 +135,19 @@
       "type": "boolean",
       "default": false
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the Messaging service belongs to.",
       "$ref": "../../type/entityReference.json"
     }
   },
-  "required": ["id", "name", "serviceType"],
+  "required": [
+    "id",
+    "name",
+    "serviceType"
+  ],
   "additionalProperties": false
 }

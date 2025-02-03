@@ -1,13 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/domains/createDomain.json",
+  "$id": "https://mobigen.com/schema/entity/domains/createDomain.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDomainRequest",
   "description": "Create Domain API request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.domains.CreateDomain",
-  "javaInterfaces": [
-    "org.openmetadata.schema.CreateEntity"
-  ],
   "properties": {
     "domainType": {
       "description": "Domain type",
@@ -43,7 +39,7 @@
     },
     "experts": {
       "description": "List of user/login names of users who are experts in this Domain.",
-      "type" : "array",
+      "type": "array",
       "items": {
         "type": "string"
       },

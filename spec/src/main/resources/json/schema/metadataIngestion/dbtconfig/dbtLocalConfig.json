@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/dbtconfig/dbtLocalConfig.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/dbtconfig/dbtLocalConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DBT Local Config",
   "description": "DBT Catalog, Manifest and Run Results file path config.",
-  "javaType": "org.openmetadata.schema.metadataIngestion.dbtconfig.DbtLocalConfig",
   "type": "object",
   "properties": {
     "dbtConfigType": {
       "description": "dbt Configuration type",
       "type": "string",
-      "enum": ["local"],
+      "enum": [
+        "local"
+      ],
       "default": "local"
     },
     "dbtCatalogFilePath": {
@@ -29,5 +30,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["dbtManifestFilePath", "dbtConfigType"]
+  "required": [
+    "dbtManifestFilePath",
+    "dbtConfigType"
+  ]
 }

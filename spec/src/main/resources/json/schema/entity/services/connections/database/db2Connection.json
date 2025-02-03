@@ -1,21 +1,25 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/db2Connection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/db2Connection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Db2Connection",
   "description": "Db2 Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.Db2Connection",
   "definitions": {
     "db2Type": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Db2"],
+      "enum": [
+        "Db2"
+      ],
       "default": "Db2"
     },
     "db2Scheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["db2+ibm_db", "ibmi"],
+      "enum": [
+        "db2+ibm_db",
+        "ibmi"
+      ],
       "default": "db2+ibm_db"
     }
   },
@@ -86,5 +90,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "username", "database"]
+  "required": [
+    "hostPort",
+    "username",
+    "database"
+  ]
 }

@@ -1,14 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/app.json",
+  "$id": "https://mobigen.com/schema/entity/applications/app.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "App",
-  "javaType": "org.openmetadata.schema.entity.app.App",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "description": "This schema defines the applications for Open-Metadata.",
   "type": "object",
   "definitions": {
     "scheduleType": {
-      "javaType": "org.openmetadata.schema.entity.app.ScheduleType",
       "description": "This schema defines the type of application.",
       "type": "string",
       "enum": [
@@ -25,14 +22,19 @@
       ]
     },
     "scheduleTimeline": {
-      "javaType": "org.openmetadata.schema.entity.app.ScheduleTimeline",
       "description": "This schema defines the Application ScheduleTimeline Options",
       "type": "string",
-      "enum": ["Hourly"," Daily", "Weekly", "Monthly", "Custom", "None"],
+      "enum": [
+        "Hourly",
+        " Daily",
+        "Weekly",
+        "Monthly",
+        "Custom",
+        "None"
+      ],
       "default": "Weekly"
     },
     "appSchedule": {
-      "javaType": "org.openmetadata.schema.entity.app.AppSchedule",
       "description": "This schema defines the type of application.",
       "properties": {
         "scheduleTimeline": {
@@ -43,11 +45,12 @@
           "type": "string"
         }
       },
-      "required": ["scheduleTimeline"],
+      "required": [
+        "scheduleTimeline"
+      ],
       "additionalProperties": false
     },
     "appType": {
-      "javaType": "org.openmetadata.schema.entity.app.AppType",
       "description": "This schema defines the type of application.",
       "type": "string",
       "enum": [
@@ -64,7 +67,6 @@
       ]
     },
     "permissions": {
-      "javaType": "org.openmetadata.schema.entity.app.NativeAppPermission",
       "description": "This schema defines the Permission used by Native Application.",
       "type": "string",
       "enum": [
@@ -144,7 +146,7 @@
       "type": "boolean",
       "default": false
     },
-    "provider" : {
+    "provider": {
       "$ref": "../../type/basic.json#/definitions/providerType"
     },
     "developer": {
@@ -223,8 +225,8 @@
       "description": "In case the app supports scheduling, list of different app schedules",
       "$ref": "#/definitions/appSchedule"
     },
-    "openMetadataServerConnection": {
-      "$ref": "../services/connections/metadata/openMetadataConnection.json"
+    "metadataServerConnection": {
+      "$ref": "../services/connections/metadata/metadataConnection.json"
     },
     "appLogoUrl": {
       "description": "Application Logo Url.",
@@ -234,12 +236,21 @@
     "appScreenshots": {
       "description": "Application Screenshots.",
       "type": "array",
-      "items":{
+      "items": {
         "type": "string"
       },
       "uniqueItems": true
     }
   },
   "additionalProperties": false,
-  "required": ["id", "name", "appType", "className", "scheduleType", "permission", "runtime", "appSchedule"]
+  "required": [
+    "id",
+    "name",
+    "appType",
+    "className",
+    "scheduleType",
+    "permission",
+    "runtime",
+    "appSchedule"
+  ]
 }

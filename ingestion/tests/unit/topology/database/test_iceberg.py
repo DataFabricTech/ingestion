@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test iceberg source
 """
@@ -61,7 +67,7 @@ from metadata.generated.schema.entity.data.table import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.database.iceberg.metadata import IcebergSource
 from metadata.utils import fqn
 
@@ -74,7 +80,7 @@ MOCK_COLUMN_MAP = {
             required=False,
             doc="Binary",
         ),
-        "ometa": Column(
+        "server": Column(
             name="binary",
             description="Binary",
             dataType=DataType.BINARY,
@@ -89,7 +95,7 @@ MOCK_COLUMN_MAP = {
             field_type=BooleanType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="boolean",
             dataType=DataType.BOOLEAN,
             dataTypeDisplay=str(BooleanType()),
@@ -102,7 +108,7 @@ MOCK_COLUMN_MAP = {
             field_type=DateType(),
             required=True,
         ),
-        "ometa": Column(
+        "server": Column(
             name="date",
             dataType=DataType.DATE,
             dataTypeDisplay=str(DateType()),
@@ -116,7 +122,7 @@ MOCK_COLUMN_MAP = {
             field_type=DecimalType(9, 3),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="decimal",
             dataType=DataType.DECIMAL,
             dataTypeDisplay=str(DecimalType(9, 3)),
@@ -131,7 +137,7 @@ MOCK_COLUMN_MAP = {
             field_type=DoubleType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="double",
             dataType=DataType.DOUBLE,
             dataTypeDisplay=str(DoubleType()),
@@ -144,7 +150,7 @@ MOCK_COLUMN_MAP = {
             field_type=FixedType(10),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="fixed",
             dataType=DataType.FIXED,
             dataTypeDisplay=str(FixedType(10)),
@@ -157,7 +163,7 @@ MOCK_COLUMN_MAP = {
             field_type=FloatType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="float",
             dataType=DataType.FLOAT,
             dataTypeDisplay=str(FloatType()),
@@ -170,7 +176,7 @@ MOCK_COLUMN_MAP = {
             field_type=IntegerType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="integer",
             dataType=DataType.INT,
             dataTypeDisplay=str(IntegerType()),
@@ -186,7 +192,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="list",
             dataType=DataType.ARRAY,
             dataTypeDisplay=str(
@@ -205,7 +211,7 @@ MOCK_COLUMN_MAP = {
             field_type=LongType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="long",
             dataType=DataType.LONG,
             dataTypeDisplay=str(LongType()),
@@ -223,7 +229,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="map",
             dataType=DataType.MAP,
             dataTypeDisplay=str(
@@ -243,7 +249,7 @@ MOCK_COLUMN_MAP = {
             field_type=StringType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="string",
             dataType=DataType.STRING,
             dataTypeDisplay=str(StringType()),
@@ -272,7 +278,7 @@ MOCK_COLUMN_MAP = {
             ),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="struct",
             dataType=DataType.STRUCT,
             dataTypeDisplay=str(
@@ -317,7 +323,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimeType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="time",
             dataType=DataType.TIME,
             dataTypeDisplay=str(TimeType()),
@@ -330,7 +336,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimestampType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="timestamp",
             dataType=DataType.TIMESTAMP,
             dataTypeDisplay=str(TimestampType()),
@@ -343,7 +349,7 @@ MOCK_COLUMN_MAP = {
             field_type=TimestamptzType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="timestamptz",
             dataType=DataType.TIMESTAMPZ,
             dataTypeDisplay=str(TimestamptzType()),
@@ -356,7 +362,7 @@ MOCK_COLUMN_MAP = {
             field_type=UUIDType(),
             required=False,
         ),
-        "ometa": Column(
+        "server": Column(
             name="uuid",
             dataType=DataType.UUID,
             dataTypeDisplay=str(UUIDType()),
@@ -381,9 +387,9 @@ MOCK_HIVE_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -406,9 +412,9 @@ MOCK_REST_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -438,9 +444,9 @@ MOCK_GLUE_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -471,9 +477,9 @@ MOCK_DYNAMO_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -523,7 +529,7 @@ class IcebergUnitTest(TestCase):
             self.config = parse_workflow_config_gracefully(config)
             self.iceberg = IcebergSource.create(
                 config["source"],
-                OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+                ServerInterface(self.config.workflowConfig.serverConfig),
             )
 
         self.iceberg.context.get().database_service = "test_iceberg"
@@ -540,9 +546,8 @@ class IcebergUnitTest(TestCase):
             "serviceConnection": {
                 "config": {
                     "type": "Mysql",
-                    "username": "openmetadata_user",
-                    "authType": {"password": "openmetadata_password"},
-                    "hostPort": "localhost:3306",
+                    "username": "metadata_user",
+                    "authType": {"password": "metadata_password"},                    "hostPort": "localhost:3306",
                     "databaseSchema": "openmetadata_db",
                 }
             },
@@ -557,7 +562,7 @@ class IcebergUnitTest(TestCase):
             InvalidSourceException,
             IcebergSource.create,
             not_looker_source,
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
 
     def test_get_database_name(self):
@@ -705,7 +710,7 @@ class IcebergUnitTest(TestCase):
             **iceberg_table_with_owner
         )
 
-        with patch.object(OpenMetadata, "get_reference_by_email", return_value=ref):
+        with patch.object(ServerInterface, "get_reference_by_email", return_value=ref):
             self.assertEqual(
                 self.iceberg.get_owner_ref(table_name),
                 ref,
@@ -794,7 +799,7 @@ class IcebergUnitTest(TestCase):
             description="Table Description",
             owner=ref,
             columns=[
-                MOCK_COLUMN_MAP[field]["ometa"] for field in MOCK_COLUMN_MAP.keys()
+                MOCK_COLUMN_MAP[field]["server"] for field in MOCK_COLUMN_MAP.keys()
             ],
             tablePartition=TablePartition(
                 columns=[
@@ -809,7 +814,7 @@ class IcebergUnitTest(TestCase):
         )
 
         with patch.object(
-            OpenMetadata, "get_reference_by_email", return_value=ref
+            ServerInterface, "get_reference_by_email", return_value=ref
         ), patch.object(fqn, "build", return_value=fq_database_schema):
             result = next(self.iceberg.yield_table((table_name, table_type))).right
 

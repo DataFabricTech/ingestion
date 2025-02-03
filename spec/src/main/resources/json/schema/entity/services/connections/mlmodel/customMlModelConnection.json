@@ -1,16 +1,17 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/mlmodel/customMlModelConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/mlmodel/customMlModelConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CustomMlModelConnection",
-  "description": "Custom MlModel Service connection to build a source that is not supported by OpenMetadata yet.",
+  "description": "Custom MlModel Service connection to build a source that is not supported by Metadata yet.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.mlmodel.CustomMlModelConnection",
   "definitions": {
     "customMlModelType": {
       "title": "Service Type",
       "description": "Custom Ml model service type",
       "type": "string",
-      "enum": ["CustomMlModel"],
+      "enum": [
+        "CustomMlModel"
+      ],
       "default": "CustomMlModel"
     }
   },
@@ -32,5 +33,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["type"]
+  "required": [
+    "type"
+  ]
 }

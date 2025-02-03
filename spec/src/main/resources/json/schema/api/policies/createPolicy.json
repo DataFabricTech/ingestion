@@ -1,12 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/policies/createPolicy.json",
+  "$id": "https://mobigen.com/schema/api/policies/createPolicy.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreatePolicyRequest",
   "description": "Create Policy Entity Request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.policies.CreatePolicy",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
-
   "properties": {
     "name": {
       "description": "Name that identifies this Policy.",
@@ -38,6 +35,9 @@
       "default": null
     }
   },
-  "required": ["name", "rules"],
+  "required": [
+    "name",
+    "rules"
+  ],
   "additionalProperties": false
 }

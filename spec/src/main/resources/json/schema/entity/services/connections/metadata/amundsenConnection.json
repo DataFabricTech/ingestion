@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/metadata/amundsenConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/metadata/amundsenConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AmundsenConnection",
   "description": "Amundsen Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.metadata.AmundsenConnection",
   "definitions": {
     "amundsenType": {
       "description": "Amundsen service type",
       "type": "string",
-      "enum": ["Amundsen"],
+      "enum": [
+        "Amundsen"
+      ],
       "default": "Amundsen"
     }
   },
@@ -54,6 +55,10 @@
       "$ref": "../connectionBasicType.json#/definitions/supportsMetadataExtraction"
     }
   },
-  "required": ["username", "password", "hostPort"],
+  "required": [
+    "username",
+    "password",
+    "hostPort"
+  ],
   "additionalProperties": false
 }

@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/mlmodel/sageMakerConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/mlmodel/sageMakerConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SageMakerConnection",
   "description": "SageMaker Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.mlmodel.SageMakerConnection",
   "definitions": {
     "sageMakerType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["SageMaker"],
+      "enum": [
+        "SageMaker"
+      ],
       "default": "SageMaker"
     }
   },
@@ -30,5 +31,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["awsConfig"]
+  "required": [
+    "awsConfig"
+  ]
 }

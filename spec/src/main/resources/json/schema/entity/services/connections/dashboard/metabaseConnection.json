@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/metabaseConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/metabaseConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MetabaseConnection",
   "description": "Metabase Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dashboard.MetabaseConnection",
   "definitions": {
     "metabaseType": {
       "description": "Metabase service type",
       "type": "string",
-      "enum": ["Metabase"],
+      "enum": [
+        "Metabase"
+      ],
       "default": "Metabase"
     }
   },
@@ -44,5 +45,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "username"]
+  "required": [
+    "hostPort",
+    "username"
+  ]
 }

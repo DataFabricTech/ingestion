@@ -1,12 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/services/createDatabaseService.json",
+  "$id": "https://mobigen.com/schema/api/services/createDatabaseService.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateDatabaseServiceRequest",
   "description": "Create Database service entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.services.CreateDatabaseService",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
-
   "properties": {
     "name": {
       "description": "Name that identifies the this entity instance uniquely",
@@ -38,18 +35,21 @@
       "description": "Owner of this database service.",
       "$ref": "../../type/entityReference.json"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the Database Service belongs to.",
       "type": "string"
     }
   },
-  "required": ["name", "serviceType"],
+  "required": [
+    "name",
+    "serviceType"
+  ],
   "additionalProperties": false
 }

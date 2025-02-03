@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/docStore/document.json",
+  "$id": "https://mobigen.com/schema/entity/docStore/document.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Document",
   "description": "This schema defines Document. A Generic entity to capture any kind of Json Payload.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entities.docStore.CreateDocument",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity", "org.openmetadata.schema.DocStoreEntityInterface"],
   "properties": {
     "name": {
       "description": "Name of the DocStore",
@@ -30,6 +28,11 @@
       "$ref": "../../entity/docStore/document.json#/definitions/data"
     }
   },
-  "required": ["name", "fullyQualifiedName","entityType", "data"],
+  "required": [
+    "name",
+    "fullyQualifiedName",
+    "entityType",
+    "data"
+  ],
   "additionalProperties": false
 }

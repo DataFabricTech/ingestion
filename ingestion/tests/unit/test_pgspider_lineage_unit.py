@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Copyright(c) 2023, TOSHIBA CORPORATION
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 #  limitations under the License.
 """
 PGSpider Lineage Unit Test
@@ -21,7 +27,7 @@ from unittest.mock import patch
 from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.table import Column, DataType, Table
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.entityLineage import (
     ColumnLineage,
@@ -243,7 +249,7 @@ mock_pgspider_config = {
             "config": {
                 "type": "Postgres",
                 "scheme": "pgspider+psycopg2",
-                "username": "openmetadata_user",
+                "username": "metadata_user",
                 "hostPort": "localhost:4813",
                 "database": "pgspider",
             }
@@ -258,9 +264,9 @@ mock_pgspider_config = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {
                 "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGc"
                 "iOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE"
@@ -586,10 +592,10 @@ class PGSpiderLineageUnitTests(TestCase):
 
     def __init__(self, methodName) -> None:
         super().__init__(methodName)
-        config = OpenMetadataWorkflowConfig.parse_obj(mock_pgspider_config)
+        config = MetadataWorkflowConfig.parse_obj(mock_pgspider_config)
         self.postgres = PostgresLineageSource.create(
             mock_pgspider_config["source"],
-            config.workflowConfig.openMetadataServerConfig,
+            config.workflowConfig.serverConfig,
         )
         print(type(self.postgres))
 

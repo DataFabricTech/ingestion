@@ -1,14 +1,12 @@
 {
-  "$id": "https://open-metadata.org/schema/settings/settings.json",
+  "$id": "https://mobigen.com/schema/settings/settings.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Settings",
   "description": "This schema defines the Settings. A Settings represents a generic Setting.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.settings.Settings",
   "definitions": {
     "settingType": {
-      "javaType": "org.openmetadata.schema.settings.SettingsType",
-      "description": "This schema defines all possible filters enum in OpenMetadata.",
+      "description": "This schema defines all possible filters enum in Metadata.",
       "type": "string",
       "enum": [
         "authorizerConfiguration",
@@ -75,5 +73,7 @@
       ]
     }
   },
-  "required": ["config_type"]
+  "required": [
+    "config_type"
+  ]
 }

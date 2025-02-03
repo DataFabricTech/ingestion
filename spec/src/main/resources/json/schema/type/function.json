@@ -1,14 +1,19 @@
 {
-  "$id": "https://open-metadata.org/schema/type/function.json",
+  "$id": "https://mobigen.com/schema/type/function.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "function",
   "description": "Functions used for writing SpEL expression based conditions",
-  "type" : "object",
-  "javaType": "org.openmetadata.schema.type.Function",
+  "type": "object",
   "definitions": {
     "parameterType": {
       "type": "string",
-      "enum": ["NotRequired", "AllIndexElasticSearch", "SpecificIndexElasticSearch", "ReadFromParamContext", "ReadFromParamContextPerEntity"]
+      "enum": [
+        "NotRequired",
+        "AllIndexElasticSearch",
+        "SpecificIndexElasticSearch",
+        "ReadFromParamContext",
+        "ReadFromParamContextPerEntity"
+      ]
     },
     "paramAdditionalContext": {
       "description": "Additional Context",
@@ -22,21 +27,21 @@
     }
   },
   "properties": {
-    "name" : {
+    "name": {
       "description": "Name of the function.",
-      "type" : "string"
+      "type": "string"
     },
-    "input" : {
+    "input": {
       "description": "Description of input taken by the function.",
-      "type" : "string"
+      "type": "string"
     },
-    "description" : {
+    "description": {
       "description": "Description for the function.",
-      "type" : "string"
+      "type": "string"
     },
-    "examples" : {
+    "examples": {
       "description": "Examples of the function to help users author conditions.",
-      "type" : "array"
+      "type": "array"
     },
     "parameterInputType": {
       "description": "List of receivers to send mail to",
@@ -45,7 +50,6 @@
     "paramAdditionalContext": {
       "$ref": "#/definitions/paramAdditionalContext"
     }
-
   },
   "additionalProperties": false
 }

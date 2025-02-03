@@ -1,13 +1,12 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/configuration/pipelineServiceClientConfiguration.json",
+  "$id": "https://mobigen.com/schema/entity/configuration/pipelineServiceClientConfiguration.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PipelineServiceClientConfiguration",
   "description": "This schema defines the Pipeline Service Client Configuration",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.configuration.pipelineServiceClient.PipelineServiceClientConfiguration",
   "properties": {
     "enabled": {
-      "description": "Flags if the ingestion from the OpenMetadata UI is enabled. If ingesting externally, we can set this value to false to not check the Pipeline Service Client component health.",
+      "description": "Flags if the ingestion from the Server UI is enabled. If ingesting externally, we can set this value to false to not check the Pipeline Service Client component health.",
       "type": "boolean",
       "default": true
     },
@@ -38,11 +37,11 @@
       "type": "string"
     },
     "verifySSL": {
-      "description": "Client SSL verification policy when connecting to the OpenMetadata server: no-ssl, ignore, validate.",
+      "description": "Client SSL verification policy when connecting to the server: no-ssl, ignore, validate.",
       "$ref": "../security/ssl/verifySSLConfig.json#/definitions/verifySSL"
     },
     "sslConfig": {
-      "description": "OpenMetadata Client SSL configuration. This SSL information is about the OpenMetadata server. It will be picked up from the pipelineServiceClient to use/ignore SSL when connecting to the OpenMetadata server.",
+      "description": "Client SSL configuration. This SSL information is about the server. It will be picked up from the pipelineServiceClient to use/ignore SSL when connecting to the server.",
       "$ref": "../security/ssl/verifySSLConfig.json#/definitions/sslConfig"
     },
     "secretsManagerLoader": {
@@ -50,19 +49,20 @@
       "default": "noop"
     },
     "authProvider": {
-      "description": "Auth Provider with which OpenMetadata service configured with.",
-      "$ref": "../entity/services/connections/metadata/openMetadataConnection.json#/definitions/authProvider"
+      "description": "Auth Provider with which service configured with.",
+      "$ref": "../entity/services/connections/metadata/metadataConnection.json#/definitions/authProvider"
     },
     "authConfig": {
       "description": "Auth Provider Configuration.",
       "$ref": "authConfig.json"
     },
     "parameters": {
-      "javaType": "org.openmetadata.schema.api.configuration.pipelineServiceClient.Parameters",
       "description": "Additional parameters to initialize the PipelineServiceClient.",
       "type": "object",
       "additionalProperties": {
-        ".{1,}": { "type": "string" }
+        ".{1,}": {
+          "type": "string"
+        }
       }
     }
   },

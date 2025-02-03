@@ -1,0 +1,18 @@
+{
+  "$id": "https://mobigen.com/schema/api/metadataServerVersion.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "metadataServerVersion",
+  "description": "Server application software version",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "Software version of the Server",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "Build timestamp",
+      "$ref": "../type/basic.json#/definitions/timestamp"
+    }
+  },
+  "additionalProperties": false
+}

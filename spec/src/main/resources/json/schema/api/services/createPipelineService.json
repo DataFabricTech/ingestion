@@ -1,12 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/services/createPipelineService.json",
+  "$id": "https://mobigen.com/schema/api/services/createPipelineService.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreatePipelineServiceRequest",
   "description": "Create Pipeline service entity request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.services.CreatePipelineService",
-  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
-
   "properties": {
     "name": {
       "description": "Name that identifies the this entity instance uniquely",
@@ -43,14 +40,14 @@
       "type": "string",
       "default": null
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of fully qualified names of data products this entity is part of.",
       "type": "array",
-      "items" : {
-        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      "items": {
+        "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
       }
     },
-    "domain" : {
+    "domain": {
       "description": "Fully qualified name of the domain the Pipeline Service belongs to.",
       "type": "string"
     },
@@ -59,6 +56,9 @@
       "$ref": "../../type/lifeCycle.json"
     }
   },
-  "required": ["name", "serviceType"],
+  "required": [
+    "name",
+    "serviceType"
+  ],
   "additionalProperties": false
 }

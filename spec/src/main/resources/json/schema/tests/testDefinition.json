@@ -1,18 +1,15 @@
 {
-  "$id": "https://open-metadata.org/schema/tests/testDefinition.json",
+  "$id": "https://mobigen.com/schema/tests/testDefinition.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "TestDefinition",
   "description": "Test Definition is a type of test using which test cases are created to capture data quality tests against data entities.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.tests.TestDefinition",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "definitions": {
     "testPlatform": {
-      "javaType": "org.openmetadata.schema.tests.TestPlatform",
       "description": "This schema defines the platform where tests are defined and ran.",
       "type": "string",
       "enum": [
-        "OpenMetadata",
+        "Metadata",
         "GreatExpectations",
         "DBT",
         "Deequ",
@@ -21,7 +18,6 @@
       ]
     },
     "testDataType": {
-      "javaType": "org.openmetadata.schema.type.TestCaseParameterDataType",
       "description": "This enum defines the type of data stored in a column.",
       "type": "string",
       "enum": [
@@ -42,7 +38,6 @@
       ]
     },
     "entityType": {
-      "javaType": "org.openmetadata.schema.type.TestDefinitionEntityType",
       "description": "This enum defines the type for which this test definition applies to.",
       "type": "string",
       "enum": [
@@ -52,7 +47,6 @@
     },
     "testCaseParameterDefinition": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.tests.TestCaseParameter",
       "description": "This schema defines the parameters that can be passed for a Test Case.",
       "properties": {
         "name": {
@@ -83,7 +77,6 @@
         },
         "validationRule": {
           "type": "object",
-          "javaType": "org.openmetadata.schema.tests.TestCaseParameterValidationRule",
           "description": "Validation for the test parameter value.",
           "properties": {
             "parameterField": {
@@ -91,14 +84,13 @@
               "type": "string"
             },
             "rule": {
-              "javaType": "org.openmetadata.schema.type.TestCaseParameterValidationRuleType",
               "description": "This enum defines the type to use for a parameter validation rule.",
               "type": "string",
               "enum": [
-                  "EQUALS",
-                  "NOT_EQUALS",
-                  "GREATER_THAN_OR_EQUALS",
-                  "LESS_THAN_OR_EQUALS"
+                "EQUALS",
+                "NOT_EQUALS",
+                "GREATER_THAN_OR_EQUALS",
+                "LESS_THAN_OR_EQUALS"
               ]
             }
           }
@@ -153,7 +145,7 @@
       "$ref": "../type/entityReference.json",
       "default": null
     },
-    "provider" : {
+    "provider": {
       "$ref": "../type/basic.json#/definitions/providerType"
     },
     "version": {
@@ -187,6 +179,10 @@
       "default": false
     }
   },
-  "required": ["name", "description", "testPlatforms"],
+  "required": [
+    "name",
+    "description",
+    "testPlatforms"
+  ],
   "additionalProperties": false
 }

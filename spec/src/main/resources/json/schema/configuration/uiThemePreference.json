@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/configuration/uiThemePreference.json",
+  "$id": "https://mobigen.com/schema/entity/configuration/uiThemePreference.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "UiThemePreference",
   "description": "This schema defines  UI related configuration and settings.",
   "type": "object",
-  "javaType": "org.openmetadata.api.configuration.UiThemePreference",
   "properties": {
     "customLogoConfig": {
       "$ref": "../configuration/logoConfiguration.json",
@@ -16,5 +15,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["customLogoConfig", "customTheme"]
+  "required": [
+    "customLogoConfig",
+    "customTheme"
+  ]
 }

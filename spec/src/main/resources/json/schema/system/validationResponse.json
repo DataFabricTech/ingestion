@@ -1,13 +1,11 @@
 {
-  "$id": "https://open-metadata.org/schema/system/validationResponse.json",
+  "$id": "https://mobigen.com/schema/system/validationResponse.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SystemValidationResponse",
   "description": "Define the system validation response",
   "type": "object",
-  "javaType": "org.openmetadata.schema.system.ValidationResponse",
   "definitions": {
     "stepValidation": {
-      "javaType": "org.openmetadata.schema.system.StepValidation",
       "type": "object",
       "properties": {
         "description": {

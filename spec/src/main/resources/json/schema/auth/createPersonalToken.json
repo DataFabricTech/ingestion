@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/auth/createPersonalToken.json",
+  "$id": "https://mobigen.com/schema/api/auth/createPersonalToken.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreatePersonalToken",
   "description": "Create Personal Access Token Request",
   "type": "object",
-  "javaType": "org.openmetadata.schema.auth.CreatePersonalToken",
   "properties": {
     "tokenName": {
       "description": "Name of the Personal Access Token",
@@ -15,5 +14,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["tokenName", "JWTTokenExpiry"]
+  "required": [
+    "tokenName",
+    "JWTTokenExpiry"
+  ]
 }

@@ -1,21 +1,24 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/trinoConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/trinoConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "TrinoConnection",
   "description": "Trino Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.TrinoConnection",
   "definitions": {
     "trinoType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["Trino"],
+      "enum": [
+        "Trino"
+      ],
       "default": "Trino"
     },
     "trinoScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["trino"],
+      "enum": [
+        "trino"
+      ],
       "default": "trino"
     }
   },
@@ -64,7 +67,7 @@
     },
     "databaseSchema": {
       "title": "databaseSchema",
-      "description": "databaseSchema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single databaseSchema. When left blank, OpenMetadata Ingestion attempts to scan all the databaseSchema.",
+      "description": "databaseSchema of the data source. This is optional parameter, if you would like to restrict the metadata reading to a single databaseSchema. When left blank, Metadata Ingestion attempts to scan all the databaseSchema.",
       "type": "string"
     },
     "proxies": {
@@ -121,5 +124,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "username"]
+  "required": [
+    "hostPort",
+    "username"
+  ]
 }

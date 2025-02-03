@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/pipeline/DatabricksPipelineConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/pipeline/DatabricksPipelineConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DatabricksPipelineConnection",
   "description": "Databricks Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.pipeline.DatabricksPipelineConnection",
   "definitions": {
     "databricksType": {
       "description": "Service type.",

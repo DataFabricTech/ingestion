@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/data/createTableProfile.json",
+  "$id": "https://mobigen.com/schema/api/data/createTableProfile.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateTableProfileRequest",
   "description": "Schema corresponding to a table profile that belongs to a table",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.data.CreateTableProfile",
   "properties": {
     "tableProfile": {
       "description": "Table Profile.",
@@ -25,6 +24,8 @@
       }
     }
   },
-  "required": ["tableProfile"],
+  "required": [
+    "tableProfile"
+  ],
   "additionalProperties": false
 }

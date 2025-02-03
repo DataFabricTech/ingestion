@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/api/feed/createSuggestion.json",
+  "$id": "https://mobigen.com/schema/api/feed/createSuggestion.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateSuggestionRequest",
   "description": "Create Suggestion request",
@@ -25,7 +25,21 @@
       "$ref": "../../type/basic.json#/definitions/entityLink"
     }
   },
-  "oneOf": [{"required": ["suggestionType", "entityLink", "description"]},
-    {"required": ["suggestionType", "entityLink","tagLabels"]}],
+  "oneOf": [
+    {
+      "required": [
+        "suggestionType",
+        "entityLink",
+        "description"
+      ]
+    },
+    {
+      "required": [
+        "suggestionType",
+        "entityLink",
+        "tagLabels"
+      ]
+    }
+  ],
   "additionalProperties": false
 }

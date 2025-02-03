@@ -1,24 +1,27 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/database/sapHanaConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/database/sapHanaConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "SapHanaConnection",
   "description": "Sap Hana Database Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.database.SapHanaConnection",
   "definitions": {
     "sapHanaType": {
       "description": "Service type.",
       "type": "string",
-      "enum": ["SapHana"],
+      "enum": [
+        "SapHana"
+      ],
       "default": "SapHana"
     },
     "sapHanaScheme": {
       "description": "SQLAlchemy driver scheme options.",
       "type": "string",
-      "enum": ["hana"],
+      "enum": [
+        "hana"
+      ],
       "default": "hana"
     }
-   },
+  },
   "properties": {
     "type": {
       "title": "Service Type",
@@ -74,5 +77,7 @@
     }
   },
   "additionalProperties": false,
-  "required": ["connection"]
+  "required": [
+    "connection"
+  ]
 }

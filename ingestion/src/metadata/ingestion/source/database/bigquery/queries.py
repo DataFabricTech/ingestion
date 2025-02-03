@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 SQL Queries used during ingestion
 """
@@ -31,7 +37,7 @@ WHERE creation_time BETWEEN "{start_time}" AND "{end_time}"
   AND job_type = "QUERY"
   AND state = "DONE"
   AND IFNULL(statement_type, "NO") not in ("NO", "DROP_TABLE")
-  AND query NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+  AND query NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
   AND query NOT LIKE '/* {{"app": "dbt", %%}} */%%'
   LIMIT {result_limit}
 """
@@ -122,7 +128,7 @@ Q_HISTORY AS (
     total_slot_ms/1000 as duration
   FROM `region-{region}`.INFORMATION_SCHEMA.JOBS_BY_PROJECT
   WHERE statement_type <> 'SCRIPT'
-    AND query NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
+    AND query NOT LIKE '/* {{"app": "Metadata", %%}} */%%'
     AND query NOT LIKE '/* {{"app": "dbt", %%}} */%%'
     AND creation_time >= '{start_date}'
     AND job_type = "QUERY"

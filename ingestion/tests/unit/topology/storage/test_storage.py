@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Unit tests for Object store source
 """
@@ -35,7 +41,7 @@ from metadata.generated.schema.metadataIngestion.storage.containerMetadataConfig
     StorageContainerConfig,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.basic import SourceUrl
 from metadata.generated.schema.type.entityReference import EntityReference
@@ -46,7 +52,7 @@ from metadata.ingestion.source.storage.s3.metadata import (
     S3Source,
 )
 from metadata.ingestion.source.storage.storage_service import (
-    OPENMETADATA_TEMPLATE_FILE_NAME,
+    TEMPLATE_FILE_NAME,
 )
 from metadata.readers.file.base import ReadException
 from metadata.readers.file.config_source_factory import get_reader
@@ -74,9 +80,9 @@ MOCK_OBJECT_STORE_CONFIG = {
     },
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {"jwtToken": "token"},
         }
     },
@@ -143,12 +149,12 @@ class StorageUnitTest(TestCase):
     def __init__(self, method_name: str, test_connection) -> None:
         super().__init__(method_name)
         test_connection.return_value = False
-        self.config = OpenMetadataWorkflowConfig.parse_obj(MOCK_OBJECT_STORE_CONFIG)
+        self.config = MetadataWorkflowConfig.parse_obj(MOCK_OBJECT_STORE_CONFIG)
 
         # This already validates that the source can be initialized
         self.object_store_source = S3Source.create(
             MOCK_OBJECT_STORE_CONFIG["source"],
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
         self.s3_reader = get_reader(
             config_source=S3Config(), client=self.object_store_source.s3_client
@@ -164,8 +170,8 @@ class StorageUnitTest(TestCase):
             "serviceConnection": {
                 "config": {
                     "type": "Mysql",
-                    "username": "openmetadata_user",
-                    "authType": {"password": "openmetadata_password"},
+                    "username": "metadata_user",
+                    "authType": {"password": "metadata_password"},
                     "hostPort": "localhost:3306",
                     "databaseSchema": "openmetadata_db",
                 }
@@ -187,7 +193,7 @@ class StorageUnitTest(TestCase):
             InvalidSourceException,
             S3Source.create,
             not_object_store_source,
-            self.config.workflowConfig.openMetadataServerConfig,
+            self.config.workflowConfig.serverConfig,
         )
 
     def test_s3_buckets_fetching(self):
@@ -214,7 +220,7 @@ class StorageUnitTest(TestCase):
     def test_no_metadata_file_returned_when_file_not_present(self):
         with self.assertRaises(ReadException):
             self.s3_reader.read(
-                path=OPENMETADATA_TEMPLATE_FILE_NAME,
+                path=TEMPLATE_FILE_NAME,
                 bucket_name="test",
                 verbose=False,
             )
@@ -425,7 +431,7 @@ class StorageUnitTest(TestCase):
             lambda Bucket, Key: self._compute_mocked_metadata_file_response()
         )
         metadata_config_response = self.s3_reader.read(
-            path=OPENMETADATA_TEMPLATE_FILE_NAME,
+            path=TEMPLATE_FILE_NAME,
             bucket_name="test",
             verbose=False,
         )

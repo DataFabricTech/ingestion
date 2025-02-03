@@ -1,14 +1,12 @@
 {
-  "$id": "https://open-metadata.org/schema/settings/profilerConfiguration.json",
+  "$id": "https://mobigen.com/schema/settings/profilerConfiguration.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ProfilerConfiguration",
   "description": "This schema defines the profiler configuration. It is used to configure globally the metrics to compute for specific data types.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.configuration.profiler.ProfilerConfiguration",
   "definitions": {
     "metricType": {
-      "javaType": "org.openmetadata.schema.profiler.MetricType",
-      "description": "This schema defines all possible metric types in OpenMetadata.",
+      "description": "This schema defines all possible metric types in Server.",
       "type": "string",
       "enum": [
         "mean",
@@ -48,7 +46,6 @@
     },
     "metricConfigurationDefinition": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.api.configuration.profiler.MetricConfigurationDefinition",
       "description": "This schema defines the parameters that can be passed for a Test Case.",
       "properties": {
         "dataType": {
@@ -70,10 +67,10 @@
     }
   },
   "properties": {
-      "metricConfiguration": {
+    "metricConfiguration": {
       "type": "array",
       "items": {
-          "$ref": "#/definitions/metricConfigurationDefinition"
+        "$ref": "#/definitions/metricConfigurationDefinition"
       }
     }
   },

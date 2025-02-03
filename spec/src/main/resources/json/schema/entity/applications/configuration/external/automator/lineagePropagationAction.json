@@ -1,5 +1,5 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/applications/configuration/external/automator/lineagePropagationAction.json",
+  "$id": "https://mobigen.com/schema/entity/applications/configuration/external/automator/lineagePropagationAction.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LineagePropagationAction",
   "description": "Propagate description and tags via lineage",
@@ -8,7 +8,9 @@
     "lineagePropagationActionType": {
       "description": "Lineage propagation action type.",
       "type": "string",
-      "enum": ["LineagePropagationAction"],
+      "enum": [
+        "LineagePropagationAction"
+      ],
       "default": "LineagePropagationAction"
     }
   },
@@ -26,6 +28,8 @@
       "default": false
     }
   },
-  "required": ["type"],
+  "required": [
+    "type"
+  ],
   "additionalProperties": false
 }

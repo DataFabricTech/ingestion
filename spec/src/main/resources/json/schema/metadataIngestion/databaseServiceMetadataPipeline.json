@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/metadataIngestion/databaseServiceMetadataPipeline.json",
+  "$id": "https://mobigen.com/schema/metadataIngestion/databaseServiceMetadataPipeline.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "DatabaseServiceMetadataPipeline",
   "description": "DatabaseService Metadata Pipeline Configuration.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.metadataIngestion.DatabaseServiceMetadataPipeline",
   "definitions": {
     "databaseMetadataConfigType": {
       "description": "Database Source Config Metadata Pipeline type",
       "type": "string",
-      "enum": ["DatabaseMetadata"],
+      "enum": [
+        "DatabaseMetadata"
+      ],
       "default": "DatabaseMetadata"
     },
     "incremental": {
@@ -55,7 +56,7 @@
       "title": "Mark Deleted Tables"
     },
     "markDeletedStoredProcedures": {
-      "description": "Optional configuration to soft delete stored procedures in OpenMetadata if the source stored procedures are deleted. Also, if the stored procedures is deleted, all the associated entities like lineage, etc., with that stored procedures will be deleted",
+      "description": "Optional configuration to soft delete stored procedures in Metadata if the source stored procedures are deleted. Also, if the stored procedures is deleted, all the associated entities like lineage, etc., with that stored procedures will be deleted",
       "type": "boolean",
       "default": true,
       "title": "Mark Deleted Stored Procedures"
@@ -78,7 +79,7 @@
       "default": true,
       "title": "Include Tags"
     },
-    "includeOwners":{
+    "includeOwners": {
       "title": "Include Owners",
       "description": "Set the 'Include Owners' toggle to control whether to include owners to the ingested entity if the owner email matches with a user stored in the OM server as part of metadata ingestion. If the ingested entity already exists and has an owner, the owner will not be overwritten.",
       "type": "boolean",

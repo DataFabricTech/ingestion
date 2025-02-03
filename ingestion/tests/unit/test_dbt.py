@@ -1,3 +1,19 @@
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test dbt
 """
@@ -13,7 +29,7 @@ from pydantic import AnyUrl
 
 from metadata.generated.schema.entity.data.table import Column, DataModel, Table
 from metadata.generated.schema.metadataIngestion.workflow import (
-    OpenMetadataWorkflowConfig,
+    MetadataWorkflowConfig,
 )
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.generated.schema.type.tagLabel import (
@@ -23,7 +39,7 @@ from metadata.generated.schema.type.tagLabel import (
     TagSource,
 )
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.server.server_api import ServerInterface
 from metadata.ingestion.source.database.dbt.dbt_utils import (
     generate_entity_link,
     get_corrected_name,
@@ -57,9 +73,9 @@ mock_dbt_config = {
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
         "loggerLevel": "DEBUG",
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {
                 "jwtToken": "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1QiLCJhbGc"
                 "iOiJSUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlzQm90IjpmYWxzZSwiaXNzIjoib3Blbi1tZXRhZGF0YS5vcmciLCJpYXQiOjE"
@@ -277,15 +293,15 @@ class DbtUnitTest(TestCase):
     def __init__(self, methodName, test_connection) -> None:
         super().__init__(methodName)
         test_connection.return_value = False
-        self.config = OpenMetadataWorkflowConfig.parse_obj(mock_dbt_config)
+        self.config = MetadataWorkflowConfig.parse_obj(mock_dbt_config)
         self.dbt_source_obj = DbtSource.create(
             mock_dbt_config["source"],
-            OpenMetadata(self.config.workflowConfig.openMetadataServerConfig),
+            ServerInterface(self.config.workflowConfig.serverConfig),
         )
         set_loggers_level("DEBUG")
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_v4_v5_v6(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.side_effect = MOCK_TABLE_ENTITIES
@@ -296,7 +312,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_v7(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.side_effect = MOCK_TABLE_ENTITIES
@@ -307,7 +323,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     @patch("metadata.utils.tag_utils.get_tag_label")
     def test_dbt_manifest_v8(self, get_tag_label, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
@@ -333,7 +349,7 @@ class DbtUnitTest(TestCase):
         )
 
     @patch("metadata.ingestion.source.database.dbt.metadata.DbtSource.get_dbt_owner")
-    @patch("metadata.ingestion.ometa.mixins.es_mixin.ESMixin.es_search_from_fqn")
+    @patch("metadata.ingestion.server.mixins.es_mixin.ESMixin.es_search_from_fqn")
     def test_dbt_manifest_null_db(self, es_search_from_fqn, get_dbt_owner):
         get_dbt_owner.return_value = MOCK_OWNER
         es_search_from_fqn.return_value = MOCK_NULL_DB_TABLE
@@ -458,7 +474,7 @@ class DbtUnitTest(TestCase):
         self.assertEqual(expected_query, result)
 
     @patch(
-        "metadata.ingestion.ometa.mixins.user_mixin.OMetaUserMixin.get_reference_by_name"
+        "metadata.ingestion.server.mixins.user_mixin.OMetaUserMixin.get_reference_by_name"
     )
     def test_dbt_owner(self, get_reference_by_name):
         """

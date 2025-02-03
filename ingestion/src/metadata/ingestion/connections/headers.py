@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Custom OM connection headers
@@ -24,7 +30,7 @@ from metadata.generated.schema.entity.services.connections.database.verticaConne
 
 def render_query_header(ometa_version: str) -> str:
     """
-    Render the query header for OpenMetadata Queries
+    Render the query header for Metadata Queries
     """
 
     header_obj = {"app": "DataFabric", "version": ometa_version}
@@ -50,7 +56,7 @@ def _(_, conn, cursor, statement, parameters, context, executemany):
     We need a custom logic to pass the statement in the middle of the query.
     To simplify, we are updating the queries as SELECT /*...*/ * FROM XYZ
     """
-    version = pkg_resources.require("openmetadata-ingestion")[0].version
+    version = pkg_resources.require("metadata-ingestion")[0].version
     st_list = statement.split(" ")
     statement_with_header = (
         f"{st_list[0]} {render_query_header(version)} {' '.join(st_list[1:])}"
@@ -62,9 +68,9 @@ def inject_query_header(
     conn, cursor, statement, parameters, context, executemany
 ):  # pylint: disable=unused-argument
     """
-    Inject the query header for OpenMetadata Queries
+    Inject the query header for Metadata Queries
     """
 
-    version = pkg_resources.require("openmetadata-ingestion")[0].version
+    version = pkg_resources.require("metadata-ingestion")[0].version
     statement_with_header = render_query_header(version) + "\n" + statement
     return statement_with_header, parameters

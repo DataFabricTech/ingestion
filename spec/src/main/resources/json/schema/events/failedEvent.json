@@ -1,14 +1,13 @@
 {
-  "$id": "https://open-metadata.org/schema/events/failedEvents.json",
+  "$id": "https://mobigen.com/schema/events/failedEvents.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "FailedEvents",
   "description": "Failed Events Schema",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.events.FailedEvent",
   "properties": {
     "failingSubscriptionId": {
       "description": "Unique identifier that identifies this Event Subscription.",
-      "$ref": "../type/basic.json#/definitions/uuid" 
+      "$ref": "../type/basic.json#/definitions/uuid"
     },
     "changeEvent": {
       "description": "Change Event that failed",

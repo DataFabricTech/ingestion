@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/Query.json",
+  "$id": "https://mobigen.com/schema/entity/data/Query.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Query",
   "description": "This schema defines the type to capture any data asset's queries.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.Query",
-  "javaInterfaces": ["org.openmetadata.schema.EntityInterface"],
   "properties": {
     "id": {
       "description": "Unique identifier of the query.",
@@ -68,7 +66,7 @@
       "description": "Followers of this Query.",
       "$ref": "../../type/entityReferenceList.json"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "query": {
@@ -91,8 +89,8 @@
       "description": "Date on which the query ran.",
       "$ref": "../../type/basic.json#/definitions/timestamp"
     },
-    "usedBy" : {
-      "description": "List of users who ran the query but does not exist in OpenMetadata.",
+    "usedBy": {
+      "description": "List of users who ran the query but does not exist in Server.",
       "type": "array",
       "items": {
         "type": "string"
@@ -125,6 +123,10 @@
       "$ref": "../../type/entityReference.json"
     }
   },
-  "required": ["name", "query", "service"],
+  "required": [
+    "name",
+    "query",
+    "service"
+  ],
   "additionalProperties": false
 }

@@ -1,11 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/auth/refreshToken.json",
+  "$id": "https://mobigen.com/schema/auth/refreshToken.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RefreshToken",
   "description": "This schema defines Refresh Token Schema.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.auth.RefreshToken",
-  "javaInterfaces": ["org.openmetadata.schema.TokenInterface"],
   "properties": {
     "token": {
       "description": "Unique Refresh Token for user",

@@ -7,7 +7,9 @@
     "dataInsightsReportAppType": {
       "description": "Application type.",
       "type": "string",
-      "enum": ["DataInsightsReport"],
+      "enum": [
+        "DataInsightsReport"
+      ],
       "default": "DataInsightsReport"
     }
   },

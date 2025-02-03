@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/api/tests/createLogicalTestCases.json",
+  "$id": "https://mobigen.com/schema/api/tests/createLogicalTestCases.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "CreateLogicalTestCases",
   "description": "Object used to create logical test cases.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.api.tests.CreateLogicalTestCases",
   "properties": {
     "testSuiteId": {
       "description": "TestSuite ID where we will be adding the test cases.",
@@ -18,6 +17,9 @@
       }
     }
   },
-  "required": ["testSuiteId","testCaseIds"],
+  "required": [
+    "testSuiteId",
+    "testCaseIds"
+  ],
   "additionalProperties": false
 }

@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 
 """
 Validate workflow configs and filters
@@ -26,8 +32,8 @@ from metadata.generated.schema.entity.data.table import (
     Table,
     TableProfilerConfig,
 )
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
-    OpenMetadataConnection,
+from metadata.generated.schema.entity.services.connections.metadata.metadataConnection import (
+    MetadataConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseService,
@@ -73,9 +79,9 @@ config = {
     "processor": {"type": "orm-profiler", "config": {}},
     "sink": {"type": "metadata-rest", "config": {}},
     "workflowConfig": {
-        "openMetadataServerConfig": {
+        "serverConfig": {
             "hostPort": "http://localhost:8585/api",
-            "authProvider": "openmetadata",
+            "authProvider": "metadata",
             "securityConfig": {
                 "jwtToken": (
                     "eyJraWQiOiJHYjM4OWEtOWY3Ni1nZGpzLWE5MmotMDI0MmJrOTQzNTYiLCJ0eXAiOiJKV1"
@@ -122,7 +128,7 @@ def test_init_workflow(mocked_method, mocked_orm):  # pylint: disable=unused-arg
     mocked_method.assert_called()
 
     assert isinstance(workflow.source.source_config, DatabaseServiceProfilerPipeline)
-    assert isinstance(workflow.metadata_config, OpenMetadataConnection)
+    assert isinstance(workflow.metadata_config, MetadataConnection)
 
     profiler_processor_step = workflow.steps[0]
     assert isinstance(profiler_processor_step.profiler_config, ProfilerProcessorConfig)

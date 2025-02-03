@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/lookerConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/lookerConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "LookerConnection",
   "description": "Looker Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dashboard.LookerConnection",
   "definitions": {
     "lookerType": {
       "description": "Looker service type",
       "type": "string",
-      "enum": ["Looker"],
+      "enum": [
+        "Looker"
+      ],
       "default": "Looker"
     },
     "noGitCredentials": {
@@ -65,5 +66,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["hostPort", "clientId", "clientSecret"]
+  "required": [
+    "hostPort",
+    "clientId",
+    "clientSecret"
+  ]
 }

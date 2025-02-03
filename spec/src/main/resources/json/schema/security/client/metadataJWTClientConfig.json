@@ -1,0 +1,18 @@
+{
+  "$id": "https://mobigen.com/schema/security/client/metadataJWTClientConfig.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "metadataJWTClientConfig",
+  "description": "metadataJWTClientConfig security configs.",
+  "type": "object",
+  "properties": {
+    "jwtToken": {
+      "description": "Metadata generated JWT token.",
+      "type": "string",
+      "format": "password"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "jwtToken"
+  ]
+}

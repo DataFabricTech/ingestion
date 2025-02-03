@@ -1,15 +1,16 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/services/connections/dashboard/powerBIConnection.json",
+  "$id": "https://mobigen.com/schema/entity/services/connections/dashboard/powerBIConnection.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PowerBIConnection",
   "description": "PowerBI Connection Config",
   "type": "object",
-  "javaType": "org.openmetadata.schema.services.connections.dashboard.PowerBIConnection",
   "definitions": {
     "powerBiType": {
       "description": "PowerBI service type",
       "type": "string",
-      "enum": ["PowerBI"],
+      "enum": [
+        "PowerBI"
+      ],
       "default": "PowerBI"
     },
     "localConfig": {
@@ -20,7 +21,9 @@
         "pbitFileConfigType": {
           "description": "pbit File Configuration type",
           "type": "string",
-          "enum": ["local"],
+          "enum": [
+            "local"
+          ],
           "default": "local"
         },
         "path": {
@@ -82,7 +85,9 @@
       "items": {
         "type": "string"
       },
-      "default": ["https://analysis.windows.net/powerbi/api/.default"]
+      "default": [
+        "https://analysis.windows.net/powerbi/api/.default"
+      ]
     },
     "pagination_entity_per_page": {
       "title": "Pagination Entity Per Page",
@@ -120,5 +125,9 @@
     }
   },
   "additionalProperties": false,
-  "required": ["clientId", "clientSecret", "tenantId"]
+  "required": [
+    "clientId",
+    "clientSecret",
+    "tenantId"
+  ]
 }

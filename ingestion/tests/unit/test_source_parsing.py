@@ -1,13 +1,19 @@
-#  Copyright 2021 Collate
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#  http://www.apache.org/licenses/LICENSE-2.0
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 """
 Test that we can properly parse source configs
 """
@@ -256,8 +262,8 @@ def test_db2():
         "serviceConnection": {
             "config": {
                 "type": "Db2",
-                "username": "openmetadata_user",
-                "password": "openmetadata_password",
+                "username": "metadata_user",
+                "password": "metadata_password",
                 "hostPort": "localhost:50000",
                 "database": "db",
             }
@@ -434,8 +440,8 @@ def test_mariadb():
         "serviceConnection": {
             "config": {
                 "type": "MariaDB",
-                "username": "openmetadata_user",
-                "password": "openmetadata_password",
+                "username": "metadata_user",
+                "password": "metadata_password",
                 "hostPort": "localhost:3306",
             }
         },
@@ -453,8 +459,8 @@ def test_mariadb():
         "serviceConnection": {
             "config": {
                 "type": "MariaDB",
-                "username": "openmetadata_user",
-                "password": "openmetadata_password",
+                "username": "metadata_user",
+                "password": "metadata_password",
                 "hostPort": "localhost:3306",
             }
         },
@@ -521,8 +527,8 @@ def test_mysql():
         "serviceConnection": {
             "config": {
                 "type": "Mysql",
-                "username": "openmetadata_user",
-                "authType": {"password": "openmetadata_password"},
+                "username": "metadata_user",
+                "authType": {"password": "metadata_password"},
                 "hostPort": "localhost:3306",
             }
         },
@@ -560,9 +566,9 @@ def test_postgres():
         "serviceConnection": {
             "config": {
                 "type": "Postgres",
-                "username": "openmetadata_user",
+                "username": "metadata_user",
                 "authType": {
-                    "password": "openmetadata_password",
+                    "password": "metadata_password",
                 },
                 "hostPort": "localhost:5432",
                 "database": "pagila",
@@ -721,8 +727,8 @@ def test_singlestore():
         "serviceConnection": {
             "config": {
                 "type": "SingleStore",
-                "username": "openmetadata_user",
-                "password": "openmetadata_password",
+                "username": "metadata_user",
+                "password": "metadata_password",
                 "hostPort": "localhost:3306",
             }
         },
@@ -851,7 +857,7 @@ def test_vertica():
         "serviceConnection": {
             "config": {
                 "type": "Vertica",
-                "username": "openmetadata_user",
+                "username": "metadata_user",
                 "password": "",
                 "hostPort": "localhost:5433",
                 "database": "custom_database_name",

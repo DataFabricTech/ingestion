@@ -1,3 +1,19 @@
+# Copyright 2024 Mobigen
+# Licensed under the Apache License, Version 2.0 (the "License")
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Notice!
+# This software is based on https://open-metadata.org and has been modified accordingly.
+
 import unittest
 from unittest.mock import patch
 
@@ -67,18 +83,18 @@ class TestGetConnectionURL(unittest.TestCase):
 
     def test_get_connection_url_mysql(self):
         connection = MysqlConnection(
-            username="openmetadata_user",
-            authType=BasicAuth(password="openmetadata_password"),
+            username="metadata_user",
+            authType=BasicAuth(password="metadata_password"),
             hostPort="localhost:3306",
             databaseSchema="openmetadata_db",
         )
         engine_connection = mysql_get_connection(connection)
         self.assertEqual(
             str(engine_connection.url),
-            "mysql+pymysql://openmetadata_user:openmetadata_password@localhost:3306/openmetadata_db",
+            "mysql+pymysql://metadata_user:metadata_password@localhost:3306/openmetadata_db",
         )
         connection = MysqlConnection(
-            username="openmetadata_user",
+            username="metadata_user",
             authType=AzureConfigurationSource(
                 azureConfig=AzureCredentials(
                     clientId="clientid",
@@ -98,23 +114,23 @@ class TestGetConnectionURL(unittest.TestCase):
             engine_connection = mysql_get_connection(connection)
             self.assertEqual(
                 str(engine_connection.url),
-                "mysql+pymysql://openmetadata_user:mocked_token@localhost:3306/openmetadata_db",
+                "mysql+pymysql://metadata_user:mocked_token@localhost:3306/openmetadata_db",
             )
 
     def test_get_connection_url_postgres(self):
         connection = PostgresConnection(
-            username="openmetadata_user",
-            authType=BasicAuth(password="openmetadata_password"),
+            username="metadata_user",
+            authType=BasicAuth(password="metadata_password"),
             hostPort="localhost:3306",
             database="openmetadata_db",
         )
         engine_connection = postgres_get_connection(connection)
         self.assertEqual(
             str(engine_connection.url),
-            "postgresql+psycopg2://openmetadata_user:openmetadata_password@localhost:3306/openmetadata_db",
+            "postgresql+psycopg2://metadata_user:metadata_password@localhost:3306/openmetadata_db",
         )
         connection = PostgresConnection(
-            username="openmetadata_user",
+            username="metadata_user",
             authType=AzureConfigurationSource(
                 azureConfig=AzureCredentials(
                     clientId="clientid",
@@ -134,5 +150,5 @@ class TestGetConnectionURL(unittest.TestCase):
             engine_connection = postgres_get_connection(connection)
             self.assertEqual(
                 str(engine_connection.url),
-                "postgresql+psycopg2://openmetadata_user:mocked_token@localhost:3306/openmetadata_db",
+                "postgresql+psycopg2://metadata_user:mocked_token@localhost:3306/openmetadata_db",
             )

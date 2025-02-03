@@ -1,14 +1,12 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/policies/accessControl/ResourcePermission.json",
+  "$id": "https://mobigen.com/schema/entity/policies/accessControl/ResourcePermission.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ResourcePermission",
   "description": "A set of permissions for a user that shows what operation is denied, allowed, or not allowed for all the resources.",
-  "javaType": "org.openmetadata.schema.type.ResourcePermission",
   "type": "object",
   "definitions": {
     "permission": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.Permission",
       "properties": {
         "operation": {
           "description": "Operation names related to the `resource`.",
@@ -55,5 +53,8 @@
     }
   },
   "additionalProperties": false,
-  "required": ["resource", "permissions"]
+  "required": [
+    "resource",
+    "permissions"
+  ]
 }

@@ -1,14 +1,10 @@
 {
-  "$id": "https://open-metadata.org/schema/entity/data/table.json",
+  "$id": "https://mobigen.com/schema/entity/data/table.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Table",
   "$comment": "@om-entity-type",
   "description": "A `Table` entity organizes data in rows and columns and is defined in a `Database Schema`.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.entity.data.Table",
-  "javaInterfaces": [
-    "org.openmetadata.schema.EntityInterface", "org.openmetadata.schema.ColumnsEntityInterface"
-  ],
   "definitions": {
     "profileSampleType": {
       "description": "Type of Profile Sample (percentage or rows)",
@@ -20,7 +16,6 @@
       "default": "PERCENTAGE"
     },
     "tableType": {
-      "javaType": "org.openmetadata.schema.type.TableType",
       "description": "This schema defines the type used for describing different types of tables.",
       "type": "string",
       "enum": [
@@ -73,7 +68,6 @@
       ]
     },
     "dataType": {
-      "javaType": "org.openmetadata.schema.type.ColumnDataType",
       "description": "This enum defines the type of data stored in a column.",
       "type": "string",
       "enum": [
@@ -158,7 +152,6 @@
       ]
     },
     "constraint": {
-      "javaType": "org.openmetadata.schema.type.ColumnConstraint",
       "description": "This enum defines the type for column constraint.",
       "type": "string",
       "enum": [
@@ -172,7 +165,6 @@
     },
     "tableConstraint": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TableConstraint",
       "title": "TableConstraint",
       "description": "This enum defines the type for table constraint.",
       "properties": {
@@ -212,7 +204,6 @@
       "pattern": "^((?!::).)*$"
     },
     "partitionIntervalTypes": {
-      "javaType": "org.openmetadata.schema.type.PartitionIntervalTypes",
       "description": "type of partition interval",
       "type": "string",
       "enum": [
@@ -227,7 +218,6 @@
     },
     "tablePartition": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TablePartition",
       "description": "This schema defines the partition column of a table and format the partition is created.",
       "properties": {
         "columns": {
@@ -242,7 +232,6 @@
     },
     "partitionColumnDetails": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.PartitionColumnDetails",
       "description": "This schema defines the partition column of a table and format the partition is created.",
       "properties": {
         "columnName": {
@@ -261,8 +250,6 @@
     },
     "column": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.Column",
-      "javaInterfaces": ["org.openmetadata.schema.FieldInterface"],
       "description": "This schema defines the type for a column in a table.",
       "properties": {
         "name": {
@@ -370,7 +357,6 @@
     },
     "columnJoins": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.ColumnJoin",
       "description": "This schema defines the type to capture how frequently a column is joined with columns in the other tables.",
       "properties": {
         "columnName": {
@@ -388,7 +374,6 @@
     },
     "tableJoins": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TableJoins",
       "description": "This schema defines the type to capture information about how this table is joined with other tables and columns.",
       "properties": {
         "startDate": {
@@ -417,7 +402,6 @@
     },
     "tableData": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TableData",
       "description": "This schema defines the type to capture rows of sample data for a table.",
       "properties": {
         "columns": {
@@ -440,7 +424,6 @@
     },
     "customMetricProfile": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.CustomMetricProfile",
       "description": "Profiling results of a Custom Metric.",
       "properties": {
         "name": {
@@ -456,7 +439,6 @@
     },
     "columnProfile": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.ColumnProfile",
       "description": "This schema defines the type to capture the table's column profile.",
       "properties": {
         "name": {
@@ -629,7 +611,6 @@
       "additionalProperties": false
     },
     "dmlOperationType": {
-      "javaType": "org.openmetadata.schema.type.DmlOperationType",
       "description": "This schema defines the type of DML operation.",
       "type": "string",
       "enum": [
@@ -641,7 +622,6 @@
     "systemProfile": {
       "description": "This schema defines the System Profile object holding profile data from system tables.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.SystemProfile",
       "properties": {
         "timestamp": {
           "description": "Timestamp on which profile is taken.",
@@ -660,7 +640,6 @@
     "columnProfilerConfig": {
       "description": "This schema defines the type for Table profile config include Columns.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.ColumnProfilerConfig",
       "properties": {
         "columnName": {
           "description": "Column Name of the table to be included.",
@@ -679,7 +658,6 @@
     "partitionProfilerConfig": {
       "description": "This schema defines the partition configuration used by profiler.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.PartitionProfilerConfig",
       "properties": {
         "enablePartitioning": {
           "description": "whether to use partition",
@@ -725,7 +703,6 @@
     },
     "tableProfilerConfig": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TableProfilerConfig",
       "description": "This schema defines the type for Table profile config.",
       "properties": {
         "profileSampleType": {
@@ -771,7 +748,6 @@
     },
     "tableProfile": {
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.TableProfile",
       "description": "This schema defines the type to capture the table's data profile.",
       "properties": {
         "timestamp": {
@@ -835,7 +811,6 @@
     "dataModel": {
       "description": "This captures information about how the table is modeled. Currently only DBT and DDL model is supported.",
       "type": "object",
-      "javaType": "org.openmetadata.schema.type.DataModel",
       "properties": {
         "modelType": {
           "$ref": "#/definitions/modelType"
@@ -901,7 +876,15 @@
     "fileFormat": {
       "description": "File format in case of file/datalake tables.",
       "type": "string",
-      "enum": ["csv", "tsv", "avro", "parquet", "json", "json.gz", "json.zip"]
+      "enum": [
+        "csv",
+        "tsv",
+        "avro",
+        "parquet",
+        "json",
+        "json.gz",
+        "json.zip"
+      ]
     }
   },
   "properties": {
@@ -1054,7 +1037,7 @@
       "type": "boolean",
       "default": false
     },
-    "retentionPeriod" : {
+    "retentionPeriod": {
       "description": "Retention period of the data in the table. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`. When not set, the retention period is inherited from the parent database schema, if it exists.",
       "$ref": "../../type/basic.json#/definitions/duration"
     },
@@ -1066,19 +1049,19 @@
       "description": "Source URL of table.",
       "$ref": "../../type/basic.json#/definitions/sourceUrl"
     },
-    "domain" : {
+    "domain": {
       "description": "Domain the table belongs to. When not set, the table inherits the domain from the database schema it belongs to.",
       "$ref": "../../type/entityReference.json"
     },
-    "dataProducts" : {
+    "dataProducts": {
       "description": "List of data products this entity is part of.",
-      "$ref" : "../../type/entityReferenceList.json"
+      "$ref": "../../type/entityReferenceList.json"
     },
     "fileFormat": {
       "description": "File format in case of file/datalake tables.",
-      "$ref" : "#/definitions/fileFormat"
+      "$ref": "#/definitions/fileFormat"
     },
-    "votes" : {
+    "votes": {
       "$ref": "../../type/votes.json"
     },
     "lifeCycle": {

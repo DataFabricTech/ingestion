@@ -1,10 +1,9 @@
 {
-  "$id": "https://open-metadata.org/schema/security/client/azureSSOClientConfig.json",
+  "$id": "https://mobigen.com/schema/security/client/azureSSOClientConfig.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AzureSSOClientConfig",
-  "description": "Azure SSO Client security config to connect to OpenMetadata.",
+  "description": "Azure SSO Client security config to connect to Metadata.",
   "type": "object",
-  "javaType": "org.openmetadata.schema.security.client.AzureSSOClientConfig",
   "properties": {
     "clientSecret": {
       "description": "Azure SSO client secret key",
@@ -28,5 +27,10 @@
     }
   },
   "additionalProperties": false,
-  "required": ["clientSecret", "clientId", "authority", "scopes"]
+  "required": [
+    "clientSecret",
+    "clientId",
+    "authority",
+    "scopes"
+  ]
 }
