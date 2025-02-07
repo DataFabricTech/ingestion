@@ -157,3 +157,6 @@ class WorkflowStatusMixin:
     def check_ingestion_status(self, service_id):
         if "metadata-rest" == self.config.sink.type :
             self.metadata.check_ingestion_status(service_id)
+
+    def update_ingestion_status(self, system_id, status, err_description=None):
+        self.metadata.update_ingestion_status(system_id, status, err_description)

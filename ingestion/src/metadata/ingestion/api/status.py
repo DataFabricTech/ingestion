@@ -29,6 +29,7 @@ class Status(BaseModel):
     """
 
     source_start_time: Any
+    workflow_duration: float = Field(None)
 
     records: List[Any] = Field(default_factory=list)
     warnings: List[Any] = Field(default_factory=list)

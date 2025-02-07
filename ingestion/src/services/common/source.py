@@ -9,6 +9,15 @@ from metadata.generated.schema.entity.services.filesystemService import Filesyst
 
 from typing import Union
 from abc import ABC, abstractmethod
+
+from enum import Enum
+
+
+class CollectorStatus(Enum):
+    INGESTION_COMPLETED = 'INGESTION_COMPLETED'
+    INGESTION_FAILED = 'INGESTION_FAILED'
+
+
 class CommonSource(ABC):
 
     def __init__(self,
@@ -122,3 +131,10 @@ class CommonSource(ABC):
     @abstractmethod
     def _getSource(self) -> Source:
         pass
+
+    # @staticmethod
+    def check_result_status(self, status):
+        if status == 1:
+            return CollectorStatus.INGESTION_FAILED.value
+        else:
+            return CollectorStatus.INGESTION_COMPLETED.value

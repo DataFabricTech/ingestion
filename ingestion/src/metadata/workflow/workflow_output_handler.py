@@ -205,11 +205,13 @@ def print_status(workflow: "BaseWorkflow") -> None:
     print_workflow_summary(workflow)
 
     if workflow.source.get_status().source_start_time:
+        duration = time.time()-workflow.source.get_status().source_start_time
+        workflow.source.get_status().workflow_duration = duration
         log_ansi_encoded_string(
             color=ANSI.BRIGHT_CYAN,
             bold=True,
             message="Workflow finished in time: "
-            f"{pretty_print_time_duration(time.time()-workflow.source.get_status().source_start_time)}",
+            f"{pretty_print_time_duration(duration)}",
         )
 
     if workflow.result_status() == 1:
