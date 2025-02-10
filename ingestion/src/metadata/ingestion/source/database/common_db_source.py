@@ -419,6 +419,7 @@ class CommonDbSourceService(
                 columns,
                 table_constraints,
                 foreign_columns,
+                table_owner
             ) = self.get_columns_and_constraints(
                 schema_name=schema_name,
                 table_name=table_name,
@@ -462,6 +463,7 @@ class CommonDbSourceService(
                     database_name=self.context.database,
                     table_type=table_type,
                 ),
+                tableOwner=table_owner,
                 systemType=self.config.systemType
             )
 

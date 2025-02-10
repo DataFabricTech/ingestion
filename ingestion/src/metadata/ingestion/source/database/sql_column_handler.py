@@ -110,7 +110,7 @@ class SqlColumnHandlerMixin:
     @staticmethod
     def _get_columns_with_constraints(
         schema_name: str, table_name: str, inspector: Inspector
-    ) -> Tuple[List, List, List]:
+    ) -> Tuple[List, List, List, str]:
         pk_constraints = inspector.get_pk_constraint(table_name, schema_name)
         try:
             unique_constraints = inspector.get_unique_constraints(
@@ -125,9 +125,16 @@ class SqlColumnHandlerMixin:
             foreign_constraints = inspector.get_foreign_keys(table_name, schema_name)
         except NotImplementedError:
             logger.debug(
-                "Cannot obtain foreign constraints for table [{schema_name}.{table_name}]: NotImplementedError"
+                f"Cannot obtain foreign constraints for table [{schema_name}.{table_name}]: NotImplementedError"
             )
             foreign_constraints = []
+        try:
+            table_owner = inspector.get_table_owner(connection=inspector.bind.connect(),schema=schema_name, table_name=table_name)
+        except AttributeError:
+            logger.debug(
+                f"The table owner method is different for each database, so it needs to be defined individually. If not defined, use the schema. [{schema_name}.{table_name}]: AttributeError"
+            )
+            table_owner = schema_name
 
         pk_columns = (
             pk_constraints.get("constrained_columns")
@@ -169,7 +176,7 @@ class SqlColumnHandlerMixin:
             for pk_column in pk_columns
         ]
 
-        return pk_columns, unique_columns, foreign_columns
+        return pk_columns, unique_columns, foreign_columns, table_owner
 
     def _process_complex_col_type(self, parsed_string: dict, column: dict) -> Column:
         parsed_string["dataLength"] = self._check_col_length(
@@ -211,6 +218,7 @@ class SqlColumnHandlerMixin:
             pk_columns,
             unique_columns,
             foreign_columns,
+            table_owner
         ) = self._get_columns_with_constraints(schema_name, table_name, inspector)
 
         column_level_unique_constraints = set()
@@ -307,7 +315,7 @@ class SqlColumnHandlerMixin:
                 )
                 continue
             table_columns.append(om_column)
-        return table_columns, table_constraints, foreign_columns
+        return table_columns, table_constraints, foreign_columns, table_owner
 
     @staticmethod
     def _check_col_length(datatype: str, col_raw_type: object):

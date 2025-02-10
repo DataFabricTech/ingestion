@@ -72,6 +72,9 @@ class CreateTableRequest(BaseModel):
     sourceHash: Optional[constr(min_length=1, max_length=32)] = Field(
         None, description='Source hash of the entity'
     )
+    tableOwner: Optional[str] = Field(
+        None, description='Owner of this table'
+    )
     systemType: Optional[str] = Field(
         None, description='system type'
     )
