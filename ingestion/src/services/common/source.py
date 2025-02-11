@@ -24,6 +24,7 @@ class CommonSource(ABC):
                  service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, FilesystemServiceType, str],
                  sink_type='file',
                  sink_host='localhost',
+                 sink_port=8585,
                  source_hostport=None,
                  source_user=None,
                  source_password=None,
@@ -37,6 +38,7 @@ class CommonSource(ABC):
         self.service_type = service_type
         self.sink_type = sink_type
         self.sink_host = sink_host
+        self.sink_port = sink_port
         self.source_hostport = source_hostport
         self.source_user = source_user
         self.source_password = source_password
@@ -48,12 +50,12 @@ class CommonSource(ABC):
         service_type_str = self.service_type if type(self.service_type) == str else self.service_type.value
         if self.sink_type == "file":
             sink = Sink(type="file", config={"filename": f"json/{service_type_str}_metadata.json"})
-        elif self.sink_type == "db":
-            sink = Sink(type="db",
-                        config=dict(host='<INTERNAL_HOST>',
-                                    user="data_catalog",
-                                    passwd="openmetadata_password",
-                                    db="openmetadata_db"))
+        # elif self.sink_type == "db":
+        #     sink = Sink(type="db",
+        #                 config=dict(host='<INTERNAL_HOST>',
+        #                             user="data_catalog",
+        #                             passwd="openmetadata_password",
+        #                             db="openmetadata_db"))
 
                         # config=dict(host=self.sink_host,
                         #             user="openmetadata_user",
@@ -77,7 +79,7 @@ class CommonSource(ABC):
 
         if self.sink_type in ["file", "db"]:
             server_config = OpenMetadataConnection(**{
-                "hostPort": f"http://{self.sink_host}:8585/api",  # 필수항목만 기재
+                "hostPort": f"http://{self.sink_host}:{self.sink_port}/api",  # 필수항목만 기재
             })
         else:
             # if self.sink_host == 'localhost':
@@ -90,7 +92,7 @@ class CommonSource(ABC):
             server_config = OpenMetadataConnection(**{
                 "clusterName": "openmetadata",
                 "type": "OpenMetadata",
-                "hostPort": f"http://{self.sink_host}:8585/api",
+                "hostPort": f"http://{self.sink_host}:{self.sink_port}/api",
                 # "hostPort": f"http://{self.sink_host}:8000/api",
                 "authProvider": "no-auth",
                 # "authProvider": "openmetadata",

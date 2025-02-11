@@ -5,15 +5,18 @@ from metadata.generated.schema.entity.services.databaseService import DatabaseSe
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
 from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
+from metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
+from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.ometa.routes import ROUTES
 
 from metadata.utils.logger import ingestion_logger
+from utils.security_manager import SecurityManager
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
 
-import sys
 
-def getSourceFilter(service_type, database, sourceFileter):
+def get_source_filter(service_type, database, sourceFileter):
 
     #profile phy
     # return {'type': 'Profiler'}
@@ -64,7 +67,49 @@ def getSourceFilter(service_type, database, sourceFileter):
     else:
         return sourceFileter
 
-def getMetaSystemInfo(system_id):
+
+# def update_ingestion_status(self, system_id, status, err_message=None):
+#
+#     data = IngestionStatus(
+#         system_id = system_id,
+#         status = status,
+#         err_description = err_message,
+#         user = 'METADATA COLLECTOR')
+# resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
+# if not resp:
+#     raise EmptyPayloadException(
+#         f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
+#     )
+#     try:
+#         self.client.put(
+#             ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
+#         )
+#     except Exception as exc:
+#         logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
+#
+#     logger.info(f"ingestion status update [{system_id}]")
+
+
+def get_meta_system_info(system_id, host, port):
+
+    # headers = {"accept":"application/json"}
+    # catalog_api_config: ClientConfig = ClientConfig(
+    #     base_url=f"http://{host}:{port}/api",
+    #     api_version="v1",
+    #     # access_token="no_token",
+    #     auth_token_mode=None,
+    #     # auth_header="Authorization",
+    #     extra_headers=headers,
+    #     # auth_token=self._auth_provider.get_access_token,
+    #     # verify=get_verify_ssl(self.config.sslConfig),
+    # )
+    # api_client = REST(catalog_api_config)
+    # params = {"system_id":system_id}
+    # fields_str = f"?system_id={system_id}"
+    # response = api_client.get(path=f"/system/meta/system/info{fields_str}")
+    #
+    # print(response)
+    # return response
     from app.utils.client import SqlalchemyOrmClient, postgresql_url
     client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
     client.__enter__()
@@ -75,14 +120,16 @@ def getMetaSystemInfo(system_id):
     if result[3] != None:
         hostport = f"{result[2]}:{result[3]}"
 
-    sourceFilter = getSourceFilter(result[1], result[6], result[7])
+    source_filter = get_source_filter(result[1], result[6], result[7])
 
-    return result[0], result[1], hostport, result[4], result[5], result[6], sourceFilter
+    password = SecurityManager.decodeWithcryptkey(result[5])
+
+    return result[0], result[1], hostport, result[4], password, result[6], source_filter
 
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, FilesystemServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
-               sink_type, sink_host,
+               sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
 
     from services.database.custom.tibero.source import TiberoSource
@@ -108,38 +155,36 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     logger.info(f"filter : {source_filter}")
 
     if service_type == "Tibero": #custom
-        source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                               source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Postgres:
-        source = PostgresSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, source_hostport=source_hostport,
-                                source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+        source = PostgresSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                                source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mysql:
-        source = MysqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = MysqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Oracle:
-        source = OracleSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, source_hostport=source_hostport,
-                              source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+        source = OracleSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,  sink_port=sink_port,
+                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Hive:
-        source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                             source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mssql:
-        source = MssqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = MssqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == StorageServiceType.S3:
-        source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                           source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == FilesystemServiceType.Linux:
-        source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host,
+        source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
 
     return source
 
 
+def metadata_collector_execute(system_id, sink="file", sink_host="localhost", sink_port=8585):
 
-
-def metadataExecute(system_id, sink="file", sink_host="localhost"):
-
-    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = getMetaSystemInfo(system_id)
+    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id, sink_host, sink_port)
 
     if (source_hostport is None) or (source_user is None):
         raise Exception('source config invalid.')
@@ -147,7 +192,7 @@ def metadataExecute(system_id, sink="file", sink_host="localhost"):
     if sink not in ['file', 'db', 'metadata-rest']:
         raise Exception('sink_type invalid. file, db, metadata-rest')
 
-    source = get_source(system_id, system_type, sink, sink_host, source_hostport, source_user, source_password, source_database, source_filter)
+    source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
 
     from services.common.metadata import MetadataExecutor
     MetadataExecutor.execute(source)
@@ -157,21 +202,5 @@ def metadataExecute(system_id, sink="file", sink_host="localhost"):
     # ProfilerExecutor.execute(source)
 
 
-
 if __name__ == "__main__":
-    pass
-
-    metadataExecute(system_id=sys.argv[1],
-    # metadataExecute(system_id="phy-test",
-                    sink='metadata-rest',
-                    sink_host='<INTERNAL_HOST>')
-
-    # metadataExecute(system_id='910eb81e-7dcd-40c7-8a72-c6ecb134b605',
-    #                 sink='metadata-rest',
-    #                 sink_host='localhost')
-
-    # metadataExecute(system_name=sys.argv[1], sink="file", sink_host="localhost")
-    # metadataExecute(system_name="Test-Oracle", sink="file", sink_host="localhost")
-
-    # oracle 910eb81e-7dcd-40c7-8a72-c6ecb134b605
-    # postgred 109ae637-9e13-44f9-9686-a79cf1e12499
+    get_meta_system_info("9f0b3f11-7706-4b07-a319-ac7dd49b2071", "localhost", 8585)
