@@ -72,8 +72,8 @@ class CommonSource(ABC):
         return config
 
     def __getWorkflowConfig(self) -> WorkflowConfig:
-        from metadata.generated.schema.metadataIngestion.workflow import LogLevels
-        from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+        from src.metadata.generated.schema.metadataIngestion.workflow import LogLevels
+        from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
             OpenMetadataConnection,
         )
 

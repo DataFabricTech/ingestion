@@ -2,14 +2,14 @@ from src.services.database.database_source import DatabaseSource
 class TiberoSource(DatabaseSource):
 
     def getSourceConfig(self):
-        from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-        from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import DatabaseServiceMetadataPipeline
+        from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+        from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import DatabaseServiceMetadataPipeline
         sourceConfig = SourceConfig(config=DatabaseServiceMetadataPipeline(**self.source_filter))
         return sourceConfig
 
     def getServiceConnection(self):
-        from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-        from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import \
+        from src.metadata.generated.schema.entity.services.databaseService import DatabaseConnection
+        from src.metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import \
             CustomDatabaseConnection
 
         serviceConnection = DatabaseConnection(config=CustomDatabaseConnection(**{

@@ -1,8 +1,8 @@
-from metadata.generated.schema.entity.services.filesystemService import (
+from src.metadata.generated.schema.entity.services.filesystemService import (
     FilesystemServiceType,
     FilesystemConnection
 )
-from metadata.generated.schema.metadataIngestion.workflow import (
+from src.metadata.generated.schema.metadataIngestion.workflow import (
     Source,
     SourceConfig
 )

@@ -5,7 +5,7 @@ class ProfilerExecutor:
     @staticmethod
     def execute(commonSource: CommonSource):
 
-        from metadata.generated.schema.metadataIngestion.workflow import OpenMetadataWorkflowConfig
+        from src.metadata.generated.schema.metadataIngestion.workflow import OpenMetadataWorkflowConfig
         workflow_config: OpenMetadataWorkflowConfig = commonSource.getMetadataWorkflowConfig()
 
 
@@ -19,8 +19,8 @@ class ProfilerExecutor:
         }
         config_metrics_label = ["rowCount", "min", "valuesCount", "nullCount"]
 
-        from metadata.workflow.profiler import ProfilerWorkflow
-        from metadata.workflow.workflow_output_handler import print_status
+        from src.metadata.workflow.profiler import ProfilerWorkflow
+        from src.metadata.workflow.workflow_output_handler import print_status
 
         workflow = ProfilerWorkflow(workflow_config)
         workflow.execute()

@@ -14,7 +14,7 @@ from the sample data
 """
 from pydantic import BaseModel
 
-from metadata.generated.schema.entity.data.pipeline import PipelineStatus
+from src.metadata.generated.schema.entity.data.pipeline import PipelineStatus
 
 
 class OMetaPipelineStatus(BaseModel):

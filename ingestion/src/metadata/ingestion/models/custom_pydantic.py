@@ -85,7 +85,7 @@ class CustomSecretStr(SecretStr):
         will pick up the object with all the necessary info already in it.
         """
         # Importing inside function to avoid circular import error
-        from metadata.utils.secrets.secrets_manager_factory import (  # pylint: disable=import-outside-toplevel,cyclic-import
+        from src.metadata.utils.secrets.secrets_manager_factory import (  # pylint: disable=import-outside-toplevel,cyclic-import
             SecretsManagerFactory,
         )
 
