@@ -10,7 +10,7 @@ from src.metadata.ingestion.ometa.client import REST, ClientConfig
 from src.metadata.ingestion.ometa.routes import ROUTES
 
 from src.metadata.utils.logger import ingestion_logger
-from utils.security_manager import SecurityManager
+from src.utils.security_manager import SecurityManager
 
 logger = ingestion_logger()
 logger.setLevel("INFO")

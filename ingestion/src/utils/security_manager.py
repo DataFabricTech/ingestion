@@ -2,7 +2,7 @@ import os
 import base64
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from hashlib import sha256
-from utils.process_config import config
+from src.utils.process_config import config
 
 
 class SecurityManager:
