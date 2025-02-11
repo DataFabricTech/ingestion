@@ -19,14 +19,14 @@ import random
 import traceback
 from typing import Dict, List, Optional, Union, cast
 
-from metadata.generated.schema.entity.data.table import Column, DataType
-from metadata.ingestion.source.database.column_helpers import truncate_column_name
-from metadata.readers.dataframe.models import (
+from src.metadata.generated.schema.entity.data.table import Column, DataType
+from src.metadata.ingestion.source.database.column_helpers import truncate_column_name
+from src.metadata.readers.dataframe.models import (
     DatalakeColumnWrapper,
     DatalakeTableSchemaWrapper,
 )
-from metadata.readers.dataframe.reader_factory import SupportedTypes, get_df_reader
-from metadata.utils.logger import utils_logger
+from src.metadata.readers.dataframe.reader_factory import SupportedTypes, get_df_reader
+from src.metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

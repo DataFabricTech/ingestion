@@ -18,15 +18,15 @@ from typing import Callable, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-from metadata.generated.schema.entity.services.serviceType import ServiceType
-from metadata.generated.schema.metadataIngestion.workflow import Sink as WorkflowSink
-from metadata.ingestion.api.step import Step
-from metadata.ingestion.api.steps import BulkSink, Processor, Sink, Source, Stage
-from metadata.utils.class_helper import get_service_type_from_source_type
-from metadata.utils.logger import utils_logger
+from src.metadata.generated.schema.entity.services.serviceType import ServiceType
+from src.metadata.generated.schema.metadataIngestion.workflow import Sink as WorkflowSink
+from src.metadata.ingestion.api.step import Step
+from src.metadata.ingestion.api.steps import BulkSink, Processor, Sink, Source, Stage
+from src.metadata.utils.class_helper import get_service_type_from_source_type
+from src.metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

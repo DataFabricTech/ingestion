@@ -18,7 +18,7 @@ code.
 import re
 from typing import List, Optional
 
-from metadata.generated.schema.type.filterPattern import FilterPattern
+from src.metadata.generated.schema.type.filterPattern import FilterPattern
 
 
 class InvalidPatternException(Exception):

@@ -17,36 +17,36 @@ from functools import singledispatch
 
 import requests
 
-from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
     GCSConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
     S3Config,
 )
-from metadata.generated.schema.metadataIngestion.storage.manifestMetadataConfig import (
+from src.metadata.generated.schema.metadataIngestion.storage.manifestMetadataConfig import (
     ManifestMetadataConfig,
 )
-from metadata.generated.schema.metadataIngestion.storage.storageMetadataADLSConfig import (
+from src.metadata.generated.schema.metadataIngestion.storage.storageMetadataADLSConfig import (
     StorageMetadataAdlsConfig,
 )
-# from metadata.generated.schema.metadataIngestion.storage.storageMetadataGCSConfig import (
+# from src.metadata.generated.schema.metadataIngestion.storage.storageMetadataGCSConfig import (
 #     StorageMetadataGcsConfig,
 # )
-from metadata.generated.schema.metadataIngestion.storage.storageMetadataHttpConfig import (
+from src.metadata.generated.schema.metadataIngestion.storage.storageMetadataHttpConfig import (
     StorageMetadataHttpConfig,
 )
-from metadata.generated.schema.metadataIngestion.storage.storageMetadataLocalConfig import (
+from src.metadata.generated.schema.metadataIngestion.storage.storageMetadataLocalConfig import (
     StorageMetadataLocalConfig,
 )
-from metadata.generated.schema.metadataIngestion.storage.storageMetadataS3Config import (
+from src.metadata.generated.schema.metadataIngestion.storage.storageMetadataS3Config import (
     StorageMetadataS3Config,
 )
-from metadata.readers.file.config_source_factory import get_reader
-from metadata.utils.credentials import set_google_credentials
-from metadata.utils.logger import ometa_logger
+from src.metadata.readers.file.config_source_factory import get_reader
+from src.metadata.utils.credentials import set_google_credentials
+from src.metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
 
@@ -119,7 +119,7 @@ def _(config: StorageMetadataS3Config) -> ManifestMetadataConfig:
             else STORAGE_METADATA_MANIFEST_FILE_NAME
         )
 
-        from metadata.clients.aws_client import (  # pylint: disable=import-outside-toplevel
+        from src.metadata.clients.aws_client import (  # pylint: disable=import-outside-toplevel
             AWSClient,
         )
 

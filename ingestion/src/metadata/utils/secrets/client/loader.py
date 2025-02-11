@@ -15,15 +15,15 @@ to use in the client
 import os
 from typing import Optional
 
-# from metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
-from metadata.generated.schema.security.secrets.secretsManagerClientLoader import (
+# from src.metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
+from src.metadata.generated.schema.security.secrets.secretsManagerClientLoader import (
     SecretsManagerClientLoader,
 )
-from metadata.generated.schema.security.secrets.secretsManagerProvider import (
+from src.metadata.generated.schema.security.secrets.secretsManagerProvider import (
     SecretsManagerProvider,
 )
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
-from metadata.utils.dispatch import enum_register
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.utils.dispatch import enum_register
 
 SECRET_MANAGER_AIRFLOW_CONF = "openmetadata_secrets_manager"
 

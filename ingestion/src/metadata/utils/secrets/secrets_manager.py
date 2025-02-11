@@ -14,8 +14,8 @@ Secrets manager interface
 """
 from abc import abstractmethod
 
-from metadata.utils.logger import ingestion_logger
-from metadata.utils.singleton import Singleton
+from src.metadata.utils.logger import ingestion_logger
+from src.metadata.utils.singleton import Singleton
 
 logger = ingestion_logger()
 

@@ -1,15 +1,15 @@
 from typing import Union
 
-from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
-from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
-from metadata.generated.schema.entity.services.searchService import SearchServiceType
-from metadata.generated.schema.entity.services.storageService import StorageServiceType
-from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
-from metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
-from metadata.ingestion.ometa.client import REST, ClientConfig
-from metadata.ingestion.ometa.routes import ROUTES
+from src.metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
+from src.metadata.generated.schema.entity.services.searchService import SearchServiceType
+from src.metadata.generated.schema.entity.services.storageService import StorageServiceType
+from src.metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
+from src.metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
+from src.metadata.ingestion.ometa.client import REST, ClientConfig
+from src.metadata.ingestion.ometa.routes import ROUTES
 
-from metadata.utils.logger import ingestion_logger
+from src.metadata.utils.logger import ingestion_logger
 from utils.security_manager import SecurityManager
 
 logger = ingestion_logger()

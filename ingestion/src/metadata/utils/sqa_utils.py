@@ -24,14 +24,14 @@ from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.sql.expression import TextClause
 # from sqlalchemy.sql.sqltypes import ARRAY, String
 
-from metadata.ingestion.source.database.column_type_parser import create_sqlalchemy_type
+from src.metadata.ingestion.source.database.column_type_parser import create_sqlalchemy_type
 #profiler phy
-# from metadata.profiler.orm.functions.datetime import (
+# from src.metadata.profiler.orm.functions.datetime import (
 #     DateAddFn,
 #     DatetimeAddFn,
 #     TimestampAddFn,
 # )
-from metadata.utils.logger import query_runner_logger
+from src.metadata.utils.logger import query_runner_logger
 
 logger = query_runner_logger()
 

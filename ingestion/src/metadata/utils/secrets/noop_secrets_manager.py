@@ -12,10 +12,10 @@
 """
 Secrets manager implementation for local secrets manager
 """
-from metadata.generated.schema.security.secrets.secretsManagerProvider import (
+from src.metadata.generated.schema.security.secrets.secretsManagerProvider import (
     SecretsManagerProvider,
 )
-from metadata.utils.secrets.secrets_manager import SecretsManager
+from src.metadata.utils.secrets.secrets_manager import SecretsManager
 
 
 class NoopSecretsManager(SecretsManager):

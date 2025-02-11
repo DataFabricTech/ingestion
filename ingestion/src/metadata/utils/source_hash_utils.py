@@ -16,7 +16,7 @@ Source hash utils module
 import hashlib
 from typing import Dict, Optional
 
-from metadata.ingestion.ometa.ometa_api import C
+from src.metadata.ingestion.ometa.ometa_api import C
 
 SOURCE_HASH_EXCLUDE_FIELDS = {
     "sourceHash": True,

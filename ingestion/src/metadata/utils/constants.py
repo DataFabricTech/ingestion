@@ -12,27 +12,27 @@
 """
 Define constants useful for the metadata ingestion
 """
-# from metadata.generated.schema.entity.data.chart import Chart
-# from metadata.generated.schema.entity.data.container import Container
-# from metadata.generated.schema.entity.data.dashboard import Dashboard
-# from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
-from metadata.generated.schema.entity.data.database import Database
-from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-# from metadata.generated.schema.entity.data.mlmodel import MlModel
-# from metadata.generated.schema.entity.data.pipeline import Pipeline
-# from metadata.generated.schema.entity.data.searchIndex import SearchIndex
-# from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
-from metadata.generated.schema.entity.data.table import Table
-# from metadata.generated.schema.entity.data.topic import Topic
-# from metadata.generated.schema.entity.services.dashboardService import DashboardService
-from metadata.generated.schema.entity.services.databaseService import DatabaseService
-# from metadata.generated.schema.entity.services.messagingService import MessagingService
-# from metadata.generated.schema.entity.services.metadataService import MetadataService
-# from metadata.generated.schema.entity.services.mlmodelService import MlModelService
-# from metadata.generated.schema.entity.services.pipelineService import PipelineService
-# from metadata.generated.schema.entity.services.searchService import SearchService
-# from metadata.generated.schema.entity.services.storageService import StorageService
-from metadata.generated.schema.entity.data.ingestion import IngestionCheck
+# from src.metadata.generated.schema.entity.data.chart import Chart
+# from src.metadata.generated.schema.entity.data.container import Container
+# from src.metadata.generated.schema.entity.data.dashboard import Dashboard
+# from src.metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
+from src.metadata.generated.schema.entity.data.database import Database
+from src.metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
+# from src.metadata.generated.schema.entity.data.mlmodel import MlModel
+# from src.metadata.generated.schema.entity.data.pipeline import Pipeline
+# from src.metadata.generated.schema.entity.data.searchIndex import SearchIndex
+# from src.metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
+from src.metadata.generated.schema.entity.data.table import Table
+# from src.metadata.generated.schema.entity.data.topic import Topic
+# from src.metadata.generated.schema.entity.services.dashboardService import DashboardService
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseService
+# from src.metadata.generated.schema.entity.services.messagingService import MessagingService
+# from src.metadata.generated.schema.entity.services.metadataService import MetadataService
+# from src.metadata.generated.schema.entity.services.mlmodelService import MlModelService
+# from src.metadata.generated.schema.entity.services.pipelineService import PipelineService
+# from src.metadata.generated.schema.entity.services.searchService import SearchService
+# from src.metadata.generated.schema.entity.services.storageService import StorageService
+from src.metadata.generated.schema.entity.data.ingestion import IngestionCheck
 
 DOT = "_DOT_"
 TEN_MIN = 10 * 60

@@ -29,12 +29,12 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 import sqlparse
 from sqlparse.sql import Statement
 
-# from metadata.generated.schema.entity.data.chart import ChartType
-from metadata.generated.schema.entity.data.table import Column, Table
-from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.generated.schema.type.tagLabel import TagLabel
-from metadata.utils.constants import DEFAULT_DATABASE
-from metadata.utils.logger import utils_logger
+# from src.metadata.generated.schema.entity.data.chart import ChartType
+from src.metadata.generated.schema.entity.data.table import Column, Table
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseService
+from src.metadata.generated.schema.type.tagLabel import TagLabel
+from src.metadata.utils.constants import DEFAULT_DATABASE
+from src.metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 
