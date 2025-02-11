@@ -14,12 +14,12 @@ Custom defined types
 
 from typing import NewType, Union
 
-# from metadata.generated.schema.entity.services.dashboardService import DashboardService
-from metadata.generated.schema.entity.services.databaseService import DatabaseService
-# from metadata.generated.schema.entity.services.messagingService import MessagingService
-# from metadata.generated.schema.entity.services.metadataService import MetadataService
-# from metadata.generated.schema.entity.services.mlmodelService import MlModelService
-# from metadata.generated.schema.entity.services.pipelineService import PipelineService
+# from src.metadata.generated.schema.entity.services.dashboardService import DashboardService
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseService
+# from src.metadata.generated.schema.entity.services.messagingService import MessagingService
+# from src.metadata.generated.schema.entity.services.metadataService import MetadataService
+# from src.metadata.generated.schema.entity.services.mlmodelService import MlModelService
+# from src.metadata.generated.schema.entity.services.pipelineService import PipelineService
 
 # new typing type wrapping services with connection field types
 ServiceWithConnectionType = NewType(

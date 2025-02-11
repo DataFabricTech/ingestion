@@ -23,30 +23,30 @@ from typing import Tuple
 import requests
 from dateutil.relativedelta import relativedelta
 
-from metadata.config.common import ConfigModel
-from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from src.metadata.config.common import ConfigModel
+from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-# from metadata.generated.schema.security.client.auth0SSOClientConfig import (
+# from src.metadata.generated.schema.security.client.auth0SSOClientConfig import (
 #     Auth0SSOClientConfig,
 # )
-# from metadata.generated.schema.security.client.azureSSOClientConfig import (
+# from src.metadata.generated.schema.security.client.azureSSOClientConfig import (
 #     AzureSSOClientConfig,
 # )
-# from metadata.generated.schema.security.client.customOidcSSOClientConfig import (
+# from src.metadata.generated.schema.security.client.customOidcSSOClientConfig import (
 #     CustomOIDCSSOClientConfig,
 # )
-# from metadata.generated.schema.security.client.googleSSOClientConfig import (
+# from src.metadata.generated.schema.security.client.googleSSOClientConfig import (
 #     GoogleSSOClientConfig,
 # )
-# from metadata.generated.schema.security.client.oktaSSOClientConfig import (
+# from src.metadata.generated.schema.security.client.oktaSSOClientConfig import (
 #     OktaSSOClientConfig,
 # )
-from metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
+from src.metadata.generated.schema.security.client.openMetadataJWTClientConfig import (
     OpenMetadataJWTClientConfig,
 )
-# from metadata.ingestion.ometa.client import APIError
-from metadata.utils.logger import ometa_logger
+# from src.metadata.ingestion.ometa.client import APIError
+from src.metadata.utils.logger import ometa_logger
 
 # Only load security providers on call
 # pylint: disable=import-outside-toplevel

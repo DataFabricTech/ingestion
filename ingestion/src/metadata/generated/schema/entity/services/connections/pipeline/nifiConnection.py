@@ -9,7 +9,7 @@ from typing import Optional, Union
 
 from pydantic import AnyUrl, BaseModel, Extra, Field
 
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 from .. import connectionBasicType
 

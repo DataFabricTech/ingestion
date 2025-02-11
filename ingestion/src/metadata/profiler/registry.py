@@ -23,7 +23,7 @@ from typing import Optional
 
 from sqlalchemy.sql.sqltypes import TypeDecorator
 
-from metadata.profiler.metrics.core import Metric
+from src.metadata.profiler.metrics.core import Metric
 
 
 class MetricRegistry(Enum):

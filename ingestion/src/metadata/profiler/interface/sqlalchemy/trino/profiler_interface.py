@@ -19,14 +19,14 @@ from typing import List
 from sqlalchemy import func
 from sqlalchemy.exc import ProgrammingError
 
-from metadata.profiler.interface.sqlalchemy.profiler_interface import (
+from src.metadata.profiler.interface.sqlalchemy.profiler_interface import (
     SQAProfilerInterface,
     handle_query_exception,
 )
-from metadata.profiler.metrics.registry import Metrics
-from metadata.profiler.orm.registry import FLOAT_SET
-from metadata.profiler.processor.runner import QueryRunner
-from metadata.utils.logger import profiler_interface_registry_logger
+from src.metadata.profiler.metrics.registry import Metrics
+from src.metadata.profiler.orm.registry import FLOAT_SET
+from src.metadata.profiler.processor.runner import QueryRunner
+from src.metadata.utils.logger import profiler_interface_registry_logger
 
 logger = profiler_interface_registry_logger()
 

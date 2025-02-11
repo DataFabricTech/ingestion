@@ -21,8 +21,8 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import DeclarativeMeta
 from sqlalchemy.sql.functions import FunctionElement
 
-from metadata.profiler.metrics.core import CACHE, StaticMetric, _label
-from metadata.profiler.orm.registry import Dialects
+from src.metadata.profiler.metrics.core import CACHE, StaticMetric, _label
+from src.metadata.profiler.orm.registry import Dialects
 
 
 class ColumnCountFn(FunctionElement):

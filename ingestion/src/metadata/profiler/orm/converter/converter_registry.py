@@ -14,12 +14,12 @@ Dispatch logic to map an Converter base based on dialect
 """
 from collections import defaultdict
 
-from metadata.generated.schema.entity.services.databaseService import (
+from src.metadata.generated.schema.entity.services.databaseService import (
     DatabaseServiceType,
 )
-from metadata.profiler.orm.converter.bigquery.converter import BigqueryMapTypes
-from metadata.profiler.orm.converter.common import CommonMapTypes
-from metadata.profiler.orm.converter.snowflake.converter import SnowflakeMapTypes
+from src.metadata.profiler.orm.converter.bigquery.converter import BigqueryMapTypes
+from src.metadata.profiler.orm.converter.common import CommonMapTypes
+from src.metadata.profiler.orm.converter.snowflake.converter import SnowflakeMapTypes
 
 converter_registry = defaultdict(lambda: CommonMapTypes)
 converter_registry[DatabaseServiceType.BigQuery] = BigqueryMapTypes

@@ -18,14 +18,14 @@ from typing import List
 
 from sqlalchemy import Column, text
 
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     PartitionIntervalType,
     PartitionProfilerConfig,
 )
-from metadata.profiler.orm.functions.modulo import ModuloFn
-from metadata.profiler.orm.functions.random_num import RandomNumFn
-from metadata.utils.logger import profiler_logger
-from metadata.utils.sqa_utils import (
+from src.metadata.profiler.orm.functions.modulo import ModuloFn
+from src.metadata.profiler.orm.functions.random_num import RandomNumFn
+from src.metadata.utils.logger import profiler_logger
+from src.metadata.utils.sqa_utils import (
     build_query_filter,
     dispatch_to_date_or_datetime,
     get_integer_range_filter,

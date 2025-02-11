@@ -16,11 +16,11 @@ import traceback
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional
 
-from metadata.ingestion.api.closeable import Closeable
-from metadata.ingestion.api.models import Either, Entity, StackTraceError
-from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.utils.logger import ingestion_logger
+from src.metadata.ingestion.api.closeable import Closeable
+from src.metadata.ingestion.api.models import Either, Entity, StackTraceError
+from src.metadata.ingestion.api.status import Status
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

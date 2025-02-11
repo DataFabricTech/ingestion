@@ -23,20 +23,20 @@ from typing import Dict, List, Type, Union
 from pydantic import BaseModel
 from tabulate import tabulate
 
-from metadata.config.common import ConfigurationError
-from metadata.generated.schema.metadataIngestion.workflow import LogLevels
-from metadata.ingestion.api.models import StackTraceError
-from metadata.ingestion.api.parser import (
+from src.metadata.config.common import ConfigurationError
+from src.metadata.generated.schema.metadataIngestion.workflow import LogLevels
+from src.metadata.ingestion.api.models import StackTraceError
+from src.metadata.ingestion.api.parser import (
     InvalidWorkflowException,
     ParsingConfigurationError,
 )
-from metadata.ingestion.api.status import Status
-from metadata.ingestion.api.step import Step
-from metadata.ingestion.api.steps import BulkSink, Processor, Sink, Source, Stage
-from metadata.timer.repeated_timer import RepeatedTimer
-from metadata.utils.constants import UTF_8
-from metadata.utils.helpers import pretty_print_time_duration
-from metadata.utils.logger import ANSI, log_ansi_encoded_string
+from src.metadata.ingestion.api.status import Status
+from src.metadata.ingestion.api.step import Step
+from src.metadata.ingestion.api.steps import BulkSink, Processor, Sink, Source, Stage
+from src.metadata.timer.repeated_timer import RepeatedTimer
+from src.metadata.utils.constants import UTF_8
+from src.metadata.utils.helpers import pretty_print_time_duration
+from src.metadata.utils.logger import ANSI, log_ansi_encoded_string
 
 WORKFLOW_FAILURE_MESSAGE = "Workflow finished with failures"
 WORKFLOW_WARNING_MESSAGE = "Workflow finished with warnings"

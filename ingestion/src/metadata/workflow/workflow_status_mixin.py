@@ -15,18 +15,18 @@ import uuid
 from datetime import datetime
 from typing import Optional, Tuple
 
-from metadata.config.common import WorkflowExecutionError
-from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
+from src.metadata.config.common import WorkflowExecutionError
+from src.metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
     IngestionPipeline,
     PipelineState,
     PipelineStatus,
 )
-from metadata.generated.schema.metadataIngestion.workflow import (
+from src.metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.step import Step
-from metadata.ingestion.api.steps import Source
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.ingestion.api.step import Step
+from src.metadata.ingestion.api.steps import Source
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
 
 SUCCESS_THRESHOLD_VALUE = 90
 

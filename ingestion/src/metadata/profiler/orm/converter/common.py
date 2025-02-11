@@ -15,9 +15,9 @@ Common Class For Profiler Converter.
 
 import sqlalchemy
 
-from metadata.generated.schema.entity.data.table import Column, DataType
-from metadata.ingestion.source import sqa_types
-from metadata.profiler.orm.registry import CustomTypes
+from src.metadata.generated.schema.entity.data.table import Column, DataType
+from src.metadata.ingestion.source import sqa_types
+from src.metadata.profiler.orm.registry import CustomTypes
 
 
 class CommonMapTypes:

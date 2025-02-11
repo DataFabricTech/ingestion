@@ -18,9 +18,9 @@ from typing import List
 
 from sqlalchemy import case, column
 
-from metadata.profiler.metrics.core import StaticMetric, _label
-from metadata.profiler.orm.functions.sum import SumFn
-from metadata.utils.logger import profiler_logger
+from src.metadata.profiler.metrics.core import StaticMetric, _label
+from src.metadata.profiler.orm.functions.sum import SumFn
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

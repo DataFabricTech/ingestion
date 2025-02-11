@@ -16,17 +16,17 @@ import math
 import random
 from typing import List, Optional, cast
 
-from metadata.data_quality.validations.table.pandas.tableRowInsertedCountToBeBetween import (
+from src.metadata.data_quality.validations.table.pandas.tableRowInsertedCountToBeBetween import (
     TableRowInsertedCountToBeBetweenValidator,
 )
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     PartitionIntervalType,
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
 )
-from metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
-from metadata.utils.sqa_like_column import SQALikeColumn
+from src.metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
+from src.metadata.utils.sqa_like_column import SQALikeColumn
 
 
 class DatalakeSampler(SamplerInterface):

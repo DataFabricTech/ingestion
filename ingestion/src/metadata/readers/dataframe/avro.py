@@ -18,13 +18,13 @@ from avro.datafile import DataFileReader
 from avro.errors import InvalidAvroBinaryEncoding
 from avro.io import DatumReader
 
-from metadata.generated.schema.entity.data.table import Column
-from metadata.generated.schema.type.schema import DataTypeTopic
-from metadata.parsers.avro_parser import parse_avro_schema
-from metadata.readers.dataframe.base import DataFrameReader
-from metadata.readers.dataframe.common import dataframe_to_chunks
-from metadata.readers.dataframe.models import DatalakeColumnWrapper
-from metadata.utils.constants import UTF_8
+from src.metadata.generated.schema.entity.data.table import Column
+from src.metadata.generated.schema.type.schema import DataTypeTopic
+from src.metadata.parsers.avro_parser import parse_avro_schema
+from src.metadata.readers.dataframe.base import DataFrameReader
+from src.metadata.readers.dataframe.common import dataframe_to_chunks
+from src.metadata.readers.dataframe.models import DatalakeColumnWrapper
+from src.metadata.utils.constants import UTF_8
 
 PD_AVRO_FIELD_MAP = {
     DataTypeTopic.BOOLEAN.value: "bool",

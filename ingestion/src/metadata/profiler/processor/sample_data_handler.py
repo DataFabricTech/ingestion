@@ -17,12 +17,12 @@ from datetime import datetime
 from functools import singledispatch
 from io import BytesIO
 
-from metadata.clients.aws_client import AWSClient
-from metadata.generated.schema.entity.data.table import Table, TableData
-from metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
-from metadata.profiler.interface.profiler_interface import ProfilerInterface
-from metadata.utils.helpers import clean_uri
-from metadata.utils.logger import profiler_logger
+from src.metadata.clients.aws_client import AWSClient
+from src.metadata.generated.schema.entity.data.table import Table, TableData
+from src.metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
+from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
+from src.metadata.utils.helpers import clean_uri
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

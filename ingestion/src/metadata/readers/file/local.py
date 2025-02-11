@@ -16,9 +16,9 @@ import traceback
 from pathlib import Path
 from typing import List, Optional, Union
 
-from metadata.readers.file.base import Reader, ReadException
-from metadata.utils.constants import UTF_8
-from metadata.utils.logger import ingestion_logger
+from src.metadata.readers.file.base import Reader, ReadException
+from src.metadata.utils.constants import UTF_8
+from src.metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

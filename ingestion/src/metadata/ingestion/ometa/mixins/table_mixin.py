@@ -19,10 +19,10 @@ from typing import List, Optional, Type, TypeVar
 from pydantic import BaseModel
 from requests.utils import quote
 
-from metadata.generated.schema.api.data.createTableProfile import (
+from src.metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,
 )
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     ColumnProfile,
     DataModel,
     SystemProfile,
@@ -32,12 +32,12 @@ from metadata.generated.schema.entity.data.table import (
     TableProfile,
     TableProfilerConfig,
 )
-from metadata.generated.schema.type.basic import FullyQualifiedEntityName, Uuid
-# from metadata.generated.schema.type.usageRequest import UsageRequest
-from metadata.ingestion.ometa.client import REST
-from metadata.ingestion.ometa.models import EntityList
-from metadata.ingestion.ometa.utils import model_str
-from metadata.utils.logger import ometa_logger
+from src.metadata.generated.schema.type.basic import FullyQualifiedEntityName, Uuid
+# from src.metadata.generated.schema.type.usageRequest import UsageRequest
+from src.metadata.ingestion.ometa.client import REST
+from src.metadata.ingestion.ometa.models import EntityList
+from src.metadata.ingestion.ometa.utils import model_str
+from src.metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
 

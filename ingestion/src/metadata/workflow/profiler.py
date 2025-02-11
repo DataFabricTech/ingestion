@@ -11,18 +11,18 @@
 """
 Workflow definition for the profiler
 """
-from metadata.generated.schema.metadataIngestion.workflow import (
+from src.metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.steps import Processor, Sink
-from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
-from metadata.pii.processor import PIIProcessor
-from metadata.profiler.processor.processor import ProfilerProcessor
-from metadata.profiler.source.metadata import OpenMetadataSource
-from metadata.profiler.source.metadata_ext import OpenMetadataSourceExt
-from metadata.utils.importer import import_sink_class
-from metadata.utils.logger import profiler_logger
-from metadata.workflow.base import BaseWorkflow
+from src.metadata.ingestion.api.steps import Processor, Sink
+from src.metadata.ingestion.source.connections import get_connection, get_test_connection_fn
+from src.metadata.pii.processor import PIIProcessor
+from src.metadata.profiler.processor.processor import ProfilerProcessor
+from src.metadata.profiler.source.metadata import OpenMetadataSource
+from src.metadata.profiler.source.metadata_ext import OpenMetadataSourceExt
+from src.metadata.utils.importer import import_sink_class
+from src.metadata.utils.logger import profiler_logger
+from src.metadata.workflow.base import BaseWorkflow
 
 logger = profiler_logger()
 

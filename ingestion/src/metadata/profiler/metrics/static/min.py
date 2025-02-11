@@ -18,9 +18,9 @@ from sqlalchemy import TIME, column
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import GenericFunction
 
-from metadata.profiler.metrics.core import CACHE, StaticMetric, _label
-from metadata.profiler.orm.functions.length import LenFn
-from metadata.profiler.orm.registry import (
+from src.metadata.profiler.metrics.core import CACHE, StaticMetric, _label
+from src.metadata.profiler.orm.functions.length import LenFn
+from src.metadata.profiler.orm.registry import (
     FLOAT_SET,
     Dialects,
     is_concatenable,

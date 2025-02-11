@@ -26,23 +26,23 @@ from sqlalchemy import Column, inspect
 from sqlalchemy.exc import ProgrammingError, ResourceClosedError
 from sqlalchemy.orm import scoped_session
 
-from metadata.generated.schema.entity.data.table import TableData
-from metadata.ingestion.connections.session import create_and_bind_thread_safe_session
-from metadata.mixins.sqalchemy.sqa_mixin import SQAInterfaceMixin
-from metadata.profiler.interface.profiler_interface import ProfilerInterface
-from metadata.profiler.metrics.core import MetricTypes
-from metadata.profiler.metrics.registry import Metrics
-from metadata.profiler.metrics.static.mean import Mean
-from metadata.profiler.metrics.static.stddev import StdDev
-from metadata.profiler.metrics.static.sum import Sum
-from metadata.profiler.orm.functions.table_metric_construct import (
+from src.metadata.generated.schema.entity.data.table import TableData
+from src.metadata.ingestion.connections.session import create_and_bind_thread_safe_session
+from src.metadata.mixins.sqalchemy.sqa_mixin import SQAInterfaceMixin
+from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
+from src.metadata.profiler.metrics.core import MetricTypes
+from src.metadata.profiler.metrics.registry import Metrics
+from src.metadata.profiler.metrics.static.mean import Mean
+from src.metadata.profiler.metrics.static.stddev import StdDev
+from src.metadata.profiler.metrics.static.sum import Sum
+from src.metadata.profiler.orm.functions.table_metric_construct import (
     table_metric_construct_factory,
 )
-from metadata.profiler.orm.registry import Dialects
-from metadata.profiler.processor.runner import QueryRunner
-from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
-from metadata.utils.custom_thread_pool import CustomThreadPoolExecutor
-from metadata.utils.logger import profiler_interface_registry_logger
+from src.metadata.profiler.orm.registry import Dialects
+from src.metadata.profiler.processor.runner import QueryRunner
+from src.metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
+from src.metadata.utils.custom_thread_pool import CustomThreadPoolExecutor
+from src.metadata.utils.logger import profiler_interface_registry_logger
 
 logger = profiler_interface_registry_logger()
 thread_local = threading.local()
@@ -112,7 +112,7 @@ class SQAProfilerInterface(ProfilerInterface, SQAInterfaceMixin):
 
     def _get_sampler(self, **kwargs):
         """get sampler object"""
-        from metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
+        from src.metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
             sampler_factory_,
         )
 

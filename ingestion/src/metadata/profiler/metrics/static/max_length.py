@@ -17,10 +17,10 @@ MAX_LENGTH Metric definition
 
 from sqlalchemy import column, func
 
-from metadata.profiler.metrics.core import StaticMetric, _label
-from metadata.profiler.orm.functions.length import LenFn
-from metadata.profiler.orm.registry import is_concatenable
-from metadata.utils.logger import profiler_logger
+from src.metadata.profiler.metrics.core import StaticMetric, _label
+from src.metadata.profiler.orm.functions.length import LenFn
+from src.metadata.profiler.orm.registry import is_concatenable
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

@@ -14,20 +14,20 @@ Profiler Processor Step
 import traceback
 from typing import cast
 
-from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-from metadata.generated.schema.metadataIngestion.workflow import (
+from src.metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.models import Either, StackTraceError
-from metadata.ingestion.api.parser import parse_workflow_config_gracefully
-from metadata.ingestion.api.step import Step
-from metadata.ingestion.api.steps import Processor
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.profiler.api.models import ProfilerProcessorConfig, ProfilerResponse
-from metadata.profiler.processor.core import Profiler
-from metadata.profiler.source.metadata import ProfilerSourceAndEntity
+from src.metadata.ingestion.api.models import Either, StackTraceError
+from src.metadata.ingestion.api.parser import parse_workflow_config_gracefully
+from src.metadata.ingestion.api.step import Step
+from src.metadata.ingestion.api.steps import Processor
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.profiler.api.models import ProfilerProcessorConfig, ProfilerResponse
+from src.metadata.profiler.processor.core import Profiler
+from src.metadata.profiler.source.metadata import ProfilerSourceAndEntity
 
 
 class ProfilerProcessor(Processor):

@@ -19,8 +19,8 @@ from typing import Optional
 
 from sqlalchemy.engine.row import Row
 
-from metadata.utils.logger import profiler_logger
-from metadata.utils.profiler_utils import (
+from src.metadata.utils.logger import profiler_logger
+from src.metadata.utils.profiler_utils import (
     SnowflakeQueryResult,
     get_identifiers_from_string,
 )

@@ -16,9 +16,9 @@ Distinct Ratio Composed Metric definition
 
 from typing import Any, Dict, Optional, Tuple
 
-from metadata.profiler.metrics.core import ComposedMetric
-from metadata.profiler.metrics.static.count import Count
-from metadata.profiler.metrics.static.distinct_count import DistinctCount
+from src.metadata.profiler.metrics.core import ComposedMetric
+from src.metadata.profiler.metrics.static.count import Count
+from src.metadata.profiler.metrics.static.distinct_count import DistinctCount
 
 
 class DistinctRatio(ComposedMetric):

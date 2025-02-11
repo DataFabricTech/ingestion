@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Extra, Field
 
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 
 class OpenMetadataJWTClientConfig(BaseModel):

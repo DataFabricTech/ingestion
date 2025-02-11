@@ -20,19 +20,19 @@ from sqlalchemy.orm import DeclarativeMeta, Query, aliased
 from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.sqltypes import Enum
 
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     PartitionIntervalType,
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
 )
-from metadata.profiler.orm.functions.modulo import ModuloFn
-from metadata.profiler.orm.functions.random_num import RandomNumFn
-from metadata.profiler.orm.registry import Dialects
-from metadata.profiler.processor.handle_partition import partition_filter_handler
-from metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
-from metadata.utils.logger import profiler_interface_registry_logger
-from metadata.utils.sqa_utils import (
+from src.metadata.profiler.orm.functions.modulo import ModuloFn
+from src.metadata.profiler.orm.functions.random_num import RandomNumFn
+from src.metadata.profiler.orm.registry import Dialects
+from src.metadata.profiler.processor.handle_partition import partition_filter_handler
+from src.metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
+from src.metadata.utils.logger import profiler_interface_registry_logger
+from src.metadata.utils.sqa_utils import (
     build_query_filter,
     dispatch_to_date_or_datetime,
     get_integer_range_filter,

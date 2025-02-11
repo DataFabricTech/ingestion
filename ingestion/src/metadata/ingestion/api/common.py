@@ -15,7 +15,7 @@ from typing import Any, Optional, TypeVar
 
 from pydantic import BaseModel
 
-from metadata.utils.logger import ingestion_logger
+from src.metadata.utils.logger import ingestion_logger
 
 T = TypeVar("T")
 

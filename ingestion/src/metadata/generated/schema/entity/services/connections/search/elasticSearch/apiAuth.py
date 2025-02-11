@@ -8,7 +8,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 
 class ApiKeyAuthentication(BaseModel):

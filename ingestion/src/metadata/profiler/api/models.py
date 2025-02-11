@@ -17,23 +17,23 @@ multiple profilers per table and columns.
 """
 from typing import List, Optional, Union
 
-from metadata.config.common import ConfigModel
-from metadata.generated.schema.api.data.createTableProfile import (
+from src.metadata.config.common import ConfigModel
+from src.metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,
 )
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     ColumnProfilerConfig,
     PartitionProfilerConfig,
     ProfileSampleType,
     Table,
     TableData,
 )
-from metadata.generated.schema.entity.services.connections.connectionBasicType import (
+from src.metadata.generated.schema.entity.services.connections.connectionBasicType import (
     SampleDataStorageConfig,
 )
-from metadata.generated.schema.type.basic import FullyQualifiedEntityName
-from metadata.ingestion.models.table_metadata import ColumnTag
-from metadata.profiler.processor.models import ProfilerDef
+from src.metadata.generated.schema.type.basic import FullyQualifiedEntityName
+from src.metadata.ingestion.models.table_metadata import ColumnTag
+from src.metadata.profiler.processor.models import ProfilerDef
 
 
 class ColumnConfig(ConfigModel):

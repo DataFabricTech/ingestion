@@ -19,11 +19,11 @@ import sqlalchemy
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeMeta, declarative_base
 
-from metadata.generated.schema.entity.data.database import Database, databaseService
-from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-from metadata.generated.schema.entity.data.table import Column, Table
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.profiler.orm.converter.converter_registry import converter_registry
+from src.metadata.generated.schema.entity.data.database import Database, databaseService
+from src.metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
+from src.metadata.generated.schema.entity.data.table import Column, Table
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.profiler.orm.converter.converter_registry import converter_registry
 
 Base = declarative_base()
 

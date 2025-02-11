@@ -12,7 +12,7 @@
 """
 DF Reader common methods
 """
-from metadata.utils.constants import CHUNKSIZE
+from src.metadata.utils.constants import CHUNKSIZE
 
 
 def dataframe_to_chunks(df: "DataFrame"):

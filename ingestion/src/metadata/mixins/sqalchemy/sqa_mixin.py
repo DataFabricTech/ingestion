@@ -20,17 +20,17 @@ from typing import List, Optional
 from sqlalchemy import Column, MetaData, inspect
 from sqlalchemy.orm import DeclarativeMeta
 
-from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.databricksConnection import (
     DatabricksConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
     SnowflakeType,
 )
-from metadata.ingestion.source.connections import get_connection
-from metadata.ingestion.source.database.snowflake.queries import (
+from src.metadata.ingestion.source.connections import get_connection
+from src.metadata.ingestion.source.database.snowflake.queries import (
     SNOWFLAKE_SESSION_TAG_QUERY,
 )
-from metadata.profiler.orm.converter.base import ometa_to_sqa_orm
+from src.metadata.profiler.orm.converter.base import ometa_to_sqa_orm
 
 
 class SQAInterfaceMixin:

@@ -16,8 +16,8 @@ Define Sum function
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import GenericFunction
 
-from metadata.profiler.metrics.core import CACHE
-from metadata.profiler.orm.registry import Dialects
+from src.metadata.profiler.metrics.core import CACHE
+from src.metadata.profiler.orm.registry import Dialects
 
 
 class SumFn(GenericFunction):

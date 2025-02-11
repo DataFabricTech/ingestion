@@ -14,16 +14,16 @@ Generic types to use for readers
 """
 from typing import Union
 
-from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
     GCSConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
     S3Config,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
 

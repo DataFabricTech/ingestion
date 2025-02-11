@@ -16,7 +16,7 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
-from metadata.generated.schema.entity.data.table import Column
+from src.metadata.generated.schema.entity.data.table import Column
 
 
 class DatalakeColumnWrapper(BaseModel):

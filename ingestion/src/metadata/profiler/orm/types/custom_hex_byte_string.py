@@ -19,7 +19,7 @@ from typing import Optional
 import chardet
 from sqlalchemy.sql.sqltypes import String, TypeDecorator
 
-from metadata.utils.logger import ingestion_logger
+from src.metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

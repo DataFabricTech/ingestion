@@ -1,6 +1,6 @@
 """function calls shared accross all percentile metrics"""
 
-from metadata.profiler.orm.functions.median import MedianFn
+from src.metadata.profiler.orm.functions.median import MedianFn
 
 
 class PercentilMixin:

@@ -15,39 +15,39 @@ Factory class for creating profiler interface objects
 
 from typing import cast
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigQueryConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.singleStoreConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.singleStoreConnection import (
     SingleStoreConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
     SnowflakeConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
 )
-from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from metadata.profiler.interface.pandas.profiler_interface import (
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseConnection
+from src.metadata.profiler.interface.pandas.profiler_interface import (
     PandasProfilerInterface,
 )
-from metadata.profiler.interface.profiler_interface import ProfilerInterface
-from metadata.profiler.interface.sqlalchemy.bigquery.profiler_interface import (
+from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
+from src.metadata.profiler.interface.sqlalchemy.bigquery.profiler_interface import (
     BigQueryProfilerInterface,
 )
-from metadata.profiler.interface.sqlalchemy.profiler_interface import (
+from src.metadata.profiler.interface.sqlalchemy.profiler_interface import (
     SQAProfilerInterface,
 )
-from metadata.profiler.interface.sqlalchemy.single_store.profiler_interface import (
+from src.metadata.profiler.interface.sqlalchemy.single_store.profiler_interface import (
     SingleStoreProfilerInterface,
 )
-from metadata.profiler.interface.sqlalchemy.snowflake.profiler_interface import (
+from src.metadata.profiler.interface.sqlalchemy.snowflake.profiler_interface import (
     SnowflakeProfilerInterface,
 )
-from metadata.profiler.interface.sqlalchemy.trino.profiler_interface import (
+from src.metadata.profiler.interface.sqlalchemy.trino.profiler_interface import (
     TrinoProfilerInterface,
 )
 

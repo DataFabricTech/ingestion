@@ -1,7 +1,7 @@
 """Override first quartile metric definition for SingleStore"""
 
-from metadata.profiler.metrics.window.median import Median
-from metadata.profiler.source.single_store.functions.median import SingleStoreMedianFn
+from src.metadata.profiler.metrics.window.median import Median
+from src.metadata.profiler.source.single_store.functions.median import SingleStoreMedianFn
 
 
 class SingleStoreMedian(Median):

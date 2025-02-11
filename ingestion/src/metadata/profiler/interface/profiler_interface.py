@@ -19,47 +19,47 @@ from typing import Any, Dict, List, Optional, Union
 
 from sqlalchemy import Column
 
-from metadata.generated.schema.entity.data.database import (
+from src.metadata.generated.schema.entity.data.database import (
     Database,
     DatabaseProfilerConfig,
 )
-from metadata.generated.schema.entity.data.databaseSchema import (
+from src.metadata.generated.schema.entity.data.databaseSchema import (
     DatabaseSchema,
     DatabaseSchemaProfilerConfig,
 )
-from metadata.generated.schema.entity.data.table import (
+from src.metadata.generated.schema.entity.data.table import (
     PartitionProfilerConfig,
     Table,
     TableData,
 )
-from metadata.generated.schema.entity.services.connections.connectionBasicType import (
+from src.metadata.generated.schema.entity.services.connections.connectionBasicType import (
     SampleDataStorageConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
-from metadata.generated.schema.entity.services.databaseService import (
+from src.metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
     DatabaseService,
 )
-from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-from metadata.ingestion.api.models import StackTraceError
-from metadata.ingestion.api.status import Status
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.source.connections import get_connection
-from metadata.profiler.api.models import (
+from src.metadata.ingestion.api.models import StackTraceError
+from src.metadata.ingestion.api.status import Status
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.ingestion.source.connections import get_connection
+from src.metadata.profiler.api.models import (
     DatabaseAndSchemaConfig,
     ProfilerProcessorConfig,
     ProfileSampleConfig,
     TableConfig,
 )
-from metadata.profiler.metrics.core import MetricTypes
-from metadata.profiler.metrics.registry import Metrics
-from metadata.profiler.processor.runner import QueryRunner
-from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
-from metadata.utils.partition import get_partition_details
+from src.metadata.profiler.metrics.core import MetricTypes
+from src.metadata.profiler.metrics.registry import Metrics
+from src.metadata.profiler.processor.runner import QueryRunner
+from src.metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
+from src.metadata.utils.partition import get_partition_details
 
 
 class ProfilerProcessorStatus(Status):

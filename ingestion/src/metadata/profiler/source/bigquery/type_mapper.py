@@ -12,7 +12,7 @@
 """
 Type mapper for bigquery specific types
 """
-from metadata.generated.schema.entity.data.table import Column, DataType
+from src.metadata.generated.schema.entity.data.table import Column, DataType
 
 
 def bigquery_type_mapper(_type_map: dict, col: Column):

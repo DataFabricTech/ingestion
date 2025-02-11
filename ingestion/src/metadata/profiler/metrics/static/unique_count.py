@@ -17,10 +17,10 @@ from typing import Optional
 from sqlalchemy import column, func
 from sqlalchemy.orm import DeclarativeMeta, Session
 
-from metadata.profiler.metrics.core import QueryMetric
-from metadata.profiler.orm.functions.unique_count import _unique_count_query_mapper
-from metadata.profiler.orm.registry import NOT_COMPUTE
-from metadata.utils.logger import profiler_logger
+from src.metadata.profiler.metrics.core import QueryMetric
+from src.metadata.profiler.orm.functions.unique_count import _unique_count_query_mapper
+from src.metadata.profiler.orm.registry import NOT_COMPUTE
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

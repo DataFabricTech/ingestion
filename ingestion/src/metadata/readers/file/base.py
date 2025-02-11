@@ -15,7 +15,7 @@ import traceback
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
-from metadata.utils.logger import ingestion_logger
+from src.metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

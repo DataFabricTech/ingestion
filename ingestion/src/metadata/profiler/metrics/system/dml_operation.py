@@ -15,7 +15,7 @@ DML Operation class and mapper
 
 from enum import Enum
 
-from metadata.generated.schema.entity.data.table import DmlOperationType
+from src.metadata.generated.schema.entity.data.table import DmlOperationType
 
 
 class DatabaseDMLOperations(Enum):

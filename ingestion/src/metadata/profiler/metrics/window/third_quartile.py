@@ -18,11 +18,11 @@ from typing import List, cast
 
 from sqlalchemy import column
 
-from metadata.profiler.metrics.core import StaticMetric, _label
-from metadata.profiler.metrics.window.percentille_mixin import PercentilMixin
-from metadata.profiler.orm.functions.length import LenFn
-from metadata.profiler.orm.registry import is_concatenable, is_quantifiable
-from metadata.utils.logger import profiler_logger
+from src.metadata.profiler.metrics.core import StaticMetric, _label
+from src.metadata.profiler.metrics.window.percentille_mixin import PercentilMixin
+from src.metadata.profiler.orm.functions.length import LenFn
+from src.metadata.profiler.orm.registry import is_concatenable, is_quantifiable
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

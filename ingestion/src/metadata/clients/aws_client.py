@@ -18,9 +18,9 @@ import boto3
 from boto3 import Session
 from pydantic import BaseModel
 
-from metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
-from metadata.utils.logger import utils_logger
+from src.metadata.generated.schema.security.credentials.awsCredentials import AWSCredentials
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

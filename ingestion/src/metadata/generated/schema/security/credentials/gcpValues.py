@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 
 from pydantic import AnyUrl, BaseModel, Extra, Field
 
-from metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 
 class SingleProjectId(BaseModel):

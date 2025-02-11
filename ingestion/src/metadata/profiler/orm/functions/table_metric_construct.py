@@ -22,13 +22,13 @@ from sqlalchemy.orm import DeclarativeMeta
 from sqlalchemy.sql.expression import ColumnOperators, and_, cte
 from sqlalchemy.types import String
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigQueryConnection,
 )
-from metadata.profiler.metrics.registry import Metrics
-from metadata.profiler.orm.registry import Dialects
-from metadata.profiler.processor.runner import QueryRunner
-from metadata.utils.logger import profiler_interface_registry_logger
+from src.metadata.profiler.metrics.registry import Metrics
+from src.metadata.profiler.orm.registry import Dialects
+from src.metadata.profiler.processor.runner import QueryRunner
+from src.metadata.utils.logger import profiler_interface_registry_logger
 
 logger = profiler_interface_registry_logger()
 

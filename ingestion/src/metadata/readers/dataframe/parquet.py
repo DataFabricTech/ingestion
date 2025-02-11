@@ -14,23 +14,23 @@ Generic Delimiter-Separated-Values implementation
 """
 from functools import singledispatchmethod
 
-from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
     GCSConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
+from src.metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
     S3Config,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
-from metadata.readers.dataframe.base import DataFrameReader, FileFormatException
-from metadata.readers.dataframe.common import dataframe_to_chunks
-from metadata.readers.dataframe.models import DatalakeColumnWrapper
-from metadata.readers.file.adls import AZURE_PATH, return_azure_storage_options
-from metadata.readers.models import ConfigSource
+from src.metadata.readers.dataframe.base import DataFrameReader, FileFormatException
+from src.metadata.readers.dataframe.common import dataframe_to_chunks
+from src.metadata.readers.dataframe.models import DatalakeColumnWrapper
+from src.metadata.readers.file.adls import AZURE_PATH, return_azure_storage_options
+from src.metadata.readers.models import ConfigSource
 
 
 class ParquetDataFrameReader(DataFrameReader):

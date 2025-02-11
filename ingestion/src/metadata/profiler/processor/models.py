@@ -17,7 +17,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
-from metadata.profiler.metrics.registry import Metrics
+from src.metadata.profiler.metrics.registry import Metrics
 
 
 class ProfilerDef(BaseModel):

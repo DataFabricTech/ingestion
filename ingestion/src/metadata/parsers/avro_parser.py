@@ -20,9 +20,9 @@ import avro.schema as avroschema
 from avro.schema import ArraySchema, RecordSchema, Schema, UnionSchema
 from pydantic.main import ModelMetaclass
 
-from metadata.generated.schema.entity.data.table import Column
-from metadata.generated.schema.type.schema import FieldModel
-from metadata.utils.logger import ingestion_logger
+from src.metadata.generated.schema.entity.data.table import Column
+from src.metadata.generated.schema.type.schema import FieldModel
+from src.metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

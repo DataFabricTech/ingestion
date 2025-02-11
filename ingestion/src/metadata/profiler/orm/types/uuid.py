@@ -18,7 +18,7 @@ from uuid import UUID
 
 from sqlalchemy.sql.sqltypes import String, TypeDecorator
 
-from metadata.utils.logger import profiler_logger
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

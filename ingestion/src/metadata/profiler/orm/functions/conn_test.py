@@ -20,9 +20,9 @@ source.
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import ClauseElement, Executable
 
-from metadata.profiler.metrics.core import CACHE
-from metadata.profiler.orm.registry import Dialects
-from metadata.utils.logger import profiler_logger
+from src.metadata.profiler.metrics.core import CACHE
+from src.metadata.profiler.orm.registry import Dialects
+from src.metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

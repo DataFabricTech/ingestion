@@ -22,19 +22,19 @@ from typing import Dict, List, Optional
 
 from sqlalchemy import Column
 
-from metadata.generated.schema.entity.data.table import TableData
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.data.table import TableData
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
-from metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
-from metadata.profiler.interface.profiler_interface import ProfilerInterface
-from metadata.profiler.metrics.core import MetricTypes
-from metadata.profiler.metrics.registry import Metrics
-from metadata.readers.dataframe.models import DatalakeTableSchemaWrapper
-from metadata.utils.constants import COMPLEX_COLUMN_SEPARATOR, SAMPLE_DATA_DEFAULT_COUNT
-from metadata.utils.datalake.datalake_utils import fetch_col_types, fetch_dataframe
-from metadata.utils.logger import profiler_interface_registry_logger
-from metadata.utils.sqa_like_column import SQALikeColumn
+from src.metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
+from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
+from src.metadata.profiler.metrics.core import MetricTypes
+from src.metadata.profiler.metrics.registry import Metrics
+from src.metadata.readers.dataframe.models import DatalakeTableSchemaWrapper
+from src.metadata.utils.constants import COMPLEX_COLUMN_SEPARATOR, SAMPLE_DATA_DEFAULT_COUNT
+from src.metadata.utils.datalake.datalake_utils import fetch_col_types, fetch_dataframe
+from src.metadata.utils.logger import profiler_interface_registry_logger
+from src.metadata.utils.sqa_like_column import SQALikeColumn
 
 logger = profiler_interface_registry_logger()
 
@@ -106,7 +106,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
 
     def _get_sampler(self):
         """Get dataframe sampler from config"""
-        from metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
+        from src.metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
             sampler_factory_,
         )
 

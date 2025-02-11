@@ -15,22 +15,22 @@ Factory class for creating sampler objects
 
 from typing import Union
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigQueryConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
+from src.metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
 )
-from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from metadata.profiler.processor.sampler.pandas.sampler import DatalakeSampler
-from metadata.profiler.processor.sampler.sqlalchemy.bigquery.sampler import (
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseConnection
+from src.metadata.profiler.processor.sampler.pandas.sampler import DatalakeSampler
+from src.metadata.profiler.processor.sampler.sqlalchemy.bigquery.sampler import (
     BigQuerySampler,
 )
-from metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
-from metadata.profiler.processor.sampler.sqlalchemy.trino.sampler import TrinoSampler
+from src.metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
+from src.metadata.profiler.processor.sampler.sqlalchemy.trino.sampler import TrinoSampler
 
 
 class SamplerFactory:

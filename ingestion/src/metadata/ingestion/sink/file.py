@@ -14,13 +14,13 @@ Useful for local testing without having OM up.
 """
 import pathlib
 
-from metadata.config.common import ConfigModel
-from metadata.ingestion.api.common import Entity
-from metadata.ingestion.api.models import Either
-from metadata.ingestion.api.steps import Sink
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.utils.constants import UTF_8
-from metadata.utils.logger import get_log_name, ingestion_logger
+from src.metadata.config.common import ConfigModel
+from src.metadata.ingestion.api.common import Entity
+from src.metadata.ingestion.api.models import Either
+from src.metadata.ingestion.api.steps import Sink
+from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
+from src.metadata.utils.constants import UTF_8
+from src.metadata.utils.logger import get_log_name, ingestion_logger
 
 logger = ingestion_logger()
 
