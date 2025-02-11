@@ -1,11 +1,11 @@
-from metadata.generated.schema.metadataIngestion.workflow import (
+from src.metadata.generated.schema.metadataIngestion.workflow import (
     WorkflowConfig, OpenMetadataWorkflowConfig, Source, Sink
 )
 
-from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
-from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
-from metadata.generated.schema.entity.services.searchService import SearchServiceType
-from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
+from src.metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
+from src.metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
+from src.metadata.generated.schema.entity.services.searchService import SearchServiceType
+from src.metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
 
 from typing import Union
 from abc import ABC, abstractmethod
