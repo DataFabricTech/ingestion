@@ -17,58 +17,58 @@ from typing import Any, Iterable, List, Optional, Set, Tuple, Union
 from pydantic import BaseModel
 from sqlalchemy.engine import Inspector
 
-from src.metadata.generated.schema.api.data.createDatabase import CreateDatabaseRequest
-from src.metadata.generated.schema.api.data.createDatabaseSchema import (
+from metadata.generated.schema.api.data.createDatabase import CreateDatabaseRequest
+from metadata.generated.schema.api.data.createDatabaseSchema import (
     CreateDatabaseSchemaRequest,
 )
-# from src.metadata.generated.schema.api.data.createQuery import CreateQueryRequest
-# from src.metadata.generated.schema.api.data.createStoredProcedure import (
+# from metadata.generated.schema.api.data.createQuery import CreateQueryRequest
+# from metadata.generated.schema.api.data.createStoredProcedure import (
 #     CreateStoredProcedureRequest,
 # )
-from src.metadata.generated.schema.api.data.createTable import CreateTableRequest
-# from src.metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
-from src.metadata.generated.schema.api.services.createDatabaseService import (
+from metadata.generated.schema.api.data.createTable import CreateTableRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+from metadata.generated.schema.api.services.createDatabaseService import (
     CreateDatabaseServiceRequest,
 )
-from src.metadata.generated.schema.entity.data.database import Database
-from src.metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-# from src.metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
-from src.metadata.generated.schema.entity.data.table import (
+from metadata.generated.schema.entity.data.database import Database
+from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
+# from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
+from metadata.generated.schema.entity.data.table import (
     Column,
     DataModel,
     Table,
     TableConstraint,
     TableType,
 )
-from src.metadata.generated.schema.entity.services.databaseService import (
+from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
     DatabaseService,
 )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.workflow import (
+from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
-# from src.metadata.generated.schema.type.tagLabel import TagLabel
+# from metadata.generated.schema.type.tagLabel import TagLabel
 # todo: 주석처리
-# from src.metadata.ingestion.api.delete import delete_entity_from_source
-from src.metadata.ingestion.api.models import Either
-from src.metadata.ingestion.api.steps import Source
-from src.metadata.ingestion.api.topology_runner import TopologyRunnerMixin
-# from src.metadata.ingestion.models.life_cycle import OMetaLifeCycleData
-# from src.metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
-from src.metadata.ingestion.models.topology import (
+# from metadata.ingestion.api.delete import delete_entity_from_source
+from metadata.ingestion.api.models import Either
+from metadata.ingestion.api.steps import Source
+from metadata.ingestion.api.topology_runner import TopologyRunnerMixin
+# from metadata.ingestion.models.life_cycle import OMetaLifeCycleData
+# from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+from metadata.ingestion.models.topology import (
     NodeStage,
     ServiceTopology,
     TopologyNode,
     create_source_context,
 )
-from src.metadata.ingestion.source.connections import get_test_connection_fn
-from src.metadata.utils import fqn
-from src.metadata.utils.filters import filter_by_schema
-from src.metadata.utils.logger import ingestion_logger
-# from src.metadata.utils.tag_utils import get_tag_label
+from metadata.ingestion.source.connections import get_test_connection_fn
+from metadata.utils import fqn
+from metadata.utils.filters import filter_by_schema
+from metadata.utils.logger import ingestion_logger
+# from metadata.utils.tag_utils import get_tag_label
 
 logger = ingestion_logger()
 

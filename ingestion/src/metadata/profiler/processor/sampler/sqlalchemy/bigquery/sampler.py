@@ -16,11 +16,11 @@ from typing import Dict, Optional
 
 from sqlalchemy.orm import Query
 
-from src.metadata.generated.schema.entity.data.table import ProfileSampleType, TableType
-from src.metadata.profiler.api.models import ProfileSampleConfig
-from src.metadata.profiler.processor.handle_partition import partition_filter_handler
-from src.metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
-from src.metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
+from metadata.generated.schema.entity.data.table import ProfileSampleType, TableType
+from metadata.profiler.api.models import ProfileSampleConfig
+from metadata.profiler.processor.handle_partition import partition_filter_handler
+from metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
+from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
 
 
 class BigQuerySampler(SQASampler):

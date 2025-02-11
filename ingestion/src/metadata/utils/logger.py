@@ -18,18 +18,18 @@ from functools import singledispatch
 from types import DynamicClassAttribute
 from typing import Optional, Union
 
-# from src.metadata.data_quality.api.models import (
+# from metadata.data_quality.api.models import (
 #     TableAndTests,
 #     TestCaseResultResponse,
 #     TestCaseResults,
 # )
-# from src.metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
-from src.metadata.ingestion.api.models import Entity
-# from src.metadata.ingestion.models.delete_entity import DeleteEntity
-# from src.metadata.ingestion.models.life_cycle import OMetaLifeCycleData
-# from src.metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
-# from src.metadata.ingestion.models.patch_request import PatchRequest
-# from src.metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+from metadata.ingestion.api.models import Entity
+# from metadata.ingestion.models.delete_entity import DeleteEntity
+# from metadata.ingestion.models.life_cycle import OMetaLifeCycleData
+# from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+# from metadata.ingestion.models.patch_request import PatchRequest
+# from metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
 
 METADATA_LOGGER = "metadata"
 BASE_LOGGING_FORMAT = (

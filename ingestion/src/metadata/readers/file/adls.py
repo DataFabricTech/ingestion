@@ -15,11 +15,11 @@ Read files as string from S3
 import traceback
 from typing import Dict, List
 
-from src.metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
+from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
-from src.metadata.readers.file.base import Reader, ReadException
-from src.metadata.utils.logger import ingestion_logger
+from metadata.readers.file.base import Reader, ReadException
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

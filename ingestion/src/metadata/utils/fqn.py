@@ -23,29 +23,29 @@ from antlr4.InputStream import InputStream
 from antlr4.tree.Tree import ParseTreeWalker
 from pydantic import BaseModel, Field
 
-from src.metadata.antlr.split_listener import FqnSplitListener
-from src.metadata.generated.antlr.FqnLexer import FqnLexer
-from src.metadata.generated.antlr.FqnParser import FqnParser
-# from src.metadata.generated.schema.entity.classification.tag import Tag
-# from src.metadata.generated.schema.entity.data.chart import Chart
-# from src.metadata.generated.schema.entity.data.dashboard import Dashboard
-# from src.metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
-from src.metadata.generated.schema.entity.data.database import Database
-from src.metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-# from src.metadata.generated.schema.entity.data.mlmodel import MlModel
-from src.metadata.generated.schema.entity.data.pipeline import Pipeline
-# from src.metadata.generated.schema.entity.data.query import Query
-from src.metadata.generated.schema.entity.data.searchIndex import SearchIndex
-# from src.metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
-from src.metadata.generated.schema.entity.data.table import Column, DataModel, Table
-# from src.metadata.generated.schema.entity.data.topic import Topic
-# from src.metadata.generated.schema.entity.teams.team import Team
-# from src.metadata.generated.schema.entity.teams.user import User
-# from src.metadata.generated.schema.tests.testCase import TestCase
-# from src.metadata.generated.schema.tests.testSuite import TestSuite
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-from src.metadata.utils.dispatch import class_register
-# from src.metadata.utils.elasticsearch import get_entity_from_es_result
+from metadata.antlr.split_listener import FqnSplitListener
+from metadata.generated.antlr.FqnLexer import FqnLexer
+from metadata.generated.antlr.FqnParser import FqnParser
+# from metadata.generated.schema.entity.classification.tag import Tag
+# from metadata.generated.schema.entity.data.chart import Chart
+# from metadata.generated.schema.entity.data.dashboard import Dashboard
+# from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
+from metadata.generated.schema.entity.data.database import Database
+from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
+# from metadata.generated.schema.entity.data.mlmodel import MlModel
+from metadata.generated.schema.entity.data.pipeline import Pipeline
+# from metadata.generated.schema.entity.data.query import Query
+from metadata.generated.schema.entity.data.searchIndex import SearchIndex
+# from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
+from metadata.generated.schema.entity.data.table import Column, DataModel, Table
+# from metadata.generated.schema.entity.data.topic import Topic
+# from metadata.generated.schema.entity.teams.team import Team
+# from metadata.generated.schema.entity.teams.user import User
+# from metadata.generated.schema.tests.testCase import TestCase
+# from metadata.generated.schema.tests.testSuite import TestSuite
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.utils.dispatch import class_register
+# from metadata.utils.elasticsearch import get_entity_from_es_result
 
 T = TypeVar("T", bound=BaseModel)
 

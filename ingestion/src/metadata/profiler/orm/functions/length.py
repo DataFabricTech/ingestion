@@ -18,9 +18,9 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql import sqltypes
 from sqlalchemy.sql.functions import FunctionElement
 
-from src.metadata.profiler.metrics.core import CACHE
-from src.metadata.profiler.orm.registry import Dialects
-from src.metadata.utils.logger import profiler_logger
+from metadata.profiler.metrics.core import CACHE
+from metadata.profiler.orm.registry import Dialects
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

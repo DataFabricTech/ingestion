@@ -15,10 +15,10 @@ to an SQLAlchemy ORM class.
 """
 
 
-from src.metadata.generated.schema.entity.data.database import databaseService
-from src.metadata.generated.schema.entity.data.table import Column, DataType
-from src.metadata.profiler.orm.converter.common import CommonMapTypes
-from src.metadata.profiler.orm.registry import CustomTypes
+from metadata.generated.schema.entity.data.database import databaseService
+from metadata.generated.schema.entity.data.table import Column, DataType
+from metadata.profiler.orm.converter.common import CommonMapTypes
+from metadata.profiler.orm.registry import CustomTypes
 
 
 class SnowflakeMapTypes(CommonMapTypes):

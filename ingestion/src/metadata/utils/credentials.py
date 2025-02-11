@@ -21,14 +21,14 @@ from cryptography.hazmat.primitives import serialization
 from google import auth
 from google.auth import impersonated_credentials
 
-from src.metadata.generated.schema.security.credentials.gcpCredentials import (
+from metadata.generated.schema.security.credentials.gcpCredentials import (
     GCPCredentials,
     GcpCredentialsPath,
 )
-from src.metadata.generated.schema.security.credentials.gcpValues import (
+from metadata.generated.schema.security.credentials.gcpValues import (
     GcpCredentialsValues,
 )
-from src.metadata.utils.logger import utils_logger
+from metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

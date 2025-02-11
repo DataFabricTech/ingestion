@@ -16,10 +16,10 @@ Non Parametric Skew definition
 
 from typing import Any, Dict, Optional, Tuple
 
-from src.metadata.profiler.metrics.core import ComposedMetric
-from src.metadata.profiler.metrics.static.mean import Mean
-from src.metadata.profiler.metrics.static.stddev import StdDev
-from src.metadata.profiler.metrics.window.median import Median
+from metadata.profiler.metrics.core import ComposedMetric
+from metadata.profiler.metrics.static.mean import Mean
+from metadata.profiler.metrics.static.stddev import StdDev
+from metadata.profiler.metrics.window.median import Median
 
 
 class NonParametricSkew(ComposedMetric):

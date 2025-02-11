@@ -18,7 +18,7 @@ from typing import List
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from src.metadata.utils.profiler_utils import QueryResult
+from metadata.utils.profiler_utils import QueryResult
 
 STL_QUERY = """
     with data as (

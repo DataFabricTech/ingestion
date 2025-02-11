@@ -16,9 +16,9 @@ Inter Quartile Range Composed Metric definition
 
 from typing import Any, Dict, Optional, Tuple
 
-from src.metadata.profiler.metrics.core import ComposedMetric
-from src.metadata.profiler.metrics.window.first_quartile import FirstQuartile
-from src.metadata.profiler.metrics.window.third_quartile import ThirdQuartile
+from metadata.profiler.metrics.core import ComposedMetric
+from metadata.profiler.metrics.window.first_quartile import FirstQuartile
+from metadata.profiler.metrics.window.third_quartile import ThirdQuartile
 
 
 class InterQuartileRange(ComposedMetric):

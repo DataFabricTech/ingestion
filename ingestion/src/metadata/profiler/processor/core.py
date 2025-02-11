@@ -22,10 +22,10 @@ from pydantic import ValidationError
 from sqlalchemy import Column
 from sqlalchemy.orm import DeclarativeMeta
 
-from src.metadata.generated.schema.api.data.createTableProfile import (
+from metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,
 )
-from src.metadata.generated.schema.entity.data.table import (
+from metadata.generated.schema.entity.data.table import (
     ColumnName,
     ColumnProfile,
     ColumnProfilerConfig,
@@ -33,9 +33,9 @@ from src.metadata.generated.schema.entity.data.table import (
     TableData,
     TableProfile,
 )
-from src.metadata.profiler.api.models import ProfilerResponse
-from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
-from src.metadata.profiler.metrics.core import (
+from metadata.profiler.api.models import ProfilerResponse
+from metadata.profiler.interface.profiler_interface import ProfilerInterface
+from metadata.profiler.metrics.core import (
     ComposedMetric,
     CustomMetric,
     HybridMetric,
@@ -45,13 +45,13 @@ from src.metadata.profiler.metrics.core import (
     SystemMetric,
     TMetric,
 )
-from src.metadata.profiler.metrics.registry import Metrics
-from src.metadata.profiler.metrics.static.row_count import RowCount
-from src.metadata.profiler.orm.registry import NOT_COMPUTE
-from src.metadata.profiler.processor.sample_data_handler import upload_sample_data
-from src.metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
-from src.metadata.utils.helpers import calculate_execution_time
-from src.metadata.utils.logger import profiler_logger
+from metadata.profiler.metrics.registry import Metrics
+from metadata.profiler.metrics.static.row_count import RowCount
+from metadata.profiler.orm.registry import NOT_COMPUTE
+from metadata.profiler.processor.sample_data_handler import upload_sample_data
+from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
+from metadata.utils.helpers import calculate_execution_time
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

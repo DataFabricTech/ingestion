@@ -13,26 +13,26 @@ Register auth provider init functions here
 """
 # Complains about same imports
 # pylint: disable=duplicate-code
-from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     AuthProvider,
     OpenMetadataConnection,
 )
-# from src.metadata.generated.schema.security.client.auth0SSOClientConfig import (
+# from metadata.generated.schema.security.client.auth0SSOClientConfig import (
 #     Auth0SSOClientConfig,
 # )
-# from src.metadata.generated.schema.security.client.azureSSOClientConfig import (
+# from metadata.generated.schema.security.client.azureSSOClientConfig import (
 #     AzureSSOClientConfig,
 # )
-# from src.metadata.generated.schema.security.client.customOidcSSOClientConfig import (
+# from metadata.generated.schema.security.client.customOidcSSOClientConfig import (
 #     CustomOIDCSSOClientConfig,
 # )
-# from src.metadata.generated.schema.security.client.googleSSOClientConfig import (
+# from metadata.generated.schema.security.client.googleSSOClientConfig import (
 #     GoogleSSOClientConfig,
 # )
-# from src.metadata.generated.schema.security.client.oktaSSOClientConfig import (
+# from metadata.generated.schema.security.client.oktaSSOClientConfig import (
 #     OktaSSOClientConfig,
 # )
-from src.metadata.ingestion.ometa.auth_provider import (
+from metadata.ingestion.ometa.auth_provider import (
     # Auth0AuthenticationProvider,
     AuthenticationProvider,
     # AzureAuthenticationProvider,
@@ -43,8 +43,8 @@ from src.metadata.ingestion.ometa.auth_provider import (
     OpenMetadataAuthenticationProvider,
     OpenMetadataJWTClientConfig,
 )
-from src.metadata.utils.dispatch import enum_register
-from src.metadata.utils.logger import ometa_logger
+from metadata.utils.dispatch import enum_register
+from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
 

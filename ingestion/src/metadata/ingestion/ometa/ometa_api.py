@@ -20,53 +20,53 @@ from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 from pydantic import BaseModel
 from requests.utils import requote_uri
 
-from src.metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
+from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
 )
-from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-from src.metadata.generated.schema.type import basic
-from src.metadata.generated.schema.type.basic import FullyQualifiedEntityName
-from src.metadata.generated.schema.type.entityHistory import EntityVersionHistory
-from src.metadata.generated.schema.type.entityReference import EntityReference
-from src.metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus
-from src.metadata.ingestion.models.encoders import show_secrets_encoder
-from src.metadata.ingestion.ometa.auth_provider import AuthenticationProvider
-from src.metadata.ingestion.ometa.client import REST, APIError, ClientConfig
-# from src.metadata.ingestion.ometa.mixins.custom_property_mixin import (
+from metadata.generated.schema.type import basic
+from metadata.generated.schema.type.basic import FullyQualifiedEntityName
+from metadata.generated.schema.type.entityHistory import EntityVersionHistory
+from metadata.generated.schema.type.entityReference import EntityReference
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus
+from metadata.ingestion.models.encoders import show_secrets_encoder
+from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
+from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
+# from metadata.ingestion.ometa.mixins.custom_property_mixin import (
 #     OMetaCustomPropertyMixin,
 # )
-# from src.metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
-# from src.metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
-# from src.metadata.ingestion.ometa.mixins.es_mixin import ESMixin
-# from src.metadata.ingestion.ometa.mixins.glossary_mixin import GlossaryMixin
-from src.metadata.ingestion.ometa.mixins.ingestion_pipeline_mixin import (
+# from metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
+# from metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
+# from metadata.ingestion.ometa.mixins.es_mixin import ESMixin
+# from metadata.ingestion.ometa.mixins.glossary_mixin import GlossaryMixin
+from metadata.ingestion.ometa.mixins.ingestion_pipeline_mixin import (
     OMetaIngestionPipelineMixin,
 )
-# from src.metadata.ingestion.ometa.mixins.mlmodel_mixin import OMetaMlModelMixin
-# from src.metadata.ingestion.ometa.mixins.patch_mixin import OMetaPatchMixin
-# from src.metadata.ingestion.ometa.mixins.pipeline_mixin import OMetaPipelineMixin
-# from src.metadata.ingestion.ometa.mixins.query_mixin import OMetaQueryMixin
-# from src.metadata.ingestion.ometa.mixins.role_policy_mixin import OMetaRolePolicyMixin
-# from src.metadata.ingestion.ometa.mixins.search_index_mixin import OMetaSearchIndexMixin
-from src.metadata.ingestion.ometa.mixins.server_mixin import OMetaServerMixin
-from src.metadata.ingestion.ometa.mixins.service_mixin import OMetaServiceMixin
-from src.metadata.ingestion.ometa.mixins.table_mixin import OMetaTableMixin
-# from src.metadata.ingestion.ometa.mixins.tests_mixin import OMetaTestsMixin
-# from src.metadata.ingestion.ometa.mixins.topic_mixin import OMetaTopicMixin
-# from src.metadata.ingestion.ometa.mixins.user_mixin import OMetaUserMixin
-# from src.metadata.ingestion.ometa.mixins.version_mixin import OMetaVersionMixin
-from src.metadata.ingestion.ometa.models import EntityList
-from src.metadata.ingestion.ometa.provider_registry import (
+# from metadata.ingestion.ometa.mixins.mlmodel_mixin import OMetaMlModelMixin
+# from metadata.ingestion.ometa.mixins.patch_mixin import OMetaPatchMixin
+# from metadata.ingestion.ometa.mixins.pipeline_mixin import OMetaPipelineMixin
+# from metadata.ingestion.ometa.mixins.query_mixin import OMetaQueryMixin
+# from metadata.ingestion.ometa.mixins.role_policy_mixin import OMetaRolePolicyMixin
+# from metadata.ingestion.ometa.mixins.search_index_mixin import OMetaSearchIndexMixin
+from metadata.ingestion.ometa.mixins.server_mixin import OMetaServerMixin
+from metadata.ingestion.ometa.mixins.service_mixin import OMetaServiceMixin
+from metadata.ingestion.ometa.mixins.table_mixin import OMetaTableMixin
+# from metadata.ingestion.ometa.mixins.tests_mixin import OMetaTestsMixin
+# from metadata.ingestion.ometa.mixins.topic_mixin import OMetaTopicMixin
+# from metadata.ingestion.ometa.mixins.user_mixin import OMetaUserMixin
+# from metadata.ingestion.ometa.mixins.version_mixin import OMetaVersionMixin
+from metadata.ingestion.ometa.models import EntityList
+from metadata.ingestion.ometa.provider_registry import (
     InvalidAuthProviderException,
     auth_provider_registry,
 )
-from src.metadata.ingestion.ometa.routes import ROUTES
-from src.metadata.ingestion.ometa.utils import get_entity_type, model_str
-from src.metadata.utils.logger import ometa_logger
-from src.metadata.utils.secrets.secrets_manager_factory import SecretsManagerFactory
-from src.metadata.utils.ssl_registry import get_verify_ssl_fn
+from metadata.ingestion.ometa.routes import ROUTES
+from metadata.ingestion.ometa.utils import get_entity_type, model_str
+from metadata.utils.logger import ometa_logger
+from metadata.utils.secrets.secrets_manager_factory import SecretsManagerFactory
+from metadata.utils.ssl_registry import get_verify_ssl_fn
 
 logger = ometa_logger()
 

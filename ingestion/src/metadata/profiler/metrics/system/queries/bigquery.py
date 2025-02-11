@@ -16,7 +16,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from src.metadata.profiler.metrics.system.dml_operation import DatabaseDMLOperations
+from metadata.profiler.metrics.system.dml_operation import DatabaseDMLOperations
 
 
 class BigQueryQueryResult(BaseModel):

@@ -16,7 +16,7 @@ Class defining the interface for the profiler source
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from src.metadata.profiler.interface.profiler_interface import ProfilerInterface
+from metadata.profiler.interface.profiler_interface import ProfilerInterface
 
 
 class ProfilerSourceInterface(ABC):

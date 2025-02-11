@@ -16,7 +16,7 @@ Expand sqlalchemy types to map them to OpenMetadata DataType
 """
 from sqlalchemy.sql.sqltypes import VARBINARY, TypeDecorator
 
-from src.metadata.utils.logger import profiler_logger
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

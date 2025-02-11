@@ -17,7 +17,7 @@ Table Count Metric definition
 
 from sqlalchemy import func
 
-from src.metadata.profiler.metrics.core import StaticMetric, _label
+from metadata.profiler.metrics.core import StaticMetric, _label
 
 
 class RowCount(StaticMetric):

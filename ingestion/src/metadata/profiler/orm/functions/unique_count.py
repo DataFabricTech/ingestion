@@ -17,10 +17,10 @@ from collections import defaultdict
 
 from sqlalchemy import NVARCHAR, TEXT, func, literal_column
 
-from src.metadata.profiler.orm.converter.mssql.converter import cast_dict
-from src.metadata.profiler.orm.functions.count import CountFn
-from src.metadata.profiler.orm.registry import Dialects
-from src.metadata.profiler.orm.types.custom_image import CustomImage
+from metadata.profiler.orm.converter.mssql.converter import cast_dict
+from metadata.profiler.orm.functions.count import CountFn
+from metadata.profiler.orm.registry import Dialects
+from metadata.profiler.orm.types.custom_image import CustomImage
 
 
 def _unique_count_query(col, session, sample):

@@ -25,30 +25,30 @@ from typing import Iterable, cast
 
 from sqlalchemy.inspection import inspect
 
-from src.metadata.generated.schema.entity.data.database import Database
-from src.metadata.generated.schema.entity.data.table import Table, TableType
-from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
+from metadata.generated.schema.entity.data.database import Database
+from metadata.generated.schema.entity.data.table import Table, TableType
+from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.workflow import (
+from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from src.metadata.ingestion.api.models import Either, StackTraceError
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-from src.metadata.ingestion.source.connections import get_connection
-from src.metadata.profiler.source.metadata import (
+from metadata.ingestion.api.models import Either, StackTraceError
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.ingestion.source.connections import get_connection
+from metadata.profiler.source.metadata import (
     OpenMetadataSource,
     ProfilerSourceAndEntity,
 )
-from src.metadata.profiler.source.profiler_source_factory import profiler_source_factory
-from src.metadata.utils import fqn
-from src.metadata.utils.class_helper import get_service_type_from_source_type
-from src.metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table
-from src.metadata.utils.importer import import_source_class
-from src.metadata.utils.logger import profiler_logger
+from metadata.profiler.source.profiler_source_factory import profiler_source_factory
+from metadata.utils import fqn
+from metadata.utils.class_helper import get_service_type_from_source_type
+from metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table
+from metadata.utils.importer import import_source_class
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

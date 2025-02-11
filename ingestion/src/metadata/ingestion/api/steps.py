@@ -14,9 +14,9 @@ Abstract definition of each step
 from abc import ABC, abstractmethod
 from typing import Any
 
-from src.metadata.ingestion.api.step import BulkStep, IterStep, ReturnStep, StageStep
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-from src.metadata.utils.logger import ingestion_logger
+from metadata.ingestion.api.step import BulkStep, IterStep, ReturnStep, StageStep
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

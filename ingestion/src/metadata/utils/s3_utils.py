@@ -16,7 +16,7 @@ s3 utils module
 import traceback
 from typing import Iterable
 
-from src.metadata.utils.logger import utils_logger
+from metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

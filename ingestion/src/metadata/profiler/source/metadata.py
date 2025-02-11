@@ -16,25 +16,25 @@ from typing import Iterable, Optional, cast
 
 from pydantic import BaseModel
 
-from src.metadata.generated.schema.entity.data.database import Database
-from src.metadata.generated.schema.entity.data.table import Table, TableType
-from src.metadata.generated.schema.entity.services.databaseService import DatabaseService
-from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from metadata.generated.schema.entity.data.database import Database
+from metadata.generated.schema.entity.data.table import Table, TableType
+from metadata.generated.schema.entity.services.databaseService import DatabaseService
+from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.workflow import (
+from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from src.metadata.ingestion.api.models import Either, StackTraceError
-from src.metadata.ingestion.api.parser import parse_workflow_config_gracefully
-from src.metadata.ingestion.api.step import Step
-from src.metadata.ingestion.api.steps import Source
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-from src.metadata.profiler.source.base.profiler_source import ProfilerSource
-from src.metadata.profiler.source.profiler_source_factory import profiler_source_factory
-from src.metadata.utils import fqn
-from src.metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table
-from src.metadata.utils.logger import profiler_logger
+from metadata.ingestion.api.models import Either, StackTraceError
+from metadata.ingestion.api.parser import parse_workflow_config_gracefully
+from metadata.ingestion.api.step import Step
+from metadata.ingestion.api.steps import Source
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+from metadata.profiler.source.base.profiler_source import ProfilerSource
+from metadata.profiler.source.profiler_source_factory import profiler_source_factory
+from metadata.utils import fqn
+from metadata.utils.filters import filter_by_database, filter_by_schema, filter_by_table
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

@@ -15,10 +15,10 @@ to an SQLAlchemy ORM class.
 """
 
 
-from src.metadata.generated.schema.entity.data.database import databaseService
-from src.metadata.generated.schema.entity.data.table import Column, DataType
-from src.metadata.profiler.orm.converter.common import CommonMapTypes
-from src.metadata.profiler.source.bigquery.type_mapper import bigquery_type_mapper
+from metadata.generated.schema.entity.data.database import databaseService
+from metadata.generated.schema.entity.data.table import Column, DataType
+from metadata.profiler.orm.converter.common import CommonMapTypes
+from metadata.profiler.source.bigquery.type_mapper import bigquery_type_mapper
 
 
 class BigqueryMapTypes(CommonMapTypes):

@@ -3,7 +3,7 @@
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.functions import FunctionElement
 
-from src.metadata.profiler.metrics.core import CACHE
+from metadata.profiler.metrics.core import CACHE
 
 
 class SingleStoreMedianFn(FunctionElement):

@@ -13,8 +13,8 @@ Custom models for life cycle
 """
 from pydantic import BaseModel
 
-from src.metadata.generated.schema.type.lifeCycle import LifeCycle
-from src.metadata.ingestion.api.models import Entity
+from metadata.generated.schema.type.lifeCycle import LifeCycle
+from metadata.ingestion.api.models import Entity
 
 
 class OMetaLifeCycleData(BaseModel):

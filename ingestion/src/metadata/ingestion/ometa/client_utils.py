@@ -14,14 +14,14 @@ OMeta client create helpers
 import traceback
 from typing import List
 
-# from src.metadata.generated.schema.entity.data.chart import Chart
-from src.metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
+# from metadata.generated.schema.entity.data.chart import Chart
+from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-# from src.metadata.generated.schema.type.entityReference import EntityReference
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-# from src.metadata.utils import fqn
-from src.metadata.utils.logger import ometa_logger
+# from metadata.generated.schema.type.entityReference import EntityReference
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.utils import fqn
+from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
 

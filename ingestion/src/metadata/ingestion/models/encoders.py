@@ -14,7 +14,7 @@ Custom pydantic encoders
 from pydantic import SecretStr
 from pydantic.json import pydantic_encoder
 
-from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 
 def show_secrets_encoder(obj):

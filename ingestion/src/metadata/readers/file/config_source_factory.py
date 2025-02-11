@@ -18,36 +18,36 @@ ConfigSource Reader Factory: Helps us choose the reader from
 """
 from typing import Any
 
-from src.metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
+from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
-from src.metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
+from metadata.generated.schema.entity.services.connections.database.datalake.gcsConfig import (
     GCSConfig,
 )
-from src.metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
+from metadata.generated.schema.entity.services.connections.database.datalake.s3Config import (
     S3Config,
 )
-from src.metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     LocalConfig,
 )
-from src.metadata.generated.schema.metadataIngestion.dbtconfig.dbtAzureConfig import (
+from metadata.generated.schema.metadataIngestion.dbtconfig.dbtAzureConfig import (
     DbtAzureConfig,
 )
-from src.metadata.generated.schema.metadataIngestion.dbtconfig.dbtGCSConfig import (
+from metadata.generated.schema.metadataIngestion.dbtconfig.dbtGCSConfig import (
     DbtGcsConfig,
 )
-from src.metadata.generated.schema.metadataIngestion.dbtconfig.dbtLocalConfig import (
+from metadata.generated.schema.metadataIngestion.dbtconfig.dbtLocalConfig import (
     DbtLocalConfig,
 )
-from src.metadata.generated.schema.metadataIngestion.dbtconfig.dbtS3Config import (
+from metadata.generated.schema.metadataIngestion.dbtconfig.dbtS3Config import (
     DbtS3Config,
 )
-from src.metadata.readers.file.adls import ADLSReader
-from src.metadata.readers.file.base import Reader
-from src.metadata.readers.file.gcs import GCSReader
-from src.metadata.readers.file.local import LocalReader
-from src.metadata.readers.file.s3 import S3Reader
-from src.metadata.readers.models import ConfigSource
+from metadata.readers.file.adls import ADLSReader
+from metadata.readers.file.base import Reader
+from metadata.readers.file.gcs import GCSReader
+from metadata.readers.file.local import LocalReader
+from metadata.readers.file.s3 import S3Reader
+from metadata.readers.models import ConfigSource
 
 CONFIG_SOURCE_READER = {
     LocalConfig.__name__: LocalReader,

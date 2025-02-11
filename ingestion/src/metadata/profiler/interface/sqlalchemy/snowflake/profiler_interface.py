@@ -14,11 +14,11 @@ Interfaces with database for all database engine
 supporting sqlalchemy abstraction layer
 """
 
-from src.metadata.profiler.interface.sqlalchemy.profiler_interface import (
+from metadata.profiler.interface.sqlalchemy.profiler_interface import (
     OVERFLOW_ERROR_CODES,
     SQAProfilerInterface,
 )
-from src.metadata.utils.logger import profiler_interface_registry_logger
+from metadata.utils.logger import profiler_interface_registry_logger
 
 logger = profiler_interface_registry_logger()
 

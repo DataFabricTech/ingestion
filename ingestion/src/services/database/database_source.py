@@ -1,9 +1,9 @@
-from src.metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
-from src.metadata.generated.schema.metadataIngestion.workflow import Source
-from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from src.metadata.generated.schema.entity.services.databaseService import DatabaseConnection
+from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
+from metadata.generated.schema.metadataIngestion.workflow import Source
+from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
 
-from src.services.common.source import CommonSource
+from services.common.source import CommonSource
 class DatabaseSource(CommonSource):
 
     def _getSource(self) -> Source:

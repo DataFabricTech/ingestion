@@ -15,9 +15,9 @@ for the profiler
 from sqlalchemy import inspect, or_, text
 from trino.sqlalchemy.dialect import TrinoDialect
 
-from src.metadata.profiler.orm.registry import FLOAT_SET
-from src.metadata.profiler.processor.handle_partition import RANDOM_LABEL
-from src.metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
+from metadata.profiler.orm.registry import FLOAT_SET
+from metadata.profiler.processor.handle_partition import RANDOM_LABEL
+from metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
 
 
 class TrinoSampler(SQASampler):

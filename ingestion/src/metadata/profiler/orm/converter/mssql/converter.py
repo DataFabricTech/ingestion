@@ -16,7 +16,7 @@ Map Types to convert/cast mssql related data types to relevant data types
 
 from sqlalchemy import NVARCHAR, TEXT
 
-from src.metadata.profiler.orm.registry import CustomImage
+from metadata.profiler.orm.registry import CustomImage
 
 cast_dict = {
     CustomImage: "VARBINARY(max)",

@@ -1,16 +1,16 @@
 from typing import Union
 
-from src.metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
-from src.metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
-from src.metadata.generated.schema.entity.services.searchService import SearchServiceType
-from src.metadata.generated.schema.entity.services.storageService import StorageServiceType
-from src.metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
-from src.metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
-from src.metadata.ingestion.ometa.client import REST, ClientConfig
-from src.metadata.ingestion.ometa.routes import ROUTES
+from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
+from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
+from metadata.generated.schema.entity.services.searchService import SearchServiceType
+from metadata.generated.schema.entity.services.storageService import StorageServiceType
+from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
+from metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
+from metadata.ingestion.ometa.client import REST, ClientConfig
+from metadata.ingestion.ometa.routes import ROUTES
 
-from src.metadata.utils.logger import ingestion_logger
-from src.utils.security_manager import SecurityManager
+from metadata.utils.logger import ingestion_logger
+from utils.security_manager import SecurityManager
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
@@ -132,14 +132,14 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
                sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
 
-    from src.services.database.custom.tibero.source import TiberoSource
-    from src.services.database.postgres.source import PostgresSource
-    from src.services.database.mysql.source import MysqlSource
-    from src.services.database.oracle.source import OracleSource
-    from src.services.database.hive.source import HiveSource
-    from src.services.database.mssql.source import MssqlSource
-    from src.services.storage.s3.source import S3Source
-    from src.services.filesystem.linux.source import LinuxSource
+    from services.database.custom.tibero.source import TiberoSource
+    from services.database.postgres.source import PostgresSource
+    from services.database.mysql.source import MysqlSource
+    from services.database.oracle.source import OracleSource
+    from services.database.hive.source import HiveSource
+    from services.database.mssql.source import MssqlSource
+    from services.storage.s3.source import S3Source
+    from services.filesystem.linux.source import LinuxSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -194,7 +194,7 @@ def metadata_collector_execute(system_id, sink="file", sink_host="localhost", si
 
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
 
-    from src.services.common.metadata import MetadataExecutor
+    from services.common.metadata import MetadataExecutor
     MetadataExecutor.execute(source)
 
     #profile phy

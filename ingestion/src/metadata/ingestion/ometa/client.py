@@ -19,9 +19,9 @@ from typing import Callable, Dict, List, Optional, Union
 import requests
 from requests.exceptions import HTTPError
 
-from src.metadata.config.common import ConfigModel
-from src.metadata.ingestion.ometa.credentials import URL, get_api_version
-from src.metadata.utils.logger import ometa_logger
+from metadata.config.common import ConfigModel
+from metadata.ingestion.ometa.credentials import URL, get_api_version
+from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
 

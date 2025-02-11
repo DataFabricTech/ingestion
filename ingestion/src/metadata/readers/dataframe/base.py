@@ -16,11 +16,11 @@ Dataframe base reader
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from src.metadata.readers.dataframe.models import DatalakeColumnWrapper
-from src.metadata.readers.file.base import Reader
-from src.metadata.readers.file.config_source_factory import get_reader
-from src.metadata.readers.models import ConfigSource
-from src.metadata.utils.logger import ingestion_logger
+from metadata.readers.dataframe.models import DatalakeColumnWrapper
+from metadata.readers.file.base import Reader
+from metadata.readers.file.config_source_factory import get_reader
+from metadata.readers.models import ConfigSource
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

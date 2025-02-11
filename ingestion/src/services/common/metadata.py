@@ -1,4 +1,4 @@
-from src.services.common.source import CommonSource, CollectorStatus
+from services.common.source import CommonSource, CollectorStatus
 
 class MetadataExecutor:
 
@@ -7,14 +7,14 @@ class MetadataExecutor:
         ########################################################
         # build metadata config
         ########################################################
-        from src.metadata.generated.schema.metadataIngestion.workflow import OpenMetadataWorkflowConfig
+        from metadata.generated.schema.metadataIngestion.workflow import OpenMetadataWorkflowConfig
         workflow_config: OpenMetadataWorkflowConfig = commonSource.getMetadataWorkflowConfig()
 
         ########################################################
         # run metadata workflow
         ########################################################
-        from src.metadata.workflow.metadata import MetadataWorkflow
-        from src.metadata.workflow.workflow_output_handler import print_status
+        from metadata.workflow.metadata import MetadataWorkflow
+        from metadata.workflow.workflow_output_handler import print_status
         workflow = MetadataWorkflow(workflow_config)
         try:
             workflow.execute()

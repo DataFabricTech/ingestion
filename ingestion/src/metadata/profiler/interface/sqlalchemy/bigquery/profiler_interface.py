@@ -15,7 +15,7 @@ supporting sqlalchemy abstraction layer
 """
 from sqlalchemy import Column, inspect
 
-from src.metadata.profiler.interface.sqlalchemy.profiler_interface import (
+from metadata.profiler.interface.sqlalchemy.profiler_interface import (
     SQAProfilerInterface,
 )
 
@@ -42,7 +42,7 @@ class BigQueryProfilerInterface(SQAProfilerInterface):
 
     def _get_sampler(self, **kwargs):
         """get sampler object"""
-        from src.metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
+        from metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
             sampler_factory_,
         )
 

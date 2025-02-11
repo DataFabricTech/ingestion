@@ -16,11 +16,11 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from src.metadata.generated.schema.api.classification.createClassification import (
+from metadata.generated.schema.api.classification.createClassification import (
     CreateClassificationRequest,
 )
-from src.metadata.generated.schema.api.classification.createTag import CreateTagRequest
-from src.metadata.generated.schema.type.basic import FullyQualifiedEntityName
+from metadata.generated.schema.api.classification.createTag import CreateTagRequest
+from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 
 
 class OMetaTagAndClassification(BaseModel):

@@ -19,17 +19,17 @@ ConfigSource Reader Factory: Helps us choose the reader from
 from enum import Enum
 from typing import Any, Optional
 
-from src.metadata.readers.dataframe.avro import AvroDataFrameReader
-from src.metadata.readers.dataframe.base import DataFrameReader
-from src.metadata.readers.dataframe.dsv import (
+from metadata.readers.dataframe.avro import AvroDataFrameReader
+from metadata.readers.dataframe.base import DataFrameReader
+from metadata.readers.dataframe.dsv import (
     CSVDataFrameReader,
     TSVDataFrameReader,
     get_dsv_reader_by_separator,
 )
-from src.metadata.readers.dataframe.json import JSONDataFrameReader
-from src.metadata.readers.dataframe.parquet import ParquetDataFrameReader
-from src.metadata.readers.models import ConfigSource
-from src.metadata.utils.logger import utils_logger
+from metadata.readers.dataframe.json import JSONDataFrameReader
+from metadata.readers.dataframe.parquet import ParquetDataFrameReader
+from metadata.readers.models import ConfigSource
+from metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

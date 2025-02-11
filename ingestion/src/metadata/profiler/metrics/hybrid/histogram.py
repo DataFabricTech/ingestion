@@ -18,15 +18,15 @@ from typing import Any, Dict, List, Optional, Union, cast
 from sqlalchemy import and_, case, column, func
 from sqlalchemy.orm import DeclarativeMeta, Session
 
-from src.metadata.profiler.metrics.composed.iqr import InterQuartileRange
-from src.metadata.profiler.metrics.core import HybridMetric
-from src.metadata.profiler.metrics.static.count import Count
-from src.metadata.profiler.metrics.static.max import Max
-from src.metadata.profiler.metrics.static.min import Min
-from src.metadata.profiler.orm.functions.length import LenFn
-from src.metadata.profiler.orm.registry import is_concatenable, is_quantifiable
-from src.metadata.utils.helpers import format_large_string_numbers
-from src.metadata.utils.logger import profiler_logger
+from metadata.profiler.metrics.composed.iqr import InterQuartileRange
+from metadata.profiler.metrics.core import HybridMetric
+from metadata.profiler.metrics.static.count import Count
+from metadata.profiler.metrics.static.max import Max
+from metadata.profiler.metrics.static.min import Min
+from metadata.profiler.orm.functions.length import LenFn
+from metadata.profiler.orm.registry import is_concatenable, is_quantifiable
+from metadata.utils.helpers import format_large_string_numbers
+from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 

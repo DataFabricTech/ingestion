@@ -17,10 +17,10 @@ from typing import Dict, List, Optional, Union
 
 from sqlalchemy import Column
 
-from src.metadata.generated.schema.entity.data.table import TableData
-from src.metadata.profiler.api.models import ProfileSampleConfig
-from src.metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
-from src.metadata.utils.sqa_like_column import SQALikeColumn
+from metadata.generated.schema.entity.data.table import TableData
+from metadata.profiler.api.models import ProfileSampleConfig
+from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
+from metadata.utils.sqa_like_column import SQALikeColumn
 
 
 class SamplerInterface(ABC):

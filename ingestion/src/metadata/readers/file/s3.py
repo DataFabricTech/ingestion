@@ -15,8 +15,8 @@ Read files as string from S3
 import traceback
 from typing import List
 
-from src.metadata.readers.file.base import Reader, ReadException
-from src.metadata.utils.logger import ingestion_logger
+from metadata.readers.file.base import Reader, ReadException
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

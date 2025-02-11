@@ -17,8 +17,8 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
-from src.metadata.ingestion.api.models import StackTraceError
-from src.metadata.utils.logger import get_log_name, ingestion_logger
+from metadata.ingestion.api.models import StackTraceError
+from metadata.utils.logger import get_log_name, ingestion_logger
 
 logger = ingestion_logger()
 

@@ -18,22 +18,22 @@ from typing import List
 
 from sqlalchemy.exc import ProgrammingError
 
-from src.metadata.profiler.interface.sqlalchemy.profiler_interface import (
+from metadata.profiler.interface.sqlalchemy.profiler_interface import (
     SQAProfilerInterface,
     handle_query_exception,
 )
-from src.metadata.profiler.metrics.registry import Metrics
-from src.metadata.profiler.processor.runner import QueryRunner
-from src.metadata.profiler.source.single_store.metrics.window.first_quartile import (
+from metadata.profiler.metrics.registry import Metrics
+from metadata.profiler.processor.runner import QueryRunner
+from metadata.profiler.source.single_store.metrics.window.first_quartile import (
     SingleStoreFirstQuartile,
 )
-from src.metadata.profiler.source.single_store.metrics.window.median import (
+from metadata.profiler.source.single_store.metrics.window.median import (
     SingleStoreMedian,
 )
-from src.metadata.profiler.source.single_store.metrics.window.third_quartile import (
+from metadata.profiler.source.single_store.metrics.window.third_quartile import (
     SingleStoreThirdQuartile,
 )
-from src.metadata.utils.logger import profiler_interface_registry_logger
+from metadata.utils.logger import profiler_interface_registry_logger
 
 logger = profiler_interface_registry_logger()
 

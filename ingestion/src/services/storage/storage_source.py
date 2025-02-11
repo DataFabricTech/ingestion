@@ -1,9 +1,9 @@
-from src.metadata.generated.schema.entity.services.storageService import StorageServiceType
-from src.metadata.generated.schema.metadataIngestion.workflow import Source
-from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from src.metadata.generated.schema.entity.services.storageService import StorageConnection
+from metadata.generated.schema.entity.services.storageService import StorageServiceType
+from metadata.generated.schema.metadataIngestion.workflow import Source
+from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from metadata.generated.schema.entity.services.storageService import StorageConnection
 
-from src.services.common.source import CommonSource
+from services.common.source import CommonSource
 class StorageSource(CommonSource):
 
     def _getSource(self) -> Source:

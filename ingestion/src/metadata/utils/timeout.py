@@ -20,8 +20,8 @@ import platform
 import signal
 from typing import Callable
 
-from src.metadata.utils.constants import TEN_MIN
-from src.metadata.utils.logger import utils_logger
+from metadata.utils.constants import TEN_MIN
+from metadata.utils.logger import utils_logger
 
 logger = utils_logger()
 

@@ -16,9 +16,9 @@ Regex Count Metric definition
 
 from sqlalchemy import case, column, not_
 
-from src.metadata.profiler.metrics.core import StaticMetric, _label
-from src.metadata.profiler.orm.functions.sum import SumFn
-from src.metadata.profiler.orm.registry import is_concatenable
+from metadata.profiler.metrics.core import StaticMetric, _label
+from metadata.profiler.orm.functions.sum import SumFn
+from metadata.profiler.orm.registry import is_concatenable
 
 
 class NotRegexCount(StaticMetric):

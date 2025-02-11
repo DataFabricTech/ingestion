@@ -1,8 +1,8 @@
-from src.services.database.database_source import DatabaseSource
-from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import DatabaseServiceMetadataPipeline
-from src.metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from src.metadata.generated.schema.entity.services.connections.database.hiveConnection import HiveConnection
+from services.database.database_source import DatabaseSource
+from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import DatabaseServiceMetadataPipeline
+from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
+from metadata.generated.schema.entity.services.connections.database.hiveConnection import HiveConnection
 
 class HiveSource(DatabaseSource):
 

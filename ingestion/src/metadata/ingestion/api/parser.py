@@ -15,86 +15,86 @@ from typing import Type, TypeVar, Union
 
 from pydantic import BaseModel, ValidationError
 
-# from src.metadata.generated.schema.entity.automations.workflow import (
+# from metadata.generated.schema.entity.automations.workflow import (
 #     Workflow as AutomationWorkflow,
 # )
-# from src.metadata.generated.schema.entity.services.dashboardService import (
+# from metadata.generated.schema.entity.services.dashboardService import (
 #     DashboardConnection,
 #     DashboardServiceType,
 # )
-from src.metadata.generated.schema.entity.services.databaseService import (
+from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
     DatabaseServiceType,
 )
-from src.metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
+from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
     IngestionPipeline,
 )
-# from src.metadata.generated.schema.entity.services.messagingService import (
+# from metadata.generated.schema.entity.services.messagingService import (
 #     MessagingConnection,
 #     MessagingServiceType,
 # )
-# from src.metadata.generated.schema.entity.services.metadataService import (
+# from metadata.generated.schema.entity.services.metadataService import (
 #     MetadataConnection,
 #     MetadataServiceType,
 # )
-# from src.metadata.generated.schema.entity.services.mlmodelService import (
+# from metadata.generated.schema.entity.services.mlmodelService import (
 #     MlModelConnection,
 #     MlModelServiceType,
 # )
-# from src.metadata.generated.schema.entity.services.pipelineService import (
+# from metadata.generated.schema.entity.services.pipelineService import (
 #     PipelineConnection,
 #     PipelineServiceType,
 # )
-# from src.metadata.generated.schema.entity.services.searchService import (
+# from metadata.generated.schema.entity.services.searchService import (
 #     SearchConnection,
 #     SearchServiceType,
 # )
-from src.metadata.generated.schema.entity.services.storageService import (
+from metadata.generated.schema.entity.services.storageService import (
     StorageConnection,
     StorageServiceType,
 )
-# from src.metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
 #     DashboardMetadataConfigType,
 #     DashboardServiceMetadataPipeline,
 # )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseMetadataConfigType,
     DatabaseServiceMetadataPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
     ProfilerConfigType,
 )
-# from src.metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
+# from metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
 #     DatabaseServiceQueryUsagePipeline,
 #     DatabaseUsageConfigType,
 # )
-# from src.metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
 #     MessagingMetadataConfigType,
 #     MessagingServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
 #     MlModelMetadataConfigType,
 #     MlModelServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
 #     PipelineMetadataConfigType,
 #     PipelineServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
 #     SearchMetadataConfigType,
 #     SearchServiceMetadataPipeline,
 # )
-from src.metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
+from metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
     StorageMetadataConfigType,
     StorageServiceMetadataPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.workflow import (
+from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
     WorkflowConfig,
 )
-from src.metadata.ingestion.ometa.provider_registry import PROVIDER_CLASS_MAP
-from src.metadata.utils.logger import ingestion_logger
+from metadata.ingestion.ometa.provider_registry import PROVIDER_CLASS_MAP
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

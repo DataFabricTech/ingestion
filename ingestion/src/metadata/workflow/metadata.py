@@ -12,15 +12,15 @@
 Workflow definition for metadata related ingestions: metadata and lineage.
 """
 
-from src.metadata.config.common import WorkflowExecutionError
-from src.metadata.ingestion.api.steps import Sink, Source
-from src.metadata.utils.importer import (
+from metadata.config.common import WorkflowExecutionError
+from metadata.ingestion.api.steps import Sink, Source
+from metadata.utils.importer import (
     import_from_module,
     import_sink_class,
     import_source_class,
 )
-from src.metadata.utils.logger import ingestion_logger
-from src.metadata.workflow.base import BaseWorkflow
+from metadata.utils.logger import ingestion_logger
+from metadata.workflow.base import BaseWorkflow
 
 logger = ingestion_logger()
 

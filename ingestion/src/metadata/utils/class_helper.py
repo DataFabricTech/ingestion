@@ -18,51 +18,51 @@ from typing import Type
 
 from pydantic import BaseModel
 
-from src.metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
+from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipeline import (
     PipelineType,
 )
-from src.metadata.generated.schema.entity.services.serviceType import ServiceType
-# from src.metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
+from metadata.generated.schema.entity.services.serviceType import ServiceType
+# from metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
 #     DashboardServiceMetadataPipeline,
 # )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
-from src.metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
+from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-# from src.metadata.generated.schema.metadataIngestion.databaseServiceQueryLineagePipeline import (
+# from metadata.generated.schema.metadataIngestion.databaseServiceQueryLineagePipeline import (
 #     DatabaseServiceQueryLineagePipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
+# from metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
 #     DatabaseServiceQueryUsagePipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.dataInsightPipeline import (
+# from metadata.generated.schema.metadataIngestion.dataInsightPipeline import (
 #     DataInsightPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.dbtPipeline import DbtPipeline
-# from src.metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.dbtPipeline import DbtPipeline
+# from metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
 #     MessagingServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.metadataToElasticSearchPipeline import (
+# from metadata.generated.schema.metadataIngestion.metadataToElasticSearchPipeline import (
 #     MetadataToElasticSearchPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
 #     MlModelServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
 #     PipelineServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
 #     SearchServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
+# from metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
 #     StorageServiceMetadataPipeline,
 # )
-# from src.metadata.generated.schema.metadataIngestion.testSuitePipeline import (
+# from metadata.generated.schema.metadataIngestion.testSuitePipeline import (
 #     TestSuitePipeline,
 # )
-from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
 
 SERVICE_TYPE_REF = {
     ServiceType.Database.value: "databaseService",

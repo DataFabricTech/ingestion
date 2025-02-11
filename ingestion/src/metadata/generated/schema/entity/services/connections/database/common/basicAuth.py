@@ -8,7 +8,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from src.metadata.ingestion.models.custom_pydantic import CustomSecretStr
+from metadata.ingestion.models.custom_pydantic import CustomSecretStr
 
 
 class BasicAuth(BaseModel):

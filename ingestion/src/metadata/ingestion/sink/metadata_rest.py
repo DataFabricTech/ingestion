@@ -20,70 +20,70 @@ from typing import Any, Dict, Optional, TypeVar, Union
 from pydantic import BaseModel
 from requests.exceptions import HTTPError
 
-from src.metadata.config.common import ConfigModel
-# from src.metadata.data_insight.source.metadata import DataInsightRecord
-# from src.metadata.data_quality.api.models import TestCaseResultResponse, TestCaseResults
-# from src.metadata.generated.schema.analytics.reportData import ReportData
-# from src.metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
-# from src.metadata.generated.schema.api.teams.createRole import CreateRoleRequest
-# from src.metadata.generated.schema.api.teams.createTeam import CreateTeamRequest
-# from src.metadata.generated.schema.api.teams.createUser import CreateUserRequest
-# from src.metadata.generated.schema.api.tests.createLogicalTestCases import (
+from metadata.config.common import ConfigModel
+# from metadata.data_insight.source.metadata import DataInsightRecord
+# from metadata.data_quality.api.models import TestCaseResultResponse, TestCaseResults
+# from metadata.generated.schema.analytics.reportData import ReportData
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.teams.createRole import CreateRoleRequest
+# from metadata.generated.schema.api.teams.createTeam import CreateTeamRequest
+# from metadata.generated.schema.api.teams.createUser import CreateUserRequest
+# from metadata.generated.schema.api.tests.createLogicalTestCases import (
 #     CreateLogicalTestCases,
 # )
-# from src.metadata.generated.schema.api.tests.createTestSuite import CreateTestSuiteRequest
-# from src.metadata.generated.schema.dataInsight.kpi.basic import KpiResult
-from src.metadata.generated.schema.entity.classification.tag import Tag
-# from src.metadata.generated.schema.entity.data.dashboard import Dashboard
-from src.metadata.generated.schema.entity.data.pipeline import PipelineStatus
-from src.metadata.generated.schema.entity.data.searchIndex import (
+# from metadata.generated.schema.api.tests.createTestSuite import CreateTestSuiteRequest
+# from metadata.generated.schema.dataInsight.kpi.basic import KpiResult
+from metadata.generated.schema.entity.classification.tag import Tag
+# from metadata.generated.schema.entity.data.dashboard import Dashboard
+from metadata.generated.schema.entity.data.pipeline import PipelineStatus
+from metadata.generated.schema.entity.data.searchIndex import (
     SearchIndex,
     # SearchIndexSampleData,
 )
-from src.metadata.generated.schema.entity.data.table import DataModel, Table
-# from src.metadata.generated.schema.entity.data.topic import TopicSampleData
-# from src.metadata.generated.schema.entity.teams.role import Role
-# from src.metadata.generated.schema.entity.teams.team import Team
-# from src.metadata.generated.schema.entity.teams.user import User
-from src.metadata.generated.schema.tests.basic import TestCaseResult
-# from src.metadata.generated.schema.tests.testCase import TestCase
-# from src.metadata.generated.schema.tests.testCaseResolutionStatus import (
+from metadata.generated.schema.entity.data.table import DataModel, Table
+# from metadata.generated.schema.entity.data.topic import TopicSampleData
+# from metadata.generated.schema.entity.teams.role import Role
+# from metadata.generated.schema.entity.teams.team import Team
+# from metadata.generated.schema.entity.teams.user import User
+from metadata.generated.schema.tests.basic import TestCaseResult
+# from metadata.generated.schema.tests.testCase import TestCase
+# from metadata.generated.schema.tests.testCaseResolutionStatus import (
 #     TestCaseResolutionStatus,
 # )
-# from src.metadata.generated.schema.tests.testSuite import TestSuite
-# from src.metadata.generated.schema.type.schema import Topic
-from src.metadata.ingestion.api.models import Either, Entity, StackTraceError
-from src.metadata.ingestion.api.steps import Sink
-# from src.metadata.ingestion.models.custom_properties import OMetaCustomProperties
-# from src.metadata.ingestion.models.data_insight import OMetaDataInsightSample
-# from src.metadata.ingestion.models.delete_entity import DeleteEntity
-from src.metadata.ingestion.models.life_cycle import OMetaLifeCycleData
-from src.metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
-# from src.metadata.ingestion.models.ometa_topic_data import OMetaTopicSampleData
-# from src.metadata.ingestion.models.patch_request import (
+# from metadata.generated.schema.tests.testSuite import TestSuite
+# from metadata.generated.schema.type.schema import Topic
+from metadata.ingestion.api.models import Either, Entity, StackTraceError
+from metadata.ingestion.api.steps import Sink
+# from metadata.ingestion.models.custom_properties import OMetaCustomProperties
+# from metadata.ingestion.models.data_insight import OMetaDataInsightSample
+# from metadata.ingestion.models.delete_entity import DeleteEntity
+from metadata.ingestion.models.life_cycle import OMetaLifeCycleData
+from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+# from metadata.ingestion.models.ometa_topic_data import OMetaTopicSampleData
+# from metadata.ingestion.models.patch_request import (
 #     ALLOWED_COMMON_PATCH_FIELDS,
 #     RESTRICT_UPDATE_LIST,
 #     PatchedEntity,
 #     PatchRequest,
 # )
-# from src.metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
-# from src.metadata.ingestion.models.profile_data import OMetaTableProfileSampleData
-from src.metadata.ingestion.models.search_index_data import OMetaIndexSampleData
-# from src.metadata.ingestion.models.tests_data import (
+# from metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
+# from metadata.ingestion.models.profile_data import OMetaTableProfileSampleData
+from metadata.ingestion.models.search_index_data import OMetaIndexSampleData
+# from metadata.ingestion.models.tests_data import (
 #     OMetaLogicalTestSuiteSample,
 #     OMetaTestCaseResolutionStatus,
 #     OMetaTestCaseResultsSample,
 #     OMetaTestCaseSample,
 #     OMetaTestSuiteSample,
 # )
-# from src.metadata.ingestion.models.user import OMetaUserProfile
-from src.metadata.ingestion.ometa.client import APIError
-from src.metadata.ingestion.ometa.ometa_api import OpenMetadata
-# from src.metadata.ingestion.source.dashboard.dashboard_service import DashboardUsage
-from src.metadata.ingestion.source.database.database_service import DataModelLink
-# from src.metadata.profiler.api.models import ProfilerResponse
-from src.metadata.utils.helpers import calculate_execution_time
-from src.metadata.utils.logger import get_log_name, ingestion_logger
+# from metadata.ingestion.models.user import OMetaUserProfile
+from metadata.ingestion.ometa.client import APIError
+from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.source.dashboard.dashboard_service import DashboardUsage
+from metadata.ingestion.source.database.database_service import DataModelLink
+# from metadata.profiler.api.models import ProfilerResponse
+from metadata.utils.helpers import calculate_execution_time
+from metadata.utils.logger import get_log_name, ingestion_logger
 
 logger = ingestion_logger()
 

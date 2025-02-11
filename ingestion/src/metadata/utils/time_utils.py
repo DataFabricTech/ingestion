@@ -16,7 +16,7 @@ Time utility functions
 from datetime import datetime, time, timedelta, timezone
 from typing import Union
 
-from src.metadata.utils.helpers import datetime_to_ts
+from metadata.utils.helpers import datetime_to_ts
 
 
 def datetime_to_timestamp(datetime_value, milliseconds=False) -> int:

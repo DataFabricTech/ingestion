@@ -18,11 +18,11 @@ import json
 import zipfile
 from typing import List, Union
 
-from src.metadata.readers.dataframe.base import DataFrameReader
-from src.metadata.readers.dataframe.common import dataframe_to_chunks
-from src.metadata.readers.dataframe.models import DatalakeColumnWrapper
-from src.metadata.utils.constants import UTF_8
-from src.metadata.utils.logger import ingestion_logger
+from metadata.readers.dataframe.base import DataFrameReader
+from metadata.readers.dataframe.common import dataframe_to_chunks
+from metadata.readers.dataframe.models import DatalakeColumnWrapper
+from metadata.utils.constants import UTF_8
+from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
 

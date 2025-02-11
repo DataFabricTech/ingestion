@@ -1,13 +1,13 @@
-from src.metadata.generated.schema.entity.services.filesystemService import (
+from metadata.generated.schema.entity.services.filesystemService import (
     FilesystemServiceType,
     FilesystemConnection
 )
-from src.metadata.generated.schema.metadataIngestion.workflow import (
+from metadata.generated.schema.metadataIngestion.workflow import (
     Source,
     SourceConfig
 )
 
-from src.services.common.source import CommonSource
+from services.common.source import CommonSource
 
 class FilesystemSource(CommonSource):
 

@@ -11,10 +11,10 @@
 """
 Helper class to handle FQN splitting logic
 """
-from src.metadata.generated.antlr.EntityLinkListener import EntityLinkListener
-from src.metadata.generated.antlr.EntityLinkParser import EntityLinkParser
-from src.metadata.generated.antlr.FqnListener import FqnListener
-from src.metadata.generated.antlr.FqnParser import FqnParser
+from metadata.generated.antlr.EntityLinkListener import EntityLinkListener
+from metadata.generated.antlr.EntityLinkParser import EntityLinkParser
+from metadata.generated.antlr.FqnListener import FqnListener
+from metadata.generated.antlr.FqnParser import FqnParser
 
 
 class FqnSplitListener(FqnListener):

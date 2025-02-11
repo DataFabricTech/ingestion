@@ -16,10 +16,10 @@ SUM Metric definition
 
 from sqlalchemy import column
 
-from src.metadata.profiler.metrics.core import StaticMetric, _label
-from src.metadata.profiler.orm.functions.length import LenFn
-from src.metadata.profiler.orm.functions.sum import SumFn
-from src.metadata.profiler.orm.registry import is_concatenable, is_quantifiable
+from metadata.profiler.metrics.core import StaticMetric, _label
+from metadata.profiler.orm.functions.length import LenFn
+from metadata.profiler.orm.functions.sum import SumFn
+from metadata.profiler.orm.registry import is_concatenable, is_quantifiable
 
 
 class Sum(StaticMetric):
