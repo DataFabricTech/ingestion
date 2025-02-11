@@ -22,7 +22,6 @@ class SecurityManager:
         encryptor = cipher.encryptor()
         enc_data = encryptor.update(data_bytes) + encryptor.finalize()
         result = iv + encryptor.tag + enc_data
-        print(len(encryptor.tag))
 
         return bytes(base64.b64encode(result)).decode(encoding='utf-8')
 
