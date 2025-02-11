@@ -1,4 +1,4 @@
-from services.database.database_source import DatabaseSource
+from src.services.database.database_source import DatabaseSource
 class OracleSource(DatabaseSource):
 
     def getSourceConfig(self):

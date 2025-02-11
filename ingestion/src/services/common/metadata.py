@@ -1,4 +1,4 @@
-from services.common.source import CommonSource, CollectorStatus
+from src.services.common.source import CommonSource, CollectorStatus
 
 class MetadataExecutor:
 

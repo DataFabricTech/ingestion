@@ -132,14 +132,14 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
                sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
 
-    from services.database.custom.tibero.source import TiberoSource
-    from services.database.postgres.source import PostgresSource
-    from services.database.mysql.source import MysqlSource
-    from services.database.oracle.source import OracleSource
-    from services.database.hive.source import HiveSource
-    from services.database.mssql.source import MssqlSource
-    from services.storage.s3.source import S3Source
-    from services.filesystem.linux.source import LinuxSource
+    from src.services.database.custom.tibero.source import TiberoSource
+    from src.services.database.postgres.source import PostgresSource
+    from src.services.database.mysql.source import MysqlSource
+    from src.services.database.oracle.source import OracleSource
+    from src.services.database.hive.source import HiveSource
+    from src.services.database.mssql.source import MssqlSource
+    from src.services.storage.s3.source import S3Source
+    from src.services.filesystem.linux.source import LinuxSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -194,7 +194,7 @@ def metadata_collector_execute(system_id, sink="file", sink_host="localhost", si
 
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
 
-    from services.common.metadata import MetadataExecutor
+    from src.services.common.metadata import MetadataExecutor
     MetadataExecutor.execute(source)
 
     #profile phy

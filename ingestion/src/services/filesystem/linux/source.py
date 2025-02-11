@@ -1,7 +1,7 @@
 
-from metadata.generated.schema.entity.services.filesystemService import FilesystemConnection
-from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from services.filesystem.filesystem_source import FilesystemSource
+from src.metadata.generated.schema.entity.services.filesystemService import FilesystemConnection
+from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from src.services.filesystem.filesystem_source import FilesystemSource
 
 class LinuxSource(FilesystemSource):
 

@@ -7,7 +7,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
     SourceConfig
 )
 
-from services.common.source import CommonSource
+from src.services.common.source import CommonSource
 
 class FilesystemSource(CommonSource):
 

@@ -1,8 +1,8 @@
 import boto3
 
-from metadata.generated.schema.entity.services.storageService import StorageConnection
-from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
-from services.storage.storage_source import StorageSource
+from src.metadata.generated.schema.entity.services.storageService import StorageConnection
+from src.metadata.generated.schema.metadataIngestion.workflow import SourceConfig
+from src.services.storage.storage_source import StorageSource
 class S3Source(StorageSource):
 
     def getSourceConfig(self) -> SourceConfig:
