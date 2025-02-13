@@ -17,11 +17,18 @@ ENV PYTHONPATH="/opt/metadata_collector/src:$PYTHONPATH"
 #    libsasl2-dev && \
 #    rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update
-RUN apt-get install -y build-essential
-RUN apt-get install -y libcouchbase-dev
-RUN apt-get install -y libsasl2-dev
-RUN rm -rf /var/lib/apt/lists/*
+#RUN apt-get update
+#RUN apt-get install -y build-essential
+#RUN apt-get install -y libcouchbase-dev
+#RUN apt-get install -y libsasl2-dev
+#RUN rm -rf /var/lib/apt/lists/*
+
+# 시스템 의존성 설치 (SASL 관련 라이브러리)
+RUN apt-get update && \
+    apt-get install -y \
+    libsasl2-dev \
+    build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 설치
 RUN pip install --upgrade pip setuptools wheel
