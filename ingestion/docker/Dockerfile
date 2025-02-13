@@ -10,12 +10,18 @@ ENV PYTHONPATH="/opt/metadata_collector/src:$PYTHONPATH"
 #    yum -y install libcouchbase-devel cyrus-sasl-devel && \
 #    yum clean all
 
-RUN apt-get update && \
-    apt-get install -y \
-    build-essential \
-    libcouchbase-dev \
-    libsasl2-dev && \
-    rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && \
+#    apt-get install -y \
+#    build-essential \
+#    libcouchbase-dev \
+#    libsasl2-dev && \
+#    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update
+RUN apt-get install -y build-essential
+RUN apt-get libcouchbase-dev
+RUN apt-get libsasl2-dev
+RUN rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 설치
 RUN pip install --upgrade pip setuptools wheel
