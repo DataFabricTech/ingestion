@@ -19,8 +19,8 @@ ENV PYTHONPATH="/opt/metadata_collector/src:$PYTHONPATH"
 
 RUN apt-get update
 RUN apt-get install -y build-essential
-RUN apt-get libcouchbase-dev
-RUN apt-get libsasl2-dev
+RUN apt-get install -y libcouchbase-dev
+RUN apt-get install -y libsasl2-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 설치
