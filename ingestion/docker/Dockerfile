@@ -5,6 +5,14 @@ WORKDIR /opt/metadata_collector
 # PYTHONPATH 환경 변수 설정
 ENV PYTHONPATH="/opt/metadata_collector/src:$PYTHONPATH"
 
+# 시스템 의존성 설치
+RUN yum -y groupinstall "Development Tools" && \
+    yum -y install libcouchbase-devel cyrus-sasl-devel && \
+    yum clean all
+
+# Python 의존성 설치
+RUN pip install --upgrade pip setuptools wheel
+
 COPY ./requirements.txt /opt/metadata_collector/requirements.txt
 RUN pip install --no-cache-dir -r /opt/metadata_collector/requirements.txt
 
