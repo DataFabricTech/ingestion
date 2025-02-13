@@ -13,3 +13,4 @@ COPY ./conf /opt/metadata_collector/conf
 COPY ./src /opt/metadata_collector/src
 COPY ./metadata_collector_main.py /opt/metadata_collector/metadata_collector_main.py
 
+CMD ["tail", "-f", "/dev/null"]
