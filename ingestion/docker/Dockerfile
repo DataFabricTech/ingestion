@@ -6,9 +6,16 @@ WORKDIR /opt/metadata_collector
 ENV PYTHONPATH="/opt/metadata_collector/src:$PYTHONPATH"
 
 # 시스템 의존성 설치
-RUN yum -y groupinstall "Development Tools" && \
-    yum -y install libcouchbase-devel cyrus-sasl-devel && \
-    yum clean all
+#RUN yum -y groupinstall "Development Tools" && \
+#    yum -y install libcouchbase-devel cyrus-sasl-devel && \
+#    yum clean all
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    libcouchbase-dev \
+    libsasl2-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Python 의존성 설치
 RUN pip install --upgrade pip setuptools wheel
