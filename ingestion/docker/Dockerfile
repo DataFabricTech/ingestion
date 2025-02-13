@@ -58,6 +58,13 @@ COPY ./conf /opt/metadata_collector/conf
 COPY ./src /opt/metadata_collector/src
 COPY ./metadata_collector_main.py /opt/metadata_collector/metadata_collector_main.py
 
+# 시스템 의존성 설치 (SASL 관련 라이브러리)
+RUN apt-get update && \
+    apt-get install -y \
+    libsasl2-dev \
+    build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
 # 3. pip와 setuptools를 최신 버전으로 업그레이드
 RUN pip install --upgrade pip setuptools
 # 4. 의존성 설치
