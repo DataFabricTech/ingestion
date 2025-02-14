@@ -28,7 +28,11 @@ COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.p
 RUN dnf -y update && \
     dnf -y install \
     cyrus-sasl-devel \
-    gcc-c++ && \
+    gcc-c++ \
+    python3-dev \
+    python3-devel \
+    make \
+    libffi-devel && \
     dnf clean all
 
 # pip와 setuptools를 최신 버전으로 업그레이드
