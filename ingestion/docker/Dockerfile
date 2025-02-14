@@ -17,11 +17,17 @@ COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
 # SASL 관련 라이브러리 설치
-RUN apt-get update && \
-    apt-get install -y \
-    libsasl2-dev \
-    build-essential && \
-    rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && \
+#    apt-get install -y \
+#    libsasl2-dev \
+#    build-essential && \
+#    rm -rf /var/lib/apt/lists/*
+
+RUN dnf -y update && \
+    dnf -y install \
+    cyrus-sasl-devel \
+    gcc-c++ && \
+    dnf clean all
 
 # pip와 setuptools를 최신 버전으로 업그레이드
 RUN pip install --upgrade pip setuptools
