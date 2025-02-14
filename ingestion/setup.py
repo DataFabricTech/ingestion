@@ -199,13 +199,13 @@ plugins: Dict[str, Set[str]] = {
     },  # also requires requests-aws4auth which is in base
     # "glue": {VERSIONS["boto3"]},
     # "great-expectations": {VERSIONS["great-expectations"]},
-    "hive": {
-        *COMMONS["hive"],
-        "thrift>=0.13,<1",
-        "sasl~=0.3",
-        "thrift-sasl~=0.4",
-        "impyla~=0.18.0",
-    },
+    # "hive": {
+    #     *COMMONS["hive"],
+    #     "thrift==0.16.0",
+    #     "thrift-sasl==0.4.3",
+    #     "sasl==0.3",
+    #     "impyla~=0.18.0",
+    # },
     # "impala": {
     #     "presto-types-parser>=0.0.2",
     #     "impyla[kerberos]~=0.18.0",
@@ -224,7 +224,7 @@ plugins: Dict[str, Set[str]] = {
     # },
     # "mlflow": {"mlflow-skinny>=2.3.0", "alembic~=1.10.2"},
     "mongo": {VERSIONS["mongo"], VERSIONS["pandas"]},
-    "couchbase": {"couchbase~=4.1"},
+    "couchbase": {"couchbase==4.3.2"},
     "mssql": {"sqlalchemy-pytds~=0.3"},
     "mssql-odbc": {VERSIONS["pyodbc"]},
     "mysql": {VERSIONS["pymysql"]},

@@ -132,14 +132,14 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
                sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
 
-    from services.database.custom.tibero.source import TiberoSource
+    # from services.database.custom.tibero.source import TiberoSource
     from services.database.postgres.source import PostgresSource
     from services.database.mysql.source import MysqlSource
     from services.database.oracle.source import OracleSource
-    from services.database.hive.source import HiveSource
+    # from services.database.hive.source import HiveSource
     from services.database.mssql.source import MssqlSource
-    from services.storage.s3.source import S3Source
-    from services.filesystem.linux.source import LinuxSource
+    # from services.storage.s3.source import S3Source
+    # from services.filesystem.linux.source import LinuxSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -154,10 +154,10 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     logger.info(f"filter : {source_filter}")
 
-    if service_type == "Tibero": #custom
-        source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
-    elif service_type == DatabaseServiceType.Postgres:
+    # if service_type == "Tibero": #custom
+    #     source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+    #                           source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+    if service_type == DatabaseServiceType.Postgres:
         source = PostgresSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                                 source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mysql:
@@ -166,18 +166,18 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     elif service_type == DatabaseServiceType.Oracle:
         source = OracleSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,  sink_port=sink_port,
                               source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
-    elif service_type == DatabaseServiceType.Hive:
-        source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                            source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+    # elif service_type == DatabaseServiceType.Hive:
+    #     source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+    #                         source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mssql:
         source = MssqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
-    elif service_type == StorageServiceType.S3:
-        source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                          source_user=source_user, source_password=source_password, source_filter=source_filter)
-    elif service_type == FilesystemServiceType.Linux:
-        source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                             source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
+    # elif service_type == StorageServiceType.S3:
+    #     source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+    #                       source_user=source_user, source_password=source_password, source_filter=source_filter)
+    # elif service_type == FilesystemServiceType.Linux:
+    #     source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+    #                          source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
 
     return source
 
