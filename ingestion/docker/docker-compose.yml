@@ -5,6 +5,7 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    image: data-catalog-metadata-collector:0.1
     container_name: metadata-collector
     ports:
       - "8586:8586"
