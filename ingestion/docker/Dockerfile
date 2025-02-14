@@ -4,7 +4,9 @@ FROM rockylinux:8.9
 RUN dnf -y groupinstall "Development Tools" && \
     dnf -y install python3.8 python3-pip && \
     python3.8 -m pip install --upgrade pip && \
-    dnf clean all
+    dnf clean all && \
+    # python3.8을 python 명령으로 링크
+    ln -s /usr/bin/python3.8 /usr/bin/python
 
 WORKDIR /metadata_collector
 
