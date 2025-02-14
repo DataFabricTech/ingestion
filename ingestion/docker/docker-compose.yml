@@ -8,7 +8,7 @@ services:
     image: data-catalog-metadata-collector:0.1
     container_name: metadata-collector
     ports:
-      - "8586:8586"
+      - "8587:8587"
     volumes:
       - /DATA_CATALOG/data/metadata-collector/conf:/metadata-collector/conf
       - /DATA_CATALOG/data/metadata-collector/logs:/metadata-collector/logs
