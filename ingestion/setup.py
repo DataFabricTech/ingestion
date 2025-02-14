@@ -129,6 +129,7 @@ base_requirements = {
     # "typing-inspect",
     # "wheel~=0.38.4",
     "sqlmodel==0.0.11",
+    "python-dotenv==1.0.1",
 }
 
 
