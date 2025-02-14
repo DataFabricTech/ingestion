@@ -25,24 +25,25 @@ COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.p
 #    build-essential && \
 #    rm -rf /var/lib/apt/lists/*
 
-RUN dnf -y update && \
-    dnf -y install \
-    cyrus-sasl-devel \
-    gcc-c++ \
-    python3-dev \
-    python3-devel \
-    make \
-    libffi-devel && \
-    dnf clean all
-
-# pip와 setuptools를 최신 버전으로 업그레이드
-RUN pip install --upgrade pip setuptools
-# metadata_collector 설치
-RUN python3.8 /metadata_collector/setup.py install
-RUN pip install ingest-server[all]
-
-# PYTHONPATH 환경 변수 설정
-ENV PYTHONPATH="/metadata_collector/src:$PYTHONPATH"
-
-# 5. 프로젝트 실행 (필요에 따라 수정)
 CMD ["tail", "-f", "/dev/null"]
+
+#RUN dnf -y update && \
+#    dnf -y install \
+#    cyrus-sasl-devel \
+#    gcc-c++ \
+#    python3-devel \
+#    make \
+#    libffi-devel && \
+#    dnf clean all
+#
+## pip와 setuptools를 최신 버전으로 업그레이드
+#RUN pip install --upgrade pip setuptools
+## metadata_collector 설치
+#RUN python3.8 /metadata_collector/setup.py install
+#RUN pip install ingest-server[all]
+#
+## PYTHONPATH 환경 변수 설정
+#ENV PYTHONPATH="/metadata_collector/src:$PYTHONPATH"
+#
+## 5. 프로젝트 실행 (필요에 따라 수정)
+#CMD ["tail", "-f", "/dev/null"]
