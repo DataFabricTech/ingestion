@@ -44,5 +44,4 @@ RUN pip install ingest-server[all]
 # PYTHONPATH 환경 변수 설정
 ENV PYTHONPATH="/metadata_collector/src:$PYTHONPATH"
 
-# 5. 프로젝트 실행 (필요에 따라 수정)
-#CMD ["tail", "-f", "/dev/null"]
+CMD ["tail", "-f", "/dev/null"]
