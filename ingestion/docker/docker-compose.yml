@@ -14,5 +14,5 @@ services:
       - /DATA_CATALOG/data/metadata-collector/logs:/metadata-collector/logs
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata-collector/conf/config.yaml
-    command: ["tail", "-f", "/dev/null"]
+#    command: ["tail", "-f", "/dev/null"]
 
