@@ -126,6 +126,12 @@ def get_meta_system_info(system_id, host, port):
 
     return result[0], result[1], hostport, result[4], password, result[6], source_filter
 
+def set_meta_system_status(system_id, status):
+    from app.utils.client import SqlalchemyOrmClient, postgresql_url
+    client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
+    client.__enter__()
+    client.execute(f"update <table> set status = '{status}' where system_id = '{system_id}'")
+    client.__exit__(None, None, None)
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, FilesystemServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
@@ -193,6 +199,9 @@ def metadata_collector_execute(system_id, sink="file", sink_host="localhost", si
         raise Exception('sink_type invalid. file, db, metadata-rest')
 
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
+
+    # db 상태 업데이트
+    set_meta_system_status(system_id, "INGESTION")
 
     from services.common.metadata import MetadataExecutor
     MetadataExecutor.execute(source)
