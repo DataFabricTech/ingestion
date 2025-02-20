@@ -11,6 +11,7 @@ from metadata.ingestion.ometa.routes import ROUTES
 
 from metadata.utils.logger import ingestion_logger
 from utils.security_manager import SecurityManager
+from utils.process_config import config
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
@@ -131,7 +132,7 @@ def get_meta_system_info(system_id, host, port):
 
     source_filter = get_source_filter(result[1], result[6], result[7])
 
-    password = SecurityManager.decodeWithcryptkey(result[5])
+    password = SecurityManager.decodeWithcryptkey(config.crypt_key, result[5])
 
     return result[0], result[1], hostport, result[4], password, result[6], source_filter
     # source_filter = get_source_filter('Mssql', '<DB_NAME>', None)
