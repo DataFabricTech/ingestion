@@ -1,9 +1,4 @@
 #!/bin/bash
 
-source /opt/metadata_collector/venv/bin/activate
+python3 /metadata_collector/metadata_collector_main.py $1
 
-export PYTHONPATH=${PYTHONPATH}:/opt/metadata_collector/src
-
-python3 /opt/metadata_collector/metadata_collector_main.py $1
-
-deactivate
