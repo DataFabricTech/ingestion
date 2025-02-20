@@ -14,6 +14,7 @@ from enum import Enum
 
 
 class CollectorStatus(Enum):
+    INGESTION = 'INGESTION'
     INGESTION_COMPLETED = 'INGESTION_COMPLETED'
     INGESTION_FAILED = 'INGESTION_FAILED'
 

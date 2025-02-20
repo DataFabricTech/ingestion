@@ -21,7 +21,7 @@ def get_source_filter(service_type, database, sourceFileter):
     #profile phy
     # return {'type': 'Profiler'}
 
-    if sourceFileter == None:
+    if sourceFileter == None or sourceFileter == '':
         database_filter = {
             "type": "DatabaseMetadata",
             "markDeletedTables": False,
@@ -47,18 +47,27 @@ def get_source_filter(service_type, database, sourceFileter):
             }
         }
 
-        if service_type == DatabaseServiceType.Oracle.value:
+        if service_type in [DatabaseServiceType.Oracle.value]:
             database_filter["schemaFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
-        elif service_type == DatabaseServiceType.Postgres.value:
+        if service_type == DatabaseServiceType.Postgres.value:
+            database_filter["databaseFilterPattern"] = {
+                "includes": [database],
+                "excludes": []
+            }
             database_filter["schemaFilterPattern"] = {
                 "includes": ['public'],
                 "excludes": []
             }
+        if service_type == DatabaseServiceType.Mssql.value: # 해당 DATABASE 만 수집되도록 수정 필요
             database_filter["databaseFilterPattern"] = {
-                "includes": [database],
+                "includes": ['<DB_NAME>'],
+                "excludes": []
+            }
+            database_filter["schemaFilterPattern"] = {
+                "includes": ['<DB_USER>'],
                 "excludes": []
             }
 
@@ -124,7 +133,15 @@ def get_meta_system_info(system_id, host, port):
 
     password = SecurityManager.decodeWithcryptkey(result[5])
 
-    return result[0], result[1], hostport, result[4], password, result[6], source_filter
+    # return result[0], result[1], hostport, result[4], password, result[6], source_filter
+    # source_filter = get_source_filter('Mssql', '<DB_NAME>', None)
+    # source_filter = get_source_filter('Postgres', 'data_catalog', None)
+    source_filter = get_source_filter('Oracle', '<DB_USER>', None)
+    print(source_filter)
+    #<columns>
+    # return 'phy-mssql', 'Mssql', '<INTERNAL_HOST>:1433', '<DB_USER>', '<DB_PASSWORD>!', '<DB_NAME>', source_filter
+    # return 'test', 'Postgres', '<INTERNAL_HOST>:5432', 'data_catalog', '<DB_PASSWORD>', 'data_catalog', source_filter
+    return 'test', 'Oracle', '<INTERNAL_HOST>:1521', '<DB_USER>', '<DB_PASSWORD>', '<DB_USER>', source_filter
 
 def set_meta_system_status(system_id, status):
     from app.utils.client import SqlalchemyOrmClient, postgresql_url
@@ -138,13 +155,13 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
                sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
 
-    # from services.database.custom.tibero.source import TiberoSource
+    from services.database.custom.tibero.source import TiberoSource
     from services.database.postgres.source import PostgresSource
     from services.database.mysql.source import MysqlSource
     from services.database.oracle.source import OracleSource
-    # from services.database.hive.source import HiveSource
+    from services.database.hive.source import HiveSource
     from services.database.mssql.source import MssqlSource
-    # from services.storage.s3.source import S3Source
+    from services.storage.s3.source import S3Source
     # from services.filesystem.linux.source import LinuxSource
 
     if service_type in DatabaseServiceType.__members__:
@@ -160,10 +177,10 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     logger.info(f"filter : {source_filter}")
 
-    # if service_type == "Tibero": #custom
-    #     source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-    #                           source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
-    if service_type == DatabaseServiceType.Postgres:
+    if service_type == "Tibero": #custom
+        source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == DatabaseServiceType.Postgres:
         source = PostgresSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                                 source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mysql:
@@ -172,15 +189,15 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     elif service_type == DatabaseServiceType.Oracle:
         source = OracleSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,  sink_port=sink_port,
                               source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
-    # elif service_type == DatabaseServiceType.Hive:
-    #     source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-    #                         source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+    elif service_type == DatabaseServiceType.Hive:
+        source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                            source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mssql:
         source = MssqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
-    # elif service_type == StorageServiceType.S3:
-    #     source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-    #                       source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == StorageServiceType.S3:
+        source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                          source_user=source_user, source_password=source_password, source_filter=source_filter)
     # elif service_type == FilesystemServiceType.Linux:
     #     source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
     #                          source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
@@ -211,5 +228,3 @@ def metadata_collector_execute(system_id, sink="file", sink_host="localhost", si
     # ProfilerExecutor.execute(source)
 
 
-if __name__ == "__main__":
-    get_meta_system_info("9f0b3f11-7706-4b07-a319-ac7dd49b2071", "localhost", 8585)

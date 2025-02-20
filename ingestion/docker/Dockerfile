@@ -14,7 +14,6 @@ WORKDIR /metadata_collector
 COPY ../setup.py /metadata_collector/setup.py
 
 COPY ../.env /metadata_collector/.env
-COPY ../conf /metadata_collector/conf
 COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 

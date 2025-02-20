@@ -1,7 +1,7 @@
 from pydantic import BaseSettings
-import yaml
 import os, sys
 from dotenv import load_dotenv
+import configparser
 
 
 class Config(BaseSettings):
@@ -21,15 +21,11 @@ class Config(BaseSettings):
             print("env 에 프로세스 환경설정 파일을 설정하세요 [예: METADATA_COLLECTOR_CONFIG_FILE = config.yaml]")
             sys.exit()
 
-        with open(config_file, "r") as f:
-            config_data = yaml.safe_load(f)
-
-        metadata_collector = config_data.get("metadata_collector")
-
-        crypt = metadata_collector["crypt"]
+        config_data = configparser.ConfigParser()
+        config_data.read(config_file)
 
         return cls(
-            crypt_key=crypt["cryptKey"],
+            crypt_key=config_data["security"]["cryptkey"],
         )
 
 
