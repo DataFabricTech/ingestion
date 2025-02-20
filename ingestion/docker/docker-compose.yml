@@ -10,10 +10,10 @@ services:
     ports:
       - "8587:8587"
     volumes:
-      - $DATA_CATALOG_SOLUTION_DATA/metadata-collector/conf:/metadata-collector/conf
-      - $DATA_CATALOG_SOLUTION_DATA/metadata-collector/logs:/metadata-collector/logs
+      - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/conf:/metadata_collector/conf
+      - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/logs:/metadata_collector/logs
       - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/catalog-api/ingestion/script
     environment:
-      - METADATA_COLLECTOR_CONFIG_FILE=/metadata-collector/conf/config.yaml
+      - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config.ini
     command: ["tail", "-f", "/dev/null"]
 

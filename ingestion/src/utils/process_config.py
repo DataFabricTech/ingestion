@@ -18,7 +18,7 @@ class Config(BaseSettings):
         config_file = os.getenv("METADATA_COLLECTOR_CONFIG_FILE")
 
         if config_file is None:
-            print("env 에 프로세스 환경설정 파일을 설정하세요 [예: METADATA_COLLECTOR_CONFIG_FILE = config.yaml]")
+            print("env 에 프로세스 환경설정 파일을 설정하세요 [예: METADATA_COLLECTOR_CONFIG_FILE = config.ini]")
             sys.exit()
 
         config_data = configparser.ConfigParser()
