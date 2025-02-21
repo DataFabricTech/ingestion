@@ -14,7 +14,7 @@ services:
     volumes:
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/conf:/metadata_collector/conf
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/logs:/metadata_collector/logs
-      - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/catalog-api/ingestion/script
+      - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/metadata_collector/ingestion/script
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config.ini
     networks:

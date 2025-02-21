@@ -13,7 +13,7 @@ WORKDIR /metadata_collector
 # 프로젝트 파일들을 컨테이너로 복사
 COPY ../setup.py /metadata_collector/setup.py
 
-COPY ../.env /metadata_collector/.env
+#COPY ../.env /metadata_collector/.env
 COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
