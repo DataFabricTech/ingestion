@@ -15,5 +15,7 @@ services:
       - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/catalog-api/ingestion/script
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config.ini
+    networks:
+      - data-catalog-network
     command: ["tail", "-f", "/dev/null"]
 
