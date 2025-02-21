@@ -19,3 +19,6 @@ services:
       - data-catalog-network
     command: ["tail", "-f", "/dev/null"]
 
+networks:
+  data-catalog-network:
+    external: true
