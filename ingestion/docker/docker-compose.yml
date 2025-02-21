@@ -20,7 +20,7 @@ services:
     networks:
       - data-catalog-network
 #    command: ["tail", "-f", "/dev/null"]
-    command: "/usr/sbin/sshd -D & tail -f /dev/null""
+    command: "/usr/sbin/sshd -D & tail -f /dev/null"
 
 networks:
   data-catalog-network:
