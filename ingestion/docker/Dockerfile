@@ -22,12 +22,17 @@ RUN dnf -y update && \
     dnf -y install \
     cyrus-sasl-devel \
     python3-devel \
-    libffi-devel && \
+    libffi-devel  \
+    openssh-server \
+    sudo && \
     dnf clean all
 
 # ssh 관련
-RUN dnf -y install openssh-server sudo && \
-    mkdir /var/run/sshd
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' | chpasswd
+
+# root 계정의 비밀번호 인증 허용
+RUN sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 EXPOSE 22
 
