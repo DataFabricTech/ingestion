@@ -28,6 +28,7 @@ RUN dnf -y update && \
     dnf clean all
 
 # ssh 관련
+RUN ssh-keygen -A
 RUN mkdir /var/run/sshd
 RUN echo 'root:root' | chpasswd
 
