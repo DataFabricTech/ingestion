@@ -9,6 +9,8 @@ services:
     container_name: metadata-collector
     ports:
       - "2222:22"
+    stdin_open: true
+    tty: true
     volumes:
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/conf:/metadata_collector/conf
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/logs:/metadata_collector/logs
@@ -17,7 +19,8 @@ services:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config.ini
     networks:
       - data-catalog-network
-    command: ["tail", "-f", "/dev/null"]
+#    command: ["tail", "-f", "/dev/null"]
+    command: "/usr/sbin/sshd -D & tail -f /dev/null""
 
 networks:
   data-catalog-network:

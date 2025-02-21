@@ -18,18 +18,18 @@ COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
 # SASL 관련 라이브러리 설치
-#RUN apt-get update && \
-#    apt-get install -y \
-#    libsasl2-dev \
-#    build-essential && \
-#    rm -rf /var/lib/apt/lists/*
-
 RUN dnf -y update && \
     dnf -y install \
     cyrus-sasl-devel \
     python3-devel \
     libffi-devel && \
     dnf clean all
+
+# ssh 관련
+RUN dnf -y install openssh-server sudo && \
+    mkdir /var/run/sshd
+
+EXPOSE 22
 
 # python 링크
 RUN ln -s /usr/bin/python3.8 /usr/bin/python
