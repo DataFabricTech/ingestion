@@ -5,13 +5,11 @@ from metadata.generated.schema.entity.services.databaseService import DatabaseSe
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
 from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
-from metadata.generated.schema.entity.data.ingestion import MetadataSystemInfo
-from metadata.ingestion.ometa.client import REST, ClientConfig
-from metadata.ingestion.ometa.routes import ROUTES
 
 from metadata.utils.logger import ingestion_logger
 from utils.security_manager import SecurityManager
 from utils.process_config import config
+from utils.request_manager import RequestManager
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
@@ -77,79 +75,28 @@ def get_source_filter(service_type, database, sourceFileter):
     else:
         return sourceFileter
 
+def get_meta_system_info(system_id):
 
-# def update_ingestion_status(self, system_id, status, err_message=None):
-#
-#     data = IngestionStatus(
-#         system_id = system_id,
-#         status = status,
-#         err_description = err_message,
-#         user = 'METADATA COLLECTOR')
-# resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
-# if not resp:
-#     raise EmptyPayloadException(
-#         f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
-#     )
-#     try:
-#         self.client.put(
-#             ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
-#         )
-#     except Exception as exc:
-#         logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
-#
-#     logger.info(f"ingestion status update [{system_id}]")
+    request_manager = RequestManager()
+    response = request_manager.request_get(url=f"{config.catalog_api_base_url}{config.get_meta_system_info_api}?system_id={system_id}")
+    system_info = response.json()
 
+    hostport = system_info['host']
+    if system_info['port'] != None:
+        hostport = f"{system_info['host']}:{system_info['port']}"
 
-def get_meta_system_info(system_id, host, port):
+    source_filter = get_source_filter(system_info['system_type'], system_info['database'], system_info['filter_config'])
 
-    # headers = {"accept":"application/json"}
-    # catalog_api_config: ClientConfig = ClientConfig(
-    #     base_url=f"http://{host}:{port}/api",
-    #     api_version="v1",
-    #     # access_token="no_token",
-    #     auth_token_mode=None,
-    #     # auth_header="Authorization",
-    #     extra_headers=headers,
-    #     # auth_token=self._auth_provider.get_access_token,
-    #     # verify=get_verify_ssl(self.config.sslConfig),
-    # )
-    # api_client = REST(catalog_api_config)
-    # params = {"system_id":system_id}
-    # fields_str = f"?system_id={system_id}"
-    # response = api_client.get(path=f"/system/meta/system/info{fields_str}")
-    #
-    # print(response)
-    # return response
-    from app.utils.client import SqlalchemyOrmClient, postgresql_url
-    client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
-    client.__enter__()
-    result = client.select_one(f"select <columns> from <table> where system_id = '{system_id}'")
-    client.__exit__(None, None, None)
+    password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
 
-    hostport = result[2]
-    if result[3] != None:
-        hostport = f"{result[2]}:{result[3]}"
-
-    source_filter = get_source_filter(result[1], result[6], result[7])
-
-    password = SecurityManager.decodeWithcryptkey(config.crypt_key, result[5])
-
-    return result[0], result[1], hostport, result[4], password, result[6], source_filter
-    # source_filter = get_source_filter('Mssql', '<DB_NAME>', None)
-    # source_filter = get_source_filter('Postgres', 'data_catalog', None)
-    # source_filter = get_source_filter('Oracle', '<DB_USER>', None)
-    # print(source_filter)
-    # <columns>
-    # return 'phy-mssql', 'Mssql', '<INTERNAL_HOST>:1433', '<DB_USER>', '<DB_PASSWORD>!', '<DB_NAME>', source_filter
-    # return 'test', 'Postgres', '<INTERNAL_HOST>:5432', 'data_catalog', '<DB_PASSWORD>', 'data_catalog', source_filter
-    # return 'test', 'Oracle', '<INTERNAL_HOST>:1521', '<DB_USER>', '<DB_PASSWORD>', '<DB_USER>', source_filter
+    return system_info['system_id'], system_info['system_type'], hostport, system_info['login'], password, system_info['database'], source_filter
 
 def set_meta_system_status(system_id, status):
-    from app.utils.client import SqlalchemyOrmClient, postgresql_url
-    client = SqlalchemyOrmClient(postgresql_url(host='<INTERNAL_HOST>', user='<DB_USER>', passwd='<DB_PASSWORD>', db='<DB_NAME>'), charset='utf-8', sql_log=True)
-    client.__enter__()
-    client.execute(f"update <table> set status = '{status}' where system_id = '{system_id}'")
-    client.__exit__(None, None, None)
+
+    url = f"{config.catalog_api_base_url}{config.set_meta_ingestion_status_api}?system_id={system_id}&status={status}"
+    request_manager = RequestManager()
+    request_manager.request_put(url=url)
+
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, FilesystemServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
@@ -206,14 +153,20 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     return source
 
 
-def metadata_collector_execute(system_id, sink="file", sink_host="localhost", sink_port=8585):
+def metadata_collector_execute(system_id, sink="file"):
 
-    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id, sink_host, sink_port)
+    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
 
     if (source_hostport is None) or (source_user is None):
         raise Exception('source config invalid.')
 
-    if sink not in ['file', 'db', 'metadata-rest']:
+    if sink in ['file', 'db']:
+        sink_host = "localhost"
+        sink_port = 8585
+    elif sink == 'metadata-rest':
+        sink_host = config.sink_host
+        sink_port = config.sink_port
+    else:
         raise Exception('sink_type invalid. file, db, metadata-rest')
 
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)

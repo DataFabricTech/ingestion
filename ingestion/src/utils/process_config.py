@@ -10,6 +10,13 @@ class Config(BaseSettings):
 
     crypt_key: str
 
+    sink_host: str
+    sink_port: int
+
+    catalog_api_base_url: str
+    get_meta_system_info_api: str
+    set_meta_ingestion_status_api: str
+
     @classmethod
     def get_yaml(cls):
         # .env 파일 로드
@@ -24,8 +31,21 @@ class Config(BaseSettings):
         config_data = configparser.ConfigParser()
         config_data.read(config_file)
 
+        catalog_api_config = config_data["catalog_api"]
+
+        sink_host = catalog_api_config[host]
+        sink_port = catalog_api_config[port]
+
+        catalog_api_base_url = f"http://{catalog_api_config['host']}:{catalog_api_config['port']}{catalog_api_config['prefix']}"
+        get_meta_system_info_api = catalog_api_config['get_meta_system_info_api']
+        set_meta_ingestion_status_api = catalog_api_config['set_meta_ingestion_status_api']
+
+
         return cls(
             crypt_key=config_data["security"]["cryptkey"],
+            catalog_api_base_url=catalog_api_base_url,
+            get_meta_system_info_api=get_meta_system_info_api,
+            set_meta_ingestion_status_api = set_meta_ingestion_status_api
         )
 
 
