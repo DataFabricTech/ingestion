@@ -199,13 +199,13 @@ plugins: Dict[str, Set[str]] = {
     },  # also requires requests-aws4auth which is in base
     # "glue": {VERSIONS["boto3"]},
     # "great-expectations": {VERSIONS["great-expectations"]},
-    # "hive": {
-    #     *COMMONS["hive"],
-    #     "thrift==0.16.0",
-    #     "thrift-sasl==0.4.3",
-    #     "sasl==0.3",
-    #     "impyla~=0.18.0",
-    # },
+    "hive": {
+        # *COMMONS["hive"],
+        "thrift==0.16.0",
+        "thrift-sasl==0.4.3",
+        "sasl==0.3",
+        "impyla~=0.18.0",
+    },
     # "impala": {
     #     "presto-types-parser>=0.0.2",
     #     "impyla[kerberos]~=0.18.0",
