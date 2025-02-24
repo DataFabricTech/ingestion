@@ -45,7 +45,9 @@ class Config(BaseSettings):
             crypt_key=config_data["security"]["cryptkey"],
             catalog_api_base_url=catalog_api_base_url,
             get_meta_system_info_api=get_meta_system_info_api,
-            set_meta_ingestion_status_api = set_meta_ingestion_status_api
+            set_meta_ingestion_status_api = set_meta_ingestion_status_api,
+            sink_host = sink_host,
+            sink_port = sink_port
         )
 
 
