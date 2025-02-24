@@ -18,7 +18,7 @@ COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
 # SASL 관련 라이브러리 설치
-RUN dnf groupinstall "Development Tools"
+RUN dnf -y groupinstall "Development Tools"
 RUN dnf -y update && \
     dnf -y install \
     cyrus-sasl-devel \
