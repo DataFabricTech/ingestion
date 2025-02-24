@@ -2,12 +2,22 @@ FROM rockylinux:8.9
 
 # python, pip 설치
 RUN dnf -y groupinstall "Development Tools" && \
-    dnf -y install python38 python3-pip && \
+    dnf -y install \
+    python38 \
+    python3-pip \
+    gcc \
+    make \
+    glibc-devel \
+    cyrus-sasl-devel \
+    python3-devel \
+    libffi-devel  \
+    openssh-server \
+    sudo \
+    zlib-devel && \
     python3.8 -m pip install --upgrade pip && \
-    dnf -y install gcc make libc-devel glibc-devel && \
-    # python3.8을 python 명령으로 링크
-#    ln -s /usr/bin/python3.8 /usr/bin/python && \
     dnf clean all
+
+RUN dnf -y install libzstd-devel
 
 WORKDIR /metadata_collector
 
@@ -19,14 +29,14 @@ COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
 # SASL 관련 라이브러리 설치
-RUN dnf -y update && \
-    dnf -y install \
-    cyrus-sasl-devel \
-    python3-devel \
-    libffi-devel  \
-    openssh-server \
-    sudo && \
-    dnf clean all
+#RUN dnf -y update && \
+#    dnf -y install \
+#    cyrus-sasl-devel \
+#    python3-devel \
+#    libffi-devel  \
+#    openssh-server \
+#    sudo && \
+#    dnf clean all
 
 # ssh 관련
 RUN ssh-keygen -A
