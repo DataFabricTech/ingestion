@@ -205,7 +205,6 @@ plugins: Dict[str, Set[str]] = {
         "thrift-sasl==0.4.3",
         "sasl==0.3",
         "impyla~=0.18.0",
-        "zstandard"
     },
     # "impala": {
     #     "presto-types-parser>=0.0.2",
