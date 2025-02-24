@@ -79,7 +79,7 @@ workflowConfig:
 To run this file from the CLI you can simply run
 
 ```zsh
-metadata profile -c path/to/config.yaml
+metadata profile -c path/to/config.ini
 ```
 
 ## Development

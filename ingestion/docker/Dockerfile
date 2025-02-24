@@ -9,6 +9,7 @@ RUN dnf -y groupinstall "Development Tools" && \
     make \
     glibc-devel \
     cyrus-sasl-devel \
+    cyrus-sasl-plain \
     python3-devel \
     libffi-devel  \
     openssh-server \
@@ -16,7 +17,7 @@ RUN dnf -y groupinstall "Development Tools" && \
     zlib-devel && \
     python3.8 -m pip install --upgrade pip && \
     dnf clean all
-
+#sudo dnf install cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib cyrus-sasl-plain
 RUN dnf -y install libzstd-devel
 
 WORKDIR /metadata_collector
