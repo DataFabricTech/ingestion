@@ -33,8 +33,8 @@ class Config(BaseSettings):
 
         catalog_api_config = config_data["catalog_api"]
 
-        sink_host = catalog_api_config[host]
-        sink_port = catalog_api_config[port]
+        sink_host = catalog_api_config["host"]
+        sink_port = catalog_api_config["port"]
 
         catalog_api_base_url = f"http://{catalog_api_config['host']}:{catalog_api_config['port']}{catalog_api_config['prefix']}"
         get_meta_system_info_api = catalog_api_config['get_meta_system_info_api']
