@@ -15,7 +15,7 @@ logger = ingestion_logger()
 logger.setLevel("INFO")
 
 
-def get_source_filter(service_type, database, sourceFileter):
+def get_source_filter(service_type, database, schema, sourceFileter):
 
     #profile phy
     # return {'type': 'Profiler'}
@@ -46,30 +46,32 @@ def get_source_filter(service_type, database, sourceFileter):
             }
         }
 
-        if service_type in [DatabaseServiceType.Oracle.value]:
-            database_filter["schemaFilterPattern"] = {
-                "includes": [database],
-                "excludes": []
-            }
-        if service_type == DatabaseServiceType.Postgres.value:
+        if service_type in [DatabaseServiceType.Oracle.value, DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
             database_filter["databaseFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
             database_filter["schemaFilterPattern"] = {
-                "includes": ['public'],
-                "excludes": []
-            }
-        if service_type == DatabaseServiceType.Mssql.value: # 해당 DATABASE 만 수집되도록 수정 필요
-            database_filter["databaseFilterPattern"] = {
-                "includes": ['<DB_NAME>'],
-                "excludes": []
-            }
-            database_filter["schemaFilterPattern"] = {
-                "includes": ['<DB_USER>'],
+                "includes": [schema],
                 "excludes": []
             }
 
+        if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value]:
+            database_filter["databaseFilterPattern"] = {
+                "includes": [database],
+                "excludes": []
+            }
+
+        #custom
+        if service_type == "Tibero":
+            database_filter["schemaFilterPattern"] = {
+                "includes": [database],
+                "excludes": []
+            }
+            database_filter["databaseFilterPattern"] = {
+                "includes": [schema],
+                "excludes": []
+            }
 
         return database_filter
     else:
@@ -85,7 +87,7 @@ def get_meta_system_info(system_id):
     if system_info['port'] != None:
         hostport = f"{system_info['host']}:{system_info['port']}"
 
-    source_filter = get_source_filter(system_info['system_type'], system_info['database'], system_info['filter_config'])
+    source_filter = get_source_filter(system_info['system_type'], system_info['database'], system_info['schema'], system_info['filter_config'])
 
     password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
 
