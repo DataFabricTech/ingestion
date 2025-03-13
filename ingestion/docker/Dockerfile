@@ -14,7 +14,9 @@ RUN dnf -y groupinstall "Development Tools" && \
     libffi-devel  \
     openssh-server \
     sudo \
-    zlib-devel && \
+    zlib-devel \
+    unixODBC \
+    unixODBC-devel && \
     python3.8 -m pip install --upgrade pip && \
     dnf clean all
 #sudo dnf install cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib cyrus-sasl-plain
@@ -59,6 +61,6 @@ RUN python /metadata_collector/setup.py install
 RUN pip install ingest-server[all]
 
 # PYTHONPATH 환경 변수 설정
-ENV PYTHONPATH="/metadata_collector/src:$PYTHONPATH"
+ENV PYTHONPATH="/metadata_collector/src:/metadata_collector/site-package:$PYTHONPATH"
 
 CMD ["tail", "-f", "/dev/null"]
