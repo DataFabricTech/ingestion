@@ -19,7 +19,7 @@ class TiberoSource(DatabaseSource):
                 "scheme": "tibero+pyodbc",
                 "username": self.source_user,
                 "password": self.source_password,
-                "odbcDnsName": self.source_hostport,
+                "odbcDsnName": self.system_id,
                 "supportsProfiler": False,
                 "supportsDBTExtraction": True,
                 "supportsMetadataExtraction": True
