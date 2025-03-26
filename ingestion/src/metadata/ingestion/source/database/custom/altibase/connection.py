@@ -36,7 +36,7 @@ def get_connection_url(connection: AltibaseConnection) -> str:
             url += f":{quote_plus(connection.password.get_secret_value())}"
         url += "@"
 
-    url += connection.odbcDnsName + "?charset=utf8"
+    url += connection.odbcDsnName + "?charset=utf8"
     return url
 
 

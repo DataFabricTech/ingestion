@@ -117,7 +117,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
-    elif service_type in ("Tibero"):
+    elif service_type in ("Tibero", "Altibase"):
         pass
     elif service_type in StorageServiceType.__members__:
         service_type = StorageServiceType(service_type)

@@ -35,8 +35,8 @@ class AltibaseConnection(BaseModel):
     password: Optional[CustomSecretStr] = Field(
         None, description='Password to connect to Altibase.', title='Password'
     )
-    odbcDnsName: Optional[str] = Field(
-        None, description='ODBC DNS Name.', title='ODBC DNS Name'
+    odbcDsnName: Optional[str] = Field(
+        None, description='ODBC DSN Name.', title='ODBC DSN Name'
     )
     connectionArguments: Optional[connectionBasicType.ConnectionArguments] = Field(
         None, title='Connection Arguments'
