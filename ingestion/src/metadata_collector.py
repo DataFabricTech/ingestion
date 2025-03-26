@@ -113,6 +113,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     from services.database.mssql.source import MssqlSource
     from services.storage.s3.source import S3Source
     # from services.filesystem.linux.source import LinuxSource
+    from services.database.custom.altibase.source import AltibaseSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -152,7 +153,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     #     source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
     #                          source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == "Altibase": #custom
-        source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+        source = AltibaseSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                               source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
     return source
 
