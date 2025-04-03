@@ -31,9 +31,6 @@ COPY ../setup.py /metadata_collector/setup.py
 COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
-# odbc 설정파일
-COPY ../../conf/odbc/odbcinst.ini /etc/odbcinst.ini
-
 # SASL 관련 라이브러리 설치
 #RUN dnf -y update && \
 #    dnf -y install \
@@ -66,4 +63,5 @@ RUN pip install ingest-server[all]
 # PYTHONPATH 환경 변수 설정
 ENV PYTHONPATH="/metadata_collector/src:/metadata_collector/site-package:$PYTHONPATH"
 
-CMD ["tail", "-f", "/dev/null"]
+#CMD ["tail", "-f", "/dev/null"]
+CMD ["sh", "-c", "cp /metadata_collector/conf/odbc/odbcinst.ini /etc/odbcinst.ini && tail -f /dev/null"]
