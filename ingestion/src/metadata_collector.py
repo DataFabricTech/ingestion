@@ -63,7 +63,7 @@ def get_source_filter(service_type, database, schema, sourceFileter):
             }
 
         #custom
-        if service_type == "Tibero":
+        if service_type in ["Tibero", "Altibase"]:
             database_filter["schemaFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
@@ -166,7 +166,7 @@ def metadata_collector_execute(system_id, sink="file"):
         raise Exception('source config invalid.')
 
     if sink in ['file', 'db']:
-        sink_host = "localhost"
+        sink_host = "<INTERNAL_HOST>"
         sink_port = 8585
     elif sink == 'metadata-rest':
         sink_host = config.sink_host
