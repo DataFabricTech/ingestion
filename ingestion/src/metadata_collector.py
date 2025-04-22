@@ -15,7 +15,7 @@ logger = ingestion_logger()
 logger.setLevel("INFO")
 
 
-def get_source_filter(service_type, database, schema, sourceFileter):
+def get_source_filter(service_type, user, database, schema, sourceFileter):
 
     #profile phy
     # return {'type': 'Profiler'}
@@ -63,13 +63,20 @@ def get_source_filter(service_type, database, schema, sourceFileter):
             }
 
         #custom
-        if service_type in ["Tibero", "Altibase"]:
+        if service_type in ["Tibero"]:
             database_filter["schemaFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
             database_filter["databaseFilterPattern"] = {
                 "includes": [schema],
+                "excludes": []
+            }
+
+        # custom : altibase 는 schema 개념이 사용자
+        if service_type in ["Altibase"]:
+            database_filter["schemaFilterPattern"] = {
+                "includes": [user],
                 "excludes": []
             }
 
@@ -87,7 +94,7 @@ def get_meta_system_info(system_id):
     if system_info['port'] != None:
         hostport = f"{system_info['host']}:{system_info['port']}"
 
-    source_filter = get_source_filter(system_info['system_type'], system_info['database'], system_info['schema'], system_info['filter_config'])
+    source_filter = get_source_filter(system_info['system_type'], system_info['login'], system_info['database'], system_info['schema'], system_info['filter_config'])
 
     password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
 
