@@ -123,7 +123,7 @@ base_requirements = {
     # "setuptools~=66.0.0",
     "sqlalchemy>=1.4.0,<2",
     "collate-sqllineage>=1.0.4,<1.3",
-    "networkx==3.2.1",   # 2024.03.21 에 release된 3.3.0rc0 이 문제가 있어 버전 고정함. collate-sqllineage 의 참조 lib.
+    "networkx==3.1",   # 2024.03.21 에 release된 3.3.0rc0 이 문제가 있어 버전 고정함. collate-sqllineage 의 참조 lib.
     "tabulate==0.9.0",
     # "typing-compat~=0.1.0",  # compatibility requirements for 3.7
     # "typing-inspect",
