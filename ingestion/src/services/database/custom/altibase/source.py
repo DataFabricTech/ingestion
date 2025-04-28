@@ -19,7 +19,7 @@ class AltibaseSource(DatabaseSource):
                 "scheme": "altibase+pyodbc",
                 "username": self.source_user,
                 "password": self.source_password,
-                "odbcDsnName": self.system_id,
+                "odbcDsnName": self.system_id.replace("-",""),
                 "supportsProfiler": False,
                 "supportsDBTExtraction": True,
                 "supportsMetadataExtraction": True
