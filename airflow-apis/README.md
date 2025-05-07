@@ -1,7 +1,7 @@
-# OpenMetadata Airflow Managed DAGS Api
+# Airflow Managed DAGS Api
 
 This is a plugin for Apache Airflow >= 1.10 and Airflow >=2.x that exposes REST APIs to deploy an
-OpenMetadata workflow definition and manage DAGS and tasks.
+Datafabric workflow definition and manage DAGS and tasks.
 
 ## Development
 
