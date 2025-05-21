@@ -73,10 +73,10 @@ def get_source_filter(service_type, user, database, schema, sourceFileter):
                 "excludes": []
             }
 
-        # custom : altibase 는 schema 개념이 사용자
+        # custom : altibase 는 schema만 입력(database는 필터 동작 X)
         if service_type in ["Altibase"]:
             database_filter["schemaFilterPattern"] = {
-                "includes": [user],
+                "includes": [schema],
                 "excludes": []
             }
 

@@ -61,7 +61,7 @@ VERSIONS = {
     "elasticsearch8": "elasticsearch8~=8.9.0",
     "giturlparse": "giturlparse",
 
-    "sqlalchemy-altibase": "sqlalchemy-altibase==1.0.11.dev0",
+    # "sqlalchemy-altibase": "sqlalchemy-altibase==1.0.12.dev0",
 }
 
 COMMONS = {
@@ -265,7 +265,7 @@ plugins: Dict[str, Set[str]] = {
     "vertica": {"sqlalchemy-vertica[vertica-python]>=0.0.5"},
     # "pii-processor": pii_requirements,
 
-    "altibase": {VERSIONS["sqlalchemy-altibase"]}
+    # "altibase": {VERSIONS["sqlalchemy-altibase"]}
 }
 
 # dev = {
