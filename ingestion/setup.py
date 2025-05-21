@@ -62,6 +62,7 @@ VERSIONS = {
     "giturlparse": "giturlparse",
 
     # "sqlalchemy-altibase": "sqlalchemy-altibase==1.0.12.dev0",
+    "odbcinst": "odbcinst==1.0.1",
 }
 
 COMMONS = {
@@ -266,6 +267,7 @@ plugins: Dict[str, Set[str]] = {
     # "pii-processor": pii_requirements,
 
     # "altibase": {VERSIONS["sqlalchemy-altibase"]}
+    "odbcinst": {VERSIONS["odbcinst"]}
 }
 
 # dev = {
