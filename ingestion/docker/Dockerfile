@@ -31,6 +31,9 @@ COPY ../setup.py /metadata_collector/setup.py
 COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
 
+COPY /DATA_CATALOG/data/conf/odbc/odbcinst.ini /etc/odbcinst.ini
+COPY /DATA_CATALOG/data/conf/odbc/odbc.ini /etc/odbc.ini
+
 # SASL 관련 라이브러리 설치
 #RUN dnf -y update && \
 #    dnf -y install \
