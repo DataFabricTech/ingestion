@@ -291,6 +291,34 @@ class ColumnTypeParser:
     except ImportError:
         pass
 
+    try:
+        # Altibase data type mapping
+        from sqlalchemy_altibase import (
+            BIT as ALTIBASE_BIT,
+            BYTE as ALTIBASE_BYTE,
+            NIBBLE,
+            VARBIT as ALTIBASE_VARBIT,
+            VARBYTE as ALTIBASE_VARBYTE,
+        )
+
+        _COLUMN_TYPE_MAPPING.update({
+            ALTIBASE_BIT: "BOOLEAN",
+            ALTIBASE_BYTE: "VARBINARY",
+            NIBBLE: "VARCHAR",
+            ALTIBASE_VARBIT: "BOOLEAN",
+            ALTIBASE_VARBYTE: "VARBINARY",
+        })
+
+        _SOURCE_TYPE_TO_OM_TYPE.update({
+            "ALTIBASE_BIT": "BOOLEAN",
+            "ALTIBASE_BYTE": "VARBINARY",
+            "NIBBLE": "VARCHAR",
+            "ALTIBASE_VARBIT": "BOOLEAN",
+            "ALTIBASE_VARBYTE": "VARBINARY",
+        })
+    except ImportError:
+        pass
+
     @staticmethod
     def get_column_type(column_type: Any) -> str:
         for func in [
