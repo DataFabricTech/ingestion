@@ -13,14 +13,13 @@ from metadata.ingestion.source.database.common_custom_db_source import CommonCus
 from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import CustomDatabaseConnection
 from metadata.ingestion.source.database.custom.tibero.tiberoConnection import TiberoConnection
 from metadata.ingestion.source.database.custom.tibero.connection import get_connection
-from metadata.ingestion.source.database.custom.tibero.utils import (
-    get_columns
-)
-
-# TiberoDialect.get_table_names = get_table_names
-# TiberoDialect.get_columns = get_columns
+# from metadata.ingestion.source.database.custom.tibero.utils import (
+#     get_columns
+# )
 
 # from sqlalchemy_tibero.base import TiberoDialect
+
+# TiberoDialect.get_table_names = get_table_names
 # TiberoDialect.get_columns = get_columns
 
 class TiberoSource(CommonCustomDbSourceService):
@@ -44,5 +43,3 @@ class TiberoSource(CommonCustomDbSourceService):
 
     def test_connection(self):
         return True
-
-

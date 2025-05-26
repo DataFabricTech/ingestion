@@ -13,15 +13,14 @@ from metadata.ingestion.source.database.common_custom_db_source import CommonCus
 from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import CustomDatabaseConnection
 from metadata.ingestion.source.database.custom.altibase.altibaseConnection import AltibaseConnection
 from metadata.ingestion.source.database.custom.altibase.connection import get_connection
-from metadata.ingestion.source.database.custom.altibase.utils import (
-    get_table_names, get_columns
-)
+# from metadata.ingestion.source.database.custom.altibase.utils import (
+#    get_table_names, get_columns
+# )
 
-from sqlalchemy_altibase.base import AltibaseDialect
+# from sqlalchemy_altibase.base import AltibaseDialect
 
-AltibaseDialect.get_table_names = get_table_names
-AltibaseDialect.get_columns = get_columns
-
+# AltibaseDialect.get_table_names = get_table_names
+# AltibaseDialect.get_columns = get_columns
 
 class AltibaseSource(CommonCustomDbSourceService):
 
@@ -44,5 +43,3 @@ class AltibaseSource(CommonCustomDbSourceService):
 
     def test_connection(self):
         return True
-
-
