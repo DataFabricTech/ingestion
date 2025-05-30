@@ -277,6 +277,13 @@ class SqlColumnHandlerMixin:
                         precision,
                     )
                     col_data_length = 1 if col_data_length is None else col_data_length
+                    if self.inspector.bind.dialect.name == "postgresql":
+                        if 'character varying' in column.get("system_data_type"):
+                            replace_value = col_type.value if hasattr(col_type, "value") else str(col_type)
+                            column['system_data_type'] = column['system_data_type'].replace("character varying", replace_value)
+                        elif 'character' in column.get("system_data_type"):
+                            replace_value = col_type.value if hasattr(col_type, "value") else str(col_type)
+                            column['system_data_type'] = column['system_data_type'].replace("character", replace_value)
                     om_column = Column(
                         name=ColumnName(
                             __root__=column["name"]
@@ -287,9 +294,9 @@ class SqlColumnHandlerMixin:
                         ),
                         description=column.get("comment"),
                         dataType=col_type,
-                        dataTypeDisplay=column.get(
+                        dataTypeDisplay=str(column.get(
                             "system_data_type", data_type_display
-                        ),
+                        )).upper(),
                         dataLength=col_data_length,
                         constraint=col_constraint,
                         children=children,
