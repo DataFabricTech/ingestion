@@ -64,6 +64,9 @@ RUN pip install --upgrade pip setuptools
 RUN pip install .
 RUN pip install ingest-server[all]
 
+# bashrc 설정 추가
+RUN echo 'alias ll="ls -alF --color=auto"' >> /root/.bashrc
+
 # PYTHONPATH 환경 변수 설정
 ENV PYTHONPATH="/metadata_collector/src:/metadata_collector/site-package:$PYTHONPATH"
 
