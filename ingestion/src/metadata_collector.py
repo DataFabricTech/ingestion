@@ -4,7 +4,6 @@ from metadata.generated.schema.entity.services.pipelineService import PipelineSe
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
-from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
 
 from metadata.utils.logger import ingestion_logger
 from utils.security_manager import SecurityManager
@@ -80,6 +79,15 @@ def get_source_filter(service_type, user, database, schema, sourceFileter):
                 "excludes": []
             }
 
+        if service_type in [StorageServiceType.S3.value]:
+            database_filter = {
+                "type": "StorageMetadata",
+                "containerFilterPattern": {
+                    "includes": [],
+                    "excludes": []
+                }
+            }
+
         return database_filter
     else:
         return sourceFileter
@@ -107,7 +115,7 @@ def set_meta_system_status(system_id, status):
     request_manager.request_put(url=url)
 
 
-def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, FilesystemServiceType, str],
+def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
                sink_type, sink_host, sink_port,
                source_hostport, source_user, source_password, source_database, source_filter):
@@ -128,8 +136,6 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
         pass
     elif service_type in StorageServiceType.__members__:
         service_type = StorageServiceType(service_type)
-    elif service_type in FilesystemServiceType.__members__:
-        service_type = FilesystemServiceType(service_type)
     else:
         raise Exception(f"system_type invalid. {service_type}")
 

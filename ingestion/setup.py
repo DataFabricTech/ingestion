@@ -102,7 +102,7 @@ base_requirements = {
     "cached-property==1.5.2",
     # "chardet==4.0.0",
     # "croniter~=1.3.0",
-    # "cryptography",
+    "cryptography",
     "email-validator>=1.0.3",
     VERSIONS["google"],
     "google-auth>=1.33.0",

@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IngestionCheck",
+  "$comment": "@om-entity-type",
+  "description": "This schema defines the Ingestion entity.",
+  "type": "object",
+  "definitions": {
+    "IngestionStatus": {
+      "type": "object",
+      "description": "This schema defines the type for Ingeestion Status config.",
+      "properties": {
+        "system_id": {
+          "description": "system_id",
+          "type": "string"
+        },
+        "status": {
+          "description": "수집 상태",
+          "type": "string"
+        },
+        "err_description": {
+          "description": "에러 내용",
+          "type": "string"
+        },
+        "user": {
+          "description": "api 호출자",
+          "type": "string"
+        }
+      },
+      "required": ["system_id", "status"]
+    },
+    "MetadataSystemInfo": {
+      "type": "object",
+      "description": "This schema is MetadataSystemInfo",
+      "properties": {
+        "system_id": {
+          "description": "system_id",
+          "type": "string"
+        },
+        "system_type": {
+          "description": "system_type",
+          "type": "string"
+        },
+        "host": {
+          "description": "host",
+          "type": "string"
+        },
+        "port": {
+          "description": "port",
+          "type": "integer"
+        },
+        "login": {
+          "description": "login",
+          "type": "string"
+        },
+        "password": {
+          "description": "password",
+          "type": "string"
+        },
+        "database": {
+          "description": "database",
+          "type": "string"
+        },
+        "filter_config": {
+          "description": "filter_config",
+          "type": "string"
+        }
+      },
+      "required": ["system_id", "system_type", "host", "port", "login", "password", "database"]
+    }
+  },
+  "properties": {
+    "system_id": {
+      "description": "ingestion system name",
+      "type": "string"
+    }
+  },
+  "required": ["system_id"],
+  "additionalProperties": false
+}

@@ -23,7 +23,6 @@ OMeta API endpoints
 # from metadata.generated.schema.api.classification.createTag import CreateTagRequest
 # from metadata.generated.schema.api.data.createChart import CreateChartRequest
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
-from metadata.generated.schema.api.data.createDirectory import CreateDirectoryRequest
 # from metadata.generated.schema.api.data.createDashboard import CreateDashboardRequest
 # from metadata.generated.schema.api.data.createDashboardDataModel import (
 #     CreateDashboardDataModelRequest,
@@ -77,9 +76,6 @@ from metadata.generated.schema.api.services.createSearchService import (
 from metadata.generated.schema.api.services.createStorageService import (
     CreateStorageServiceRequest,
 )
-from metadata.generated.schema.api.services.createFilesystemService import (
-    CreateFilesystemServiceRequest
-)
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
 )
@@ -100,7 +96,6 @@ from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPi
 # from metadata.generated.schema.entity.classification.tag import Tag
 # from metadata.generated.schema.entity.data.chart import Chart
 from metadata.generated.schema.entity.data.container import Container
-from metadata.generated.schema.entity.data.directory import Directory
 # from metadata.generated.schema.entity.data.dashboard import Dashboard
 # from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
 from metadata.generated.schema.entity.data.database import Database
@@ -167,8 +162,6 @@ ROUTES = {
     # CreateQueryRequest.__name__: "/queries",
     Container.__name__: "/containers",
     CreateContainerRequest.__name__: "/containers",
-    Directory.__name__: "/directory",
-    CreateDirectoryRequest.__name__: "/directory",
     SearchIndex.__name__: "/searchIndexes",
     CreateSearchIndexRequest.__name__: "/searchIndexes",
     # StoredProcedure.__name__: "/storedProcedures",
@@ -208,7 +201,6 @@ ROUTES = {
     CreatePipelineServiceRequest.__name__: "/services/pipelineServices",
     StorageService.__name__: "/services/storageServices",
     CreateStorageServiceRequest.__name__: "/services/storageServices",
-    CreateFilesystemServiceRequest.__name__: "/services/filesystemServices",
     # MlModelService.__name__: "/services/mlmodelServices",
     # CreateMlModelServiceRequest.__name__: "/services/mlmodelServices",
     # MetadataService.__name__: "/services/metadataServices",

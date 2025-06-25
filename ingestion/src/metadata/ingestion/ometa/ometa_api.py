@@ -278,7 +278,7 @@ class OpenMetadata(
             raise InvalidEntityException(
                 f"PUT operations need a CreateEntity, not {entity}"
             )
-        #phy
+        # phy
         # print(data.json(encoder=show_secrets_encoder))
         resp = self.client.put(
             self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)

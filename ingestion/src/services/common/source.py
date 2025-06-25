@@ -5,7 +5,6 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
-from metadata.generated.schema.entity.services.filesystemService import FilesystemServiceType
 
 from typing import Union
 from abc import ABC, abstractmethod
@@ -22,7 +21,7 @@ class CollectorStatus(Enum):
 class CommonSource(ABC):
 
     def __init__(self,
-                 service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, FilesystemServiceType, str],
+                 service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
                  sink_type='file',
                  sink_host='localhost',
                  sink_port=8585,
