@@ -30,18 +30,23 @@ from setuptools import find_namespace_packages, setup
 VERSIONS = {
     #"airflow": "apache-airflow==2.6.3",
     "avro": "avro~=1.11",
-    "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
+    # "boto3": "boto3>=1.20,<2.0",  # No need to add botocore separately. It's a dep from boto3
+    "boto3": "boto3==1.29.4",  # No need to add botocore separately. It's a dep from boto3
     "geoalchemy2": "GeoAlchemy2~=0.12",
     "google-cloud-storage": "google-cloud-storage==1.43.0",
     "great-expectations": "great-expectations~=0.17.0",
     "grpc-tools": "grpcio-tools>=1.47.2",
     "msal": "msal~=1.2",
     "neo4j": "neo4j~=5.3.0",
+    "nltk": "nltk==3.9.1",
+    "transformers": "transformers==4.46.3",
     "pandas": "pandas==1.3.5",
     "pyarrow": "pyarrow~=10.0",
     "pydomo": "pydomo~=0.3",
     "pymysql": "pymysql>=1.0.2",
     "pyodbc": "pyodbc>=4.0.35,<5",
+    "python-docx": "python-docx==1.1.2",
+    "pyhwp": "pyhwp==0.1b15",
     "scikit-learn": "scikit-learn~=1.0",  # Python 3.7 only goes up to 1.0.2
     "packaging": "packaging==21.3",
     "azure-storage-blob": "azure-storage-blob~=12.14",
@@ -49,6 +54,7 @@ VERSIONS = {
     "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
     "databricks-sdk": "databricks-sdk==0.16.0",
     "google": "google>=3.0.0",
+    "tika": "tika==2.6.0",
     "trino": "trino[sqlalchemy]",
     "spacy": "spacy==3.5.0",
     "looker-sdk": "looker-sdk>=22.20.0",
@@ -63,6 +69,10 @@ VERSIONS = {
 
     # "sqlalchemy-altibase": "sqlalchemy-altibase==1.0.12.dev0",
     "odbcinst": "odbcinst==1.0.1",
+    "torch": "torch==2.4.1",
+    "s3fs": "s3fs==2023.12.1",
+    "fsspec": "fsspec==2021.11.0",
+    "openpyxl": "openpyxl~=3.1.3",
 }
 
 COMMONS = {
@@ -98,7 +108,7 @@ pii_requirements = {
 base_requirements = {
     "antlr4-python3-runtime==4.9.2",
     VERSIONS["avro"],  # Used in sample data
-    # VERSIONS["boto3"],  # Required in base for the secrets manager
+    VERSIONS["boto3"],  # Required in base for the secrets manager
     "cached-property==1.5.2",
     # "chardet==4.0.0",
     # "croniter~=1.3.0",
@@ -111,6 +121,7 @@ base_requirements = {
     # "importlib-metadata>=4.13.0",  # From airflow constraints
     # "Jinja2>=2.11.3",
     # "jsonpatch==1.32",
+    "jsonpatch<2.0, >=1.24",
     # "jsonschema",
     # "memory-profiler",
     # "mypy_extensions>=0.4.3",
@@ -131,7 +142,14 @@ base_requirements = {
     # "wheel~=0.38.4",
     "sqlmodel==0.0.11",
     "python-dotenv==1.0.1",
-    "zstd==1.5.6.1"
+    "zstd==1.5.6.1",
+    "torch==2.4.1",
+    "python-docx==1.1.2",
+    "pyhwp==0.1b15",
+    "tika==2.6.0",
+    "nltk==3.9.1",
+    "transformers==4.46.3",
+    "packaging"
 }
 
 
@@ -146,7 +164,7 @@ plugins: Dict[str, Set[str]] = {
     # "atlas": {},
     # "azuresql": {VERSIONS["pyodbc"]},
     # "azure-sso": {VERSIONS["msal"]},
-    # "backup": {VERSIONS["boto3"], "azure-identity", "azure-storage-blob"},
+    "backup": {VERSIONS["boto3"], "azure-identity", "azure-storage-blob"},
     "bigquery": {
         "cachetools",
         "google-cloud-datacatalog>=3.6.2",
@@ -161,14 +179,14 @@ plugins: Dict[str, Set[str]] = {
     #     VERSIONS["geoalchemy2"],
     #     "dagster_graphql~=1.1",
     # },
-    # "dbt": {
-        # "google-cloud",
-        # VERSIONS["boto3"],
-        # VERSIONS["google-cloud-storage"],
-        # "dbt-artifacts-parser",
-        # VERSIONS["azure-storage-blob"],
-        # VERSIONS["azure-identity"],
-    # },
+    "dbt": {
+        "google-cloud",
+        VERSIONS["boto3"],
+        VERSIONS["google-cloud-storage"],
+        "dbt-artifacts-parser",
+        VERSIONS["azure-storage-blob"],
+        VERSIONS["azure-identity"],
+    },
     "db2": {"ibm-db-sa~=0.3"},
     "databricks": {VERSIONS["sqlalchemy-databricks"], VERSIONS["databricks-sdk"]},
     "datalake-azure": {
@@ -187,19 +205,20 @@ plugins: Dict[str, Set[str]] = {
         # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
         # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
         # Leaving this marked to the automatic resolution to speed up installation.
-        "s3fs==0.4.2",
+        # "s3fs==0.4.2",
+        "s3fs==2023.12.1",
         *COMMONS["datalake"],
     },
     "deltalake": {"delta-spark<=2.3.0"},
     # "docker": {"python_on_whales==0.55.0"},
     "domo": {VERSIONS["pydomo"]},
     # "druid": {"pydruid>=0.6.5"},
-    # "dynamodb": {VERSIONS["boto3"]},
+    "dynamodb": {VERSIONS["boto3"]},
     "elasticsearch": {
         "elasticsearch==7.13.1",
         VERSIONS["elasticsearch8"],
     },  # also requires requests-aws4auth which is in base
-    # "glue": {VERSIONS["boto3"]},
+    "glue": {VERSIONS["boto3"]},
     # "great-expectations": {VERSIONS["great-expectations"]},
     "hive": {
         *COMMONS["hive"],
@@ -216,7 +235,7 @@ plugins: Dict[str, Set[str]] = {
     #     "thrift-sasl~=0.4",
     # },
     # "kafka": {*COMMONS["kafka"]},
-    # "kinesis": {VERSIONS["boto3"]},
+    "kinesis": {VERSIONS["boto3"]},
     # "ldap-users": {"ldap3==2.9.1"},
     # "looker": {
     #     VERSIONS["looker-sdk"],
@@ -245,7 +264,7 @@ plugins: Dict[str, Set[str]] = {
     # "qliksense": {"websocket-client~=1.6.1"},
     # "presto": {*COMMONS["hive"]},
     "pymssql": {"pymssql~=2.2.0"},
-    # "quicksight": {VERSIONS["boto3"]},
+    "quicksight": {VERSIONS["boto3"]},
     # "redash": {VERSIONS["packaging"]},
     # "redpanda": {*COMMONS["kafka"]},
     "redshift": {
@@ -254,7 +273,7 @@ plugins: Dict[str, Set[str]] = {
         "psycopg2-binary",
         VERSIONS["geoalchemy2"],
     },
-    # "sagemaker": {VERSIONS["boto3"]},
+    "sagemaker": {VERSIONS["boto3"]},
     "salesforce": {"simple_salesforce==1.11.4"},
     # "sap-hana": {"hdbcli", "sqlalchemy-hana"},
     # "singlestore": {VERSIONS["pymysql"]},
@@ -267,7 +286,12 @@ plugins: Dict[str, Set[str]] = {
     # "pii-processor": pii_requirements,
 
     # "altibase": {VERSIONS["sqlalchemy-altibase"]}
-    "odbcinst": {VERSIONS["odbcinst"]}
+    "odbcinst": {VERSIONS["odbcinst"]},
+    # jblim : MinIO 저장소 데이터 가상화를 위해 추가
+    "fsspec": {VERSIONS["fsspec"]},
+    "s3fs": {VERSIONS["s3fs"]},
+    "openpyxl": {VERSIONS["openpyxl"]},
+    "dev": {"datamodel-code-generator==0.22.0"}
 }
 
 # dev = {

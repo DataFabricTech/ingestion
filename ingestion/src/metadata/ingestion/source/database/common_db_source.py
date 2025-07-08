@@ -109,8 +109,8 @@ class CommonDbSourceService(
         self._connection = None  # Lazy init as well
         self.table_constraints = None
         self.database_source_state = set()
-        self.context.table_views = []
-        self.context.table_constrains = []
+        self.context.get().table_views = []
+        self.context.get().table_constrains = []
         super().__init__()
 
     def set_inspector(self, database_name: str) -> None:
@@ -169,7 +169,7 @@ class CommonDbSourceService(
         yield Either(
             right=CreateDatabaseRequest(
                 name=database_name,
-                service=self.context.database_service,
+                service=self.context.get().database_service,
                 description=self.get_database_description(database_name),
                 sourceUrl=self.get_source_url(database_name=database_name),
                 systemType=self.config.systemType
@@ -204,12 +204,12 @@ class CommonDbSourceService(
                 database=fqn.build(
                     metadata=self.metadata,
                     entity_type=Database,
-                    service_name=self.context.database_service,
-                    database_name=self.context.database,
+                    service_name=self.context.get().database_service,
+                    database_name=self.context.get().database,
                 ),
                 description=self.get_schema_description(schema_name),
                 sourceUrl=self.get_source_url(
-                    database_name=self.context.database,
+                    database_name=self.context.get().database,
                     schema_name=schema_name,
                 ),
                 systemType=self.config.systemType
@@ -276,7 +276,7 @@ class CommonDbSourceService(
 
         :return: tables or views, depending on config
         """
-        schema_name = self.context.database_schema
+        schema_name = self.context.get().database_schema
         try:
             if self.source_config.includeTables:
                 for table_and_type in self.query_table_names_and_types(schema_name):
@@ -286,9 +286,9 @@ class CommonDbSourceService(
                     table_fqn = fqn.build(
                         self.metadata,
                         entity_type=Table,
-                        service_name=self.context.database_service,
-                        database_name=self.context.database,
-                        schema_name=self.context.database_schema,
+                        service_name=self.context.get().database_service,
+                        database_name=self.context.get().database,
+                        schema_name=self.context.get().database_schema,
                         table_name=table_name,
                         skip_es_search=True,
                     )
@@ -313,9 +313,9 @@ class CommonDbSourceService(
                     view_fqn = fqn.build(
                         self.metadata,
                         entity_type=Table,
-                        service_name=self.context.database_service,
-                        database_name=self.context.database,
-                        schema_name=self.context.database_schema,
+                        service_name=self.context.get().database_service,
+                        database_name=self.context.get().database,
+                        schema_name=self.context.get().database_schema,
                         table_name=view_name,
                     )
 
@@ -413,7 +413,7 @@ class CommonDbSourceService(
         Prepare a table request and pass it to the sink
         """
         table_name, table_type = table_name_and_type
-        schema_name = self.context.database_schema
+        schema_name = self.context.get().database_schema
         try:
             (
                 columns,
@@ -423,7 +423,7 @@ class CommonDbSourceService(
             ) = self.get_columns_and_constraints(
                 schema_name=schema_name,
                 table_name=table_name,
-                db_name=self.context.database,
+                db_name=self.context.get().database,
                 inspector=self.inspector,
             )
 
@@ -450,8 +450,8 @@ class CommonDbSourceService(
                 databaseSchema=fqn.build(
                     metadata=self.metadata,
                     entity_type=DatabaseSchema,
-                    service_name=self.context.database_service,
-                    database_name=self.context.database,
+                    service_name=self.context.get().database_service,
+                    database_name=self.context.get().database,
                     schema_name=schema_name,
                 ),
                 # tags=self.get_tag_labels(
@@ -460,7 +460,7 @@ class CommonDbSourceService(
                 sourceUrl=self.get_source_url(
                     table_name=table_name,
                     schema_name=schema_name,
-                    database_name=self.context.database,
+                    database_name=self.context.get().database,
                     table_type=table_type,
                 ),
                 tableOwner=table_owner,
@@ -485,11 +485,11 @@ class CommonDbSourceService(
                     {
                         "table_name": table_name,
                         "schema_name": schema_name,
-                        "db_name": self.context.database,
+                        "db_name": self.context.get().database,
                         "view_definition": view_definition,
                     }
                 )
-                self.context.table_views.append(table_view)
+                self.context.get().table_views.append(table_view)
 
         except Exception as exc:
             error = f"Unexpected exception to yield table [{table_name}]: {exc}"
@@ -502,12 +502,12 @@ class CommonDbSourceService(
     # def yield_view_lineage(self) -> Iterable[Either[AddLineageRequest]]:
     #     logger.info("Processing Lineage for Views")
     #     for view in [
-    #         v for v in self.context.table_views if v.view_definition is not None
+    #         v for v in self.context.get().table_views if v.view_definition is not None
     #     ]:
     #         yield from get_view_lineage(
     #             view=view,
     #             metadata=self.metadata,
-    #             service_name=self.context.database_service,
+    #             service_name=self.context.get().database_service,
     #             connection_type=self.service_connection.type.value,
     #             timeout_seconds=self.source_config.queryParsingTimeoutLimit,
     #         )
@@ -526,7 +526,7 @@ class CommonDbSourceService(
         #         table_name=column.get("referred_table"),
         #         schema_name=column.get("referred_schema"),
         #         database_name=None,
-        #         service_name=self.context.database_service,
+        #         service_name=self.context.get().database_service,
         #     )
         #     if referred_table:
         #         for referred_column in column.get("referred_columns"):

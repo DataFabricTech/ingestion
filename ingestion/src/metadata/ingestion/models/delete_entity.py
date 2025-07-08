@@ -8,18 +8,20 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 """
-DF Reader common methods
+Pydantic definition for deleting entites
 """
-from metadata.utils.constants import CHUNKSIZE
+from typing import Optional
+
+from pydantic import BaseModel
+
+from metadata.ingestion.api.models import Entity
 
 
-def dataframe_to_chunks(df: "DataFrame"):
+class DeleteEntity(BaseModel):
     """
-    Reads the Dataframe and returns list of dataframes broken down in chunks
+    Entity Reference of the entity to be deleted
     """
-    return [
-        df[range_iter : range_iter + CHUNKSIZE]
-        for range_iter in range(0, len(df), CHUNKSIZE)
-    ]
+
+    entity: Entity
+    mark_deleted_entities: Optional[bool] = False

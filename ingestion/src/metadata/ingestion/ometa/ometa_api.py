@@ -18,7 +18,8 @@ import traceback
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel
-from requests.utils import requote_uri
+# from requests.utils import requote_uri
+from requests.compat import quote
 
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
@@ -278,8 +279,8 @@ class OpenMetadata(
             raise InvalidEntityException(
                 f"PUT operations need a CreateEntity, not {entity}"
             )
-        # phy
-        # print(data.json(encoder=show_secrets_encoder))
+        print(f'PUT {self.get_suffix(entity)}')
+        print(data.json(encoder=show_secrets_encoder))
         resp = self.client.put(
             self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)
         )
@@ -336,11 +337,10 @@ class OpenMetadata(
         """
         Return entity by name or None
         """
-
         return self._get(
             entity=entity,
-            # path=f"name/{quote(model_str(fqn), safe='')}",
-            path=f"name/{requote_uri(model_str(fqn))}",
+            path=f"name/{quote(model_str(fqn), safe='')}",
+            # path=f"name/{requote_uri(model_str(fqn))}",
             fields=fields,
             nullable=nullable,
         )
@@ -377,11 +377,16 @@ class OpenMetadata(
         """
         fields_str = "?fields=" + ",".join(fields) if fields else ""
         try:
+            #phy
+            print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
             resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
             if not resp:
-                raise EmptyPayloadException(
-                    f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
-                )
+                if nullable:
+                    return None
+                else:
+                    raise EmptyPayloadException(
+                        f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
+                    )
             return entity(**resp)
         except APIError as err:
             # We can expect some GET calls to return us a None and manage it in following steps.

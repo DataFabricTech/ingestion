@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 PY_SOURCE ?= src
-include Makefile
+# include Makefile
 
 .PHONY: help
 help:
@@ -57,7 +57,7 @@ generate:  ## Generate the pydantic models from the JSON Schemas to the ingestio
 	mkdir -p src/metadata/generated
 	python scripts/datamodel_generation.py
 	$(MAKE) py_antlr js_antlr
-	$(MAKE) install
+# 	$(MAKE) install
 
 .PHONY: install_antlr_cli
 install_antlr_cli:  ## Install antlr CLI locally

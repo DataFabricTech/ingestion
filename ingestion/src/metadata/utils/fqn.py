@@ -26,8 +26,9 @@ from pydantic import BaseModel, Field
 from metadata.antlr.split_listener import FqnSplitListener
 from metadata.generated.antlr.FqnLexer import FqnLexer
 from metadata.generated.antlr.FqnParser import FqnParser
-# from metadata.generated.schema.entity.classification.tag import Tag
+from metadata.generated.schema.entity.classification.tag import Tag
 # from metadata.generated.schema.entity.data.chart import Chart
+from metadata.generated.schema.entity.data.container import Container
 # from metadata.generated.schema.entity.data.dashboard import Dashboard
 # from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
 from metadata.generated.schema.entity.data.database import Database
@@ -88,7 +89,11 @@ def _build(*args, quote: bool = True) -> str:
     Equivalent of Java's FullyQualifiedName#build
     """
     if quote:
-        quoted = [quote_name(name) for name in args]
+        quoted = []
+        for name in args:
+            if name is not None:
+                quoted.append(quote_name(name))
+        # quoted = [quote_name(name) for name in args]
         return FQN_SEPARATOR.join(quoted)
 
     return FQN_SEPARATOR.join(args)
@@ -298,19 +303,36 @@ def _(
         )
     return _build(service_name, search_index_name)
 
+@fqn_build_registry.add(Container)
+def _(
+        _: Optional[OpenMetadata],  # ES Index not necessary for Container FQN building
+        *,
+        service_name: str,
+        parent_container: str,
+        container_name: str,
+) -> str:
+    if not service_name or not container_name:
+        raise FQNBuildingException(
+            f"Args should be informed, but got service=`{service_name}`, container=`{container_name}``"
+        )
+    return (
+        _build(parent_container, container_name, quote=False)
+        if parent_container
+        else (_build(service_name, container_name))
+    )
 
-# @fqn_build_registry.add(Tag)
-# def _(
-#     _: Optional[OpenMetadata],  # ES Index not necessary for Tag FQN building
-#     *,
-#     classification_name: str,
-#     tag_name: str,
-# ) -> str:
-#     if not classification_name or not tag_name:
-#         raise FQNBuildingException(
-#             f"Args should be informed, but got category=`{classification_name}`, tag=`{tag_name}``"
-#         )
-#     return _build(classification_name, tag_name)
+@fqn_build_registry.add(Tag)
+def _(
+    _: Optional[OpenMetadata],  # ES Index not necessary for Tag FQN building
+    *,
+    classification_name: str,
+    tag_name: str,
+) -> str:
+    if not classification_name or not tag_name:
+        raise FQNBuildingException(
+            f"Args should be informed, but got category=`{classification_name}`, tag=`{tag_name}``"
+        )
+    return _build(classification_name, tag_name)
 
 
 @fqn_build_registry.add(DataModel)

@@ -84,7 +84,16 @@ def get_source_filter(service_type, user, database, schema, sourceFileter):
                 "type": "StorageMetadata",
                 "containerFilterPattern": {
                     "includes": [],
-                    "excludes": []
+                    "excludes": ["datacatalog"]
+                }
+            }
+
+        if service_type in [StorageServiceType.MinIO.value]:
+            database_filter = {
+                "type": "StorageMetadata",
+                "containerFilterPattern": {
+                    "includes": [],
+                    "excludes": ["datacatalog"]
                 }
             }
 
@@ -129,6 +138,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     from services.storage.s3.source import S3Source
     # from services.filesystem.linux.source import LinuxSource
     from services.database.custom.altibase.source import AltibaseSource
+    from services.storage.minio.source import MinioSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -168,24 +178,37 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     elif service_type == "Altibase": #custom
         source = AltibaseSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                               source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == StorageServiceType.MinIO:
+        source = MinioSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                          source_user=source_user, source_password=source_password, source_filter=source_filter)
+
     return source
 
 
 def metadata_collector_execute(system_id, sink="file"):
 
-    system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
-
-    if (source_hostport is None) or (source_user is None):
-        raise Exception('source config invalid.')
-
-    if sink in ['file', 'db']:
-        sink_host = "<INTERNAL_HOST>"
-        sink_port = 8585
-    elif sink == 'metadata-rest':
-        sink_host = config.sink_host
-        sink_port = config.sink_port
+    if system_id  == 'minio_test':
+        system_type = "MinIO"
+        source_hostport = None
+        source_user = None
+        source_password = None
+        source_database = None
+        source_filter = {
+            "type": "StorageMetadata",
+            "bucketFilterPattern": {
+                "includes": [],
+                "excludes": ["datacatalog"]
+            }
+        }
     else:
-        raise Exception('sink_type invalid. file, db, metadata-rest')
+
+        system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
+
+        if (source_hostport is None) or (source_user is None):
+            raise Exception('source config invalid.')
+
+    sink_host = config.sink_host
+    sink_port = config.sink_port
 
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
 

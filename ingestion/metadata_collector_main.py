@@ -7,7 +7,10 @@ if __name__ == "__main__":
     # metadata_collector_execute(system_id=sys.argv[1],
     #                 sink='metadata-rest')
 
-    metadata_collector_execute(system_id='38fe4f2a-4030-4770-8dc5-e2fe21009789',
+    # metadata_collector_execute(system_id='109ae637-9e13-44f9-9686-a79cf1e12499',
+    #                 sink='metadata-rest')
+
+    metadata_collector_execute(system_id='minio_test',
                     sink='metadata-rest')
 
     # metadata_collector_execute(system_name=sys.argv[1], sink="file")

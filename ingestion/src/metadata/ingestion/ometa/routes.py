@@ -20,9 +20,10 @@ OMeta API endpoints
 # from metadata.generated.schema.api.classification.createClassification import (
 #     CreateClassificationRequest,
 # )
-# from metadata.generated.schema.api.classification.createTag import CreateTagRequest
+from metadata.generated.schema.api.classification.createTag import CreateTagRequest
 # from metadata.generated.schema.api.data.createChart import CreateChartRequest
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
+from metadata.generated.schema.api.data.createFile import CreateFileRequest
 # from metadata.generated.schema.api.data.createDashboard import CreateDashboardRequest
 # from metadata.generated.schema.api.data.createDashboardDataModel import (
 #     CreateDashboardDataModelRequest,
@@ -93,9 +94,10 @@ from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPi
 # from metadata.generated.schema.entity.classification.classification import (
 #     Classification,
 # )
-# from metadata.generated.schema.entity.classification.tag import Tag
+from metadata.generated.schema.entity.classification.tag import Tag
 # from metadata.generated.schema.entity.data.chart import Chart
 from metadata.generated.schema.entity.data.container import Container
+from metadata.generated.schema.entity.data.file import File
 # from metadata.generated.schema.entity.data.dashboard import Dashboard
 # from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
 from metadata.generated.schema.entity.data.database import Database
@@ -161,14 +163,16 @@ ROUTES = {
     # Query.__name__: "/queries",
     # CreateQueryRequest.__name__: "/queries",
     Container.__name__: "/containers",
+    File.__name__: "/files",
     CreateContainerRequest.__name__: "/containers",
+    CreateFileRequest.__name__: "/files",
     SearchIndex.__name__: "/searchIndexes",
     CreateSearchIndexRequest.__name__: "/searchIndexes",
     # StoredProcedure.__name__: "/storedProcedures",
     # CreateStoredProcedureRequest.__name__: "/storedProcedures",
     # Classifications
-    # Tag.__name__: "/tags",
-    # CreateTagRequest.__name__: "/tags",
+    Tag.__name__: "/tags",
+    CreateTagRequest.__name__: "/tags",
     # Classification.__name__: "/classifications",
     # CreateClassificationRequest.__name__: "/classifications",
     # Glossaries

@@ -68,4 +68,5 @@ class DataFrameReader(ABC):
         try:
             return self._read(key=key, bucket_name=bucket_name, **kwargs)
         except Exception as err:
+            # logger.exception(f"Error reading dataframe due to [{err}]")아
             raise DataFrameReadException(f"Error reading dataframe due to [{err}]")

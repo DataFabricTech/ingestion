@@ -64,7 +64,7 @@ class MinioContainerDetails(BaseModel):
         description="File formats",
     )
     data_model: Optional[ContainerDataModel] = Field(
-        ...,
+        None,
         description="Data Model of the container",
     )
     creation_date: Optional[str] = Field(
@@ -84,6 +84,11 @@ class MinioContainerDetails(BaseModel):
     rdfs: Optional[List[Rdf]] = Field(
         None,
         description="RDFs",
+    )
+    extension: Optional[str] = Field(
+        None,
+        description="What's the schema format for the container, eg. avro, parquet, csv.",
+        title='Schema format',
     )
 
 
