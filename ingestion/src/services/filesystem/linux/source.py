@@ -18,7 +18,7 @@ class LinuxSource(FilesystemSource):
 
         serviceConnection = FilesystemConnection(config=SshConnection(**{
             "type": "Linux",
-            "hostname": self.source_hostport,
+            "hostname": f"{self.source_host}:{self.source_port}",
             "username": self.source_user,
             "password": self.source_password
         }))

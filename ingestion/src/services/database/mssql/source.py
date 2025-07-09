@@ -16,7 +16,7 @@ class MssqlSource(DatabaseSource):
             "scheme": "mssql+pymssql",
             "username": self.source_user,
             "password": self.source_password,
-            "hostPort": self.source_hostport,
+            "hostPort": f"{self.source_host}:{self.source_port}",
             "database": self.source_database
         }))
 

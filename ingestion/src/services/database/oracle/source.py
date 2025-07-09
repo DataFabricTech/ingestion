@@ -17,7 +17,7 @@ class OracleSource(DatabaseSource):
             "scheme": "oracle+cx_oracle",
             "username": self.source_user,
             "password": self.source_password,
-            "hostPort": self.source_hostport,
+            "hostPort": f"{self.source_host}:{self.source_port}",
             "oracleConnectionType": {"oracleServiceName": self.source_database},
         }))
 

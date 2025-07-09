@@ -16,7 +16,7 @@ class HiveSource(DatabaseSource):
             "scheme": "hive",
             "username": self.source_user,
             "password": self.source_password,
-            "hostPort": self.source_hostport,
+            "hostPort": f"{self.source_host}:{self.source_port}",
             "auth": "LDAP",
             "databaseSchema": self.source_database
         }))

@@ -18,9 +18,9 @@ class MinioSource(StorageSource):
         serviceConnection = StorageConnection(config=MinioConnection(**{
             "type": "MinIO",
             "minioConfig": {
-                "accessKeyId": "minioadmin",
-                "secretKey": "minioadmin",
-                "endPointURL": "http://<INTERNAL_HOST>:9000"}
+                "accessKeyId": self.source_user,
+                "secretKey": self.source_password,
+                "endPointURL": f"http://{self.source_host}:{self.source_port}"}
         }))
 
         return serviceConnection

@@ -25,7 +25,8 @@ class CommonSource(ABC):
                  sink_type='file',
                  sink_host='localhost',
                  sink_port=8585,
-                 source_hostport=None,
+                 source_host=None,
+                 source_port=None,
                  source_user=None,
                  source_password=None,
                  source_database=None,
@@ -39,7 +40,8 @@ class CommonSource(ABC):
         self.sink_type = sink_type
         self.sink_host = sink_host
         self.sink_port = sink_port
-        self.source_hostport = source_hostport
+        self.source_host = source_host
+        self.source_port = source_port
         self.source_user = source_user
         self.source_password = source_password
         self.source_database = source_database

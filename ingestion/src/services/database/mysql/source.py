@@ -17,7 +17,7 @@ class MysqlSource(DatabaseSource):
             "scheme": "mysql+pymysql",
             "username": self.source_user,
             "authType": {"password": self.source_password},
-            "hostPort": self.source_hostport,
+            "hostPort": f"{self.source_host}:{self.source_port}",
         }))
 
         return serviceConnection

@@ -23,7 +23,7 @@ class PostgresSource(DatabaseSource):
             "scheme": "postgresql+psycopg2",
             "username": self.source_user,
             "authType": {"password": self.source_password},
-            "hostPort": self.source_hostport,
+            "hostPort": f"{self.source_host}:{self.source_port}",
             "database": self.source_database,
         }))
         return serviceConnection

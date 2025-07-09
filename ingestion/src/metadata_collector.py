@@ -13,93 +13,97 @@ from utils.request_manager import RequestManager
 logger = ingestion_logger()
 logger.setLevel("INFO")
 
-
-def get_source_filter(service_type, user, database, schema, sourceFileter):
-
-    #profile phy
-    # return {'type': 'Profiler'}
-
-    if sourceFileter == None or sourceFileter == '':
-        database_filter = {
-            "type": "DatabaseMetadata",
-            "markDeletedTables": False,
-            "markDeletedStoredProcedures": False,
-            "includeTables": True,
-            "includeViews": False,
-            "includeTags": False,
-            "includeStoredProcedures": False,
-            "queryLogDuration": 1,
-            "queryParsingTimeoutLimit": 300,
-            "useFqnForFiltering": False,
-            "schemaFilterPattern": {
-                "includes": [],
-                "excludes": []
-            },
-            "tableFilterPattern": {
-                "includes": [],
-                "excludes": []
-            },
-            "databaseFilterPattern": {
-                "includes": [],
-                "excludes": []
-            }
+def get_database_filter():
+    filter = {
+        "type": "DatabaseMetadata",
+        "markDeletedTables": False,
+        "markDeletedStoredProcedures": False,
+        "includeTables": True,
+        "includeViews": False,
+        "includeTags": False,
+        "includeStoredProcedures": False,
+        "queryLogDuration": 1,
+        "queryParsingTimeoutLimit": 300,
+        "useFqnForFiltering": False,
+        "schemaFilterPattern": {
+            "includes": [],
+            "excludes": []
+        },
+        "tableFilterPattern": {
+            "includes": [],
+            "excludes": []
+        },
+        "databaseFilterPattern": {
+            "includes": [],
+            "excludes": []
         }
+    }
+
+    return filter
+
+def get_storage_filter():
+    filter = {
+        "type": "StorageMetadata",
+        "bucketFilterPattern": {
+            "includes": [],
+            "excludes": ["datacatalog"] # data catalog 사용 bucket
+        }
+    }
+
+    return filter
+
+def get_source_filter(service_type, user, database, schema, source_fileter):
+
+    if source_fileter == None or source_fileter == '':
 
         if service_type in [DatabaseServiceType.Oracle.value, DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
-            database_filter["databaseFilterPattern"] = {
+            filter = get_database_filter()
+            filter["databaseFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
-            database_filter["schemaFilterPattern"] = {
+            filter["schemaFilterPattern"] = {
                 "includes": [schema],
                 "excludes": []
             }
 
         if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value]:
-            database_filter["databaseFilterPattern"] = {
+            filter = get_database_filter()
+            filter["databaseFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
 
         #custom
         if service_type in ["Tibero"]:
-            database_filter["schemaFilterPattern"] = {
+            filter = get_database_filter()
+            filter["schemaFilterPattern"] = {
                 "includes": [database],
                 "excludes": []
             }
-            database_filter["databaseFilterPattern"] = {
+            filter["databaseFilterPattern"] = {
                 "includes": [schema],
                 "excludes": []
             }
 
         # custom : altibase 는 schema만 입력(database는 필터 동작 X)
         if service_type in ["Altibase"]:
-            database_filter["schemaFilterPattern"] = {
+            filter = get_database_filter()
+            filter["schemaFilterPattern"] = {
                 "includes": [schema],
                 "excludes": []
             }
 
         if service_type in [StorageServiceType.S3.value]:
-            database_filter = {
-                "type": "StorageMetadata",
-                "containerFilterPattern": {
-                    "includes": [],
-                    "excludes": ["datacatalog"]
-                }
-            }
+            filter = get_storage_filter()
+
 
         if service_type in [StorageServiceType.MinIO.value]:
-            database_filter = {
-                "type": "StorageMetadata",
-                "containerFilterPattern": {
-                    "includes": [],
-                    "excludes": ["datacatalog"]
-                }
-            }
+            filter = get_storage_filter()
 
-        return database_filter
+        return filter
     else:
-        return sourceFileter
+        return source_fileter
 
 def get_meta_system_info(system_id):
 
@@ -107,15 +111,11 @@ def get_meta_system_info(system_id):
     response = request_manager.request_get(url=f"{config.catalog_api_base_url}{config.get_meta_system_info_api}?system_id={system_id}")
     system_info = response.json()
 
-    hostport = system_info['host']
-    if system_info['port'] != None:
-        hostport = f"{system_info['host']}:{system_info['port']}"
-
     source_filter = get_source_filter(system_info['system_type'], system_info['login'], system_info['database'], system_info['schema'], system_info['filter_config'])
 
     password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
 
-    return system_info['system_id'], system_info['system_type'], hostport, system_info['login'], password, system_info['database'], source_filter
+    return system_info['system_id'], system_info['system_type'], system_info['host'], system_info['port'], system_info['login'], password, system_info['database'], source_filter
 
 def set_meta_system_status(system_id, status):
 
@@ -127,7 +127,7 @@ def set_meta_system_status(system_id, status):
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
                sink_type, sink_host, sink_port,
-               source_hostport, source_user, source_password, source_database, source_filter):
+               source_host, source_port, source_user, source_password, source_database, source_filter):
 
     from services.database.custom.tibero.source import TiberoSource
     from services.database.postgres.source import PostgresSource
@@ -153,64 +153,49 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     if service_type == "Tibero": #custom
         source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+                              source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Postgres:
         source = PostgresSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                                source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+                                source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mysql:
         source = MysqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                             source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+                             source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Oracle:
         source = OracleSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host,  sink_port=sink_port,
-                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+                              source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Hive:
         source = HiveSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                            source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+                            source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Mssql:
         source = MssqlSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                             source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
+                             source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_database=source_database, source_filter=source_filter)
     elif service_type == StorageServiceType.S3:
         source = S3Source(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                           source_user=source_user, source_password=source_password, source_filter=source_filter)
     # elif service_type == FilesystemServiceType.Linux:
     #     source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-    #                          source_hostport=source_hostport,source_user=source_user, source_password=source_password, source_filter=source_filter)
+    #                          source_host=source_host, source_port=source_port,source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == "Altibase": #custom
         source = AltibaseSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                              source_hostport=source_hostport, source_user=source_user, source_password=source_password, source_filter=source_filter)
+                                source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == StorageServiceType.MinIO:
         source = MinioSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
-                          source_user=source_user, source_password=source_password, source_filter=source_filter)
+                             source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
 
     return source
 
 
 def metadata_collector_execute(system_id, sink="file"):
 
-    if system_id  == 'minio_test':
-        system_type = "MinIO"
-        source_hostport = None
-        source_user = None
-        source_password = None
-        source_database = None
-        source_filter = {
-            "type": "StorageMetadata",
-            "bucketFilterPattern": {
-                "includes": [],
-                "excludes": ["datacatalog"]
-            }
-        }
-    else:
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
 
-        system_id, system_type, source_hostport, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
-
-        if (source_hostport is None) or (source_user is None):
-            raise Exception('source config invalid.')
+    if (source_host is None) or (source_port is None) or (source_user is None):
+        raise Exception('source config invalid.')
 
     sink_host = config.sink_host
     sink_port = config.sink_port
 
-    source = get_source(system_id, system_type, sink, sink_host, sink_port, source_hostport, source_user, source_password, source_database, source_filter)
+    source = get_source(system_id, system_type, sink, sink_host, sink_port, source_host, source_port, source_user, source_password, source_database, source_filter)
 
     # db 상태 업데이트
     set_meta_system_status(system_id, "INGESTION")
