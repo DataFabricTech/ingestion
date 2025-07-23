@@ -14,20 +14,23 @@ Workflow definition for the profiler
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
+from metadata.glossary.processor import GlossaryProcessorForDatabaseService
 from metadata.ingestion.api.steps import Processor, Sink
 from metadata.ingestion.source.connections import get_connection, get_test_connection_fn
 from metadata.pii.processor import PIIProcessor
 from metadata.profiler.processor.processor import ProfilerProcessor
+from metadata.profiler.processor.minio_processor import MinioProfilerProcessor
 from metadata.profiler.source.metadata import OpenMetadataSource
 from metadata.profiler.source.metadata_ext import OpenMetadataSourceExt
+from metadata.profiler.source.metadata_minio import MetadataSourceForMinio
 from metadata.utils.importer import import_sink_class
 from metadata.utils.logger import profiler_logger
-from metadata.workflow.base import BaseWorkflow
+from metadata.workflow.ingestion import IngestionWorkflow
 
 logger = profiler_logger()
 
 
-class ProfilerWorkflow(BaseWorkflow):
+class ProfilerWorkflow(IngestionWorkflow):
     """
     Profiler ingestion workflow implementation
 
@@ -39,9 +42,12 @@ class ProfilerWorkflow(BaseWorkflow):
         super().__init__(config)
 
         # Validate that we can properly reach the source database
-        #phy self.test_connection()
+        # self.test_connection()
 
     def _get_source_class(self):
+        # jblim : ProfilerType 을 이용해 MinIO 데이터를 처리할 수 있는 SourceClass 를 가져올 수 있도록 함.
+        if self.config.source.sourceConfig.config.type.value == "StorageProfiler":
+            return MetadataSourceForMinio
         if self.config.source.serviceName:
             return OpenMetadataSource
         logger.info(
@@ -57,8 +63,10 @@ class ProfilerWorkflow(BaseWorkflow):
 
         profiler_processor = self._get_profiler_processor()
         pii_processor = self._get_pii_processor()
+        glossary_processor = self._get_glossary_processor()
         sink = self._get_sink()
-        self.steps = (profiler_processor, pii_processor, sink)
+        self.steps = (profiler_processor, pii_processor, glossary_processor, sink)
+        # self.steps = (profiler_processor, pii_processor, sink)
 
     def test_connection(self):
         service_config = self.config.source.serviceConnection.__root__.config
@@ -77,7 +85,12 @@ class ProfilerWorkflow(BaseWorkflow):
         return sink
 
     def _get_profiler_processor(self) -> Processor:
+        if self.config.source.sourceConfig.config.type.value == "StorageProfiler":
+            return MinioProfilerProcessor.create(self.config.dict(), self.metadata)
         return ProfilerProcessor.create(self.config.dict(), self.metadata)
 
     def _get_pii_processor(self) -> Processor:
         return PIIProcessor.create(self.config.dict(), self.metadata)
+
+    def _get_glossary_processor(self) -> Processor:
+        return GlossaryProcessorForDatabaseService.create(self.config.dict(), self.metadata)

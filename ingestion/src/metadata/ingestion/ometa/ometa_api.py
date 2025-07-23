@@ -35,13 +35,14 @@ from metadata.generated.schema.entity.data.ingestion import IngestionCheck, Inge
 from metadata.ingestion.models.encoders import show_secrets_encoder
 from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
 from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
+from metadata.ingestion.ometa.mixins.container_mixin import OMetaContainerMixin
 # from metadata.ingestion.ometa.mixins.custom_property_mixin import (
 #     OMetaCustomPropertyMixin,
 # )
 # from metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
 # from metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
 # from metadata.ingestion.ometa.mixins.es_mixin import ESMixin
-# from metadata.ingestion.ometa.mixins.glossary_mixin import GlossaryMixin
+from metadata.ingestion.ometa.mixins.glossary_mixin import OMetaGlossaryMixin
 from metadata.ingestion.ometa.mixins.ingestion_pipeline_mixin import (
     OMetaIngestionPipelineMixin,
 )
@@ -100,9 +101,10 @@ class OpenMetadata(
     # OMetaPipelineMixin,
     # OMetaMlModelMixin,
     OMetaTableMixin,
+    OMetaContainerMixin,
     # OMetaTopicMixin,
     # OMetaVersionMixin,
-    # GlossaryMixin,
+    OMetaGlossaryMixin,
     OMetaServiceMixin,
     # ESMixin,
     OMetaServerMixin,
@@ -237,7 +239,7 @@ class OpenMetadata(
         class_name = create.__name__.replace("Create", "").replace("Request", "")
         file_name = (
             class_name.lower()
-            # .replace("glossaryterm", "glossaryTerm")
+            .replace("glossaryterm", "glossaryTerm")
             # .replace("dashboarddatamodel", "dashboardDataModel")
             # .replace("testsuite", "testSuite")
             # .replace("testdefinition", "testDefinition")
@@ -279,8 +281,8 @@ class OpenMetadata(
             raise InvalidEntityException(
                 f"PUT operations need a CreateEntity, not {entity}"
             )
-        print(f'PUT {self.get_suffix(entity)}')
-        print(data.json(encoder=show_secrets_encoder))
+        # phy
+        # print(f'PUT {self.get_suffix(entity)}')
         resp = self.client.put(
             self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)
         )
@@ -289,6 +291,33 @@ class OpenMetadata(
                 f"Got an empty response when trying to PUT to {self.get_suffix(entity)}, {data.json()}"
             )
         return entity_class(**resp)
+
+    # def _create(self, data: C, method: str) -> T:
+    #     """
+    #     Internal logic to run POST vs. PUT
+    #     """
+    #     entity = data.__class__
+    #     is_create = "create" in data.__class__.__name__.lower()
+    #
+    #     # Prepare the return Entity Type
+    #     if is_create:
+    #         entity_class = self.get_entity_from_create(entity)
+    #     else:
+    #         raise InvalidEntityException(
+    #             f"PUT operations need a CreateEntity, not {entity}"
+    #         )
+    #
+    #     fn = getattr(self.client, method)
+    #     resp = fn(self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder))
+    #     if not resp:
+    #         raise EmptyPayloadException(
+    #             f"Got an empty response when trying to PUT to {self.get_suffix(entity)}, {data.json()}"
+    #         )
+    #     return entity_class(**resp)
+    #
+    # def create_or_update(self, data: C) -> T:
+    #     """Run a PUT requesting via create request C"""
+    #     return self._create(data=data, method="put")
 
     def check_ingestion_status(self, system_id):
 
@@ -378,7 +407,7 @@ class OpenMetadata(
         fields_str = "?fields=" + ",".join(fields) if fields else ""
         try:
             #phy
-            print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
+            # print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
             resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
             if not resp:
                 if nullable:

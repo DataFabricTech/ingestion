@@ -22,17 +22,23 @@ from typing import Dict, List, Optional
 
 from sqlalchemy import Column
 
-from metadata.generated.schema.entity.data.table import TableData
+from metadata.generated.schema.entity.data.table import (
+    CustomMetricProfile,
+    DataType,
+    TableData,
+)
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
+from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
+from metadata.profiler.api.models import ThreadPoolMetrics
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.core import MetricTypes
 from metadata.profiler.metrics.registry import Metrics
-from metadata.readers.dataframe.models import DatalakeTableSchemaWrapper
+from metadata.profiler.processor.metric_filter import MetricFilter
 from metadata.utils.constants import COMPLEX_COLUMN_SEPARATOR, SAMPLE_DATA_DEFAULT_COUNT
-from metadata.utils.datalake.datalake_utils import fetch_col_types, fetch_dataframe
+from metadata.utils.datalake.datalake_utils import GenericDataFrameColumnParser
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.sqa_like_column import SQALikeColumn
 
@@ -48,19 +54,19 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
     # pylint: disable=too-many-arguments
 
     def __init__(
-        self,
-        service_connection_config,
-        ometa_client,
-        entity,
-        storage_config,
-        profile_sample_config,
-        source_config,
-        sample_query,
-        table_partition_config,
-        thread_count: int = 5,
-        timeout_seconds: int = 43200,
-        sample_data_count: int = SAMPLE_DATA_DEFAULT_COUNT,
-        **kwargs,
+            self,
+            service_connection_config,
+            ometa_client,
+            entity,
+            storage_config,
+            profile_sample_config,
+            source_config,
+            sample_query,
+            table_partition_config,
+            thread_count: int = 5,
+            timeout_seconds: int = 43200,
+            sample_data_count: int = SAMPLE_DATA_DEFAULT_COUNT,
+            **kwargs,
     ):
         """Instantiate Pandas Interface object"""
 
@@ -80,29 +86,55 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         )
 
         self.client = self.connection.client
-        self.dfs = self._convert_table_to_list_of_dataframe_objects()
-        self.sampler = self._get_sampler()
-        self.complex_dataframe_sample = deepcopy(self.sampler.random_sample())
-
-    def _convert_table_to_list_of_dataframe_objects(self):
-        """From a table entity, return the corresponding dataframe object
-
-        Returns:
-            List[DataFrame]
-        """
-        data = fetch_dataframe(
-            config_source=self.service_connection_config.configSource,
+        self.dfs = self.return_ometa_dataframes_sampled(
+            service_connection_config=self.service_connection_config,
             client=self.client,
-            file_fqn=DatalakeTableSchemaWrapper(
-                key=self.table_entity.name.__root__,
-                bucket_name=self.table_entity.databaseSchema.name,
-                file_extension=self.table_entity.fileFormat,
-            ),
+            table=self.table_entity,
+            profile_sample_config=profile_sample_config,
         )
+        self.sampler = self._get_sampler()
+        self.complex_dataframe_sample = deepcopy(
+            self.sampler.random_sample(is_sampled=True)
+        )
+        self.complex_df()
 
-        if not data:
-            raise TypeError(f"Couldn't fetch {self.table_entity.name.__root__}")
-        return data
+    def complex_df(self):
+        """Assign DataTypes to dataframe columns as per the parsed column type"""
+        coltype_mapping_df = []
+        data_formats = (
+            GenericDataFrameColumnParser._data_formats  # pylint: disable=protected-access
+        )
+        for index, df in enumerate(self.complex_dataframe_sample):
+            if index == 0:
+                columns: List[Column]
+                # JBLIM : For Container Data Type
+                if hasattr(self.table, "dataModel"):
+                    columns = self.table.dataModel.columns
+                else:
+                    columns = self.table.columns
+
+                for col in columns:
+                    coltype = next(
+                        (
+                            key
+                            for key, value in data_formats.items()
+                            if col.dataType == value
+                        ),
+                        None,
+                    )
+                    if coltype and col.dataType not in {DataType.JSON, DataType.ARRAY}:
+                        coltype_mapping_df.append(coltype)
+                    else:
+                        coltype_mapping_df.append("object")
+
+            try:
+                self.complex_dataframe_sample[index] = df.astype(
+                    dict(zip(df.keys(), coltype_mapping_df))
+                )
+            except (TypeError, ValueError) as err:
+                self.complex_dataframe_sample[index] = df
+                logger.warning(f"NaN/NoneType found in the Dataframe: {err}")
+                break
 
     def _get_sampler(self):
         """Get dataframe sampler from config"""
@@ -120,11 +152,11 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         )
 
     def _compute_table_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -148,12 +180,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             raise RuntimeError(exc)
 
     def _compute_static_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -166,27 +198,27 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         """
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
+        row_dict = {}
         try:
-            row_dict = {}
             for metric in metrics:
                 metric_resp = metric(column).df_fn(runner)
                 row_dict[metric.name()] = (
                     None if pd.isnull(metric_resp) else metric_resp
                 )
-            return row_dict
         except Exception as exc:
             logger.debug(
                 f"{traceback.format_exc()}\nError trying to compute profile for {exc}"
             )
             raise RuntimeError(exc)
+        return row_dict
 
     def _compute_query_metrics(
-        self,
-        metric: Metrics,
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metric: Metrics,
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -204,12 +236,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return {metric.name(): col_metric}
 
     def _compute_window_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """
         Given a list of metrics, compute the given results
@@ -227,11 +259,11 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def _compute_system_metrics(
-        self,
-        metrics: Metrics,
-        runner: List,
-        *args,
-        **kwargs,
+            self,
+            metrics: Metrics,
+            runner: List,
+            *args,
+            **kwargs,
     ):
         """
         Given a list of metrics, compute the given results
@@ -239,35 +271,68 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         """
         return None  # to be implemented
 
+    def _compute_custom_metrics(
+            self, metrics: List[CustomMetric], runner, *args, **kwargs
+    ):
+        """Compute custom metrics. For pandas source we expect expression
+        to be a boolean value. We'll return the length of the dataframe
+
+        Args:
+            metrics (List[Metrics]): list of customMetrics
+            runner (_type_): runner
+        """
+        if not metrics:
+            return None
+
+        custom_metrics = []
+
+        for metric in metrics:
+            try:
+                row = sum(
+                    len(df.query(metric.expression).index)
+                    for df in runner
+                    if len(df.query(metric.expression).index)
+                )
+                custom_metrics.append(
+                    CustomMetricProfile(name=metric.name.__root__, value=row)
+                )
+
+            except Exception as exc:
+                msg = f"Error trying to compute profile for custom metric: {exc}"
+                logger.debug(traceback.format_exc())
+                logger.warning(msg)
+        # if custom_metrics:
+        #     return {"customMetrics": custom_metrics}
+        # return None
+        return {"customMetrics": custom_metrics}
+
     def compute_metrics(
-        self,
-        metrics,
-        metric_type,
-        column,
-        table,
+            self,
+            metric_func: ThreadPoolMetrics,
     ):
         """Run metrics in processor worker"""
-        logger.debug(f"Running profiler for {table}")
+        logger.debug(f"Running profiler for {metric_func.table.name.__root__}")
         try:
             row = None
             if self.complex_dataframe_sample:
-                row = self._get_metric_fn[metric_type.value](
-                    metrics,
+                row = self._get_metric_fn[metric_func.metric_type.value](
+                    metric_func.metrics,
                     self.complex_dataframe_sample,
-                    column=column,
+                    column=metric_func.column,
                 )
         except Exception as exc:
-            name = f"{column if column is not None else table}"
+            name = f"{metric_func.column if metric_func.column is not None else metric_func.table}"
             error = f"{name} metric_type.value: {exc}"
             logger.error(error)
             self.status.failed_profiler(error, traceback.format_exc())
             row = None
-        if column is not None:
-            column = column.name
-            self.status.scanned(f"{table.name.__root__}.{column}")
+        if metric_func.column is not None:
+            column = metric_func.column.name
+            self.status.scanned(f"{metric_func.table.name.__root__}.{column}")
         else:
-            self.status.scanned(table.name.__root__)
-        return row, column, metric_type.value
+            self.status.scanned(metric_func.table.name.__root__)
+            column = None
+        return row, column, metric_func.metric_type.value
 
     def fetch_sample_data(self, table, columns: SQALikeColumn) -> TableData:
         """Fetch sample data from database
@@ -282,7 +347,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return sampler.fetch_sample_data(columns)
 
     def get_composed_metrics(
-        self, column: Column, metric: Metrics, column_results: Dict
+            self, column: Column, metric: Metrics, column_results: Dict
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -302,7 +367,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def get_hybrid_metrics(
-        self, column: Column, metric: Metrics, column_results: Dict, **kwargs
+            self, column: Column, metric: Metrics, column_results: Dict, **kwargs
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -322,14 +387,15 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def get_all_metrics(
-        self,
-        metric_funcs: list,
+            self,
+            metric_funcs: List[ThreadPoolMetrics],
     ):
         """get all profiler metrics"""
 
         profile_results = {"table": {}, "columns": defaultdict(dict)}
         metric_list = [
-            self.compute_metrics(*metric_func) for metric_func in metric_funcs
+            self.compute_metrics(metric_func)
+            for metric_func in MetricFilter.filter_empty_metrics(metric_funcs)
         ]
         for metric_result in metric_list:
             profile, column, metric_type = metric_result
@@ -338,6 +404,8 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
                     profile_results["table"].update(profile)
                 if metric_type == MetricTypes.System.value:
                     profile_results["system"] = profile
+                elif metric_type == MetricTypes.Custom.value and column is None:
+                    profile_results["table"].update(profile)
                 else:
                     if profile:
                         profile_results["columns"][column].update(
@@ -353,7 +421,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
 
     @property
     def table(self):
-        """OM Table entity"""
+        """OM Table/Container entity"""
         return self.table_entity
 
     def get_columns(self) -> List[Optional[SQALikeColumn]]:
@@ -375,7 +443,9 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
                 sqalike_columns.append(
                     SQALikeColumn(
                         column_name,
-                        fetch_col_types(self.complex_dataframe_sample[0], column_name),
+                        GenericDataFrameColumnParser.fetch_col_types(
+                            self.complex_dataframe_sample[0], column_name
+                        ),
                     )
                 )
             return sqalike_columns

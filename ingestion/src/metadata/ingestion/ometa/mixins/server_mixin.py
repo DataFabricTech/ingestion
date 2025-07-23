@@ -13,9 +13,12 @@ Mixin class containing Server and client specific methods
 
 To be used by OpenMetadata class
 """
+from typing import Optional
+
 # from metadata.__version__ import get_client_version, get_server_version_from_string
 from metadata.ingestion.ometa.client import REST
 from metadata.utils.logger import ometa_logger
+from metadata.generated.schema.settings.settings import Settings, SettingType
 
 logger = ometa_logger()
 
@@ -75,3 +78,18 @@ class OMetaServerMixin:
         #     raise VersionMismatchException(
         #         f"Server version is {server_version} vs. Client version {client_version}. Both should match."
         #     )
+
+    def get_profiler_config_settings(self) -> Optional[Settings]:
+        """Get profiler config setting
+
+        Returns:
+            Settings
+        """
+        # response = self.client.get("/system/settings/profilerConfiguration")
+        # if not response:
+        #     return None
+        # return Settings.parse_obj(response)
+
+        return Settings(config_type = "profilerConfiguration")
+
+

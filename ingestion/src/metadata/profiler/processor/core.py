@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import traceback
 from datetime import datetime, timezone
-from typing import Any, Dict, Generic, List, Optional, Set, Tuple, Type, cast
+from typing import Any, Dict, Generic, List, Optional, Set, Tuple, Type
 
 from pydantic import ValidationError
 from sqlalchemy import Column
@@ -24,6 +24,9 @@ from sqlalchemy.orm import DeclarativeMeta
 
 from metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,
+)
+from metadata.generated.schema.configuration.profilerConfiguration import (
+    ProfilerConfiguration,
 )
 from metadata.generated.schema.entity.data.table import (
     ColumnName,
@@ -33,25 +36,29 @@ from metadata.generated.schema.entity.data.table import (
     TableData,
     TableProfile,
 )
-from metadata.profiler.api.models import ProfilerResponse
+from metadata.generated.schema.settings.settings import Settings
+from metadata.generated.schema.tests.customMetric import (
+    CustomMetric as CustomMetricEntity,
+)
+from metadata.profiler.api.models import ProfilerResponse, ThreadPoolMetrics
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.core import (
     ComposedMetric,
-    CustomMetric,
     HybridMetric,
     MetricTypes,
     QueryMetric,
     StaticMetric,
-    SystemMetric,
     TMetric,
 )
-from metadata.profiler.metrics.registry import Metrics
 from metadata.profiler.metrics.static.row_count import RowCount
 from metadata.profiler.orm.registry import NOT_COMPUTE
+from metadata.profiler.processor.metric_filter import MetricFilter
 from metadata.profiler.processor.sample_data_handler import upload_sample_data
 from metadata.utils.constants import SAMPLE_DATA_DEFAULT_COUNT
-from metadata.utils.helpers import calculate_execution_time
+from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.logger import profiler_logger
+
+from metadata.generated.schema.entity.services.storageService import StorageServiceType
 
 logger = profiler_logger()
 
@@ -73,12 +80,15 @@ class Profiler(Generic[TMetric]):
     - A tuple of metrics, from which we will construct queries.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(
-        self,
-        *metrics: Type[TMetric],
-        profiler_interface: ProfilerInterface,
-        include_columns: Optional[List[ColumnProfilerConfig]] = None,
-        exclude_columns: Optional[List[str]] = None,
+            self,
+            *metrics: Type[TMetric],
+            profiler_interface: ProfilerInterface,
+            include_columns: Optional[List[ColumnProfilerConfig]] = None,
+            exclude_columns: Optional[List[str]] = None,
+            global_profiler_configuration: Optional[Settings] = None,
     ):
         """
         :param metrics: Metrics to run. We are receiving the uninitialized classes
@@ -87,7 +97,11 @@ class Profiler(Generic[TMetric]):
         :param ignore_cols: List of columns to ignore when computing the profile
         :param profile_sample: % of rows to use for sampling column metrics
         """
-
+        self.global_profiler_configuration: Optional[ProfilerConfiguration] = (
+            global_profiler_configuration.config_value
+            if global_profiler_configuration
+            else None
+        )
         self.profiler_interface = profiler_interface
         self.source_config = self.profiler_interface.source_config
         self.include_columns = include_columns
@@ -95,6 +109,13 @@ class Profiler(Generic[TMetric]):
         self._metrics = metrics
         self._profile_date = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
         self.profile_sample_config = self.profiler_interface.profile_sample_config
+
+        self.metric_filter = MetricFilter(
+            metrics=self.metrics,
+            global_profiler_config=self.global_profiler_configuration,
+            table_profiler_config=self.profiler_interface.table_entity.tableProfilerConfig,
+            column_profiler_config=self.include_columns,
+        )
 
         self.validate_composed_metric()
 
@@ -172,14 +193,8 @@ class Profiler(Generic[TMetric]):
             return {include_col.columnName for include_col in self.include_columns}
         return {}
 
-    def _filter_metrics(self, _type: Type[TMetric]) -> List[Type[TMetric]]:
-        """
-        Filter metrics by type
-        """
-        return [metric for metric in self.metrics if issubclass(metric, _type)]
-
     def _check_profile_and_handle(
-        self, profile: CreateTableProfileRequest
+            self, profile: CreateTableProfileRequest
     ) -> CreateTableProfileRequest:
         """Check if the profile data are empty. if empty then raise else return
 
@@ -193,7 +208,10 @@ class Profiler(Generic[TMetric]):
             CreateTableProfileRequest:
         """
         for attrs, val in profile.tableProfile:
-            if attrs not in {"timestamp", "profileSample", "profileSampleType"} and val:
+            if (
+                    attrs not in {"timestamp", "profileSample", "profileSampleType"}
+                    and val is not None
+            ):
                 return
 
         for col_element in profile.columnProfile:
@@ -205,75 +223,42 @@ class Profiler(Generic[TMetric]):
             f"No profile data computed for {self.profiler_interface.table_entity.fullyQualifiedName.__root__}"
         )
 
-    @property
-    def static_metrics(self) -> List[Type[StaticMetric]]:
-        return self._filter_metrics(StaticMetric)
+    def get_custom_metrics(
+            self, column_name: Optional[str] = None
+    ) -> Optional[List[CustomMetricEntity]]:
+        """Get custom metrics for a table or column
 
-    @property
-    def composed_metrics(self) -> List[Type[ComposedMetric]]:
-        return self._filter_metrics(ComposedMetric)
+        Args:
+            column (Optional[str]): optional column name. If None will fetch table level custom metrics
 
-    @property
-    def custom_metrics(self) -> List[Type[CustomMetric]]:
-        return self._filter_metrics(CustomMetric)
-
-    @property
-    def query_metrics(self) -> List[Type[QueryMetric]]:
-        return self._filter_metrics(QueryMetric)
-
-    @property
-    def system_metrics(self) -> List[Type[SystemMetric]]:
-        return self._filter_metrics(SystemMetric)
-
-    @property
-    def hybrid_metric(self) -> List[Type[HybridMetric]]:
-        return self._filter_metrics(HybridMetric)
-
-    def get_col_metrics(
-        self, metrics: List[Type[TMetric]], column: Optional[Column] = None
-    ) -> List[Type[TMetric]]:
+        Returns:
+            List[str]
         """
-        Filter list of metrics for column metrics with allowed types
-        """
+        if column_name is None:
+            return self.profiler_interface.table_entity.customMetrics or None
 
-        if column is None:
-            return [metric for metric in metrics if metric.is_col_metric()]
-
-        if (
-            self.profiler_interface.table_entity.tableProfilerConfig
-            and self.profiler_interface.table_entity.tableProfilerConfig.includeColumns
-        ) or (self.include_columns):
-            # include_columns is set from the `tableConfig` of the `ProfilerProcessorConfig` in the CLI config
-            # while `self.profiler_interface.table_entity.tableProfilerConfig.includeColumns` is set from the entity
-            # definition in the metadata service. This gets set either from the UI or the profiler entity page. Config
-            # ran from the CLI takes precedence over the entity definition.
-            columns = (
-                self.include_columns
-                if self.include_columns
-                else self.profiler_interface.table_entity.tableProfilerConfig.includeColumns
-            )
-            columns = cast(List[ColumnProfilerConfig], columns)
-            metric_names = next(
+        # if we have a column we'll get the custom metrics for this column
+        if self.profiler_interface.table_entity.serviceType.value == StorageServiceType.MinIO.value:
+            column = next(
                 (
-                    include_columns.metrics
-                    for include_columns in columns
-                    if include_columns.columnName == column.name
+                    clmn
+                    for clmn in self.profiler_interface.table_entity.dataModel.columns
+                    if clmn.name.__root__ == column_name
                 ),
                 None,
             )
-
-            if metric_names:
-                metric_names = {
-                    mtrc.lower() for mtrc in metric_names
-                }  # case insensitice
-                metrics = [
-                    Metric.value
-                    for Metric in Metrics
-                    if Metric.value.name().lower() in metric_names
-                    and Metric.value in metrics
-                ]
-
-        return [metric for metric in metrics if metric.is_col_metric()]
+        else:
+            column = next(
+                (
+                    clmn
+                    for clmn in self.profiler_interface.table_entity.columns
+                    if clmn.name.__root__ == column_name
+                ),
+                None,
+            )
+        if column:
+            return column.customMetrics or None
+        return None
 
     @property
     def sample(self):
@@ -287,7 +272,7 @@ class Profiler(Generic[TMetric]):
         `required_metrics` attr
         """
         names = {metric.name() for metric in self.metrics}
-        for metric in self.composed_metrics:
+        for metric in self.metric_filter.composed_metrics:
             if not set(metric.required_metrics()).issubset(names):
                 raise MissingMetricException(
                     f"We need {metric.required_metrics()} for {metric.name}, but only got {names} in the profiler"
@@ -309,7 +294,9 @@ class Profiler(Generic[TMetric]):
             )
             return
 
-        for metric in self.get_col_metrics(self.composed_metrics):
+        for metric in self.metric_filter.get_column_metrics(
+                ComposedMetric, col, self.profiler_interface.table_entity.serviceType
+        ):
             # Composed metrics require the results as an argument
             logger.debug(f"Running composed metric {metric.name()} for {col.name}")
 
@@ -334,7 +321,9 @@ class Profiler(Generic[TMetric]):
                 "We do not have any results to base our Hybrid Metrics. Stopping!"
             )
             return
-        for metric in self.get_col_metrics(self.hybrid_metric, col):
+        for metric in self.metric_filter.get_column_metrics(
+                HybridMetric, col, self.profiler_interface.table_entity.serviceType
+        ):
             logger.debug(f"Running hybrid metric {metric.name()} for {col.name}")
             self._column_results[col.name][
                 metric.name()
@@ -347,34 +336,52 @@ class Profiler(Generic[TMetric]):
 
     def _prepare_table_metrics(self) -> List:
         """prepare table metrics"""
+        metrics = []
         table_metrics = [
             metric
-            for metric in self.static_metrics
+            for metric in self.metric_filter.static_metrics
             if (not metric.is_col_metric() and not metric.is_system_metrics())
         ]
 
+        custom_table_metrics = self.get_custom_metrics()
+
         if table_metrics:
-            return [
-                (
-                    table_metrics,  # metric functions
-                    MetricTypes.Table,  # metric type for function mapping
-                    None,  # column name
-                    self.table,  # table name
-                ),
-            ]
-        return []
+            metrics.extend(
+                [
+                    ThreadPoolMetrics(
+                        metrics=table_metrics,
+                        metric_type=MetricTypes.Table,
+                        column=None,
+                        table=self.table,
+                    )
+                ]
+            )
+
+        if custom_table_metrics:
+            metrics.extend(
+                [
+                    ThreadPoolMetrics(
+                        metrics=custom_table_metrics,
+                        metric_type=MetricTypes.Custom,
+                        column=None,
+                        table=self.table,
+                    )
+                ]
+            )
+
+        return metrics
 
     def _prepare_system_metrics(self) -> List:
         """prepare system metrics"""
-        system_metrics = self.system_metrics
+        system_metrics = self.metric_filter.system_metrics
 
         if system_metrics:
             return [
-                (
-                    system_metric,  # metric functions
-                    MetricTypes.System,  # metric type for function mapping
-                    None,  # column name
-                    self.table,  # table name
+                ThreadPoolMetrics(
+                    metrics=system_metric,  # metric functions
+                    metric_type=MetricTypes.System,  # metric type for function mapping
+                    column=None,  # column name
+                    table=self.table,  # table name
                 )
                 for system_metric in system_metrics
             ]
@@ -383,50 +390,75 @@ class Profiler(Generic[TMetric]):
 
     def _prepare_column_metrics(self) -> List:
         """prepare column metrics"""
+        column_metrics_for_thread_pool = []
         columns = [
             column
             for column in self.columns
             if column.type.__class__.__name__ not in NOT_COMPUTE
         ]
-
-        column_metrics_for_thread_pool = [
-            *[
-                (
-                    [
-                        metric
-                        for metric in self.get_col_metrics(self.static_metrics, column)
-                        if not metric.is_window_metric()
-                    ],
-                    MetricTypes.Static,
-                    column,
-                    self.table,
-                )
-                for column in columns
-            ],
-            *[
-                (
-                    metric,
-                    MetricTypes.Query,
-                    column,
-                    self.table,
-                )
-                for column in columns
-                for metric in self.get_col_metrics(self.query_metrics, column)
-            ],
-            *[
-                (
-                    [
-                        metric
-                        for metric in self.get_col_metrics(self.static_metrics, column)
-                        if metric.is_window_metric()
-                    ],
-                    MetricTypes.Window,
-                    column,
-                    self.table,
-                )
-                for column in columns
-            ],
+        static_metrics = [
+            ThreadPoolMetrics(
+                metrics=[
+                    metric
+                    for metric in self.metric_filter.get_column_metrics(
+                        StaticMetric,
+                        column,
+                        self.profiler_interface.table_entity.serviceType,
+                    )
+                    if not metric.is_window_metric()
+                ],
+                metric_type=MetricTypes.Static,
+                column=column,
+                table=self.table,
+            )
+            for column in columns
         ]
+        query_metrics = [
+            ThreadPoolMetrics(
+                metrics=metric,
+                metric_type=MetricTypes.Query,
+                column=column,
+                table=self.table,
+            )
+            for column in columns
+            for metric in self.metric_filter.get_column_metrics(
+                QueryMetric, column, self.profiler_interface.table_entity.serviceType
+            )
+        ]
+        window_metrics = [
+            ThreadPoolMetrics(
+                metrics=[
+                    metric
+                    for metric in self.metric_filter.get_column_metrics(
+                        StaticMetric,
+                        column,
+                        self.profiler_interface.table_entity.serviceType,
+                    )
+                    if metric.is_window_metric()
+                ],
+                metric_type=MetricTypes.Window,
+                column=column,
+                table=self.table,
+            )
+            for column in columns
+        ]
+
+        # we'll add the system metrics to the thread pool computation
+        for metric_type in [static_metrics, query_metrics, window_metrics]:
+            column_metrics_for_thread_pool.extend(metric_type)
+
+        # we'll add the custom metrics to the thread pool computation
+        for column in columns:
+            custom_metrics = self.get_custom_metrics(column.name)
+            if custom_metrics:
+                column_metrics_for_thread_pool.append(
+                    ThreadPoolMetrics(
+                        metrics=custom_metrics,
+                        metric_type=MetricTypes.Custom,
+                        column=column,
+                        table=self.table,
+                    )
+                )
 
         return column_metrics_for_thread_pool
 
@@ -487,7 +519,7 @@ class Profiler(Generic[TMetric]):
 
         return table_profile
 
-    @calculate_execution_time
+    @calculate_execution_time(store=False)
     def generate_sample_data(self) -> Optional[TableData]:
         """Fetch and ingest sample data
 
@@ -506,10 +538,10 @@ class Profiler(Generic[TMetric]):
                 data=table_data, profiler_interface=self.profiler_interface
             )
             table_data.rows = table_data.rows[
-                : min(
-                    SAMPLE_DATA_DEFAULT_COUNT, self.profiler_interface.sample_data_count
-                )
-            ]
+                              : min(
+                                  SAMPLE_DATA_DEFAULT_COUNT, self.profiler_interface.sample_data_count
+                              )
+                              ]
             return table_data
         except Exception as err:
             logger.debug(traceback.format_exc())
@@ -565,12 +597,17 @@ class Profiler(Generic[TMetric]):
                 rowCount=self._table_results.get(RowCount.name()),
                 createDateTime=self._table_results.get("createDateTime"),
                 sizeInByte=self._table_results.get("sizeInBytes"),
-                profileSample=self.profile_sample_config.profile_sample
-                if self.profile_sample_config
-                else None,
-                profileSampleType=self.profile_sample_config.profile_sample_type
-                if self.profile_sample_config
-                else None,
+                profileSample=(
+                    self.profile_sample_config.profile_sample
+                    if self.profile_sample_config
+                    else None
+                ),
+                profileSampleType=(
+                    self.profile_sample_config.profile_sample_type
+                    if self.profile_sample_config
+                    else None
+                ),
+                customMetrics=self._table_results.get("customMetrics"),
             )
 
             if self._system_results:

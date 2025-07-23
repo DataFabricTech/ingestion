@@ -21,7 +21,7 @@ from sqlalchemy.orm.util import AliasedClass
 from sqlalchemy.sql.sqltypes import Enum
 
 from metadata.generated.schema.entity.data.table import (
-    PartitionIntervalType,
+    PartitionIntervalTypes,
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
@@ -31,13 +31,14 @@ from metadata.profiler.orm.functions.random_num import RandomNumFn
 from metadata.profiler.orm.registry import Dialects
 from metadata.profiler.processor.handle_partition import partition_filter_handler
 from metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
+from metadata.utils.helpers import is_safe_sql_query
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.sqa_utils import (
     build_query_filter,
     dispatch_to_date_or_datetime,
     get_integer_range_filter,
     get_partition_col_type,
-    get_value_filter,
+    get_value_filter, table_name_to_short_hash,
 )
 
 logger = profiler_interface_registry_logger()
@@ -67,32 +68,48 @@ class SQASampler(SamplerInterface):
     run the query in the whole table.
     """
 
-    def _base_sample_query(self, label=None):
+    def _base_sample_query(self, column: Optional[Column], label=None):
+        """Base query for sampling
+
+        Args:
+            column (Optional[Column]): if computing a column metric only sample for the column
+            label (_type_, optional):
+
+        Returns:
+        """
+        # only sample the column if we are computing a column metric to limit the amount of data scaned
+        entity = self.table if column is None else column
         if label is not None:
-            return self.client.query(self.table, label)
-        return self.client.query(self.table)
+            return self.client.query(entity, label)
+        return self.client.query(entity)
 
     @partition_filter_handler(build_sample=True)
-    def get_sample_query(self) -> Query:
+    def get_sample_query(self, *, column=None) -> Query:
         """get query for sample data"""
         if self.profile_sample_type == ProfileSampleType.PERCENTAGE:
+            """Make Random Table Name and Sample Table Name From Table Name Hash"""
+            hash_table_name = table_name_to_short_hash(self.table.__tablename__)
+            rnd_table_name = f"{hash_table_name}_rnd"
+            sample_table_name = f"{hash_table_name}_sample"
             rnd = (
                 self._base_sample_query(
+                    column,
                     (ModuloFn(RandomNumFn(), 100)).label(RANDOM_LABEL),
                 )
                 .suffix_with(
                     f"SAMPLE BERNOULLI ({self.profile_sample or 100})",
                     dialect=Dialects.Snowflake,
                 )
-                .cte(f"{self.table.__tablename__}_rnd")
+                .cte(rnd_table_name)
+                # .cte(f"{self.table.__tablename__}_rnd")
             )
             session_query = self.client.query(rnd)
-            return session_query.where(rnd.c.random <= self.profile_sample).cte(
-                f"{self.table.__tablename__}_sample"
-            )
+            return (session_query.where(rnd.c.random <= self.profile_sample).cte(sample_table_name))
+            # .cte(f"{self.table.__tablename__}_sample"))
 
         table_query = self.client.query(self.table)
         session_query = self._base_sample_query(
+            column,
             (ModuloFn(RandomNumFn(), table_query.count())).label(RANDOM_LABEL),
         )
         return (
@@ -101,7 +118,7 @@ class SQASampler(SamplerInterface):
             .cte(f"{self.table.__tablename__}_rnd")
         )
 
-    def random_sample(self) -> Union[DeclarativeMeta, AliasedClass]:
+    def random_sample(self, ccolumn=None) -> Union[DeclarativeMeta, AliasedClass]:
         """
         Either return a sampled CTE of table, or
         the full table if no sampling is required.
@@ -116,7 +133,7 @@ class SQASampler(SamplerInterface):
             return self.table
 
         # Add new RandomNumFn column
-        sampled = self.get_sample_query()
+        sampled = self.get_sample_query(column=ccolumn)
 
         # Assign as an alias
         return aliased(self.table, sampled)
@@ -171,6 +188,11 @@ class SQASampler(SamplerInterface):
 
     def _fetch_sample_data_from_user_query(self) -> TableData:
         """Returns a table data object using results from query execution"""
+        if not is_safe_sql_query(self._profile_sample_query):
+            raise RuntimeError(
+                f"SQL expression is not safe\n\n{self._profile_sample_query}"
+            )
+
         rnd = self.client.execute(f"{self._profile_sample_query}")
         try:
             columns = [col.name for col in rnd.cursor.description]
@@ -183,6 +205,11 @@ class SQASampler(SamplerInterface):
 
     def _rdn_sample_from_user_query(self) -> Query:
         """Returns sql alchemy object to use when running profiling"""
+        if not is_safe_sql_query(self._profile_sample_query):
+            raise RuntimeError(
+                f"SQL expression is not safe\n\n{self._profile_sample_query}"
+            )
+
         return self.client.query(self.table).from_statement(
             text(f"{self._profile_sample_query}")
         )
@@ -200,8 +227,8 @@ class SQASampler(SamplerInterface):
         )
 
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalType.COLUMN_VALUE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.COLUMN_VALUE
         ):
             return aliased(
                 self.table,
@@ -218,8 +245,8 @@ class SQASampler(SamplerInterface):
             )
 
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalType.INTEGER_RANGE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.INTEGER_RANGE
         ):
             return aliased(
                 self.table,

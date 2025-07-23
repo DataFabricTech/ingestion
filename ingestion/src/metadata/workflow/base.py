@@ -155,7 +155,7 @@ class BaseWorkflow(ABC, WorkflowStatusMixin):
             for step in self.steps:
                 # We only process the records for these Step types
                 if processed_record is not None and isinstance(
-                    step, (Processor, Stage, Sink)
+                        step, (Processor, Stage, Sink)
                 ):
                     processed_record = step.run(processed_record)
 

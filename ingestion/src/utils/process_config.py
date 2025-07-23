@@ -13,6 +13,8 @@ class Config(BaseSettings):
     sink_host: str
     sink_port: int
 
+    minio_url: str
+
     catalog_api_base_url: str
     get_meta_system_info_api: str
     set_meta_ingestion_status_api: str
@@ -32,9 +34,11 @@ class Config(BaseSettings):
         config_data.read(config_file)
 
         catalog_api_config = config_data["catalog_api"]
-
         sink_host = catalog_api_config["host"]
         sink_port = catalog_api_config["port"]
+
+        data_catalog_minio_config = config_data["minio"]
+        minio_url = data_catalog_minio_config["url"]
 
         catalog_api_base_url = f"http://{catalog_api_config['host']}:{catalog_api_config['port']}{catalog_api_config['prefix']}"
         get_meta_system_info_api = catalog_api_config['get_meta_system_info_api']
@@ -47,7 +51,8 @@ class Config(BaseSettings):
             get_meta_system_info_api=get_meta_system_info_api,
             set_meta_ingestion_status_api = set_meta_ingestion_status_api,
             sink_host = sink_host,
-            sink_port = sink_port
+            sink_port = sink_port,
+            minio_url=minio_url
         )
 
 

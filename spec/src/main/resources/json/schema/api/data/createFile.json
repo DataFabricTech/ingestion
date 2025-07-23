@@ -1,0 +1,119 @@
+{
+  "title": "CreateFileRequest",
+  "description": "Create File Model entity request",
+  "type": "object",
+  "javaInterfaces": ["org.openmetadata.schema.CreateEntity"],
+
+  "properties": {
+    "name": {
+      "description": "Name that identifies this File model.",
+      "$ref": "../../type/basic.json#/definitions/entityName"
+    },
+    "displayName": {
+      "description": "Display Name that identifies this File model.",
+      "type": "string"
+    },
+    "description": {
+      "description": "Description of the File instance.",
+      "$ref": "../../type/basic.json#/definitions/markdown"
+    },
+    "service": {
+      "description": "Link to the storage service where this File is hosted in.",
+      "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+    },
+    "parent": {
+      "description": "Link to the parent File under which this entity sits.",
+      "$ref": "../../type/entityReference.json"
+    },
+    "dataModel": {
+      "description": "References to the File's data model, if data is structured, or null otherwise",
+      "$ref": "../../entity/data/container.json#/definitions/ContainerDataModel",
+      "default": null
+    },
+    "prefix": {
+      "description": "Optional prefix path defined for this file",
+      "type": "string",
+      "default": null
+    },
+    "numberOfObjects": {
+      "description": "The number of objects/files this file has.",
+      "type": "number",
+      "default": null
+    },
+    "size": {
+      "description": "The total size in KB this file has.",
+      "type": "number",
+      "default": null
+    },
+    "fileFormats": {
+      "description": "File & data formats identified for the file:  e.g. dataFormats=[csv, json]. These can be present both when the container has a dataModel or not",
+      "type": "array",
+      "items": {
+        "$ref": "../../entity/data/container.json#/definitions/fileFormat"
+      },
+      "default": null
+    },
+    "tableProfilerConfig": {
+      "$ref": "../../entity/data/table.json#/definitions/tableProfilerConfig"
+    },
+    "owner": {
+      "description": "Owner of this database",
+      "$ref": "../../type/entityReference.json"
+    },
+    "rdfs": {
+      "description": "List of rdf(metadata) for the file",
+      "type": "array",
+      "items": {
+        "$ref": "../../entity/data/file.json#/definitions/rdf"
+      },
+      "default": null
+    },
+    "tags": {
+      "description": "Tags for this File Model",
+      "type": "array",
+      "items": {
+        "$ref": "../../type/tagLabel.json"
+      },
+      "default": null
+    },
+    "extension": {
+      "description": "Entity extension data with custom attributes added to the entity.",
+      "$ref": "../../type/basic.json#/definitions/entityExtension"
+    },
+    "sourceUrl": {
+      "description": "Source URL of file.",
+      "$ref": "../../type/basic.json#/definitions/sourceUrl"
+    },
+    "fullPath": {
+      "description": "Full path of the file.",
+      "type": "string"
+    },
+    "domain" : {
+      "description": "Fully qualified name of the domain the File belongs to.",
+      "type": "string"
+    },
+    "dataProducts" : {
+      "description": "List of fully qualified names of data products this entity is part of.",
+      "type": "array",
+      "items" : {
+        "$ref" : "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+      }
+    },
+    "lifeCycle": {
+      "description": "Life Cycle of the entity",
+      "$ref": "../../type/lifeCycle.json"
+    },
+    "sourceHash": {
+      "description": "Source hash of the entity",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32
+    },
+    "systemType": {
+      "description": "system type for data_catalog",
+      "type": "string"
+    }
+  },
+  "required": ["name", "service"],
+  "additionalProperties": false
+}

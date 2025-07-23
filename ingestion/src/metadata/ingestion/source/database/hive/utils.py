@@ -12,6 +12,8 @@
 Hive source methods.
 """
 import re
+import base64
+import json
 
 from pyhive.sqlalchemy_hive import _type_map
 from sqlalchemy import types, util
@@ -181,6 +183,32 @@ def get_view_definition(self, connection, view_name, schema=None, **kw):
     """
     full_view_name = f"`{view_name}`" if not schema else f"`{schema}`.`{view_name}`"
     res = connection.execute(f"SHOW CREATE TABLE {full_view_name}").fetchall()
+
     if res:
-        return "\n".join(i[0] for i in res)
-    return None
+        is_presto_view = False
+        for i in res:
+            if "Presto View" in i[0]:
+                is_presto_view = True
+
+        if is_presto_view:
+            res2 = connection.execute(f"DESCRIBE EXTENDED {full_view_name}").fetchall()
+            for row in res2:
+                if 'Detailed Table Information' in row[0]:
+                    detail_str = row[1]
+
+                    # viewOriginalText 추출 (Presto View)
+                    match = re.search(r'viewOriginalText:\/\* Presto View: (.*?) \*\/', detail_str)
+                    if not match:
+                        raise ValueError("No Presto View found in viewOriginalText.")
+
+                    base64_str = match.group(1)
+
+                    # 디코딩
+                    decoded = base64.b64decode(base64_str)
+                    json_data = json.loads(decoded)
+                    sql = json_data["originalSql"]
+                    return re.sub(r'\s+', ' ', sql).strip()  # 모든 공백(\n, \t 포함)을 하나의 공백으로
+        else:
+            return "\n".join(i[0] for i in res)
+    else:
+        return None

@@ -1,0 +1,279 @@
+{
+  "title": "File",
+  "$comment": "@om-entity-type",
+  "description": "This schema defines the File entity. A File is an abstraction for any path(including the top level eg. bucket in S3) storing data in an Object store such as S3, GCP, Azure. It maps a tree-like structure, where each Container can have a parent and a list of sub-folders, and it can be structured - where it contains structured data, or unstructured where no schema for its data is defined.",
+  "type": "object",
+  "javaInterfaces": [
+    "org.openmetadata.schema.EntityInterface"
+  ],
+  "definitions": {
+    "fileDataModel": {
+      "description": "This captures information about how the file's data is modeled, if it has a schema. ",
+      "type": "object",
+      "javaType": "org.openmetadata.schema.type.FileDataModel",
+      "properties": {
+        "isPartitioned": {
+          "description": "Whether the data under this file is partitioned by some property, eg. eventTime=yyyy-mm-dd",
+          "type": "boolean",
+          "default": false
+        },
+        "columns": {
+          "description": "Columns belonging to this file's schema",
+          "type": "array",
+          "items": {
+            "$ref": "../data/table.json#/definitions/column"
+          }
+        }
+      },
+      "required": [
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "fileFormat": {
+      "description": "This schema defines the file formats for the object/files within a file.",
+      "javaInterfaces": ["org.openmetadata.schema.EnumInterface"],
+      "type": "string",
+      "enum": ["zip", "gz", "zstd", "csv", "tsv", "xls", "xlsx", "json", "parquet", "avro", "doc", "docx", "hwp", "hwpx", "none"],
+      "javaEnums": [
+        {"name": "Zip"},
+        {"name": "Gz"},
+        {"name": "Zstd"},
+        {"name": "Csv"},
+        {"name": "Tsv"},
+        {"name": "Xls"},
+        {"name": "Xlsx"},
+        {"name": "Json"},
+        {"name": "Parquet"},
+        {"name": "Avro"},
+        {"name": "Doc"},
+        {"name": "Docx"},
+        {"name": "Hwp"},
+        {"name": "Hwpx"},
+        {"none": "None"}
+      ]
+    },
+    "tableProfilerConfig": {
+      "$ref": "../data/table.json#/definitions/tableProfilerConfig"
+    },
+    "tableProfile": {
+      "$ref": "../data/table.json#/definitions/tableProfile"
+    },
+    "rdf": {
+      "type": "object",
+      "javaType": "org.openmetadata.schema.type.Rdf",
+      "description": "This schema defines the metadata.",
+      "properties": {
+        "name": {
+          "description": "A name(predicate) defines the relationship between the subject and the object in a RDF(triple)",
+          "type": "string"
+        },
+        "object": {
+          "description": "The object is the value or resource connected to the subject through the predicate in a RDF",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags for a this metadata.",
+          "type": "array",
+          "items": {
+            "$ref": "../../type/tagLabel.json"
+          },
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "object"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "id": {
+      "description": "Unique identifier that identifies this file instance.",
+      "$ref": "../../type/basic.json#/definitions/uuid"
+    },
+    "name": {
+      "description": "Name that identifies the file.",
+      "$ref": "../../type/basic.json#/definitions/entityName"
+    },
+    "fullyQualifiedName": {
+      "description": "Name that uniquely identifies a file in the format 'ServiceName.FileName'.",
+      "$ref": "../../type/basic.json#/definitions/fullyQualifiedEntityName"
+    },
+    "displayName": {
+      "description": "Display Name that identifies this file.",
+      "type": "string"
+    },
+    "description": {
+      "description": "Description of the file instance.",
+      "$ref": "../../type/basic.json#/definitions/markdown"
+    },
+    "version": {
+      "description": "Metadata version of the entity.",
+      "$ref": "../../type/entityHistory.json#/definitions/entityVersion"
+    },
+    "updatedAt": {
+      "description": "Last update time corresponding to the new version of the entity in Unix epoch time milliseconds.",
+      "$ref": "../../type/basic.json#/definitions/timestamp"
+    },
+    "updatedBy": {
+      "description": "User who made the update.",
+      "type": "string"
+    },
+    "href": {
+      "description": "Link to the resource corresponding to this entity.",
+      "$ref": "../../type/basic.json#/definitions/href"
+    },
+    "owner": {
+      "description": "Owner of this file.",
+      "$ref": "../../type/entityReference.json"
+    },
+    "service": {
+      "description": "Link to the storage service where this file is hosted in.",
+      "$ref": "../../type/entityReference.json"
+    },
+    "parent": {
+      "description": "Link to the parent file under which this entity sits, if not top level.",
+      "$ref": "../../type/entityReference.json"
+    },
+    "children": {
+      "description": "References to child files residing under this entity.",
+      "$ref": "../../type/entityReferenceList.json"
+    },
+    "dataModel": {
+      "description": "References to the file's data model, if data is structured, or null otherwise",
+      "$ref": "#/definitions/containerDataModel",
+      "default": null
+    },
+    "tableProfilerConfig": {
+      "description": "Table Profiler Config to include or exclude columns from profiling.",
+      "$ref": "#/definitions/tableProfilerConfig"
+    },
+    "customMetrics": {
+      "description": "List of Custom Metrics registered for a table.",
+      "type": "array",
+      "items": {
+        "$ref": "../../tests/customMetric.json"
+      },
+      "default": null
+    },
+    "profile": {
+      "description": "Latest Data profile for a table data.",
+      "$ref": "#/definitions/tableProfile",
+      "default": null
+    },
+    "testSuite": {
+      "description": "Executable test suite associated with this table",
+      "$ref": "../../type/entityReference.json"
+    },
+    "prefix": {
+      "description": "Optional prefix path defined for this file",
+      "type": "string",
+      "default": null
+    },
+    "numberOfObjects": {
+      "description": "The number of objects/files this file has.",
+      "type": "number",
+      "default": null
+    },
+    "size": {
+      "description": "The total size in KB this file has.",
+      "type": "number",
+      "default": null
+    },
+    "fileFormats": {
+      "description": "File & data formats identified for the file:  e.g. dataFormats=[csv, json]. These can be present both when the file has a dataModel or not",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/fileFormat"
+      },
+      "default": null
+    },
+    "serviceType": {
+      "description": "Service type this table is hosted in.",
+      "$ref": "../services/storageService.json#/definitions/storageServiceType"
+    },
+    "followers": {
+      "description": "Followers of this file.",
+      "$ref": "../../type/entityReferenceList.json"
+    },
+    "tags": {
+      "description": "Tags for this file.",
+      "type": "array",
+      "items": {
+        "$ref": "../../type/tagLabel.json"
+      },
+      "default": null
+    },
+    "sampleData": {
+      "description": "Sample data for a table.",
+      "oneOf": [
+        {
+          "$ref": "../data/table.json#/definitions/tableData"
+        }
+      ],
+      "default": null
+    },
+    "changeDescription": {
+      "description": "Change that lead to this version of the entity.",
+      "$ref": "../../type/entityHistory.json#/definitions/changeDescription"
+    },
+    "deleted": {
+      "description": "When `true` indicates the entity has been soft deleted.",
+      "type": "boolean",
+      "default": false
+    },
+    "retentionPeriod" : {
+      "description": "Retention period of the data in the file. Period is expressed as duration in ISO 8601 format in UTC. Example - `P23DT23H`.",
+      "$ref": "../../type/basic.json#/definitions/duration"
+    },
+    "extension": {
+      "description": "Entity extension data with custom attributes added to the entity.",
+      "$ref": "../../type/basic.json#/definitions/entityExtension"
+    },
+    "sourceUrl": {
+      "description": "Source URL of file.",
+      "$ref": "../../type/basic.json#/definitions/sourceUrl"
+    },
+    "fullPath": {
+      "description": "Full path of the file.",
+      "type": "string"
+    },
+    "domain" : {
+      "description": "Domain the file belongs to. When not set, the File inherits the domain from the storage service it belongs to.",
+      "$ref": "../../type/entityReference.json"
+    },
+    "dataProducts" : {
+      "description": "List of data products this entity is part of.",
+      "$ref" : "../../type/entityReferenceList.json"
+    },
+    "votes" : {
+      "$ref": "../../type/votes.json"
+    },
+    "lifeCycle": {
+      "description": "Life Cycle properties of the entity",
+      "$ref": "../../type/lifeCycle.json"
+    },
+    "sourceHash": {
+      "description": "Source hash of the entity",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32
+    },
+    "rdfs": {
+      "description": "This is a rdf(metadata) list.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/rdf"
+      },
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "service"
+  ],
+  "additionalProperties": false
+}

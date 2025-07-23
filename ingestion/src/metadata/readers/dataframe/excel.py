@@ -61,8 +61,6 @@ class ExcelDataFrameReader(DataFrameReader):
                 storage_options=storage_options,
                 **kwargs
         )
-
-
         return DatalakeColumnWrapper(dataframes=[df])
 
     @singledispatchmethod
@@ -76,7 +74,10 @@ class ExcelDataFrameReader(DataFrameReader):
         """
         Read the CSV file from the gcs bucket and return a dataframe
         """
-        path = f"gs://{bucket_name}/{key}"
+        # path = f"gs://{bucket_name}/{key}"
+        bucket = self.client.bucket(bucket_name)
+        blob = bucket.blob(key)
+        path = blob.download_as_bytes()
         return self.read_from_pandas(path=path)
 
     @_read_excel_dispatch.register
@@ -86,22 +87,24 @@ class ExcelDataFrameReader(DataFrameReader):
 
     @_read_excel_dispatch.register
     def _(self, _: MinioCredentials, key: str, bucket_name: str) -> DatalakeColumnWrapper:
-        import urllib.parse  # pylint: disable=import-outside-toplevel
-        key = urllib.parse.unquote_plus(key)
-        storage_options = {
-            "key": f"{self.config_source.accessKeyId}",
-            "secret": f"{self.config_source.secretKey.get_secret_value()}",
-            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
-
-        ## Excel 파일은 encoding 옵션이 필요하지 않음.
-        try:
-            return self.read_from_pandas(path=f"s3://{bucket_name}/{key}", storage_options=storage_options)
-        except Exception as err:
-            print(f"Error: {err} - traceback: {err.__traceback__ }")
-            raise err
-
-        # res = self.client.head_object(Bucket=bucket_name, Key=key)
-        # data.raw_data = res
+        # import urllib.parse  # pylint: disable=import-outside-toplevel
+        # key = urllib.parse.unquote_plus(key)
+        # storage_options = {
+        #     "key": f"{self.config_source.accessKeyId}",
+        #     "secret": f"{self.config_source.secretKey.get_secret_value()}",
+        #     "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"}}
+        #
+        # ## Excel 파일은 encoding 옵션이 필요하지 않음.
+        # try:
+        #     return self.read_from_pandas(path=f"s3://{bucket_name}/{key}", storage_options=storage_options)
+        # except Exception as err:
+        #     print(f"Error: {err} - traceback: {err.__traceback__ }")
+        #     raise err
+        #
+        # # res = self.client.head_object(Bucket=bucket_name, Key=key)
+        # # data.raw_data = res
+        path = self.client.get_object(Bucket=bucket_name, Key=key)["Body"].read()
+        return self.read_from_pandas(path=path)
 
     @_read_excel_dispatch.register
     def _(self, _: AzureConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:

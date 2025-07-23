@@ -20,7 +20,7 @@ from metadata.data_quality.validations.table.pandas.tableRowInsertedCountToBeBet
     TableRowInsertedCountToBeBetweenValidator,
 )
 from metadata.generated.schema.entity.data.table import (
-    PartitionIntervalType,
+    PartitionIntervalTypes,
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
@@ -40,16 +40,16 @@ class DatalakeSampler(SamplerInterface):
         self._partition_details = cast(PartitionProfilerConfig, self._partition_details)
         partition_field = self._partition_details.partitionColumnName
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalType.COLUMN_VALUE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.COLUMN_VALUE
         ):
             return [
                 df[df[partition_field].isin(self._partition_details.partitionValues)]
                 for df in self.table
             ]
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalType.INTEGER_RANGE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.INTEGER_RANGE
         ):
             return [
                 df[
@@ -67,7 +67,7 @@ class DatalakeSampler(SamplerInterface):
                     self._partition_details.partitionIntervalUnit.value,
                     self._partition_details.partitionInterval,
                 )
-            ]
+                ]
             for df in self.table
         ]
 
@@ -136,7 +136,7 @@ class DatalakeSampler(SamplerInterface):
                 break
         return cols, rows
 
-    def random_sample(self):
+    def random_sample(self, is_sampled: bool = False):
         """Generate random sample from the table
 
         Returns:
@@ -148,16 +148,15 @@ class DatalakeSampler(SamplerInterface):
         if self._partition_details:
             self.table = self._partitioned_table()
 
-        if not self.profile_sample:
+        if not self.profile_sample or is_sampled:
             return self.table
-
         return self._get_sampled_dataframe()
 
     def _fetch_rows(self, data_frame):
         return data_frame.dropna().values.tolist()
 
     def fetch_sample_data(
-        self, columns: Optional[List[SQALikeColumn]] = None
+            self, columns: Optional[List[SQALikeColumn]] = None
     ) -> TableData:
         """Fetch sample data from the table
 

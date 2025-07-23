@@ -32,7 +32,7 @@ from metadata.generated.schema.api.data.createDatabase import CreateDatabaseRequ
 from metadata.generated.schema.api.data.createDatabaseSchema import (
     CreateDatabaseSchemaRequest,
 )
-# from metadata.generated.schema.api.data.createGlossary import CreateGlossaryRequest
+from metadata.generated.schema.api.data.createGlossary import CreateGlossaryRequest
 # from metadata.generated.schema.api.data.createGlossaryTerm import (
 #     CreateGlossaryTermRequest,
 # )
@@ -102,7 +102,7 @@ from metadata.generated.schema.entity.data.file import File
 # from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
 from metadata.generated.schema.entity.data.database import Database
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-# from metadata.generated.schema.entity.data.glossary import Glossary
+from metadata.generated.schema.entity.data.glossary import Glossary
 # from metadata.generated.schema.entity.data.glossaryTerm import GlossaryTerm
 # from metadata.generated.schema.entity.data.metrics import Metrics
 # from metadata.generated.schema.entity.data.mlmodel import MlModel
@@ -137,6 +137,9 @@ from metadata.generated.schema.entity.services.storageService import StorageServ
 # from metadata.generated.schema.tests.testCase import TestCase
 # from metadata.generated.schema.tests.testDefinition import TestDefinition
 # from metadata.generated.schema.tests.testSuite import TestSuite
+
+from metadata.generated.schema.api.data.createTableProfile import CreateTableProfileRequest
+from metadata.profiler.api.models import ProfilerResponse
 
 ROUTES = {
     # MlModel.__name__: "/mlmodels",
@@ -176,8 +179,8 @@ ROUTES = {
     # Classification.__name__: "/classifications",
     # CreateClassificationRequest.__name__: "/classifications",
     # Glossaries
-    # Glossary.__name__: "/glossaries",
-    # CreateGlossaryRequest.__name__: "/glossaries",
+    Glossary.__name__: "/glossaries",
+    CreateGlossaryRequest.__name__: "/glossaries",
     # GlossaryTerm.__name__: "/glossaryTerms",
     # CreateGlossaryTermRequest.__name__: "/glossaryTerms",
     # Users
@@ -231,5 +234,7 @@ ROUTES = {
     # DataProduct.__name__: "/dataProducts",
     # CreateDataProductRequest.__name__: "/dataProducts",
     IngestionCheck.__name__: "/ingestion/check",
-    IngestionStatus.__name__: "/ingestion/collector/status"
+    IngestionStatus.__name__: "/ingestion/collector/status",
+    ProfilerResponse.__name__: "/profiler",
+    CreateTableProfileRequest.__name__: "/profiler"
 }

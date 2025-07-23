@@ -149,7 +149,8 @@ base_requirements = {
     "tika==2.6.0",
     "nltk==3.9.1",
     "transformers==4.46.3",
-    "packaging"
+    "packaging",
+    "botocore==1.32.4"
 }
 
 
@@ -206,7 +207,7 @@ plugins: Dict[str, Set[str]] = {
         # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
         # Leaving this marked to the automatic resolution to speed up installation.
         # "s3fs==0.4.2",
-        "s3fs==2023.12.1",
+        # "s3fs==2023.12.1",
         *COMMONS["datalake"],
     },
     "deltalake": {"delta-spark<=2.3.0"},

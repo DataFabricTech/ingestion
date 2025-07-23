@@ -12,10 +12,15 @@
 Models related to lineage parsing
 """
 from enum import Enum
-from typing import Dict
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Extra, Field
 
 from metadata.generated.schema.entity.services.connections.database.athenaConnection import (
     AthenaType,
+)
+from metadata.generated.schema.entity.services.connections.database.azureSQLConnection import (
+    AzureSQLType,
 )
 from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigqueryType,
@@ -59,10 +64,8 @@ from metadata.generated.schema.entity.services.connections.database.snowflakeCon
 from metadata.generated.schema.entity.services.connections.database.sqliteConnection import (
     SQLiteType,
 )
+from metadata.utils.singleton import Singleton
 
-from metadata.generated.schema.entity.services.connections.database.altibaseConnection import (
-    AltibaseType,
-)
 
 class Dialect(Enum):
     """
@@ -108,6 +111,7 @@ MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
     str(DeltaLakeType.DeltaLake.value): Dialect.SPARKSQL,
     str(SQLiteType.SQLite.value): Dialect.SQLITE,
     str(MssqlType.Mssql.value): Dialect.TSQL,
+    str(AzureSQLType.AzureSQL.value): Dialect.TSQL,
 }
 
 
@@ -125,3 +129,33 @@ class ConnectionTypeDialectMapper:
         Returns: a dialect
         """
         return MAP_CONNECTION_TYPE_DIALECT.get(connection_type, Dialect.ANSI)
+
+
+class QueryParsingError(BaseModel):
+    """
+    Represents an error that occurs during query parsing.
+
+    Attributes:
+        query (str): The query text of the failed query.
+        error (str): The error message of the failed query.
+    """
+
+    class Config:
+        extra = Extra.forbid
+
+    query: str = Field(..., description="query text of the failed query")
+    error: Optional[str] = Field(..., description="error message of the failed query")
+
+
+class QueryParsingFailures(metaclass=Singleton):
+    """Tracks the Queries that failed to parse."""
+
+    def __init__(self):
+        """Initializes the list of parsing failures."""
+        self._query_list: List[QueryParsingError] = []
+
+    def add(self, parsing_error: QueryParsingError):
+        self._query_list.append(parsing_error)
+
+    def __iter__(self):
+        return iter(self._query_list)

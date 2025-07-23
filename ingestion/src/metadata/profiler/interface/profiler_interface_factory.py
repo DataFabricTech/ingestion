@@ -30,6 +30,9 @@ from metadata.generated.schema.entity.services.connections.database.snowflakeCon
 from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
 )
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
+    MinioConnection
+)
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
 from metadata.profiler.interface.pandas.profiler_interface import (
     PandasProfilerInterface,
@@ -85,4 +88,9 @@ profiler_interface_factory.register(
 profiler_interface_factory.register(
     SnowflakeConnection.__name__, SnowflakeProfilerInterface
 )
-profiler_interface_factory.register(TrinoConnection.__name__, TrinoProfilerInterface)
+profiler_interface_factory.register(
+    TrinoConnection.__name__, TrinoProfilerInterface
+)
+profiler_interface_factory.register(
+    MinioConnection.__name__, PandasProfilerInterface
+)

@@ -8,121 +8,23 @@ from metadata.generated.schema.entity.services.storageService import StorageServ
 from metadata.utils.logger import ingestion_logger
 from utils.security_manager import SecurityManager
 from utils.process_config import config
-from utils.request_manager import RequestManager
+from utils.metadata_process import MetadataProcess
+
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
 
-def get_database_filter():
-    filter = {
-        "type": "DatabaseMetadata",
-        "markDeletedTables": False,
-        "markDeletedStoredProcedures": False,
-        "includeTables": True,
-        "includeViews": False,
-        "includeTags": False,
-        "includeStoredProcedures": False,
-        "queryLogDuration": 1,
-        "queryParsingTimeoutLimit": 300,
-        "useFqnForFiltering": False,
-        "schemaFilterPattern": {
-            "includes": [],
-            "excludes": []
-        },
-        "tableFilterPattern": {
-            "includes": [],
-            "excludes": []
-        },
-        "databaseFilterPattern": {
-            "includes": [],
-            "excludes": []
-        }
-    }
+metadata_process = MetadataProcess()
 
-    return filter
+def get_config(system_id, filter_include_dict, filter_exclude_dict):
 
-def get_storage_filter():
-    filter = {
-        "type": "StorageMetadata",
-        "bucketFilterPattern": {
-            "includes": [],
-            "excludes": ["datacatalog"] # data catalog 사용 bucket
-        }
-    }
+    system_info = metadata_process.get_meta_system_info(system_id)
 
-    return filter
-
-def get_source_filter(service_type, user, database, schema, source_fileter):
-
-    if source_fileter == None or source_fileter == '':
-
-        if service_type in [DatabaseServiceType.Oracle.value, DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
-            filter = get_database_filter()
-            filter["databaseFilterPattern"] = {
-                "includes": [database],
-                "excludes": []
-            }
-            filter["schemaFilterPattern"] = {
-                "includes": [schema],
-                "excludes": []
-            }
-
-        if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value]:
-            filter = get_database_filter()
-            filter["databaseFilterPattern"] = {
-                "includes": [database],
-                "excludes": []
-            }
-
-        #custom
-        if service_type in ["Tibero"]:
-            filter = get_database_filter()
-            filter["schemaFilterPattern"] = {
-                "includes": [database],
-                "excludes": []
-            }
-            filter["databaseFilterPattern"] = {
-                "includes": [schema],
-                "excludes": []
-            }
-
-        # custom : altibase 는 schema만 입력(database는 필터 동작 X)
-        if service_type in ["Altibase"]:
-            filter = get_database_filter()
-            filter["schemaFilterPattern"] = {
-                "includes": [schema],
-                "excludes": []
-            }
-
-        if service_type in [StorageServiceType.S3.value]:
-            filter = get_storage_filter()
-
-
-        if service_type in [StorageServiceType.MinIO.value]:
-            filter = get_storage_filter()
-
-        return filter
-    else:
-        return source_fileter
-
-def get_meta_system_info(system_id):
-
-    request_manager = RequestManager()
-    response = request_manager.request_get(url=f"{config.catalog_api_base_url}{config.get_meta_system_info_api}?system_id={system_id}")
-    system_info = response.json()
-
-    source_filter = get_source_filter(system_info['system_type'], system_info['login'], system_info['database'], system_info['schema'], system_info['filter_config'])
-
+    # system_info['filter_config'] : 25.07.21 사용안함
+    source_filter = metadata_process.get_source_filter('ingestion', system_info['host'], system_info['port'], system_info['system_type'], system_info['database'], system_info['schema'], None, filter_include_dict, filter_exclude_dict)
     password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
 
     return system_info['system_id'], system_info['system_type'], system_info['host'], system_info['port'], system_info['login'], password, system_info['database'], source_filter
-
-def set_meta_system_status(system_id, status):
-
-    url = f"{config.catalog_api_base_url}{config.set_meta_ingestion_status_api}?system_id={system_id}&status={status}"
-    request_manager = RequestManager()
-    request_manager.request_put(url=url)
-
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
@@ -185,9 +87,9 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     return source
 
 
-def metadata_collector_execute(system_id, sink="file"):
+def metadata_collector_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None):
 
-    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_filter = get_meta_system_info(system_id)
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_filter = get_config(system_id, filter_include_dict, filter_exclude_dict)
 
     if (source_host is None) or (source_port is None) or (source_user is None):
         raise Exception('source config invalid.')
@@ -198,13 +100,10 @@ def metadata_collector_execute(system_id, sink="file"):
     source = get_source(system_id, system_type, sink, sink_host, sink_port, source_host, source_port, source_user, source_password, source_database, source_filter)
 
     # db 상태 업데이트
-    set_meta_system_status(system_id, "INGESTION")
+    metadata_process.set_meta_system_status(system_id, "INGESTION")
 
     from services.common.metadata import MetadataExecutor
     MetadataExecutor.execute(source)
 
-    #profile phy
-    # from profiling.common.profiler import ProfilerExecutor
-    # ProfilerExecutor.execute(source)
 
 
