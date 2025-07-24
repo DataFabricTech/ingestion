@@ -19,6 +19,8 @@ class Config(BaseSettings):
     get_meta_system_info_api: str
     set_meta_ingestion_status_api: str
 
+    document_tmp_dir: str
+
     @classmethod
     def get_yaml(cls):
         # .env 파일 로드
@@ -44,6 +46,8 @@ class Config(BaseSettings):
         get_meta_system_info_api = catalog_api_config['get_meta_system_info_api']
         set_meta_ingestion_status_api = catalog_api_config['set_meta_ingestion_status_api']
 
+        metadata_collector_config = config_data["metadata_collector"]
+        document_tmp_dir = metadata_collector_config["document_tmp_dir"]
 
         return cls(
             crypt_key=config_data["security"]["cryptkey"],
@@ -52,7 +56,8 @@ class Config(BaseSettings):
             set_meta_ingestion_status_api = set_meta_ingestion_status_api,
             sink_host = sink_host,
             sink_port = sink_port,
-            minio_url=minio_url
+            minio_url=minio_url,
+            document_tmp_dir=document_tmp_dir
         )
 
 

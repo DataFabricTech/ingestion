@@ -44,6 +44,9 @@ COPY ../odbc/odbc.ini /etc/odbc.ini
 #    sudo && \
 #    dnf clean all
 
+# tmp 디렉토리
+RUN mkdir /metadata_collector/tmp
+
 # ssh 관련
 RUN ssh-keygen -A
 RUN mkdir /var/run/sshd
@@ -61,8 +64,15 @@ RUN ln -s /usr/bin/python3.8 /usr/bin/python
 RUN pip install --upgrade pip setuptools
 # metadata_collector 설치
 # RUN python /metadata_collector/setup.py install
-RUN pip install .
-RUN pip install ingest-server[all]
+RUN pip install .[all]
+# RUN pip install ingest-server
+
+# generate
+COPY ../scripts /metadata_collector/scripts
+COPY ../spec /metadata_collector/spec
+COPY ../Makefile /metadata_collector/Makefile
+RUN make install_antlr_cli
+RUN make generate
 
 # bashrc 설정 추가
 RUN echo 'alias ll="ls -alF --color=auto"' >> /root/.bashrc

@@ -70,6 +70,8 @@ from metadata.utils.storage_metadata_config import (
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 
+from utils.process_config import config
+
 logger = ingestion_logger()
 
 KEY_SEPARATOR = "/"
@@ -368,7 +370,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         Read the word document from the bucket
         """
-        local_dir_path = os.environ.get('AIRFLOW_HOME') + "/tmp"
+        local_dir_path = config.document_tmp_dir
+
         # 다운로드 디렉토리 확인 및 생성
         ensure_directory_exists(local_dir_path)
 

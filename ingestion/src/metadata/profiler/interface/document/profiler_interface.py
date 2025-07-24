@@ -25,6 +25,8 @@ from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 
+from utils.process_config import config
+
 logger = profiler_interface_registry_logger()
 
 
@@ -78,7 +80,7 @@ class DocumentProfilerInterface(ProfilerInterface):
         """
         Read the word document from the bucket
         """
-        local_dir_path = os.environ.get('AIRFLOW_HOME') + "/tmp"
+        local_dir_path = config.document_tmp_dir
         # 다운로드 디렉토리 확인 및 생성
         ensure_directory_exists(local_dir_path)
 

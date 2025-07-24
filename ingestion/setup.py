@@ -71,7 +71,7 @@ VERSIONS = {
     "odbcinst": "odbcinst==1.0.1",
     "torch": "torch==2.4.1",
     "s3fs": "s3fs==2023.12.1",
-    "fsspec": "fsspec==2021.11.0",
+    "fsspec": "fsspec>=2022.11.0,<=2023.12.1",
     "openpyxl": "openpyxl~=3.1.3",
 }
 
@@ -150,7 +150,8 @@ base_requirements = {
     "nltk==3.9.1",
     "transformers==4.46.3",
     "packaging",
-    "botocore==1.32.4"
+    "botocore==1.32.4",
+    "datamodel-code-generator==0.22.0"
 }
 
 
@@ -161,7 +162,7 @@ plugins: Dict[str, Set[str]] = {
         "attrs",
     },  # Same as ingestion container. For development.
     # "amundsen": {VERSIONS["neo4j"]},
-    "athena": {"pyathena==3.0.8"},
+    # "athena": {"pyathena==3.0.8"},
     # "atlas": {},
     # "azuresql": {VERSIONS["pyodbc"]},
     # "azure-sso": {VERSIONS["msal"]},
@@ -196,11 +197,11 @@ plugins: Dict[str, Set[str]] = {
         "adlfs>=2022.2.0",  # Python 3.7 does only support up to 2022.2.0
         *COMMONS["datalake"],
     },
-    "datalake-gcs": {
-        VERSIONS["google-cloud-storage"],
-        "gcsfs==2022.11.0",
-        *COMMONS["datalake"],
-    },
+    # "datalake-gcs": {
+    #     VERSIONS["google-cloud-storage"],
+    #     "gcsfs==2022.11.0",
+    #     *COMMONS["datalake"],
+    # },
     "datalake-s3": {
         # requires aiobotocore
         # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
@@ -290,7 +291,7 @@ plugins: Dict[str, Set[str]] = {
     "odbcinst": {VERSIONS["odbcinst"]},
     # jblim : MinIO 저장소 데이터 가상화를 위해 추가
     "fsspec": {VERSIONS["fsspec"]},
-    "s3fs": {VERSIONS["s3fs"]},
+    # "s3fs": {VERSIONS["s3fs"]},
     "openpyxl": {VERSIONS["openpyxl"]},
     "dev": {"datamodel-code-generator==0.22.0"}
 }
