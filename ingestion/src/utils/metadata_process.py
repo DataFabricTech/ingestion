@@ -126,20 +126,26 @@ class MetadataProcess:
             exclude_database_filter, exclude_schema_filter, exclude_table_filter = self.get_database_type_filter(filter_exclude_dict)
 
             if service_type in [DatabaseServiceType.Oracle.value, DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
-                include_database_filter.append(database)
-                include_schema_filter.append(schema)
+                if database is not None:
+                    include_database_filter.append(database)
+                if schema is not None:
+                    include_schema_filter.append(schema)
 
             if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value]:
-                include_database_filter.append(database)
+                if database is not None:
+                    include_database_filter.append(database)
 
             #custom
             if service_type in ["Tibero"]:
-                include_database_filter.append(schema)
-                include_schema_filter.append(database)
+                if schema is not None:
+                    include_database_filter.append(schema)
+                if database is not None:
+                    include_schema_filter.append(database)
 
             # custom : altibase 는 schema만 입력(database는 필터 동작 X)
             if service_type in ["Altibase"]:
-                include_schema_filter.append(schema)
+                if schema is not None:
+                    include_schema_filter.append(schema)
 
 
             source_filter["databaseFilterPattern"]["includes"].extend(include_database_filter)
