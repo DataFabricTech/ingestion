@@ -343,7 +343,7 @@ class MinioSource(StorageServiceSource):
                     if '/' in abs_file_name:
                         continue
                 else:
-                    directory = '/'.join(self._dir_cache[bucket][2:])
+                    directory = '/'.join(self._dir_cache[f"{service}.{bucket}"][2:])
                     if directory not in abs_file_name or directory != os.path.dirname(abs_file_name):
                         continue
 
@@ -438,6 +438,7 @@ class MinioSource(StorageServiceSource):
         bucket = self.context.get().bucket
         directory = self.context.get().directory
         # directory = getattr(self.context.get(), "directory", None)
+
         if directory == '/' or directory is None:
             return fqn._build(  # pylint: disable=protected-access
                 *(
@@ -447,7 +448,7 @@ class MinioSource(StorageServiceSource):
             )
         else:
             return fqn._build(  # pylint: disable=protected-access
-                *self._dir_cache[bucket]
+                *self._dir_cache[f"{service}.{bucket}"]
             )
 
     def yield_create_container_requests(
