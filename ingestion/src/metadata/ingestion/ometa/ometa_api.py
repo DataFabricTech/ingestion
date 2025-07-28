@@ -282,7 +282,8 @@ class OpenMetadata(
                 f"PUT operations need a CreateEntity, not {entity}"
             )
         # phy
-        # print(f'PUT {self.get_suffix(entity)}')
+        print(f'PUT {self.get_suffix(entity)}')
+        print(f'PUT {data.json(encoder=show_secrets_encoder)}')
         resp = self.client.put(
             self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)
         )

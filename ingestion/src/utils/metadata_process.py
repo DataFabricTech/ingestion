@@ -119,6 +119,7 @@ class MetadataProcess:
 
     def get_source_filter(self, collector_type, host, port, service_type, database, schema, source_fileter_for_db, filter_include_dict, filter_exclude_dict):
 
+        source_filter = None
         # database
         if service_type in DatabaseServiceType.__members__:
             source_filter = self.get_database_filter()
@@ -168,5 +169,9 @@ class MetadataProcess:
 
             source_filter["containerFilterPattern"]["includes"].extend(include_object_filter)
             source_filter["containerFilterPattern"]["excludes"].extend(exclude_object_filter)
+
+
+        if source_filter is None:
+            raise Exception(f"filter config invalid. {service_type}")
 
         return source_filter

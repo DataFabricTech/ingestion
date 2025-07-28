@@ -61,7 +61,7 @@ class ProfilerProcessor(Processor):
                 StackTraceError(
                     name=record.entity.fullyQualifiedName.__root__,
                     error=f"Unexpected exception processing entity {record.entity.fullyQualifiedName.__root__}: {exc}",
-                    stack_trace=traceback.format_exc(),
+                    stackTrace=traceback.format_exc(),
                 )
             )
             self.status.failures.extend(

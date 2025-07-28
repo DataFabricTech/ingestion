@@ -16,7 +16,7 @@ from urllib.parse import quote_plus
 
 from sqlalchemy.engine import Engine
 
-from metadata.ingestion.source.database.custom.tibero.tiberoConnection import TiberoConnection
+from metadata.generated.schema.entity.services.connections.database.tiberoConnection import TiberoConnection
 from metadata.ingestion.connections.builders import (
     create_generic_db_connection,
     get_connection_args_common,

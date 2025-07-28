@@ -75,7 +75,7 @@ class ProfilerProcessorStatus(Status):
             StackTraceError(
                 name=self.entity if self.entity else "",
                 error=error,
-                stack_trace=stack_trace,
+                stackTrace=stack_trace,
             )
         )
 

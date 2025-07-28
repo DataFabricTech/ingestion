@@ -159,7 +159,7 @@ class OpenMetadataSourceExt(OpenMetadataSource):
                     left=StackTraceError(
                         name=database_name,
                         error=f"Error listing source and entities for database due to [{exc}]",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
 
@@ -255,7 +255,7 @@ class OpenMetadataSourceExt(OpenMetadataSource):
                     StackTraceError(
                         name=table.fullyQualifiedName.__root__,
                         error=f"Unexpected error filtering entities for table [{table}]: {exc}",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
 

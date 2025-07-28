@@ -495,7 +495,7 @@ class CommonDbSourceService(
             error = f"Unexpected exception to yield table [{table_name}]: {exc}"
             yield Either(
                 left=StackTraceError(
-                    name=table_name, error=error, stack_trace=traceback.format_exc()
+                    name=table_name, error=error, stackTrace=traceback.format_exc()
                 )
             )
 
@@ -519,32 +519,32 @@ class CommonDbSourceService(
         """
 
         foreign_constraints = []
-        for column in foreign_columns:
-            referred_column_fqns = []
-            referred_table = fqn.search_table_from_es(
-                metadata=self.metadata,
-                table_name=column.get("referred_table"),
-                schema_name=column.get("referred_schema"),
-                database_name=None,
-                service_name=self.context.get().database_service,
-            )
-            if referred_table:
-                for referred_column in column.get("referred_columns"):
-                    col_fqn = get_column_fqn(
-                        table_entity=referred_table, column=referred_column
-                    )
-                    if col_fqn:
-                        referred_column_fqns.append(col_fqn)
-            else:
-                # do not build partial foreign constraint. It will updated in next run.
-                continue
-            foreign_constraints.append(
-                TableConstraint(
-                    constraintType=ConstraintType.FOREIGN_KEY,
-                    columns=column.get("constrained_columns"),
-                    referredColumns=referred_column_fqns,
-                )
-            )
+        # for column in foreign_columns:
+        #     referred_column_fqns = []
+        #     referred_table = fqn.search_table_from_es(
+        #         metadata=self.metadata,
+        #         table_name=column.get("referred_table"),
+        #         schema_name=column.get("referred_schema"),
+        #         database_name=None,
+        #         service_name=self.context.get().database_service,
+        #     )
+        #     if referred_table:
+        #         for referred_column in column.get("referred_columns"):
+        #             col_fqn = get_column_fqn(
+        #                 table_entity=referred_table, column=referred_column
+        #             )
+        #             if col_fqn:
+        #                 referred_column_fqns.append(col_fqn)
+        #     else:
+        #         # do not build partial foreign constraint. It will updated in next run.
+        #         continue
+        #     foreign_constraints.append(
+        #         TableConstraint(
+        #             constraintType=ConstraintType.FOREIGN_KEY,
+        #             columns=column.get("constrained_columns"),
+        #             referredColumns=referred_column_fqns,
+        #         )
+        #     )
 
         return foreign_constraints
 

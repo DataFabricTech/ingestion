@@ -11,7 +11,7 @@ from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.database.common_custom_db_source import CommonCustomDbSourceService
 from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import CustomDatabaseConnection
-from metadata.ingestion.source.database.custom.tibero.tiberoConnection import TiberoConnection
+from metadata.generated.schema.entity.services.connections.database.tiberoConnection import TiberoConnection
 from metadata.ingestion.source.database.custom.tibero.connection import get_connection
 # from metadata.ingestion.source.database.custom.tibero.utils import (
 #     get_columns

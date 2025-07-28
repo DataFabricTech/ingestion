@@ -159,7 +159,7 @@ class S3Source(StorageServiceSource):
                     StackTraceError(
                         name=bucket_response.name,
                         error=f"Validation error while creating Container from bucket details - {err}",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
             except Exception as err:
@@ -167,7 +167,7 @@ class S3Source(StorageServiceSource):
                     StackTraceError(
                         name=bucket_response.name,
                         error=f"Wild error while creating Container from bucket details - {err}",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
 

@@ -41,6 +41,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     # from services.filesystem.linux.source import LinuxSource
     from services.database.custom.altibase.source import AltibaseSource
     from services.storage.minio.source import MinioSource
+    from services.database.mariadb.source import MariadbSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -53,7 +54,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     logger.info(f"filter : {source_filter}")
 
-    if service_type == "Tibero": #custom
+    if service_type == DatabaseServiceType.Tibero: #custom
         source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                               source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Postgres:
@@ -82,6 +83,9 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
                                 source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == StorageServiceType.MinIO:
         source = MinioSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                             source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == DatabaseServiceType.MariaDB:
+        source = MariadbSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                              source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
 
     return source

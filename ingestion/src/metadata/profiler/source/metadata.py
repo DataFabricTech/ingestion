@@ -135,7 +135,7 @@ class OpenMetadataSource(Source):
                     left=StackTraceError(
                         name=database.fullyQualifiedName.__root__,
                         error=f"Error listing source and entities for database due to [{exc}]",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
 
@@ -196,7 +196,7 @@ class OpenMetadataSource(Source):
                     StackTraceError(
                         name=table.fullyQualifiedName.__root__,
                         error=f"Unexpected error filtering entities for table [{table}]: {exc}",
-                        stack_trace=traceback.format_exc(),
+                        stackTrace=traceback.format_exc(),
                     )
                 )
 
