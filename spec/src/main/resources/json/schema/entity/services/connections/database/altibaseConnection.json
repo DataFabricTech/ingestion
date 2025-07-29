@@ -1,0 +1,66 @@
+{
+  "title": "AltibaseConnection",
+  "description": "Altibase Database Connection Config",
+  "type": "object",
+  "definitions": {
+    "altibaseType": {
+      "description": "Service type.",
+      "type": "string",
+      "enum": [
+        "Altibase"
+      ],
+      "default": "Altibase"
+    },
+    "altibaseScheme": {
+      "description": "SQLAlchemy driver scheme options.",
+      "type": "string",
+      "enum": [
+        "altibase+pyodbc"
+      ],
+      "default": "altibase+pyodbc"
+    }
+  },
+  "properties": {
+    "scheme": {
+      "title": "Connection Scheme",
+      "description": "SQLAlchemy driver scheme options.",
+      "$ref": "#/definitions/altibaseScheme",
+      "default": "altibase+pyodbc"
+    },
+    "username": {
+      "title": "Username",
+      "description": "Username to connect to Altibase. This user should have privileges to read all the metadata in Altibase.",
+      "type": "string"
+    },
+    "password": {
+      "title": "Password",
+      "description": "Password to connect to Altibase.",
+      "type": "string",
+      "format": "password"
+    },
+    "odbcDsnName": {
+      "title": "ODBC DSN Name",
+      "type": "string"
+    },
+    "connectionArguments": {
+      "title": "Connection Arguments",
+      "$ref": "../connectionBasicType.json#/definitions/connectionArguments"
+    },
+    "supportsMetadataExtraction": {
+      "title": "Supports Metadata Extraction",
+      "$ref": "../connectionBasicType.json#/definitions/supportsMetadataExtraction"
+    },
+    "supportsDBTExtraction": {
+      "$ref": "../connectionBasicType.json#/definitions/supportsDBTExtraction"
+    },
+    "supportsProfiler": {
+      "title": "Supports Profiler",
+      "$ref": "../connectionBasicType.json#/definitions/supportsProfiler"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "username"
+  ]
+}

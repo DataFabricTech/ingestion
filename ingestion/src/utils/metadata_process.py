@@ -172,6 +172,6 @@ class MetadataProcess:
 
 
         if source_filter is None:
-            raise Exception(f"filter config invalid. {service_type}")
+            raise Exception(f"filter config invalid. {service_type}, {host}")
 
         return source_filter

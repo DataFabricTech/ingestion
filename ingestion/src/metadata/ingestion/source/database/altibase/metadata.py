@@ -11,8 +11,8 @@ from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.database.common_custom_db_source import CommonCustomDbSourceService
 from metadata.generated.schema.entity.services.connections.database.customDatabaseConnection import CustomDatabaseConnection
-from metadata.ingestion.source.database.custom.altibase.altibaseConnection import AltibaseConnection
-from metadata.ingestion.source.database.custom.altibase.connection import get_connection
+from metadata.generated.schema.entity.services.connections.database.altibaseConnection import AltibaseConnection
+from metadata.ingestion.source.database.altibase.connection import get_connection
 # from metadata.ingestion.source.database.custom.altibase.utils import (
 #    get_table_names, get_columns
 # )

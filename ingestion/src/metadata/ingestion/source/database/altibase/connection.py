@@ -12,20 +12,21 @@
 """
 Source connection handler
 """
+from typing import Optional
 from urllib.parse import quote_plus
 
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.services.connections.database.tiberoConnection import TiberoConnection
+from metadata.generated.schema.entity.services.connections.database.altibaseConnection import AltibaseConnection
 from metadata.ingestion.connections.builders import (
     create_generic_db_connection,
     get_connection_args_common,
 )
 
-def get_connection_url(connection: TiberoConnection) -> str:
+def get_connection_url(connection: AltibaseConnection) -> str:
     """
     Build the URL handling auth requirements
-    - f'tibero+pyodbc://{user}:{parse.quote(passwd)}@{odbc_dns_name}'
+    - f'altibase+pyodbc://{user}:{parse.quote(passwd)}@{odbc_dns_name}'
     """
 
     url = f"{connection.scheme.value}://"
@@ -39,7 +40,7 @@ def get_connection_url(connection: TiberoConnection) -> str:
     return url
 
 
-def get_connection(connection: TiberoConnection) -> Engine:
+def get_connection(connection: AltibaseConnection) -> Engine:
     """
     Create connection
     """

@@ -54,7 +54,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     logger.info(f"filter : {source_filter}")
 
-    if service_type == DatabaseServiceType.Tibero: #custom
+    if service_type == DatabaseServiceType.Tibero:
         source = TiberoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                               source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == DatabaseServiceType.Postgres:
@@ -78,7 +78,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     # elif service_type == FilesystemServiceType.Linux:
     #     source = LinuxSource(service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
     #                          source_host=source_host, source_port=source_port,source_user=source_user, source_password=source_password, source_filter=source_filter)
-    elif service_type == "Altibase": #custom
+    elif service_type == DatabaseServiceType.Altibase:
         source = AltibaseSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                                 source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
     elif service_type == StorageServiceType.MinIO:
