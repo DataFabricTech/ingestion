@@ -109,8 +109,8 @@ class CommonCustomDbSourceService(
         self._connection = None  # Lazy init as well
         self.table_constraints = None
         self.database_source_state = set()
-        self.context.table_views = []
-        self.context.table_constrains = []
+        self.context.get().table_views = []
+        self.context.get().table_constrains = []
         super().__init__()
 
     def get_connection(self, service_connection) -> Engine:
@@ -173,7 +173,7 @@ class CommonCustomDbSourceService(
         yield Either(
             right=CreateDatabaseRequest(
                 name=database_name,
-                service=self.context.database_service,
+                service=self.context.get().database_service,
                 description=self.get_database_description(database_name),
                 sourceUrl=self.get_source_url(database_name=database_name),
                 systemType=self.config.systemType
@@ -207,12 +207,12 @@ class CommonCustomDbSourceService(
                 database=fqn.build(
                     metadata=self.metadata,
                     entity_type=Database,
-                    service_name=self.context.database_service,
-                    database_name=self.context.database,
+                    service_name=self.context.get().database_service,
+                    database_name=self.context.get().database,
                 ),
                 description=self.get_schema_description(schema_name),
                 sourceUrl=self.get_source_url(
-                    database_name=self.context.database,
+                    database_name=self.context.get().database,
                     schema_name=schema_name,
                 ),
                 systemType=self.config.systemType
@@ -279,7 +279,7 @@ class CommonCustomDbSourceService(
 
         :return: tables or views, depending on config
         """
-        schema_name = self.context.database_schema
+        schema_name = self.context.get().database_schema
         try:
             if self.source_config.includeTables:
                 for table_and_type in self.query_table_names_and_types(schema_name):
@@ -289,9 +289,9 @@ class CommonCustomDbSourceService(
                     table_fqn = fqn.build(
                         self.metadata,
                         entity_type=Table,
-                        service_name=self.context.database_service,
-                        database_name=self.context.database,
-                        schema_name=self.context.database_schema,
+                        service_name=self.context.get().database_service,
+                        database_name=self.context.get().database,
+                        schema_name=self.context.get().database_schema,
                         table_name=table_name,
                         skip_es_search=True,
                     )
@@ -316,9 +316,9 @@ class CommonCustomDbSourceService(
                     view_fqn = fqn.build(
                         self.metadata,
                         entity_type=Table,
-                        service_name=self.context.database_service,
-                        database_name=self.context.database,
-                        schema_name=self.context.database_schema,
+                        service_name=self.context.get().database_service,
+                        database_name=self.context.get().database,
+                        schema_name=self.context.get().database_schema,
                         table_name=view_name,
                     )
 
@@ -416,7 +416,7 @@ class CommonCustomDbSourceService(
         Prepare a table request and pass it to the sink
         """
         table_name, table_type = table_name_and_type
-        schema_name = self.context.database_schema
+        schema_name = self.context.get().database_schema
         try:
             (
                 columns,
@@ -426,7 +426,7 @@ class CommonCustomDbSourceService(
             ) = self.get_columns_and_constraints(
                 schema_name=schema_name,
                 table_name=table_name,
-                db_name=self.context.database,
+                db_name=self.context.get().database,
                 inspector=self.inspector,
             )
 
@@ -453,8 +453,8 @@ class CommonCustomDbSourceService(
                 databaseSchema=fqn.build(
                     metadata=self.metadata,
                     entity_type=DatabaseSchema,
-                    service_name=self.context.database_service,
-                    database_name=self.context.database,
+                    service_name=self.context.get().database_service,
+                    database_name=self.context.get().database,
                     schema_name=schema_name,
                 ),
                 # tags=self.get_tag_labels(
@@ -463,7 +463,7 @@ class CommonCustomDbSourceService(
                 sourceUrl=self.get_source_url(
                     table_name=table_name,
                     schema_name=schema_name,
-                    database_name=self.context.database,
+                    database_name=self.context.get().database,
                     table_type=table_type,
                 ),
                 tableOwner=table_owner,
@@ -488,11 +488,11 @@ class CommonCustomDbSourceService(
                     {
                         "table_name": table_name,
                         "schema_name": schema_name,
-                        "db_name": self.context.database,
+                        "db_name": self.context.get().database,
                         "view_definition": view_definition,
                     }
                 )
-                self.context.table_views.append(table_view)
+                self.context.get().table_views.append(table_view)
 
         except Exception as exc:
             error = f"Unexpected exception to yield table [{table_name}]: {exc}"
