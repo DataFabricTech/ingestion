@@ -191,15 +191,16 @@ class MinioSource(StorageServiceSource):
         bucket_name = bucket_container.name.__root__
 
         service = self.context.get().objectstore_service
-        self._dir_cache[bucket_name] = [service, bucket_name]
+        dir_cache_key = f"{service}.{bucket_name}"
+        self._dir_cache[dir_cache_key] = [service, bucket_name]
         for file_name, entity in self._metadata_cache.items():
             # 촤상위 디렉토리에 대한 처리
             if '/' not in file_name:
                 if '/' not in directory:
                     directory.append('/')
-                    self._dir_cache[bucket_name].append('/')
+                    self._dir_cache[dir_cache_key].append('/')
                     yield self._generate_directory_container(bucket_name, ['/'], bucket_container)
-                    self._dir_cache[bucket_name].remove('/')
+                    self._dir_cache[dir_cache_key].remove('/')
             else:
                 dir_path = os.path.dirname(file_name)
                 path_parts = dir_path.split('/')
@@ -211,10 +212,10 @@ class MinioSource(StorageServiceSource):
                         directory.append(prefix)
                         parent_entity = self.get_parent_entity(path_parts[:i - 1])
                         # 디렉토리 하위의 컨테이너에서 FQN 생성을 위해 상위 개체 정보를 저장한다.
-                        self._dir_cache[bucket_name].extend(path_parts[:i])
+                        self._dir_cache[dir_cache_key].extend(path_parts[:i])
                         yield self._generate_directory_container(bucket_name, path_parts[:i], parent_entity)
                         # 다른 디렉토리를 위해 현재 디렉토리 정보를 삭제한다.
-                        self._dir_cache[bucket_name] = [item for item in self._dir_cache[bucket_name] if
+                        self._dir_cache[dir_cache_key] = [item for item in self._dir_cache[dir_cache_key] if
                                                         item not in path_parts[:i]]
 
     def get_bucket_entity(self) -> Container:
@@ -447,6 +448,7 @@ class MinioSource(StorageServiceSource):
                 )
             )
         else:
+            print(directory)
             return fqn._build(  # pylint: disable=protected-access
                 *self._dir_cache[f"{service}.{bucket}"]
             )

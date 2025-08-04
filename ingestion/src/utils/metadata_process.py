@@ -132,9 +132,10 @@ class MetadataProcess:
                 if schema is not None:
                     include_schema_filter.append(schema)
 
-            if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value]:
+            if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value, DatabaseServiceType.MariaDB.value]:
+                # 해당 system들은 schema를 database 개념으로 사용하기 때문에 database로 설정된 값을 schema에 적용:25.08.04
                 if database is not None:
-                    include_database_filter.append(database)
+                    include_schema_filter.append(database)
 
             #custom
             if service_type in ["Tibero"]:
