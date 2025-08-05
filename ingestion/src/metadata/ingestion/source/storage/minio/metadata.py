@@ -448,7 +448,6 @@ class MinioSource(StorageServiceSource):
                 )
             )
         else:
-            print(directory)
             return fqn._build(  # pylint: disable=protected-access
                 *self._dir_cache[f"{service}.{bucket}"]
             )
