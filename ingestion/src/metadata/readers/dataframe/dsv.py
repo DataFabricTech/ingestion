@@ -15,6 +15,7 @@ Generic Delimiter-Separated-Values implementation
 import functools
 import io
 from functools import singledispatchmethod
+from io import TextIOWrapper
 from typing import Any, Dict, Optional
 
 from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
@@ -137,17 +138,15 @@ class DSVDataFrameReader(DataFrameReader):
 
         response = self.client.get_object(Bucket=bucket_name, Key=key)
         data = response['Body'].read()
-        return self.read_from_pandas_with_raw(io.BytesIO(data))
-        # for encoding in PANDAS_ENCODINGS:
-        #     try:
-        #         response = self.client.get_object(Bucket=bucket_name, Key=key)
-        #         data = response['Body'].read()
-        #         return self.read_from_pandas_with_raw(io.BytesIO(data))
-        #     except UnicodeDecodeError as err:
-        #         continue
-        #     except Exception as err:
-        #         raise err
+        for encoding in PANDAS_ENCODINGS:
+            try:
+                text_body = TextIOWrapper(io.BytesIO(data), encoding=encoding)
+            except UnicodeDecodeError as err:
+                continue
+            except Exception as err:
+                raise err
 
+        return self.read_from_pandas_with_raw(text_body)
         # res = self.client.head_object(Bucket=bucket_name, Key=key)
         # data.raw_data = res
 
