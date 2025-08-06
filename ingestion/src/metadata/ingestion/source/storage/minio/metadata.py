@@ -187,6 +187,8 @@ class MinioSource(StorageServiceSource):
 
     def get_directories(self):
         directory = []
+        self.context.get().directory = None #현재 directory 초기화
+
         bucket_container = self.get_bucket_entity()
         bucket_name = bucket_container.name.__root__
 
