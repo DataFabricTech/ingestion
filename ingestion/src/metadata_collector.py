@@ -19,12 +19,23 @@ metadata_process = MetadataProcess()
 def get_config(system_id, filter_include_dict, filter_exclude_dict):
 
     system_info = metadata_process.get_meta_system_info(system_id)
+    system_id = system_info['system_id']
+    host = system_info['host'] if 'host' in system_info else None
+    port = system_info['port'] if 'port' in system_info else None
+    system_type = system_info['system_type'] if 'system_type' in system_info else None
+    database = system_info['database'] if 'database' in system_info else None
+    schema = system_info['schema'] if 'schema' in system_info else None
+    user = system_info['login'] if 'login' in system_info else None
+    password = system_info['password'] if 'password' in system_info else None
+
 
     # system_info['filter_config'] : 25.07.21 사용안함
-    source_filter = metadata_process.get_source_filter('ingestion', system_info['host'], system_info['port'], system_info['system_type'], system_info['database'], system_info['schema'], None, filter_include_dict, filter_exclude_dict)
-    password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
+    source_filter = metadata_process.get_source_filter('ingestion', host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict)
 
-    return system_info['system_id'], system_info['system_type'], system_info['host'], system_info['port'], system_info['login'], password, system_info['database'], source_filter
+    if password is not None:
+        password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
+
+    return system_id, system_type, host, port, user, password, database, source_filter
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
 # def get_source(service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, str],
@@ -95,8 +106,8 @@ def metadata_collector_execute(system_id, sink="file", filter_include_dict=None,
 
     system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_filter = get_config(system_id, filter_include_dict, filter_exclude_dict)
 
-    if (source_host is None) or (source_port is None) or (source_user is None):
-        raise Exception('source config invalid.')
+    # if (source_host is None) or (source_port is None) or (source_user is None):
+    #     raise Exception('source config invalid.')
 
     sink_host = config.sink_host
     sink_port = config.sink_port

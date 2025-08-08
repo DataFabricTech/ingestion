@@ -99,7 +99,7 @@ class StorageServiceTopology(ServiceTopology):
         ],
         # children=["container"],
         children=["bucket"],
-        post_process=["mark_containers_as_deleted"]
+        # post_process=["mark_containers_as_deleted"]
     )
 
     bucket = TopologyNode(
