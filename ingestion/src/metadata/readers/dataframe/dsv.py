@@ -78,11 +78,11 @@ class DSVDataFrameReader(DataFrameReader):
         # columns = [Column(name=col) for col in chunk_list[0].columns]
         return DatalakeColumnWrapper(dataframes=chunk_list)
 
-    def read_from_pandas_with_raw(self, body) -> DatalakeColumnWrapper:
+    def read_from_pandas_with_raw(self, encoding, body) -> DatalakeColumnWrapper:
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
         chunk_list = []
-        with pd.read_csv(body, sep=self.separator, chunksize=CHUNKSIZE) as reader:
+        with pd.read_csv(body, sep=self.separator, chunksize=CHUNKSIZE, encoding=encoding) as reader:
             for chunks in reader:
                 chunk_list.append(chunks)
 
@@ -141,14 +141,16 @@ class DSVDataFrameReader(DataFrameReader):
         for encoding in PANDAS_ENCODINGS:
             try:
                 text_body = TextIOWrapper(io.BytesIO(data), encoding=encoding)
+                result = self.read_from_pandas_with_raw(encoding, text_body)
+                break
             except UnicodeDecodeError as err:
                 continue
             except Exception as err:
                 raise err
-
-        return self.read_from_pandas_with_raw(text_body)
         # res = self.client.head_object(Bucket=bucket_name, Key=key)
         # data.raw_data = res
+
+        return result
 
     @_read_dsv_dispatch.register
     def _(self, _: AzureConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:
