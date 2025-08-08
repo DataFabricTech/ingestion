@@ -51,7 +51,7 @@ class MetadataProcess:
 
     def get_storage_filter(self, collector_type, is_data_catalog_storage):
         if is_data_catalog_storage:
-            bucket_exclude_pattern = ["datacatalog", "meta-data-sample"] # data catalog 사용 bucket
+            bucket_exclude_pattern = ["datacatalog", "meta-data-sample", "dataextract"] # data catalog 사용 bucket
         else:
             bucket_exclude_pattern = []
 
