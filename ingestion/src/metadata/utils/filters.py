@@ -56,23 +56,35 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
 
     if filter_pattern.includes:
         validate_regex(filter_pattern.includes)
-        return not any(  # pylint: disable=use-a-generator
-            [
-                name
-                for regex in filter_pattern.includes
-                if (re.match(regex, name, re.IGNORECASE))
-            ]
-        )
+        # return not any(  # pylint: disable=use-a-generator
+        #     [
+        #         name
+        #         for regex in filter_pattern.includes
+        #         if (re.match(regex, name, re.IGNORECASE))
+        #     ]
+        # )
+        for regex in filter_pattern.includes:
+            if re.match(regex, name, re.IGNORECASE):
+                return False  # 정규식 매칭됨 → 매칭
+            if name.lower() == regex.lower():
+                return False  # 문자열 비교 매칭됨 → 매칭
+        return True  # 모두 실패 → 매칭 안됨
 
     if filter_pattern.excludes:
         validate_regex(filter_pattern.excludes)
-        return any(  # pylint: disable=use-a-generator
-            [
-                name
-                for regex in filter_pattern.excludes
-                if (re.match(regex, name, re.IGNORECASE))
-            ]
-        )
+        # return any(  # pylint: disable=use-a-generator
+        #     [
+        #         name
+        #         for regex in filter_pattern.excludes
+        #         if (re.match(regex, name, re.IGNORECASE))
+        #     ]
+        # )
+        for regex in filter_pattern.excludes:
+            if re.match(regex, name, re.IGNORECASE):
+                return True  # 정규식 매칭됨 → 매칭
+            if name.lower() == regex.lower():
+                return True  # 문자열 비교 매칭됨 → 매칭
+        return False  # 모두 실패 → 매칭 안됨
 
     return False
 
