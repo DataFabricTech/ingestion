@@ -98,9 +98,10 @@ class DatabaseServiceTopology(ServiceTopology):
                 type_=DatabaseService,
                 context="database_service",
                 processor="yield_create_request_database_service",
-                overwrite=False,
+                overwrite=True,
                 must_return=True,
                 cache_entities=True,
+                use_cache=True
             ),
         ],
         children=["database"],
