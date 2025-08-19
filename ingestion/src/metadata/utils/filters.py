@@ -20,6 +20,7 @@ from typing import List, Optional
 
 from metadata.generated.schema.type.filterPattern import FilterPattern
 
+import unicodedata
 
 class InvalidPatternException(Exception):
     """
@@ -68,6 +69,8 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
                 return False  # 정규식 매칭됨 → 매칭
             if name.lower() == regex.lower():
                 return False  # 문자열 비교 매칭됨 → 매칭
+            if unicodedata.normalize('NFC', name.lower()) == unicodedata.normalize('NFC', regex.lower()):
+                return False  # 완성형으로 정규화 후 비교
         return True  # 모두 실패 → 매칭 안됨
 
     if filter_pattern.excludes:
@@ -84,6 +87,8 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
                 return True  # 정규식 매칭됨 → 매칭
             if name.lower() == regex.lower():
                 return True  # 문자열 비교 매칭됨 → 매칭
+            if unicodedata.normalize('NFC', name.lower()) == unicodedata.normalize('NFC', regex.lower()):
+                return True # 완성형으로 정규화 후 비교
         return False  # 모두 실패 → 매칭 안됨
 
     return False
