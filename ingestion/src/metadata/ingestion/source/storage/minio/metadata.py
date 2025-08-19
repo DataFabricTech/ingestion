@@ -167,7 +167,7 @@ class MinioSource(StorageServiceSource):
         total_count = 0
         total_size = 0
         try:
-            for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url'):
+            for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url', FetchOwner=True):
                 total_count += 1
                 decoded_key = urllib.parse.unquote_plus(obj['Key'])
                 total_size += obj['Size']
@@ -177,6 +177,7 @@ class MinioSource(StorageServiceSource):
                     contentSize=obj['Size'],
                     structureFormat=file_format,
                     separator=separator,
+                    owner=obj['Owner']['DisplayName']
                 )
                 logger.debug(
                     f"key : {decoded_key}, format : {file_format}, size : {obj['Size']}")
@@ -525,7 +526,8 @@ class MinioSource(StorageServiceSource):
             sourceUrl=container_details.sourceUrl,
             fileFormats=container_details.file_formats,
             fullPath=container_details.fullPath,
-            systemType=self.config.systemType
+            systemType=self.config.systemType,
+            owner=container_details.owner
         )
         if container_details.rdfs:
             file_request.rdfs = container_details.rdfs
@@ -719,7 +721,8 @@ class MinioSource(StorageServiceSource):
                 bucket_name=bucket_name,
                 prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
             ),
-            extension=metadata_entry.structureFormat
+            extension=metadata_entry.structureFormat,
+            owner=metadata_entry.owner
         )
 
     def _generate_unsupported_container_details(

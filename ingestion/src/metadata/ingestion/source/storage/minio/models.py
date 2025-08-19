@@ -90,6 +90,9 @@ class MinioContainerDetails(BaseModel):
         description="What's the schema format for the container, eg. avro, parquet, csv.",
         title='Schema format',
     )
+    owner: Optional[str] = Field(
+        None, description='Owner of this entity'
+    )
 
 
 class StructuredDataDetails(BaseModel):
