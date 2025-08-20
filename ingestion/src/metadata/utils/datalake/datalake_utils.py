@@ -212,7 +212,7 @@ class GenericDataFrameColumnParser:
         cols = []
         if hasattr(data_frame, "columns"):
             df_columns = list(data_frame.columns)
-            for column in df_columns:
+            for idx, column in enumerate(df_columns, start=1):
                 # use String by default
                 data_type = DataType.STRING
                 try:
@@ -224,6 +224,7 @@ class GenericDataFrameColumnParser:
                         "dataType": data_type,
                         "name": truncate_column_name(column),
                         "displayName": column,
+                        "ordinalPosition": idx
                     }
                     if data_type == DataType.ARRAY:
                         parsed_string["arrayDataType"] = DataType.UNKNOWN
