@@ -22,6 +22,7 @@ class MetadataExecutor:
             print_status(workflow)
             workflow.update_ingestion_status(workflow_config.source.serviceName, commonSource.check_result_status(workflow.result_status()))
             workflow.check_ingestion_status(workflow_config.source.serviceName)
+            workflow.execute_profile(workflow_config.source.serviceName, workflow)
             #workflow.stop()
         except Exception as e:
             print(e)

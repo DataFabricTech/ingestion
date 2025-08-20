@@ -18,6 +18,8 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, Field
 
 from metadata.ingestion.api.models import StackTraceError
+from metadata.generated.schema.type import basic
+
 from metadata.utils.logger import get_log_name, ingestion_logger
 
 logger = ingestion_logger()
@@ -35,6 +37,7 @@ class Status(BaseModel):
     warnings: List[Any] = Field(default_factory=list)
     filtered: List[Dict[str, str]] = Field(default_factory=list)
     failures: List[StackTraceError] = Field(default_factory=list)
+    profiling_records: List[basic.FullyQualifiedEntityName] = Field(default_factory=list)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -47,8 +50,12 @@ class Status(BaseModel):
         We allow to not consider specific records that
         are not worth keeping record of.
         """
+        from metadata.generated.schema.entity.data.file import File
         if log_name := get_log_name(record):
             self.records.append(log_name)
+            if isinstance(record, File):
+                if record.needs_profiling:
+                    self.profiling_records.append(record.fullyQualifiedName)
 
     def warning(self, key: str, reason: str) -> None:
         self.warnings.append({key: reason})

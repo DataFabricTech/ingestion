@@ -31,7 +31,7 @@ from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityHistory import EntityVersionHistory
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus, ExecuteIngestion
 from metadata.ingestion.models.encoders import show_secrets_encoder
 from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
 from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
@@ -355,7 +355,29 @@ class OpenMetadata(
 
         logger.info(f"ingestion status update [{system_id}]")
 
+    def execute_profile(self, system_id, workflow: "BaseWorkflow"):
 
+        includes = []
+        for step in workflow.steps:
+            for profiling in step.get_status().profiling_records:
+                includes.append(f"object={profiling.__root__}")
+
+        if len(includes) > 0:
+            data = ExecuteIngestion(
+                system_id = system_id,
+                include = includes
+                )
+
+            try:
+                self.client.post(
+                    ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
+                )
+            except Exception as exc:
+                logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
+
+            logger.info(f"execute profile [{system_id}]")
+        else:
+            logger.info(f"execute profile pass [{system_id}]")
 
     def get_by_name(
         self,

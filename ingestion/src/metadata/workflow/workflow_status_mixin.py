@@ -160,3 +160,6 @@ class WorkflowStatusMixin:
 
     def update_ingestion_status(self, system_id, status, err_description=None):
         self.metadata.update_ingestion_status(system_id, status, err_description)
+
+    def execute_profile(self, system_id, workflow: "BaseWorkflow"):
+        self.metadata.execute_profile(system_id, workflow)

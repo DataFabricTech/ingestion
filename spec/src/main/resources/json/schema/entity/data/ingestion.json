@@ -66,6 +66,44 @@
         }
       },
       "required": ["system_id", "system_type", "host", "port", "login", "password", "database"]
+    },
+    "ProfileType" : {
+      "description": "정형 데이터 프로파일 타입",
+      "type" : "string",
+      "enum": [
+        "table",
+        "column"
+      ]
+    },
+    "ExecuteIngestion": {
+      "type": "object",
+      "description": "This schema defines the type for Execute Ingestion config.",
+      "properties": {
+        "system_id": {
+          "description": "system_id",
+          "type": "string"
+        },
+        "profile_type": {
+          "$ref": "#/definitions/ProfileType"
+        },
+        "include": {
+          "description": "수집 필터 (제외 항목), 예: ['database=aaa'] or ['database=aaa,bbb', 'schema=sss'], 필터 키: database, schema, table, bucket, object",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "exclude": {
+          "description": "수집 필터 (제외 항목), 예: ['database=aaa'] or ['database=aaa,bbb', 'schema=sss'], 필터 키: database, schema, table, bucket, object",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": ["system_id"]
     }
   },
   "properties": {
