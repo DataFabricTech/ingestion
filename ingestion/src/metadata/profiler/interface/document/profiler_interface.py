@@ -109,7 +109,8 @@ class DocumentProfilerInterface(ProfilerInterface):
             file_extension = path.split('.')[-1]
             if file_extension == "hwp" or file_extension == "hwpx":
                 return self.get_hwp_sample(local_file_path)
-            elif file_extension == "docx" or file_extension == "doc":
+            # elif file_extension == "docx" or file_extension == "doc":
+            elif file_extension == "docx":
                 return self.get_word_sample(local_file_path)
             else:
                 logger.warn("Unsupported file type")

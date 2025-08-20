@@ -133,7 +133,7 @@ class MetadataSourceForMinio(Source):
             FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
-            FileFormat.doc,
+            # FileFormat.doc,
             FileFormat.docx,
         ]
         for container in self.get_container_entities():
