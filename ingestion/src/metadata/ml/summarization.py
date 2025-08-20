@@ -3,6 +3,11 @@ import ssl
 from nltk.data import find
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+"""
+eenzeenee/t5-base-korean-summarization
+모델은 추상적 요약을 수행하는 딥러닝 기반 모델입니다.
+긴 텍스트를 입력받아 핵심 내용을 새로운 문장으로 생성합니다.
+"""
 model = AutoModelForSeq2SeqLM.from_pretrained('eenzeenee/t5-base-korean-summarization')
 tokenizer = AutoTokenizer.from_pretrained('eenzeenee/t5-base-korean-summarization')
 
