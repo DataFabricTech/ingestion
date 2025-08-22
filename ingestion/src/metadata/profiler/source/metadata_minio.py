@@ -129,8 +129,8 @@ class MetadataSourceForMinio(Source):
         supported_file_formats = [
             FileFormat.csv,
             FileFormat.tsv,
-            FileFormat.xls,
-            FileFormat.xlsx,
+            # FileFormat.xls,
+            # FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
             # FileFormat.doc,
