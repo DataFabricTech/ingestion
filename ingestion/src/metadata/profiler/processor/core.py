@@ -575,21 +575,34 @@ class Profiler(Generic[TMetric]):
             # There are columns that we might have skipped from
             # computing metrics, if the type is not supported.
             # Let's filter those out.
-            column_profile = [
-                ColumnProfile(
-                    **self.column_results.get(
-                        col.name
-                        if not isinstance(col.name, ColumnName)
-                        else col.name.__root__
-                    )
-                )
-                for col in self.columns
-                if self.column_results.get(
-                    col.name
-                    if not isinstance(col.name, ColumnName)
-                    else col.name.__root__
-                )
-            ]
+            # column_profile = [
+            #     ColumnProfile(
+            #         **self.column_results.get(
+            #             col.name
+            #             if not isinstance(col.name, ColumnName)
+            #             else col.name.__root__
+            #         )
+            #     )
+            #     for col in self.columns
+            #     if self.column_results.get(
+            #         col.name
+            #         if not isinstance(col.name, ColumnName)
+            #         else col.name.__root__
+            #     )
+            # ]
+
+            column_profile = []
+            for col in self.columns:
+                col_name = col.name if not isinstance(col.name, ColumnName) else col.name.__root__
+                result = self.column_results.get(col_name)
+
+                if result:
+                    try:
+                        profile = ColumnProfile(**result)
+                        column_profile.append(profile)
+                    except Exception as e:
+                        logger.error(f"convert column to ColumnProfile ERROR column name : {col_name}, error : {e}")
+
 
             table_profile = TableProfile(
                 timestamp=self.profile_date,
