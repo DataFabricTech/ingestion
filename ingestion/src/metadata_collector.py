@@ -54,6 +54,7 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     from services.storage.minio.source import MinioSource
     from services.database.mariadb.source import MariadbSource
     from services.database.druid.source import DruidSource
+    from services.database.trino.source import TrinoSource
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -102,6 +103,9 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     elif service_type == DatabaseServiceType.Druid:
         source = DruidSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
                                source_host=source_host, source_port=source_port, source_user=source_user, source_password=source_password, source_filter=source_filter)
+    elif service_type == DatabaseServiceType.Trino:
+        source = TrinoSource(system_id = system_id, service_type=service_type, sink_type=sink_type, sink_host=sink_host, sink_port=sink_port,
+                             source_host=source_host, source_port=source_port, source_user=source_user, source_database=source_database, source_filter=source_filter)
 
     return source
 
