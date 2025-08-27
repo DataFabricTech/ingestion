@@ -188,22 +188,27 @@ class HwpMetadataExtractor:
                                 char_count += len(text)
                                 word_count += len(text.split())
 
-                    # 도형 오브젝트 추출
-                    for shape in root.findall(f'.//{prefix}:shape', section_ns):
-                        object_count += 1
-                        if shape.find(f'.//{prefix}:picture', section_ns) is not None:
-                            image_count += 1
+                    # 이미지 개수
+                    image_count += len(root.findall(f'.//{prefix}:pic', section_ns))
 
-            metadata_dict["paragraph_count"] = para_count
-            metadata_dict["character_count"] = char_count
-            metadata_dict["word_count"] = word_count
-            metadata_dict["image_count"] = image_count
-            metadata_dict["object_count"] = object_count
+                    # 도형 개수
+                    object_count = len(root.findall(f'.//{prefix}:shape', section_ns))
+
+            if para_count > 0:
+                metadata_dict["paragraph_count"] = para_count
+            if char_count > 0:
+                metadata_dict["character_count"] = char_count
+            if word_count > 0:
+                metadata_dict["word_count"] = word_count
+            if image_count > 0:
+                metadata_dict["image_count"] = image_count
+            if object_count > 0:
+                metadata_dict["object_count"] = object_count
 
         sample_data = self.get_sample_data(-1)
         if sample_data is not None:
             str_summary = self.summarizer.summarize(sample_data)
-            metadata_dict["Summary"] = str_summary
+            metadata_dict["summary"] = str_summary
 
         return metadata_dict
 
