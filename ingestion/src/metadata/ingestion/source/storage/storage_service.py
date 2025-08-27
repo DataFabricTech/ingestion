@@ -69,6 +69,9 @@ from metadata.utils.storage_metadata_config import (
 )
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
+from metadata.utils.word.txt_extractor import TxtMetadataExtractor
+from metadata.utils.word.json_extractor import JsonMetadataExtractor
+from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 
 from utils.process_config import config
 
@@ -401,9 +404,25 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             return self._get_hwp_meta(local_file_path)
         elif file_extension == "docx" or file_extension == "doc":
             return self._get_word_meta(local_file_path)
+        elif file_extension == "txt":
+            return self._get_txt_meta(local_file_path)
+        elif file_extension == "json":
+            return self._get_json_meta(local_file_path)
+        elif file_extension == "xml":
+            return self._get_xml_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
             return None
+
+    def _get_common_rdfs(self, meta_items: dict) -> Optional[List[Rdf]]:
+        rdfs = []
+        for k, v in meta_items:
+            if v is None:
+                continue
+            if isinstance(v, str) and v == "":
+                continue
+            rdfs.append(Rdf(name=k, object=f'{v}'))
+        return rdfs
 
     def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
@@ -412,13 +431,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         try:
             extractor = HwpMetadataExtractor(local_file_path)
             metas = extractor.get_metadata()
-            rdfs = []
-            for k, v in metas.items():
-                if v is None:
-                    continue
-                if isinstance(v, str) and v == "":
-                    continue
-                rdfs.append(Rdf(name=k, object=f'{v}'))
+            rdfs = self._get_common_rdfs(metas.items())
             return rdfs
         finally:
             os.remove(local_file_path)
@@ -434,71 +447,111 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             for k, v in metas.items():
                 if isinstance(v, str) and v == "":
                     continue
-
                 if k == "Author":
-                    rdfs.append(Rdf(name="Author", object=v))
+                    rdfs.append(Rdf(name="author", object=v))
                 if k == "Category":
-                    rdfs.append(Rdf(name="Category", object=v))
+                    rdfs.append(Rdf(name="category", object=v))
                 if k == 'Comments':
-                    rdfs.append(Rdf(name="Comments", object=v))
+                    rdfs.append(Rdf(name="comments", object=v))
                 if k == 'Content Status':
-                    rdfs.append(Rdf(name="Content Status", object=v))
+                    rdfs.append(Rdf(name="content status", object=v))
                 if k == 'Created':
                     if isinstance(v, str):
-                        rdfs.append(Rdf(name="Created", object=v))
+                        rdfs.append(Rdf(name="created", object=v))
                     if isinstance(v, datetime):
                         # datetime 형식의 경우 str로 변환
-                        rdfs.append(Rdf(name="Created", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
+                        rdfs.append(Rdf(name="created", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
                 if k == 'Identifier':
-                    rdfs.append(Rdf(name="Identifier", object=v))
+                    rdfs.append(Rdf(name="identifier", object=v))
                 if k == 'Language':
-                    rdfs.append(Rdf(name="Language", object=v))
+                    rdfs.append(Rdf(name="language", object=v))
                 if k == 'Last Modified By':
-                    rdfs.append(Rdf(name="Last Modified By", object=v))
+                    rdfs.append(Rdf(name="last modified by", object=v))
                 if k == 'Modified':
                     if isinstance(v, str):
-                        rdfs.append(Rdf(name="Modified", object=v))
+                        rdfs.append(Rdf(name="modified", object=v))
                     if isinstance(v, datetime):
                         # datetime 형식의 경우 str로 변환
-                        rdfs.append(Rdf(name="Modified", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
+                        rdfs.append(Rdf(name="modified", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
                 if k == 'Revision':
-                    rdfs.append(Rdf(name="Revision", object=v))
+                    rdfs.append(Rdf(name="revision", object=v))
                 if k == 'Subject':
-                    rdfs.append(Rdf(name="Subject", object=v))
+                    rdfs.append(Rdf(name="subject", object=v))
                 if k == 'Title':
-                    rdfs.append(Rdf(name="Title", object=v))
+                    rdfs.append(Rdf(name="title", object=v))
                 if k == 'Version':
-                    rdfs.append(Rdf(name="Version", object=v))
+                    rdfs.append(Rdf(name="version", object=v))
                 if k == "cp:revision":
-                    rdfs.append(Rdf(name="Revision", object=v))
-                if k == "meta:word_count":
+                    rdfs.append(Rdf(name="revision", object=v))
+                if k == "meta:word-count":
                     rdfs.append(Rdf(name="word_count", object=v))
-                if k == "meta:character_count":
+                if k == "meta:character-count":
                     rdfs.append(Rdf(name="character_count", object=v))
                 if k == "extended-properties:Application":
                     if isinstance(v, str):
-                        rdfs.append(Rdf(name="Application", object=v))
+                        rdfs.append(Rdf(name="application", object=v))
                     if isinstance(v, list):
                         # v duplicate 삭제
                         values = " ".join(list(set(v)))
-                        rdfs.append(Rdf(name="Application", object=values))
+                        rdfs.append(Rdf(name="application", object=values))
                 if k == "dcterms:created":
-                    rdfs.append(Rdf(name="Created", object=v if isinstance(v, str) else v[0]))
+                    rdfs.append(Rdf(name="created", object=v if isinstance(v, str) else v[0]))
                 if k == "dcterms:modified":
-                    rdfs.append(Rdf(name="Modified", object=v if isinstance(v, str) else v[0]))
+                    rdfs.append(Rdf(name="modified", object=v if isinstance(v, str) else v[0]))
                 if k == "Content-Length":
-                    rdfs.append(Rdf(name="Content-Length", object=v))
+                    rdfs.append(Rdf(name="content-Length", object=v))
                 if k == "meta:last-author":
-                    rdfs.append(Rdf(name="Last-author", object=v if isinstance(v, str) else v[0]))
+                    rdfs.append(Rdf(name="last-author", object=v if isinstance(v, str) else v[0]))
                 if k == "xmpTPg:NPages":
-                    rdfs.append(Rdf(name="Page_count", object=v))
+                    rdfs.append(Rdf(name="page_count", object=v))
                 if k == "dc:language":
-                    rdfs.append(Rdf(name="Language", object=v if isinstance(v, str) else v[0]))
+                    rdfs.append(Rdf(name="language", object=v if isinstance(v, str) else v[0]))
                 if k == "Summary":
-                    rdfs.append(Rdf(name="Summary", object=v if isinstance(v, str) else v[0]))
+                    rdfs.append(Rdf(name="summary", object=v if isinstance(v, str) else v[0]))
+                if k == "meta:line-count":
+                    rdfs.append(Rdf(name="line_count", object=v))
+                if k == "meta:paragraph-count":
+                    rdfs.append(Rdf(name="paragraph_count", object=v))
+                if k == "tiff:ImageLength":
+                    rdfs.append(Rdf(name="image_count", object=len(v)))
                 # if v is not None:
                 #     rdfs.append(Rdf(name=k, object=v))
             return rdfs_delete_duplicated(rdfs)
         finally:
             os.remove(local_file_path)
 
+    def _get_txt_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from txt file
+        """
+        try:
+            extractor = TxtMetadataExtractor(local_file_path)
+            metas = extractor.get_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_json_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from json file
+        """
+        try:
+            extractor = JsonMetadataExtractor(local_file_path)
+            metas = extractor.get_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_xml_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from json file
+        """
+        try:
+            extractor = XmlMetadataExtractor(local_file_path)
+            metas = extractor.get_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)

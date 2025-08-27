@@ -32,7 +32,7 @@ def get_config(system_id, filter_include_dict, filter_exclude_dict):
     # system_info['filter_config'] : 25.07.21 사용안함
     source_filter = metadata_process.get_source_filter('ingestion', host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict)
 
-    if password is not None:
+    if password is not None and len(password) > 0:
         password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
 
     return system_id, system_type, host, port, user, password, database, source_filter

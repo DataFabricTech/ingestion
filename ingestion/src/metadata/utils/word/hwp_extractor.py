@@ -1,4 +1,5 @@
 from hwp5 import filestructure as FS
+from hwp5.filestructure import Hwp5File
 from hwp5.storage.ole import OleStorage
 import xml.etree.ElementTree as ET
 import zipfile
@@ -8,6 +9,7 @@ import struct
 #### 추가 ####
 import re
 import unicodedata
+from transformers.models.mimi.convert_mimi_checkpoint_to_pytorch import param_count
 
 from metadata.ml.summarization import Summarization
 
@@ -43,6 +45,33 @@ class HwpMetadataExtractor:
             return self.extract_metadata()
         return self.extract_hwpx_metadata()
 
+    def get_hwp_word_count(self, bodytext : Hwp5File):
+        character_count = 0
+        word_count = 0
+
+        try:
+            sections = getattr(bodytext, "section_list", [])
+        except Exception as e:
+            print(f"[오류] bodytext 접근 실패: {e}")
+            return 0, 0
+
+        for section in sections:
+            paragraphs = getattr(section, "paragraph_list", [])
+            for paragraph in paragraphs:
+                # 텍스트가 없는 경우 스킵
+                if not hasattr(paragraph, "text") or paragraph.text is None:
+                    continue
+
+                line_segments = getattr(paragraph.text, "line_segment_list", [])
+                for line_seg in line_segments:
+                    text = getattr(line_seg, "text", "")
+                    if not isinstance(text, str):
+                        continue  # 텍스트가 문자열이 아니면 무시
+                    character_count += len(text)
+                    word_count += len(text.split())
+
+        return character_count, word_count
+
     def extract_metadata(self) -> dict:
         olestg = OleStorage(self.file_path)
         hwp5file = FS.Hwp5File(olestg)
@@ -69,17 +98,29 @@ class HwpMetadataExtractor:
             metadata["last_save_dtm"] = summary.lastSavedTime
         if summary.lastPrintedTime is not None:
             metadata["last_printed"] = summary.lastPrintedTime
+        if summary.numberOfPages is not None:
+            metadata["page_count"] = summary.numberOfPages
+        if summary.numberOfParagraphs is not None:
+            metadata["paragraph_count"] = summary.numberOfParagraphs
+        if summary.plaintext_lines is not None:
+            metadata["line_count"] = getattr(summary, "plaintext_lines", "N/A")
+
+        character_count, word_count = self.get_hwp_word_count(hwp5file.bodytext)
+        metadata["character_count"] = character_count
+        metadata["word_count"] = word_count
 
         sample_data = self.get_sample_data(-1)
         if sample_data is not None:
             str_summary = self.summarizer.summarize(sample_data)
-            metadata["Summary"] = str_summary
+            metadata["summary"] = str_summary
 
         return metadata
+
 
     def extract_hwpx_metadata(self):
         # HWPX 파일을 ZIP 형식으로 열기
         metadata_dict = {}
+        section_files = []
         with zipfile.ZipFile(self.file_path, 'r') as zip_ref:
             # 메타데이터가 포함된 XML 파일 읽기 (보통 meta.xml 파일)
             for file in zip_ref.filelist:
@@ -88,11 +129,11 @@ class HwpMetadataExtractor:
                         tree = ET.parse(content_file)
                         root = tree.getroot()
                         # XML 네임스페이스 정의
-                        ns = {
+                        metadata_ns = {
                             'opf': 'http://www.idpf.org/2007/opf/',
                             'dc': 'http://purl.org/dc/elements/1.1/'
                         }
-                        metadata = root.find('opf:metadata', ns)
+                        metadata = root.find('opf:metadata', metadata_ns)
                         if metadata is not None:
                             # 메타데이터 내부의 모든 항목을 순회
                             for meta in metadata:
@@ -111,6 +152,53 @@ class HwpMetadataExtractor:
                                     metadata_dict[tag] = meta.text
                         else:
                             print("Metadata not found.")
+                elif file.filename.startswith("Contents/section") and file.filename.endswith(".xml"):
+                    section_files.append(file.filename)
+
+            para_count = 0
+            char_count = 0
+            word_count = 0
+            image_count = 0
+            object_count = 0
+            section_ns = {'hp': 'http://www.hancom.co.kr/hwpml/2011/paragraph',
+                          'hp10': 'http://www.hancom.co.kr/hwpml/2016/paragraph'}
+
+            for section in section_files:
+                with zip_ref.open(section) as file:
+                    tree = ET.parse(file)
+                    root = tree.getroot()
+
+                # 문단 추출 (두 네임스페이스 모두 시도)
+                for prefix in section_ns:
+                    paras =  root.findall(f'.//{prefix}:para', section_ns)
+                    if paras:
+                        for para in paras:
+                            para_count += 1
+                            for run in para.findall(f'.//{prefix}:run', section_ns):
+                                text_elem = run.find(f'{prefix}:t', section_ns)
+                                if text_elem is not None and text_elem.text:
+                                    text = text_elem.text
+                                    char_count += len(text)
+                                    word_count += len(text.split())
+                    else:
+                        for run in root.findall(f'.//{prefix}:run', section_ns):
+                            text_elem = run.find(f'{prefix}:t', section_ns)
+                            if text_elem is not None and text_elem.text:
+                                text = text_elem.text
+                                char_count += len(text)
+                                word_count += len(text.split())
+
+                    # 도형 오브젝트 추출
+                    for shape in root.findall(f'.//{prefix}:shape', section_ns):
+                        object_count += 1
+                        if shape.find(f'.//{prefix}:picture', section_ns) is not None:
+                            image_count += 1
+
+            metadata_dict["paragraph_count"] = para_count
+            metadata_dict["character_count"] = char_count
+            metadata_dict["word_count"] = word_count
+            metadata_dict["image_count"] = image_count
+            metadata_dict["object_count"] = object_count
 
         sample_data = self.get_sample_data(-1)
         if sample_data is not None:
