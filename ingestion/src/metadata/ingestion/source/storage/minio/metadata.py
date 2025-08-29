@@ -390,7 +390,8 @@ class MinioSource(StorageServiceSource):
                         logger.warn(f"Failed To Generated Structured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate structured container metadata: {file_name}")
                 elif metadata_entry.structureFormat in [FileFormat.doc.value, FileFormat.docx.value,
-                                                        FileFormat.hwp.value, FileFormat.hwpx.value]:
+                                                        FileFormat.hwp.value, FileFormat.hwpx.value,
+                                                        FileFormat.txt.value, FileFormat.xml.value]:
                     logger.info(f"Unstructured Data Metadata Ingestion From : {file_name}")
                     unstructured_container: Optional[MinioContainerDetails] = (
                         self._generate_unstructured_container_details(
@@ -404,6 +405,20 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Unstructured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate unstructured container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.jpg.value]:
+                    logger.info(f"Image Data Metadata Ingestion From : {file_name}")
+                    image_container: Optional[MinioContainerDetails] = (
+                        self._generate_image_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if image_container:
+                        yield image_container
+                    else:
+                        logger.warn(f"Failed To Generated Image Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate image container metadata: {file_name}")
                 else:
                     logger.info(f"Unsupported format {metadata_entry.structureFormat}")
                     # self.status.filter(abs_file_name, f"Unsupported format {metadata_entry.structureFormat}")
@@ -770,6 +785,45 @@ class MinioSource(StorageServiceSource):
             bucket_name=bucket_name,
             path=metadata_entry.dataPath.strip(KEY_SEPARATOR),
             metadata_entry=metadata_entry,
+            client=self.minio_client,
+        )
+
+        prefix = (
+            f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+        )
+        return MinioContainerDetails(
+            name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
+            prefix=prefix,
+            creation_date=self._fetch_metric(bucket_name=bucket_name,
+                                             key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
+            number_of_objects=self._fetch_metric(
+                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
+            ),
+            size=self._fetch_metric(
+                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
+            ),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            ),
+            extension=metadata_entry.structureFormat
+        )
+
+    def _generate_image_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        rdfs = self._get_image_meta(
+            bucket_name=bucket_name,
+            path=metadata_entry.dataPath.strip(KEY_SEPARATOR),
             client=self.minio_client,
         )
 

@@ -25,7 +25,13 @@ class XmlMetadataExtractor:
         tag_counter = {root.tag: 1}
         self.count_elements(root, tag_counter)
 
-        text_node_count = sum(1 for elem in root.iter() if (elem.text or '').strip())
+        text_node_count = 0
+        word_count = 0
+        for elem in root.iter():
+            text = (elem.text or '').strip()
+            if text:
+                text_node_count += 1
+                word_count += len(text.split())
 
         metadata = {
             "character_count": len(raw_text),
@@ -33,8 +39,12 @@ class XmlMetadataExtractor:
             "tag_count": sum(tag_counter.values()),
             "tag_distinct_count": len(tag_counter),
             "root_tag": root.tag,
-            "text_node_count": text_node_count
         }
+        if text_node_count > 0:
+            metadata["text_node_count"] = text_node_count
+        if word_count > 0:
+            metadata["word_count"] = word_count
+
 
         sample_data = self.get_sample_data(-1)
         if sample_data is not None:

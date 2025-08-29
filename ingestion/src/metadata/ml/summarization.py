@@ -29,9 +29,12 @@ class Summarization:
         inputs = tokenizer(inputs, max_length=512, truncation=True, return_tensors="pt")
         output = model.generate(**inputs, num_beams=3, do_sample=True, min_length=10, max_length=100)
         decoded_output = tokenizer.batch_decode(output, skip_special_tokens=True)[0]
-        result = nltk.sent_tokenize(decoded_output.strip())[0]
 
-        return result
+        result = nltk.sent_tokenize(decoded_output.strip())
+        if result:
+            return result[0]
+        else:
+            return ""
 
 def pkg_download(pkg_name):
     try:

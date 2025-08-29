@@ -160,6 +160,7 @@ class HwpMetadataExtractor:
             word_count = 0
             image_count = 0
             object_count = 0
+            line_count = 0
             section_ns = {'hp': 'http://www.hancom.co.kr/hwpml/2011/paragraph',
                           'hp10': 'http://www.hancom.co.kr/hwpml/2016/paragraph'}
 
@@ -194,6 +195,9 @@ class HwpMetadataExtractor:
                     # 도형 개수
                     object_count = len(root.findall(f'.//{prefix}:shape', section_ns))
 
+                    #라인 수 추출
+                    line_count += len(root.findall(f'.//{prefix}:lineseg', section_ns))
+
             if para_count > 0:
                 metadata_dict["paragraph_count"] = para_count
             if char_count > 0:
@@ -204,6 +208,8 @@ class HwpMetadataExtractor:
                 metadata_dict["image_count"] = image_count
             if object_count > 0:
                 metadata_dict["object_count"] = object_count
+            if line_count > 0:
+                metadata_dict["line_count"] = line_count
 
         sample_data = self.get_sample_data(-1)
         if sample_data is not None:
