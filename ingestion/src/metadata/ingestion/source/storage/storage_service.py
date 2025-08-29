@@ -73,6 +73,8 @@ from metadata.utils.word.txt_extractor import TxtMetadataExtractor
 from metadata.utils.word.json_extractor import JsonMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 
+from metadata.utils.image.jpg_extractor import JpgMetadataExtractor
+
 from utils.process_config import config
 
 logger = ingestion_logger()
@@ -371,7 +373,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     def _get_document_data(self, bucket_name: str, key: str, client: Any) -> Optional[str]:
         """
-        Read the word document from the bucket
+        Read the document from the bucket
         """
         local_dir_path = config.document_tmp_dir
 
@@ -400,9 +402,9 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         file_extension = path.split('.')[-1]
 
-        if file_extension == "hwp" or file_extension == "hwpx":
+        if file_extension in ["hwp", "hwpx"]:
             return self._get_hwp_meta(local_file_path)
-        elif file_extension == "docx" or file_extension == "doc":
+        elif file_extension in ["docx", "doc"]:
             return self._get_word_meta(local_file_path)
         elif file_extension == "txt":
             return self._get_txt_meta(local_file_path)
@@ -410,6 +412,23 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             return self._get_json_meta(local_file_path)
         elif file_extension == "xml":
             return self._get_xml_meta(local_file_path)
+        else:
+            logger.warn("Unsupported file type")
+            return None
+
+    def _get_image_meta(self, bucket_name: str, path: str,
+                           client: Any) -> Optional[List[Rdf]]:
+        """
+        Read the image from the bucket
+        """
+        local_file_path = self._get_document_data(bucket_name, path, client)
+        if local_file_path is None:
+            return None
+
+        file_extension = path.split('.')[-1]
+
+        if file_extension in ["jpg", "jpeg", "png"]:
+            return self._get_jpg_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
             return None
@@ -526,7 +545,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         try:
             extractor = TxtMetadataExtractor(local_file_path)
-            metas = extractor.get_metadata()
+            metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
             return rdfs
         finally:
@@ -538,8 +557,9 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         try:
             extractor = JsonMetadataExtractor(local_file_path)
-            metas = extractor.get_metadata()
+            metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
+            print(rdfs)
             return rdfs
         finally:
             os.remove(local_file_path)
@@ -550,7 +570,19 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         try:
             extractor = XmlMetadataExtractor(local_file_path)
-            metas = extractor.get_metadata()
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_jpg_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from jpg file
+        """
+        try:
+            extractor = JpgMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
             return rdfs
         finally:

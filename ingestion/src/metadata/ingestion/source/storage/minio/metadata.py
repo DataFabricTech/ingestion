@@ -405,7 +405,8 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Unstructured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate unstructured container metadata: {file_name}")
-                elif metadata_entry.structureFormat in [FileFormat.jpg.value]:
+                elif metadata_entry.structureFormat in [FileFormat.jpg.value, FileFormat.png.value,
+                                                        FileFormat.jpeg.value]:
                     logger.info(f"Image Data Metadata Ingestion From : {file_name}")
                     image_container: Optional[MinioContainerDetails] = (
                         self._generate_image_container_details(

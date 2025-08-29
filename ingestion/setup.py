@@ -152,6 +152,7 @@ base_requirements = {
     "packaging",
     "botocore==1.32.4",
     "datamodel-code-generator==0.22.0"
+    "pillow==10.4.0"
 }
 
 
