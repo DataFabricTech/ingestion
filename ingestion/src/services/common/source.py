@@ -32,10 +32,14 @@ class CommonSource(ABC):
                  source_database=None,
                  source_filter=None,
                  system_id=None,
-                 processor_type=None):
+                 processor_type=None,
+                 source_catalog=None):
 
         if system_id is None:
             raise ValueError("system_id 는 필수 값 입니다.")
+
+        if service_type == DatabaseServiceType.Trino and source_catalog is None:
+            raise ValueError("trino collector에는 source_catalog 는 필수 값 입니다.")
 
         self.service_type = service_type
         self.sink_type = sink_type
@@ -49,6 +53,8 @@ class CommonSource(ABC):
         self.source_filter = source_filter
         self.system_id = system_id
         self.processor_type = processor_type
+        self.source_catalog = source_catalog
+
 
     def getMetadataWorkflowConfig(self) -> OpenMetadataWorkflowConfig:
         service_type_str = self.service_type if type(self.service_type) == str else self.service_type.value

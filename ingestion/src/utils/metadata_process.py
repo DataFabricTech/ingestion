@@ -1,5 +1,6 @@
 from utils.process_config import config
 from utils.request_manager import RequestManager
+from utils.security_manager import SecurityManager
 
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
@@ -176,3 +177,24 @@ class MetadataProcess:
             raise Exception(f"filter config invalid. {service_type}, {host}")
 
         return source_filter
+
+    def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict):
+
+        system_info = self.get_meta_system_info(system_id)
+        system_id = system_info['system_id']
+        host = system_info['host'] if 'host' in system_info else None
+        port = system_info['port'] if 'port' in system_info else None
+        system_type = system_info['system_type'] if 'system_type' in system_info else None
+        database = system_info['database'] if 'database' in system_info else None
+        schema = system_info['schema'] if 'schema' in system_info else None
+        user = system_info['login'] if 'login' in system_info else None
+        password = system_info['password'] if 'password' in system_info else None
+        catalog = system_info['catalog'] if 'catalog' in system_info else None
+
+        # system_info['filter_config'] : 25.07.21 사용안함
+        source_filter = self.get_source_filter(collector_type, host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict)
+
+        if password is not None and len(password) > 0:
+            password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
+
+        return system_id, system_type, host, port, user, password, database, catalog, source_filter

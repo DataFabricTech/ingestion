@@ -1,12 +1,8 @@
 from typing import Union
 
-from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
-from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
-from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
 
 from metadata.utils.logger import ingestion_logger
-from utils.security_manager import SecurityManager
 from utils.process_config import config
 from utils.metadata_process import MetadataProcess
 
@@ -14,17 +10,6 @@ metadata_process = MetadataProcess()
 
 logger = ingestion_logger()
 logger.setLevel("INFO")
-
-def get_config(system_id, filter_include_dict, filter_exclude_dict):
-
-    system_info = metadata_process.get_meta_system_info(system_id)
-
-    # system_info['filter_config'] : 25.07.21 사용안함
-    source_filter = metadata_process.get_source_filter("profile", system_info['host'], system_info['port'], system_info['system_type'], None, None, None, filter_include_dict, filter_exclude_dict)
-    password = SecurityManager.decodeWithcryptkey(config.crypt_key, system_info['password'])
-
-    return system_info['system_id'], system_info['system_type'], system_info['host'], system_info['port'], system_info['login'], password, system_info['database'], source_filter
-
 
 def get_source(system_id, service_type: Union[StorageServiceType],
                sink_type, sink_host, sink_port,
@@ -48,7 +33,7 @@ def get_source(system_id, service_type: Union[StorageServiceType],
 
 def metadata_profiler_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None):
 
-    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_filter = get_config(system_id, filter_include_dict, filter_exclude_dict)
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter = metadata_process.get_config("profile", system_id, filter_include_dict, filter_exclude_dict)
 
     if (source_host is None) or (source_port is None) or (source_user is None):
         raise Exception('source config invalid.')

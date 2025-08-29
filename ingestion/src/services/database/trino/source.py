@@ -20,6 +20,6 @@ class TrinoSource(DatabaseSource):
             "username": self.source_user,
             "authType": {"password": self.source_password},
             "hostPort": f"{self.source_host}:{self.source_port}",
-            "catalog": self.source_database,
+            "catalog": self.source_catalog,
         }))
         return serviceConnection
