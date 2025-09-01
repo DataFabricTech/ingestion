@@ -164,23 +164,26 @@ class MinioSource(StorageServiceSource):
         )
 
     def _set_bucket_obj_info(self, bucket_name: str):
+        import unicodedata
         total_count = 0
         total_size = 0
         try:
             for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url', FetchOwner=True):
                 total_count += 1
                 decoded_key = urllib.parse.unquote_plus(obj['Key'])
+                normalize_key = unicodedata.normalize('NFC', decoded_key)
+
                 total_size += obj['Size']
-                file_format, separator = get_file_format(decoded_key)
-                self._metadata_cache[decoded_key] = MetadataEntry(
-                    dataPath=f"{decoded_key}",
+                file_format, separator = get_file_format(normalize_key)
+                self._metadata_cache[normalize_key] = MetadataEntry(
+                    dataPath=f"{normalize_key}",
                     contentSize=obj['Size'],
                     structureFormat=file_format,
                     separator=separator,
                     owner=obj['Owner']['DisplayName']
                 )
                 logger.debug(
-                    f"key : {decoded_key}, format : {file_format}, size : {obj['Size']}")
+                    f"key : {normalize_key}, format : {file_format}, size : {obj['Size']}")
         except Exception as exc:
             logger.debug(traceback.format_exc())
             logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
