@@ -72,6 +72,12 @@ class HwpMetadataExtractor:
 
         return character_count, word_count
 
+    def get_plaintext_lines(self, summary):
+        from hwp5.msoleprops import PropertySetStreamTextFormatter
+        stream = summary.getPropertySetStream
+        formatter = PropertySetStreamTextFormatter()
+        return list(formatter.formatTextLines(stream))
+
     def extract_metadata(self) -> dict:
         olestg = OleStorage(self.file_path)
         hwp5file = FS.Hwp5File(olestg)
@@ -102,8 +108,10 @@ class HwpMetadataExtractor:
             metadata["page_count"] = summary.numberOfPages
         if summary.numberOfParagraphs is not None:
             metadata["paragraph_count"] = summary.numberOfParagraphs
-        if summary.plaintext_lines is not None:
-            metadata["line_count"] = getattr(summary, "plaintext_lines", "N/A")
+
+        plaintext_lines = self.get_plaintext_lines(summary)
+        if plaintext_lines is not None:
+            metadata["line_count"] = len(plaintext_lines)
 
         character_count, word_count = self.get_hwp_word_count(hwp5file.bodytext)
         metadata["character_count"] = character_count

@@ -18,8 +18,9 @@ class JpgMetadataExtractor:
             if img_info:
                 info_data = {}
                 for k, v in img_info.items():
+                    if k == 'exif':
+                        continue
                     info_data[k] = v
-
                 if len(info_data):
                     metadata["info"] = info_data
 

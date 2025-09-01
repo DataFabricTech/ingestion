@@ -107,7 +107,7 @@ def _get_columns(
 
     res = connection.execute(sql.text(query), schema=schema, table=table_name)
     columns = []
-    for record in res:
+    for index, record in enumerate(res):
         col_type = datatype.parse_sqltype(record.Type)
         column = {
             "name": record.Column,
@@ -115,6 +115,7 @@ def _get_columns(
             "nullable": True,
             "comment": record.Comment,
             "system_data_type": record.Type,
+            "ordinalPosition": index # 컬럼 순서는 메타에 없기 때문에 수집 순서로 정한다.
         }
         type_str = record.Type.strip().lower()
         type_name, type_opts = get_type_name_and_opts(type_str)

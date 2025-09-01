@@ -74,6 +74,7 @@ from metadata.utils.word.json_extractor import JsonMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 
 from metadata.utils.image.jpg_extractor import JpgMetadataExtractor
+from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
 
 from utils.process_config import config
 
@@ -429,6 +430,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         if file_extension in ["jpg", "jpeg", "png"]:
             return self._get_jpg_meta(local_file_path)
+        elif file_extension == "pdf":
+            return self._get_pdf_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
             return None
@@ -582,6 +585,18 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         try:
             extractor = JpgMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_pdf_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from pdf file
+        """
+        try:
+            extractor = PdfMetadataExtractor(local_file_path)
             metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
             return rdfs

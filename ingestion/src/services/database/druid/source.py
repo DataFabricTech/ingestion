@@ -13,7 +13,6 @@ class DruidSource(DatabaseSource):
         from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
         from metadata.generated.schema.entity.services.connections.database.druidConnection import \
             DruidConnection
-        print(self.source_password)
         serviceConnection = DatabaseConnection(config=DruidConnection(**{
             "type": "Druid",
             "scheme": "druid",

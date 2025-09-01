@@ -151,8 +151,9 @@ base_requirements = {
     "transformers==4.46.3",
     "packaging",
     "botocore==1.32.4",
-    "datamodel-code-generator==0.22.0"
-    "pillow==10.4.0"
+    "datamodel-code-generator==0.22.0",
+    "pillow==10.4.0",
+    "pypdf==5.9.0"
 }
 
 
