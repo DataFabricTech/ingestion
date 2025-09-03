@@ -61,7 +61,7 @@ from metadata.readers.dataframe.dsv import (
 from metadata.utils import fqn
 from metadata.utils.filters import filter_by_container, filter_by_bucket
 from metadata.utils.logger import ingestion_logger
-from metadata.utils.s3_utils import list_s3_objects
+from metadata.utils.s3_utils import list_s3_objects, get_normalized_key
 
 logger = ingestion_logger()
 
@@ -707,7 +707,7 @@ class MinioSource(StorageServiceSource):
     ) -> Optional[MinioContainerDetails]:
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
-        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
         columns = self._get_columns(
             bucket_name=bucket_name,
@@ -754,7 +754,7 @@ class MinioSource(StorageServiceSource):
     ) -> Optional[MinioContainerDetails]:
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
-        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
         prefix = (
             f"{KEY_SEPARATOR}{data_path}"
@@ -788,7 +788,7 @@ class MinioSource(StorageServiceSource):
     ) -> Optional[MinioContainerDetails]:
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
-        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
         rdfs = self._get_document_meta(
             bucket_name=bucket_name,
@@ -829,7 +829,7 @@ class MinioSource(StorageServiceSource):
     ) -> Optional[MinioContainerDetails]:
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
-        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
         rdfs = self._get_image_meta(
             bucket_name=bucket_name,
@@ -882,29 +882,3 @@ class MinioSource(StorageServiceSource):
                 f"Failed fetching metric for bucket {bucket_name}, key {key}, returning 0 - {err}"
             )
         return metric
-
-
-    def _get_normalized_key(self, bucket_name, key):
-
-        for form in ['NFC', 'NFD']:
-            normalized_key = unicodedata.normalize(form, key)
-
-            response = self.minio_client.list_objects_v2(
-                Bucket=bucket_name,
-                Prefix=normalized_key,
-                MaxKeys=1
-            )
-
-            found = (
-                    'Contents' in response and
-                    any(obj['Key'] == normalized_key for obj in response['Contents'])
-            )
-
-            if found:
-                logger.debug(f"{form} : Found: {normalized_key}")
-                break
-            else:
-                logger.debug(f"{form} : Not found: {normalized_key}")
-                normalized_key = key
-
-        return normalized_key

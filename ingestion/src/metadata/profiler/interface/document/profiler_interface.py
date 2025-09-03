@@ -24,6 +24,7 @@ from metadata.utils.local_dir import ensure_directory_exists
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
+from metadata.utils.s3_utils import get_normalized_key
 
 from utils.process_config import config
 
@@ -102,11 +103,13 @@ class DocumentProfilerInterface(ProfilerInterface):
         local_file_path = ""
         try:
             bucket_name = self.table_entity.fullPath.replace("s3://", "").split("/")[0]
-            path = str(self.table_entity.prefix).strip('/')
-            local_file_path = self._get_document_data(bucket_name, path)
+            data_path = str(self.table_entity.prefix).strip('/')
+            normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
+
+            local_file_path = self._get_document_data(bucket_name, normalized_key)
             if local_file_path is None:
                 return None
-            file_extension = path.split('.')[-1]
+            file_extension = data_path.split('.')[-1]
             if file_extension == "hwp" or file_extension == "hwpx":
                 return self.get_hwp_sample(local_file_path)
             # elif file_extension == "docx" or file_extension == "doc":

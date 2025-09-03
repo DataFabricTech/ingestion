@@ -14,6 +14,7 @@ s3 utils module
 """
 
 import traceback
+import unicodedata
 from typing import Iterable
 
 from metadata.utils.logger import utils_logger
@@ -32,3 +33,29 @@ def list_s3_objects(client, **kwargs) -> Iterable:
     except Exception as exc:
         logger.debug(traceback.format_exc())
         logger.warning(f"Unexpected exception to yield s3 object: {exc}")
+
+
+def get_normalized_key(client, bucket_name, key):
+
+    for form in ['NFC', 'NFD']:
+        normalized_key = unicodedata.normalize(form, key)
+
+        response = client.list_objects_v2(
+            Bucket=bucket_name,
+            Prefix=normalized_key,
+            MaxKeys=1
+        )
+
+        found = (
+                'Contents' in response and
+                any(obj['Key'] == normalized_key for obj in response['Contents'])
+        )
+
+        if found:
+            logger.debug(f"{form} : Found: {normalized_key}")
+            break
+        else:
+            logger.debug(f"{form} : Not found: {normalized_key}")
+            normalized_key = key
+
+    return normalized_key
