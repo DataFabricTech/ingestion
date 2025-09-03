@@ -130,7 +130,7 @@ class MetadataSourceForMinio(Source):
             FileFormat.csv,
             FileFormat.tsv,
             # FileFormat.xls,
-            # FileFormat.xlsx,
+            FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
             # FileFormat.doc,

@@ -28,6 +28,7 @@ from metadata.generated.schema.entity.data.table import (
 from metadata.readers.dataframe.models import DatalakeTableSchemaWrapper
 from metadata.utils.datalake.datalake_utils import fetch_dataframe
 from metadata.utils.logger import test_suite_logger
+from metadata.utils.s3_utils import get_normalized_key
 
 logger = test_suite_logger()
 
@@ -88,12 +89,18 @@ class PandasInterfaceMixin:
         returns sampled ometa dataframes
         """
         if hasattr(service_connection_config, "minioConfig"):
+
+
             bucket_name = table.fullPath.replace("s3://", "").split("/")[0]
+
+            data_path = str(table.prefix).strip('/')
+            normalized_key = get_normalized_key(client=client, bucket_name=bucket_name, key=data_path)
+
             data = fetch_dataframe(
                 config_source=service_connection_config.minioConfig,
                 client=client,
                 file_fqn=DatalakeTableSchemaWrapper(
-                    key=str(table.prefix).strip('/'),
+                    key=normalized_key,
                     bucket_name=bucket_name,
                     file_extension=table.fileFormats[0],
                 ),
