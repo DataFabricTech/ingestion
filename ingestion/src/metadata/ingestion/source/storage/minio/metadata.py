@@ -12,6 +12,7 @@
 import os
 import traceback
 import urllib.parse
+import unicodedata
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -164,7 +165,7 @@ class MinioSource(StorageServiceSource):
         )
 
     def _set_bucket_obj_info(self, bucket_name: str):
-        import unicodedata
+
         total_count = 0
         total_size = 0
         try:
@@ -705,9 +706,12 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+
         columns = self._get_columns(
             bucket_name=bucket_name,
-            sample_key=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            sample_key=normalized_key,
             metadata_entry=metadata_entry,
             config_source=self.config.serviceConnection.__root__.config.minioConfig,
             client=self.minio_client,
@@ -719,26 +723,24 @@ class MinioSource(StorageServiceSource):
             data_model = None
 
         prefix = (
-            f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+            f"{KEY_SEPARATOR}{data_path}"
         )
+
+        metric = self._fetch_metric(bucket_name=bucket_name, key=normalized_key)
+
         return MinioContainerDetails(
-            name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
+            name=Path(data_path).name,
             prefix=prefix,
-            creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                             key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-            number_of_objects=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-            ),
-            size=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-            ),
+            creation_date=metric[Metric.LAST_MODIFIED] if Metric.LAST_MODIFIED in metric else None,
+            number_of_objects=metric[Metric.NUMBER_OF_OBJECTS] if Metric.NUMBER_OF_OBJECTS in metric else 0,
+            size=metric[Metric.BUCKET_SIZE_BYTES] if Metric.BUCKET_SIZE_BYTES in metric else 0,
             file_formats=[FileFormat(metadata_entry.structureFormat)],
             data_model=data_model,
             parent=parent,
             fullPath=self._get_full_path(bucket_name, prefix),
             sourceUrl=self._get_object_source_url(
                 bucket_name=bucket_name,
-                prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+                prefix=data_path,
             ),
             extension=metadata_entry.structureFormat,
             owner=metadata_entry.owner
@@ -751,21 +753,21 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+
         prefix = (
-            f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+            f"{KEY_SEPARATOR}{data_path}"
         )
 
+        metric = self._fetch_metric(bucket_name=bucket_name, key=normalized_key)
+
         return MinioContainerDetails(
-            name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
+            name=Path(data_path).name,
             prefix=prefix,
-            creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                             key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-            number_of_objects=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-            ),
-            size=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-            ),
+            creation_date=metric[Metric.LAST_MODIFIED] if Metric.LAST_MODIFIED in metric else None,
+            number_of_objects=metric[Metric.NUMBER_OF_OBJECTS] if Metric.NUMBER_OF_OBJECTS in metric else 0,
+            size=metric[Metric.BUCKET_SIZE_BYTES] if Metric.BUCKET_SIZE_BYTES in metric else 0,
             file_formats=[FileFormat.none],
             data_model=None,
             rdfs=None,
@@ -773,7 +775,7 @@ class MinioSource(StorageServiceSource):
             fullPath=self._get_full_path(bucket_name, prefix),
             sourceUrl=self._get_object_source_url(
                 bucket_name=bucket_name,
-                prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+                prefix=data_path,
             ),
             extension=metadata_entry.structureFormat
         )
@@ -785,27 +787,28 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+
         rdfs = self._get_document_meta(
             bucket_name=bucket_name,
-            path=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            path=normalized_key,
             metadata_entry=metadata_entry,
             client=self.minio_client,
         )
 
         prefix = (
-            f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+            f"{KEY_SEPARATOR}{data_path}"
         )
+
+        metric = self._fetch_metric(bucket_name=bucket_name, key=normalized_key)
+
         return MinioContainerDetails(
-            name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
+            name=Path(data_path).name,
             prefix=prefix,
-            creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                             key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-            number_of_objects=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-            ),
-            size=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-            ),
+            creation_date=metric[Metric.LAST_MODIFIED] if Metric.LAST_MODIFIED in metric else None,
+            number_of_objects=metric[Metric.NUMBER_OF_OBJECTS] if Metric.NUMBER_OF_OBJECTS in metric else 0,
+            size=metric[Metric.BUCKET_SIZE_BYTES] if Metric.BUCKET_SIZE_BYTES in metric else 0,
             file_formats=[FileFormat(metadata_entry.structureFormat)],
             data_model=None,
             rdfs=rdfs,
@@ -813,7 +816,7 @@ class MinioSource(StorageServiceSource):
             fullPath=self._get_full_path(bucket_name, prefix),
             sourceUrl=self._get_object_source_url(
                 bucket_name=bucket_name,
-                prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+                prefix=data_path,
             ),
             extension=metadata_entry.structureFormat
         )
@@ -825,26 +828,27 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = self._get_normalized_key(bucket_name=bucket_name, key=data_path)
+
         rdfs = self._get_image_meta(
             bucket_name=bucket_name,
-            path=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            path=normalized_key,
             client=self.minio_client,
         )
 
         prefix = (
-            f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+            f"{KEY_SEPARATOR}{data_path}"
         )
+
+        metric = self._fetch_metric(bucket_name=bucket_name, key=normalized_key)
+
         return MinioContainerDetails(
-            name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
+            name=Path(data_path).name,
             prefix=prefix,
-            creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                             key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-            number_of_objects=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-            ),
-            size=self._fetch_metric(
-                bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-            ),
+            creation_date=metric[Metric.LAST_MODIFIED] if Metric.LAST_MODIFIED in metric else None,
+            number_of_objects=metric[Metric.NUMBER_OF_OBJECTS] if Metric.NUMBER_OF_OBJECTS in metric else 0,
+            size=metric[Metric.BUCKET_SIZE_BYTES] if Metric.BUCKET_SIZE_BYTES in metric else 0,
             file_formats=[FileFormat(metadata_entry.structureFormat)],
             data_model=None,
             rdfs=rdfs,
@@ -852,24 +856,55 @@ class MinioSource(StorageServiceSource):
             fullPath=self._get_full_path(bucket_name, prefix),
             sourceUrl=self._get_object_source_url(
                 bucket_name=bucket_name,
-                prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+                prefix=data_path,
             ),
             extension=metadata_entry.structureFormat
         )
 
-    def _fetch_metric(self, bucket_name: str, key: str, metric: Metric):
+    def _fetch_metric(self, bucket_name: str, key: str):
+        metric = {}
         try:
             key = urllib.parse.unquote_plus(key)
             res = self.minio_client.head_object(Bucket=bucket_name, Key=key)
-            if metric == Metric.BUCKET_SIZE_BYTES:
-                return float(res['ContentLength'])
-            elif metric == Metric.NUMBER_OF_OBJECTS:
-                return float(1)
-            elif metric == Metric.LAST_MODIFIED:
-                return str(res['LastModified'].isoformat())
+
+            if "ContentLength" in res:
+                metric[Metric.BUCKET_SIZE_BYTES] = float(res["ContentLength"])
+
+            if Metric.NUMBER_OF_OBJECTS.value in res:
+                metric[Metric.NUMBER_OF_OBJECTS] = float(1)
+
+            if Metric.LAST_MODIFIED.value in res:
+                metric[Metric.LAST_MODIFIED] = str(res[Metric.LAST_MODIFIED.value].isoformat())
+
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(
-                f"Failed fetching metric {metric.value} for bucket {bucket_name}, returning 0 - {err}"
+                f"Failed fetching metric for bucket {bucket_name}, key {key}, returning 0 - {err}"
             )
-        return 0
+        return metric
+
+
+    def _get_normalized_key(self, bucket_name, key):
+
+        for form in ['NFC', 'NFD']:
+            normalized_key = unicodedata.normalize(form, key)
+
+            response = self.minio_client.list_objects_v2(
+                Bucket=bucket_name,
+                Prefix=normalized_key,
+                MaxKeys=1
+            )
+
+            found = (
+                    'Contents' in response and
+                    any(obj['Key'] == normalized_key for obj in response['Contents'])
+            )
+
+            if found:
+                logger.debug(f"{form} : Found: {normalized_key}")
+                break
+            else:
+                logger.debug(f"{form} : Not found: {normalized_key}")
+                normalized_key = key
+
+        return normalized_key

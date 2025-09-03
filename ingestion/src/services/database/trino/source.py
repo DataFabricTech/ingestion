@@ -14,10 +14,13 @@ class TrinoSource(DatabaseSource):
         from metadata.generated.schema.entity.services.connections.database.trinoConnection import \
             TrinoConnection
 
+        if self.source_user is None or len(self.source_user) == 0:
+            source_user = 'data-catalog'
+
         serviceConnection = DatabaseConnection(config=TrinoConnection(**{
             "type": "Trino",
             "scheme": "trino",
-            "username": self.source_user,
+            "username": source_user,
             "authType": {"password": self.source_password},
             "hostPort": f"{self.source_host}:{self.source_port}",
             "catalog": self.source_catalog,

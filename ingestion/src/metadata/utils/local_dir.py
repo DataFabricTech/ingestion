@@ -1,5 +1,6 @@
 import os
-
+from metadata.utils.logger import ingestion_logger
+logger = ingestion_logger()
 
 def ensure_directory_exists(directory_path: str):
     """
@@ -9,6 +10,6 @@ def ensure_directory_exists(directory_path: str):
     """
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
-        print(f"Directory created: {directory_path}")
+        logger.debug(f"Directory created: {directory_path}")
     else:
-        print(f"Directory already exists: {directory_path}")
+        logger.debug(f"Directory already exists: {directory_path}")
