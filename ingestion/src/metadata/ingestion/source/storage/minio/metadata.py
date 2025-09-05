@@ -409,7 +409,9 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Unstructured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate unstructured container metadata: {file_name}")
-                elif metadata_entry.structureFormat in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
+                elif metadata_entry.structureFormat in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value, FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value,
+                                                        FileFormat.cr2.value, FileFormat.nef.value, FileFormat.arw.value, FileFormat.orf.value, FileFormat.tiff.value, FileFormat.tif.value,
+                                                        FileFormat.psd.value, FileFormat.hdr.value, FileFormat.exr.value,
                                                         FileFormat.pdf.value]:
                     logger.info(f"Image Data Metadata Ingestion From : {file_name}")
                     image_container: Optional[MinioContainerDetails] = (
@@ -709,6 +711,9 @@ class MinioSource(StorageServiceSource):
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
         normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
+        if normalized_key is None:
+            return None
+
         columns = self._get_columns(
             bucket_name=bucket_name,
             sample_key=normalized_key,
@@ -756,6 +761,9 @@ class MinioSource(StorageServiceSource):
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
         normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
 
+        if normalized_key is None:
+            return None
+
         prefix = (
             f"{KEY_SEPARATOR}{data_path}"
         )
@@ -789,6 +797,9 @@ class MinioSource(StorageServiceSource):
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
         normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
 
         rdfs = self._get_document_meta(
             bucket_name=bucket_name,
@@ -830,6 +841,9 @@ class MinioSource(StorageServiceSource):
 
         data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
         normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
 
         rdfs = self._get_image_meta(
             bucket_name=bucket_name,

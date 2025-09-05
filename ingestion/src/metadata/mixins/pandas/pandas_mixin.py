@@ -96,6 +96,9 @@ class PandasInterfaceMixin:
             data_path = str(table.prefix).strip('/')
             normalized_key = get_normalized_key(client=client, bucket_name=bucket_name, key=data_path)
 
+            if normalized_key is None:
+                return None
+
             data = fetch_dataframe(
                 config_source=service_connection_config.minioConfig,
                 client=client,

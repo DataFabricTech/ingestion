@@ -12,12 +12,15 @@
 """
 s3 utils module
 """
+from botocore.exceptions import ClientError
+from itertools import product
 
 import traceback
 import unicodedata
 from typing import Iterable
 
 from metadata.utils.logger import utils_logger
+from metadata.ingestion.source.storage.storage_service import KEY_SEPARATOR
 
 logger = utils_logger()
 
@@ -37,25 +40,31 @@ def list_s3_objects(client, **kwargs) -> Iterable:
 
 def get_normalized_key(client, bucket_name, key):
 
-    for form in ['NFC', 'NFD']:
-        normalized_key = unicodedata.normalize(form, key)
+    # key에 폴더가 있을 수 있기 때문에 모든 경우를 다 확인한다.
+    # 1. 경로 나누기 (폴더 ..n , 파일)
+    parts = key.split(KEY_SEPARATOR)
 
-        response = client.list_objects_v2(
-            Bucket=bucket_name,
-            Prefix=normalized_key,
-            MaxKeys=1
-        )
+    # 2. 모든 경로를 forms 로 변환해서 리스트 만들기
+    forms = ['NFC', 'NFD']
+    normalized_parts_list = [
+        [unicodedata.normalize(form, part) for form in forms]
+        for part in parts
+    ]
 
-        found = (
-                'Contents' in response and
-                any(obj['Key'] == normalized_key for obj in response['Contents'])
-        )
+    # 3. 모든 조합으로 존재 확인
+    for combo in product(*normalized_parts_list):
+        normalized_key = '/'.join(combo)
 
-        if found:
-            logger.debug(f"{form} : Found: {normalized_key}")
-            break
-        else:
-            logger.debug(f"{form} : Not found: {normalized_key}")
-            normalized_key = key
+        try:
+            client.head_object(Bucket=bucket_name, Key=normalized_key)
+            logger.debug(f"Found: {normalized_key}")
+            return normalized_key
+        except ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                continue
+            else:
+                raise
 
-    return normalized_key
+    logger.debug(f"Not found: {key}")
+    return None
+

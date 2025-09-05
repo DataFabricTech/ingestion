@@ -106,6 +106,9 @@ class DocumentProfilerInterface(ProfilerInterface):
             data_path = str(self.table_entity.prefix).strip('/')
             normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
 
+            if normalized_key is None:
+                return None
+
             local_file_path = self._get_document_data(bucket_name, normalized_key)
             if local_file_path is None:
                 return None

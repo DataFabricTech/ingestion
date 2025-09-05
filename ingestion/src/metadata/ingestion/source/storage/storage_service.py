@@ -19,7 +19,7 @@ from enum import Enum
 from typing import Any, Iterable, List, Optional, Set
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
-from metadata.generated.schema.entity.data.container import Container, Rdf
+from metadata.generated.schema.entity.data.container import Container, Rdf, FileFormat
 from metadata.generated.schema.entity.data.file import File
 from metadata.generated.schema.entity.services.storageService import (
     StorageConnection,
@@ -73,8 +73,12 @@ from metadata.utils.word.txt_extractor import TxtMetadataExtractor
 from metadata.utils.word.json_extractor import JsonMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 
-from metadata.utils.image.jpg_extractor import JpgMetadataExtractor
+from metadata.utils.image.pil_extractor import PilMetadataExtractor
 from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
+from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
+from metadata.utils.image.psd_extractor import PsdMetadataExtractor
+from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
+from metadata.utils.image.exr_extractor import ExrMetadataExtractor
 
 from utils.process_config import config
 
@@ -403,15 +407,15 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         file_extension = path.split('.')[-1]
 
-        if file_extension in ["hwp", "hwpx"]:
+        if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
             return self._get_hwp_meta(local_file_path)
-        elif file_extension in ["docx", "doc"]:
+        elif file_extension in [FileFormat.doc.value, FileFormat.docx.value]:
             return self._get_word_meta(local_file_path)
-        elif file_extension == "txt":
+        elif file_extension == FileFormat.txt.value:
             return self._get_txt_meta(local_file_path)
-        elif file_extension == "json":
+        elif file_extension == FileFormat.json.value:
             return self._get_json_meta(local_file_path)
-        elif file_extension == "xml":
+        elif file_extension == FileFormat.xml.value:
             return self._get_xml_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
@@ -428,9 +432,19 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         file_extension = path.split('.')[-1]
 
-        if file_extension in ["jpg", "jpeg", "png"]:
-            return self._get_jpg_meta(local_file_path)
-        elif file_extension == "pdf":
+        if file_extension in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
+                              FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value]:
+            return self._get_pil_meta(local_file_path)
+        elif file_extension in [FileFormat.cr2.value, FileFormat.nef.value, FileFormat.arw.value,
+                                FileFormat.orf.value, FileFormat.tiff.value, FileFormat.tif.value]:
+            return self._get_exifread_meta(local_file_path)
+        elif file_extension == FileFormat.psd.value:
+            return self._get_psd_meta(local_file_path)
+        elif file_extension == FileFormat.hdr.value:
+            return self._get_imageio_meta(local_file_path)
+        elif file_extension == FileFormat.exr.value:
+            return self._get_exr_meta(local_file_path)
+        elif file_extension == FileFormat.pdf.value:
             return self._get_pdf_meta(local_file_path)
         else:
             logger.warn("Unsupported file type")
@@ -579,12 +593,12 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         finally:
             os.remove(local_file_path)
 
-    def _get_jpg_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_pil_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from jpg file
         """
         try:
-            extractor = JpgMetadataExtractor(local_file_path)
+            extractor = PilMetadataExtractor(local_file_path)
             metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
             return rdfs
@@ -597,6 +611,54 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         try:
             extractor = PdfMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_exifread_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from image file
+        """
+        try:
+            extractor = ExifreadMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_psd_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from image file
+        """
+        try:
+            extractor = PsdMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_imageio_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from image file
+        """
+        try:
+            extractor = ImageioMetadataExtractor(local_file_path)
+            metas = extractor.extract_metadata()
+            rdfs = self._get_common_rdfs(metas.items())
+            return rdfs
+        finally:
+            os.remove(local_file_path)
+
+    def _get_exr_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        Extract metadata from image file
+        """
+        try:
+            extractor = ExrMetadataExtractor(local_file_path)
             metas = extractor.extract_metadata()
             rdfs = self._get_common_rdfs(metas.items())
             return rdfs
