@@ -62,6 +62,8 @@ RUN ln -s /usr/bin/python3.8 /usr/bin/python
 
 # pip와 setuptools를 최신 버전으로 업그레이드
 RUN pip install --upgrade pip setuptools
+#--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
+RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
 # metadata_collector 설치
 # RUN python /metadata_collector/setup.py install
 RUN pip install ".[all]"

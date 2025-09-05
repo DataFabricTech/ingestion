@@ -154,7 +154,6 @@ base_requirements = {
     "datamodel-code-generator==0.22.0",
     "pillow==10.4.0",
     "pypdf==5.9.0",
-    "psd-tools==1.10.7", #--no-build-isolation --no-deps 옵션 추가 확인해야함
     "imageio==2.35.1",
     "OpenEXR==3.3.5"
 }
