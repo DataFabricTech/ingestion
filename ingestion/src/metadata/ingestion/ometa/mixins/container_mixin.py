@@ -117,6 +117,32 @@ class OMetaContainerMixin:
 
         return None
 
+    def ingest_container_image_sample_data(
+            self, container: Container, sample_data: str
+    ) -> Optional[str]:
+        """
+        PUT sample data for a image
+
+        :param container: Container Entity to update
+        :param data: Data to add
+        """
+        resp = None
+        try:
+            resp = self.client.put_plain_text(
+                f"{self.get_suffix(Container)}/{container.id.__root__}/image_sampleData",
+                data=f'{sample_data}'.encode("utf-8"),
+            )
+        except Exception as exc:
+            logger.debug(traceback.format_exc())
+            logger.warning(
+                f"Error trying to PUT sample data for {container.fullyQualifiedName.__root__}: {exc}"
+            )
+
+        if resp:
+            return resp["sampleData"]
+
+        return None
+
     def get_container_sample_data(self, container: Container) -> Optional[Container]:
         """
         GET call for the /sampleData endpoint for a given Container

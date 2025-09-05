@@ -16,6 +16,7 @@ from typing import Any, Optional, Dict, List
 from sqlalchemy import Column
 
 from metadata.generated.schema.tests.customMetric import CustomMetric
+from metadata.generated.schema.entity.data.container import FileFormat
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.registry import Metrics
 from metadata.profiler.processor.runner import QueryRunner
@@ -113,10 +114,10 @@ class DocumentProfilerInterface(ProfilerInterface):
             if local_file_path is None:
                 return None
             file_extension = data_path.split('.')[-1]
-            if file_extension == "hwp" or file_extension == "hwpx":
+            if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
                 return self.get_hwp_sample(local_file_path)
             # elif file_extension == "docx" or file_extension == "doc":
-            elif file_extension == "docx":
+            elif file_extension == FileFormat.docx.value:
                 return self.get_word_sample(local_file_path)
             else:
                 logger.warn("Unsupported file type")

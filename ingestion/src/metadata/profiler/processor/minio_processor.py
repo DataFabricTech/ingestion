@@ -61,6 +61,8 @@ class MinioProfilerProcessor(Processor):
 
         try:
             profile: ProfilerResponse = profiler_runner.process()
+
+            print("??")
         except Exception as exc:
             self.status.failed(
                 StackTraceError(

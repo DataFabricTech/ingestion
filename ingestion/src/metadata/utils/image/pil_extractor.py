@@ -1,5 +1,7 @@
 from PIL import Image
 from PIL.ExifTags import TAGS
+from io import BytesIO
+import base64
 
 """
     확인 완료한 파일 확장자
@@ -35,6 +37,23 @@ class PilMetadataExtractor:
                     metadata[f"exif.{tag}"] = value
 
         return metadata
+
+    def get_sample_data(self, sample_width: int = 300):
+
+        with Image.open(self.file_path) as img:
+            width, height = img.size
+            aspect_ratio = height / width
+
+            sample_height = int(sample_width * aspect_ratio)  # 비율 유지
+
+            resized_img = img.resize((sample_width, sample_height))
+
+        # 메모리에 저장 (BytesIO 사용)
+        buffered = BytesIO()
+        resized_img.save(buffered, format="JPEG")
+
+        # base64 인코딩
+        return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 
 

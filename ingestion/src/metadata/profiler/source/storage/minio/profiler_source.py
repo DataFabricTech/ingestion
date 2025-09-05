@@ -29,11 +29,13 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.profiler.api.models import ProfilerProcessorConfig, TableConfig
 from metadata.profiler.interface.document.profiler_interface import DocumentProfilerInterface
+from metadata.profiler.interface.image.profiler_interface import ImageProfilerInterface
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.registry import Metrics
 from metadata.profiler.processor.core import Profiler
 from metadata.profiler.processor.default import DefaultProfiler, get_default_metrics_for_storage_service
 from metadata.profiler.processor.document_core import DocProfiler
+from metadata.profiler.processor.image_core import ImageProfiler
 from metadata.profiler.source.profiler_source_interface import ProfilerSourceInterface
 
 
@@ -194,6 +196,28 @@ class MinIOProfilerSource(ProfilerSourceInterface):
         self.interface = profiler_interface
         return self.interface
 
+    def create_image_profiler_interface(
+            self,
+            entity: Container,
+            config: Optional[TableConfig],
+            profiler_config: Optional[ProfilerProcessorConfig],
+            storage_service: Optional[StorageService],
+    ) -> ProfilerInterface:
+        profiler_interface: ProfilerInterface = ImageProfilerInterface.create(
+            entity,
+            None,  # DatabaseSchema
+            None,  # Database
+            storage_service,  # DatabaseService, StorageService
+            config,  # TableConfig
+            profiler_config,  # ProfilerProcessorConfig
+            self.source_config,  # DatabaseServiceProfilerPipeline, StorageServiceProfilerPipeline
+            self.service_conn_config,  # Service Connection Config
+            self.ometa_client  # Service Connection
+        )  # type: ignore
+
+        self.interface = profiler_interface
+        return self.interface
+
     def _get_context_entities(
             self, entity: Container
     ) -> StorageService:
@@ -222,18 +246,33 @@ class MinIOProfilerSource(ProfilerSourceInterface):
         config = self.get_config_for_container(entity, profiler_config)
 
         # JBLIM : For MinIO Document Data
-        if (entity.fileFormats is not None and
-                entity.fileFormats[0] in [FileFormat.hwpx, FileFormat.hwp, FileFormat.doc, FileFormat.docx]):
-            profiler_interface = self.create_document_profiler_interface(
-                entity,
-                config,
-                profiler_config,
-                storage_service,
-            )
-            return DocProfiler(
-                source_config=self.source_config,
-                profiler_interface=profiler_interface,
-            )
+        if entity.fileFormats is not None:
+            if entity.fileFormats[0] in [FileFormat.hwpx, FileFormat.hwp, FileFormat.doc, FileFormat.docx]:
+                profiler_interface = self.create_document_profiler_interface(
+                    entity,
+                    config,
+                    profiler_config,
+                    storage_service,
+                )
+
+                return DocProfiler(
+                    source_config=self.source_config,
+                    profiler_interface=profiler_interface,
+                )
+
+            elif entity.fileFormats[0] in [FileFormat.jpeg]:
+                profiler_interface = self.create_image_profiler_interface(
+                    entity,
+                    config,
+                    profiler_config,
+                    storage_service,
+                )
+
+                return ImageProfiler(
+                    source_config=self.source_config,
+                    profiler_interface=profiler_interface,
+                )
+
 
         profiler_interface = self.create_storage_profiler_interface(
             entity,

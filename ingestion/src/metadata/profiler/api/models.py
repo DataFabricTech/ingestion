@@ -118,6 +118,7 @@ class ProfilerResponse(ConfigModel):
     profile: Optional[CreateTableProfileRequest] = None
     sample_data: Optional[TableData] = None
     unstructured_sample_data: Optional[str] = None
+    image_sample_data: Optional[str] = None
     column_tags: Optional[List[ColumnTag]] = None
 
     def __str__(self):

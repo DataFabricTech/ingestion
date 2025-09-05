@@ -135,6 +135,7 @@ class MetadataSourceForMinio(Source):
             FileFormat.hwpx,
             # FileFormat.doc,
             FileFormat.docx,
+            FileFormat.jpeg
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats

@@ -511,31 +511,35 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
     def write_profiler_response(self, record: ProfilerResponse) -> Either[Any]:
         """Cleanup "`" character in columns and ingest"""
         if isinstance(record.table, Container):
-            if (record.table.fileFormats is not None and
-                    # record.table.fileFormats[0] in [FileFormat.doc, FileFormat.docx, FileFormat.hwp, FileFormat.hwpx]):
-                    record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx]):
-                logger.info(f"profile update for document file")
+            if record.table.fileFormats is not None :
+                if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx, FileFormat.jpeg]:
+                    logger.info(f"profile update for document file")
 
-                self.metadata.ingest_container_unstructured_profile_data(
-                    container=record.table
-                )
-
-                if record.unstructured_sample_data:
-                    res = self.metadata.ingest_container_unstructured_sample_data(
-                        container=record.table, sample_data=record.unstructured_sample_data
+                    self.metadata.ingest_container_unstructured_profile_data(
+                        container=record.table
                     )
-                    # if not table_data:
-                    #     self.status.failed(
-                    #         StackTraceError(
-                    #             name=container.fullyQualifiedName.__root__,
-                    #             error="Error trying to ingest sample data for container",
-                    #         )
-                    #     )
-                    # else:
-                    #     logger.debug(
-                    #         f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
-                    #     )
-                    return Either(right=res)
+
+                    if record.unstructured_sample_data:
+                        res = self.metadata.ingest_container_unstructured_sample_data(
+                            container=record.table, sample_data=record.unstructured_sample_data
+                        )
+                        # if not table_data:
+                        #     self.status.failed(
+                        #         StackTraceError(
+                        #             name=container.fullyQualifiedName.__root__,
+                        #             error="Error trying to ingest sample data for container",
+                        #         )
+                        #     )
+                        # else:
+                        #     logger.debug(
+                        #         f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
+                        #     )
+                        return Either(right=res)
+                    elif record.image_sample_data:
+                        res = self.metadata.ingest_container_image_sample_data(
+                            container=record.table, sample_data=record.image_sample_data
+                        )
+                        return Either(right=res)
 
         column_profile = record.profile.columnProfile
         for column in column_profile:
