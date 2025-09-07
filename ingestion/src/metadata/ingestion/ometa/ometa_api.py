@@ -363,10 +363,15 @@ class OpenMetadata(
                 includes.append(f"object={profiling.__root__}")
 
         if len(includes) > 0:
-            data = ExecuteIngestion(
-                system_id = system_id,
-                include = includes
+            if len(includes) > 50:
+                data = ExecuteIngestion(
+                    system_id = system_id
                 )
+            else:
+                data = ExecuteIngestion(
+                    system_id = system_id,
+                    include = includes
+                    )
 
             try:
                 self.client.post(
