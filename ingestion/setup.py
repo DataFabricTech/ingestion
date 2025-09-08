@@ -159,7 +159,8 @@ base_requirements = {
     "exifread==3.5.1",
     "Cython==3.1.3",
     "ultralytics==8.3.195",
-    "opencv-python==4.12.0.88"
+    "opencv-python==4.12.0.88",
+    "pytesseract==0.3.13"
 }
 
 
