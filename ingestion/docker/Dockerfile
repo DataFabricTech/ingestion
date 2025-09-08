@@ -22,7 +22,7 @@ RUN dnf -y groupinstall "Development Tools" && \
     dnf clean all
 
 # cr2 관련 OpenGL 패키지
-RUN dnf install mesa-libGL
+RUN dnf -y install mesa-libGL
 
 RUN dnf -y install libzstd-devel
 
@@ -68,15 +68,15 @@ RUN ln -s /usr/bin/pip3.8 /usr/bin/pip
 # pip와 setuptools를 최신 버전으로 업그레이드
 RUN pip install --upgrade pip setuptools packaging
 
-# RUN dnf -y module enable python38
-
 # metadata_collector 설치
-# RUN python /metadata_collector/setup.py install
 RUN pip install ".[all]"
-# RUN pip install ingest-server
 
+## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
+# 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
+RUN pip install --upgrade setuptools wheel cython
 #--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
 RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
+##
 
 # generate
 COPY ../scripts /metadata_collector/scripts
