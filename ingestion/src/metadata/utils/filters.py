@@ -65,9 +65,16 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
         #     ]
         # )
         for regex in filter_pattern.includes:
+            # 정규식 매칭
             if re.match(regex, name, re.IGNORECASE):
                 return False  # 정규식 매칭됨 → 매칭
-            if name.lower() == regex.lower():
+
+            # 문자열 매칭
+            # NFC 정규화(한글 이름일 경우가있기 때문에)
+            normalize_name = unicodedata.normalize('NFC', name)
+            normalize_regex = unicodedata.normalize('NFC', regex)
+            print(f"normalize_name : {normalize_name}\nnormalize_regex : {normalize_regex}\ncheck : {normalize_name.lower() == normalize_regex.lower()}")
+            if normalize_name.lower() == normalize_regex.lower():
                 return False  # 문자열 비교 매칭됨 → 매칭
         return True  # 모두 실패 → 매칭 안됨
 
@@ -81,9 +88,15 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
         #     ]
         # )
         for regex in filter_pattern.excludes:
+            # 정규식 매칭
             if re.match(regex, name, re.IGNORECASE):
                 return True  # 정규식 매칭됨 → 매칭
-            if name.lower() == regex.lower():
+
+            # 문자열 매칭
+            # NFC 정규화(한글 이름일 경우가있기 때문에)
+            normalize_name = unicodedata.normalize('NFC', name)
+            normalize_regex = unicodedata.normalize('NFC', regex)
+            if normalize_name.lower() == normalize_regex.lower():
                 return True  # 문자열 비교 매칭됨 → 매칭
         return False  # 모두 실패 → 매칭 안됨
 
