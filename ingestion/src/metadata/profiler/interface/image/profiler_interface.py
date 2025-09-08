@@ -98,7 +98,7 @@ class ImageProfilerInterface(ProfilerInterface):
 
     def fetch_sample_data(self, **kwargs) -> Optional[str]:
         """
-        Fetch sample data from minio document(doc, hwp)
+        Fetch sample data from minio - image
         """
         local_file_path = ""
         try:
@@ -112,12 +112,14 @@ class ImageProfilerInterface(ProfilerInterface):
             local_file_path = self._get_file(bucket_name, normalized_key)
             if local_file_path is None:
                 return None
-            file_extension = data_path.split('.')[-1]
-            if file_extension == FileFormat.jpeg.value:
+
+            if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
                 return self.get_pil_sample(local_file_path)
+
             else:
                 logger.warn("Unsupported file type")
                 return None
+
         except Exception as e:
             logger.error(e)
         finally:
@@ -125,7 +127,7 @@ class ImageProfilerInterface(ProfilerInterface):
 
     def get_pil_sample(self, local_file_path):
         extractor = PilMetadataExtractor(local_file_path)
-        sample_text = extractor.get_sample_data(300)
+        sample_text = extractor.get_sample_data()
         return sample_text
 
     def _get_sampler(self):

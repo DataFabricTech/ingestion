@@ -512,7 +512,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
         """Cleanup "`" character in columns and ingest"""
         if isinstance(record.table, Container):
             if record.table.fileFormats is not None :
-                if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx, FileFormat.jpeg]:
+                if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx, FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
                     logger.info(f"profile update for document file")
 
                     self.metadata.ingest_container_unstructured_profile_data(

@@ -456,7 +456,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             # 이미지 객체 탐지
             try:
                 detected_objects = self._get_detected_objects(local_file_path)
-                metadata["detected_objects"] = detected_objects
+                if len(detected_objects) > 0:
+                    metadata["detected_objects"] = detected_objects
             except Exception as e:
                 logger.debug(f"image file detected fail [{e}], file {local_file_path}")
 

@@ -44,25 +44,56 @@ class PilMetadataExtractor:
             # 텍스트 추출
             try:
                 image_text = self.get_text(img)
-                metadata["image_text"] = image_text
+                if len(image_text) > 0:
+                    metadata["image_text"] = image_text
             except Exception as e:
                 logger.debug(f"get text fail [{e}], file : {self.file_path}")
 
         return metadata
 
-    def get_sample_data(self, sample_width: int = 300):
-
-        with Image.open(self.file_path) as img:
-            width, height = img.size
-            aspect_ratio = height / width
-
-            sample_height = int(sample_width * aspect_ratio)  # 비율 유지
-
-            resized_img = img.resize((sample_width, sample_height))
+    def get_sample_data(self, sample_width: int = 2000, sample_height: int = 2000):
 
         # 메모리에 저장 (BytesIO 사용)
         buffered = BytesIO()
-        resized_img.save(buffered, format="JPEG")
+        with Image.open(self.file_path) as img:
+
+            # EXIF 회전 정보 적용
+            try:
+                # EXIF 정보에서 회전 값 추출
+                # (사이즈 변환하면서 메타정보가 삭제되기 때문에 회전값 확인 후 회전값을 이미지에 재 적용)
+                for orientation in TAGS.keys():
+                    if TAGS[orientation]=='Orientation':
+                        break
+                exif=dict(img._getexif().items())
+                if exif.get(orientation) == 3:
+                    img = img.rotate(180, expand=True)
+                elif exif.get(orientation) == 6:
+                    img = img.rotate(270, expand=True)
+                elif exif.get(orientation) == 8:
+                    img = img.rotate(90, expand=True)
+            except (AttributeError, KeyError, IndexError):
+                # EXIF 정보가 없거나 문제가 발생한 경우에는 예외 처리
+                pass
+
+            width, height = img.size
+
+            is_resize = False
+            if height > width and height > sample_height: # 세로 이미지
+                aspect_ratio = width / height
+                sample_width = int(sample_height * aspect_ratio)
+                is_resize = True
+            elif width > sample_width: # 가로 이미지, 정사각형 (가로기준하면될듯)
+                aspect_ratio = height / width
+                sample_height = int(sample_width * aspect_ratio)
+                is_resize = True
+            else: # 사이즈가 작아서 리사이즈 없음
+                pass
+
+            if is_resize:
+                resized_img = img.resize((sample_width, sample_height))
+                resized_img.save(buffered, format="JPEG")
+            else:
+                img.save(buffered, format="JPEG")
 
         # base64 인코딩
         return base64.b64encode(buffered.getvalue()).decode("utf-8")

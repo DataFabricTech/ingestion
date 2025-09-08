@@ -113,11 +113,11 @@ class DocumentProfilerInterface(ProfilerInterface):
             local_file_path = self._get_document_data(bucket_name, normalized_key)
             if local_file_path is None:
                 return None
-            file_extension = data_path.split('.')[-1]
-            if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
+
+            if self.table_entity.fileFormats[0] in [FileFormat.hwp, FileFormat.hwpx]:
                 return self.get_hwp_sample(local_file_path)
             # elif file_extension == "docx" or file_extension == "doc":
-            elif file_extension == FileFormat.docx.value:
+            elif self.table_entity.fileFormats[0] == FileFormat.docx:
                 return self.get_word_sample(local_file_path)
             else:
                 logger.warn("Unsupported file type")
