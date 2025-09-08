@@ -16,6 +16,8 @@ class TrinoSource(DatabaseSource):
 
         if self.source_user is None or len(self.source_user) == 0:
             source_user = 'data-catalog'
+        else:
+            source_user = self.source_user
 
         serviceConnection = DatabaseConnection(config=TrinoConnection(**{
             "type": "Trino",
