@@ -4,6 +4,7 @@ FROM rockylinux:8.9
 RUN dnf -y groupinstall "Development Tools" && \
     dnf -y install \
     python38 \
+    python38-devel \
     python3-pip \
     gcc \
     make \
@@ -19,7 +20,10 @@ RUN dnf -y groupinstall "Development Tools" && \
     unixODBC-devel && \
     python3.8 -m pip install --upgrade pip && \
     dnf clean all
-#sudo dnf install cyrus-sasl cyrus-sasl-devel cyrus-sasl-lib cyrus-sasl-plain
+
+# cr2 관련 OpenGL 패키지
+RUN dnf install mesa-libGL
+
 RUN dnf -y install libzstd-devel
 
 WORKDIR /metadata_collector
@@ -64,13 +68,15 @@ RUN ln -s /usr/bin/pip3.8 /usr/bin/pip
 # pip와 setuptools를 최신 버전으로 업그레이드
 RUN pip install --upgrade pip setuptools packaging
 
+# RUN dnf -y module enable python38
+
 # metadata_collector 설치
 # RUN python /metadata_collector/setup.py install
 RUN pip install ".[all]"
 # RUN pip install ingest-server
 
 #--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
-#RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
+RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
 
 # generate
 COPY ../scripts /metadata_collector/scripts
