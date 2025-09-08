@@ -1,12 +1,5 @@
 import exifread
 
-"""
-    확인 완료한 파일 확장자
-    - cr2
-    - nef
-    - arw
-    - orf
-"""
 class ExifreadMetadataExtractor:
     def __init__(self, file_path: str):
         self.file_path = file_path

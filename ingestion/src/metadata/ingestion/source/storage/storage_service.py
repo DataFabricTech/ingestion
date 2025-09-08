@@ -80,6 +80,8 @@ from metadata.utils.image.psd_extractor import PsdMetadataExtractor
 from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
 from metadata.utils.image.exr_extractor import ExrMetadataExtractor
 
+from metadata.utils.image.yolo_detector import YoloDetector
+
 from utils.process_config import config
 
 logger = ingestion_logger()
@@ -430,25 +432,40 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         if local_file_path is None:
             return None
 
-        file_extension = path.split('.')[-1]
+        try:
+            file_extension = path.split('.')[-1]
 
-        if file_extension in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
-                              FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value]:
-            return self._get_pil_meta(local_file_path)
-        elif file_extension in [FileFormat.cr2.value, FileFormat.nef.value, FileFormat.arw.value,
-                                FileFormat.orf.value, FileFormat.tiff.value, FileFormat.tif.value]:
-            return self._get_exifread_meta(local_file_path)
-        elif file_extension == FileFormat.psd.value:
-            return self._get_psd_meta(local_file_path)
-        elif file_extension == FileFormat.hdr.value:
-            return self._get_imageio_meta(local_file_path)
-        elif file_extension == FileFormat.exr.value:
-            return self._get_exr_meta(local_file_path)
-        elif file_extension == FileFormat.pdf.value:
-            return self._get_pdf_meta(local_file_path)
-        else:
-            logger.warn("Unsupported file type")
-            return None
+            if file_extension in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
+                                  FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value]:
+                metadata = self._get_pil_meta(local_file_path)
+            elif file_extension in [FileFormat.cr2.value, FileFormat.nef.value, FileFormat.arw.value,
+                                    FileFormat.orf.value, FileFormat.tiff.value, FileFormat.tif.value]:
+                metadata = self._get_exifread_meta(local_file_path)
+            elif file_extension == FileFormat.psd.value:
+                metadata = self._get_psd_meta(local_file_path)
+            elif file_extension == FileFormat.hdr.value:
+                metadata = self._get_imageio_meta(local_file_path)
+            elif file_extension == FileFormat.exr.value:
+                metadata = self._get_exr_meta(local_file_path)
+            elif file_extension == FileFormat.pdf.value:
+                metadata = self._get_pdf_meta(local_file_path)
+            else:
+                logger.warn("Unsupported file type")
+                return None
+
+            # 이미지 객체 탐지
+            try:
+                detected_objects = self._get_detected_objects(local_file_path)
+                metadata["detected_objects"] = detected_objects
+            except Exception as e:
+                logger.debug(f"image file detected fail [{e}], file {local_file_path}")
+
+            rdfs = self._get_common_rdfs(metadata.items())
+
+        finally:
+            os.remove(local_file_path)
+
+        return rdfs
 
     def _get_common_rdfs(self, meta_items: dict) -> Optional[List[Rdf]]:
         rdfs = []
@@ -585,82 +602,54 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         Extract metadata from json file
         """
-        try:
-            extractor = XmlMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = XmlMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_pil_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from jpg file
         """
-        try:
-            extractor = PilMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = PilMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_pdf_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from pdf file
         """
-        try:
-            extractor = PdfMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = PdfMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_exifread_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from image file
         """
-        try:
-            extractor = ExifreadMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = ExifreadMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_psd_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from image file
         """
-        try:
-            extractor = PsdMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = PsdMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_imageio_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from image file
         """
-        try:
-            extractor = ImageioMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = ImageioMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
 
     def _get_exr_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
         Extract metadata from image file
         """
-        try:
-            extractor = ExrMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = self._get_common_rdfs(metas.items())
-            return rdfs
-        finally:
-            os.remove(local_file_path)
+        extractor = ExrMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_detected_objects(self, local_file_path: str) -> Optional[List[Rdf]]:
+        """
+        이미지 객체 탐지
+        """
+        detector = YoloDetector(local_file_path)
+        return detector.detected_objects()

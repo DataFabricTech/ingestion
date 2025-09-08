@@ -2,6 +2,11 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 from io import BytesIO
 import base64
+import pytesseract
+import re
+
+from metadata.utils.logger import ingestion_logger
+logger = ingestion_logger()
 
 """
     확인 완료한 파일 확장자
@@ -36,6 +41,13 @@ class PilMetadataExtractor:
                     tag = TAGS.get(tag_id, tag_id)
                     metadata[f"exif.{tag}"] = value
 
+            # 텍스트 추출
+            try:
+                image_text = self.get_text(img)
+                metadata["image_text"] = image_text
+            except Exception as e:
+                logger.debug(f"get text fail [{e}], file : {self.file_path}")
+
         return metadata
 
     def get_sample_data(self, sample_width: int = 300):
@@ -55,6 +67,32 @@ class PilMetadataExtractor:
         # base64 인코딩
         return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
+    def get_clean_text(self, text):
+        """
+        정규 표현식으로 text 정리
+        :return: 특수문자제거(영어,한글만 남기기), 연속된 공백을 하나로 줄이기
+        """
+        # 특수 문자 제거 (영어와 한글만 남기기)
+        cleaned_text = re.sub(r'[^a-zA-Z0-9가-힣\s]', '', text)
+
+        # 연속된 공백을 하나로 줄이기
+        cleaned_text = re.sub(r'\s+', ' ', cleaned_text)
+
+        return cleaned_text
+
+    def get_text(self, image):
+        # 이미지 열기
+        # image = Image.open(self.file_path)
+
+        # 이미지 전처리
+        image = image.convert('L')  # 흑백 변환 (그레이스케일)
+        image = image.point(lambda p: p * 1.2)  # 대비 조정
+
+        # 텍스트 추출
+        text = pytesseract.image_to_string(image, lang='kor+eng')  # 필요 시 'kor'로 변경
+
+        # 텍스트 정리
+        return self.get_clean_text(text)
 
 
 
