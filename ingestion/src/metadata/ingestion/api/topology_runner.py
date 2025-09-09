@@ -352,15 +352,16 @@ class TopologyRunnerMixin(Generic[C]):
 
         # If we don't want to write data in OM, we'll return what we fetch from the API.
         # This will be applicable for service entities since we do not want to overwrite the data
+        # service entities 업데이트 하고 싶지 않다면 아래 주석 해제
         same_fingerprint = False
-        if not stage.overwrite and not self._is_force_overwrite_enabled():
-            entity = self.metadata.get_by_name(
-                entity=stage.type_,
-                fqn=entity_fqn,
-                fields=["*"],
-            )
-            if entity:
-                same_fingerprint = True
+        # if not stage.overwrite and not self._is_force_overwrite_enabled():
+        #     entity = self.metadata.get_by_name(
+        #         entity=stage.type_,
+        #         fqn=entity_fqn,
+        #         fields=["*"],
+        #     )
+        #     if entity:
+        #         same_fingerprint = True
 
         create_entity_request_hash = None
 
