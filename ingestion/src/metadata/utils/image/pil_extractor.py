@@ -35,11 +35,12 @@ class PilMetadataExtractor:
                     metadata[f"info.{k}"] = v
 
             # EXIF 데이터 추출 (JPEG, TIFF에 주로 존재)
-            img_exif = img._getexif()
-            if img_exif:
-                for tag_id, value in img_exif.items():
-                    tag = TAGS.get(tag_id, tag_id)
-                    metadata[f"exif.{tag}"] = value
+            if hasattr(img, '_getexif'):
+                img_exif = img._getexif()
+                if img_exif:
+                    for tag_id, value in img_exif.items():
+                        tag = TAGS.get(tag_id, tag_id)
+                        metadata[f"exif.{tag}"] = value
 
             # 텍스트 추출
             try:

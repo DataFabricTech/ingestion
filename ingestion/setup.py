@@ -157,7 +157,6 @@ base_requirements = {
     "imageio==2.35.1",
     "OpenEXR==3.3.5",
     "exifread==3.5.1",
-    "Cython==3.1.3",
     "ultralytics==8.3.195",
     "opencv-python==4.12.0.88",
     "pytesseract==0.3.13"

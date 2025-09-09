@@ -73,7 +73,7 @@ RUN pip install ".[all]"
 
 ## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
 # 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
-RUN pip install --upgrade setuptools wheel cython
+RUN pip install --upgrade setuptools packaging wheel cython
 #--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
 RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
 ##
