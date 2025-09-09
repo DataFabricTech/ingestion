@@ -578,7 +578,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             # if v is not None:
             #     rdfs.append(Rdf(name=k, object=v))
 
-            return new_metas
+        return new_metas
 
     def _get_txt_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """
