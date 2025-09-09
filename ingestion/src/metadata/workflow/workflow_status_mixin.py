@@ -154,9 +154,9 @@ class WorkflowStatusMixin:
             return 1
         return 0
 
-    def check_ingestion_status(self, service_id):
+    def check_ingestion_status(self, service_id, source_filter):
         if "metadata-rest" == self.config.sink.type :
-            self.metadata.check_ingestion_status(service_id)
+            self.metadata.check_ingestion_status(service_id, source_filter)
 
     def update_ingestion_status(self, system_id, status, err_description=None):
         self.metadata.update_ingestion_status(system_id, status, err_description)

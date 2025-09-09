@@ -320,9 +320,12 @@ class OpenMetadata(
     #     """Run a PUT requesting via create request C"""
     #     return self._create(data=data, method="put")
 
-    def check_ingestion_status(self, system_id):
+    def check_ingestion_status(self, system_id, source_filter=None):
 
-        data = IngestionCheck(system_id = system_id)
+        data = IngestionCheck(
+            system_id = system_id,
+            source_filter = source_filter
+        )
 
         try:
             self.client.put(
