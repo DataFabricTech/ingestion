@@ -21,6 +21,9 @@ class Config(BaseSettings):
 
     document_tmp_dir: str
 
+    minio_dataextract_bucket: str
+    minio_sample_data_bucket: str
+
     @classmethod
     def get_yaml(cls):
         # .env 파일 로드
@@ -41,6 +44,8 @@ class Config(BaseSettings):
 
         data_catalog_minio_config = config_data["minio"]
         minio_url = data_catalog_minio_config["url"]
+        minio_dataextract_bucket = data_catalog_minio_config["dataextract_bucket"]
+        minio_sample_data_bucket = data_catalog_minio_config["sample_data_bucket"]
 
         catalog_api_base_url = f"http://{catalog_api_config['host']}:{catalog_api_config['port']}{catalog_api_config['prefix']}"
         get_meta_system_info_api = catalog_api_config['get_meta_system_info_api']
@@ -57,7 +62,9 @@ class Config(BaseSettings):
             sink_host = sink_host,
             sink_port = sink_port,
             minio_url=minio_url,
-            document_tmp_dir=document_tmp_dir
+            document_tmp_dir=document_tmp_dir,
+            minio_dataextract_bucket=minio_dataextract_bucket,
+            minio_sample_data_bucket=minio_sample_data_bucket
         )
 
 

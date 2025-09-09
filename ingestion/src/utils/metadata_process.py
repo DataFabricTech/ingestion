@@ -52,7 +52,7 @@ class MetadataProcess:
 
     def get_storage_filter(self, collector_type, is_data_catalog_storage):
         if is_data_catalog_storage:
-            bucket_exclude_pattern = ["datacatalog", "meta-data-sample", "dataextract"] # data catalog 사용 bucket
+            bucket_exclude_pattern = [config.minio_dataextract_bucket, config.minio_sample_data_bucket] # data catalog 사용 bucket
         else:
             bucket_exclude_pattern = []
 
@@ -99,11 +99,17 @@ class MetadataProcess:
         table_filter = []
         if filter_dict is not None:
             if "database" in filter_dict:
-                database_filter = filter_dict["database"]
+                for database in filter_dict["database"]:
+                    if database not in database_filter:
+                        database_filter.append(database)
             if "schema" in filter_dict:
-                schema_filter = filter_dict["schema"]
+                for schema in filter_dict["schema"]:
+                    if schema not in schema_filter:
+                        schema_filter.append(schema)
             if "table" in filter_dict:
-                table_filter = filter_dict["table"]
+                for table in filter_dict["table"]:
+                    if table not in table_filter:
+                        table_filter.append(table)
 
         return database_filter, schema_filter, table_filter
 
@@ -112,9 +118,17 @@ class MetadataProcess:
         object_filter = []
         if filter_dict is not None:
             if "bucket" in filter_dict:
-                bucket_filter = filter_dict["bucket"]
+                for bucket in filter_dict["bucket"]:
+                    if bucket not in bucket_filter:
+                        bucket_filter.append(bucket)
+
             if "object" in filter_dict:
-                object_filter = filter_dict["object"]
+                for object in filter_dict["object"]:
+                    if object not in object_filter:
+                        object_filter.append(object)
+                        bucket = object.split(".")[1]
+                        if bucket not in bucket_filter:
+                            bucket_filter.append(bucket)
 
         return bucket_filter, object_filter
 
