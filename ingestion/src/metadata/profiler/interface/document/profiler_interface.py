@@ -101,6 +101,7 @@ class DocumentProfilerInterface(ProfilerInterface):
         """
         Fetch sample data from minio document(doc, hwp)
         """
+        get_chunk_size = kwargs.get('chunk_size', 1000)
         local_file_path = ""
         try:
             bucket_name = self.table_entity.fullPath.replace("s3://", "").split("/")[0]
@@ -115,7 +116,7 @@ class DocumentProfilerInterface(ProfilerInterface):
                 return None
 
             if self.table_entity.fileFormats[0] in [FileFormat.hwp, FileFormat.hwpx]:
-                return self.get_hwp_sample(local_file_path)
+                return self.get_hwp_sample(local_file_path, get_chunk_size)
             # elif file_extension == "docx" or file_extension == "doc":
             elif self.table_entity.fileFormats[0] == FileFormat.docx:
                 return self.get_word_sample(local_file_path)
@@ -127,9 +128,9 @@ class DocumentProfilerInterface(ProfilerInterface):
         finally:
             os.remove(local_file_path)
 
-    def get_hwp_sample(self, local_file_path):
+    def get_hwp_sample(self, local_file_path, chunk_size=1000):
         hwp_extractor = HwpMetadataExtractor(local_file_path)
-        sample_data = hwp_extractor.get_sample_data(1000)
+        sample_data = hwp_extractor.get_sample_data(chunk_size)
         return sample_data
 
     def get_word_sample(self, local_file_path):

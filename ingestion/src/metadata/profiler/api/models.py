@@ -120,6 +120,7 @@ class ProfilerResponse(ConfigModel):
     unstructured_sample_data: Optional[str] = None
     image_sample_data: Optional[str] = None
     column_tags: Optional[List[ColumnTag]] = None
+    unstructured_summary: Optional[str] = None
 
     def __str__(self):
         """Return the table name being processed"""

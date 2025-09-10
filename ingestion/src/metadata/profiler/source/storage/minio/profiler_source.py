@@ -258,6 +258,7 @@ class MinIOProfilerSource(ProfilerSourceInterface):
                 return DocProfiler(
                     source_config=self.source_config,
                     profiler_interface=profiler_interface,
+                    file_format=entity.fileFormats[0]
                 )
 
             elif entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,

@@ -41,7 +41,7 @@ from metadata.generated.schema.entity.data.searchIndex import (
     # SearchIndexSampleData,
 )
 from metadata.generated.schema.entity.data.table import DataModel, Table
-from metadata.generated.schema.entity.data.container import Container, FileFormat
+from metadata.generated.schema.entity.data.container import Container, FileFormat, Rdf
 # from metadata.generated.schema.entity.data.topic import TopicSampleData
 # from metadata.generated.schema.entity.teams.role import Role
 # from metadata.generated.schema.entity.teams.team import Team
@@ -515,6 +515,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                 if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx, FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
                     logger.info(f"profile update for document file")
 
+                    record.table.rdfs = [Rdf(name='summary', object=f"{record.unstructured_summary}")]
                     self.metadata.ingest_container_unstructured_profile_data(
                         container=record.table
                     )
