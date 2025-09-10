@@ -260,7 +260,9 @@ class MinIOProfilerSource(ProfilerSourceInterface):
                     profiler_interface=profiler_interface,
                 )
 
-            elif entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
+            elif entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
+                                           FileFormat.bmp, FileFormat.gif, FileFormat.webp,
+                                           FileFormat.cr2, FileFormat.nef, FileFormat.tiff,	FileFormat.tif]:
                 profiler_interface = self.create_image_profiler_interface(
                     entity,
                     config,

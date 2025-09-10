@@ -140,7 +140,11 @@ class MetadataSourceForMinio(Source):
             FileFormat.png,
             FileFormat.bmp,
             FileFormat.gif,
-            FileFormat.webp
+            FileFormat.webp,
+            FileFormat.cr2,
+            FileFormat.nef,
+            FileFormat.tiff,
+            FileFormat.tif
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats
