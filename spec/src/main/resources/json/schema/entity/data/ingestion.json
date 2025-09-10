@@ -110,6 +110,10 @@
     "system_id": {
       "description": "ingestion system name",
       "type": "string"
+    },
+    "source_filter": {
+      "type": "object",
+      "description": "source filter"
     }
   },
   "required": ["system_id"],
