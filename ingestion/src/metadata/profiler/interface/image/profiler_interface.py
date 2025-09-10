@@ -113,7 +113,9 @@ class ImageProfilerInterface(ProfilerInterface):
             if local_file_path is None:
                 return None
 
-            if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
+            if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
+                                                    FileFormat.bmp, FileFormat.gif, FileFormat.webp,
+                                                    FileFormat.cr2.value, FileFormat.nef.value, FileFormat.tiff.value, FileFormat.tif.value]:
                 return self.get_pil_sample(local_file_path)
 
             else:

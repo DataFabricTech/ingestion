@@ -4,8 +4,13 @@ from io import BytesIO
 import base64
 import pytesseract
 import re
+import xml.etree.ElementTree as ET
 
 from metadata.utils.logger import ingestion_logger
+from metadata.utils.icc_profile import parse_icc_bytes
+
+from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
+
 logger = ingestion_logger()
 
 """
@@ -32,15 +37,37 @@ class PilMetadataExtractor:
                 for k, v in img_info.items():
                     if k == 'exif':
                         continue
-                    metadata[f"info.{k}"] = v
+                    elif k == 'xmp':
+                        xmp_meta = self.parse_xmp(v)
+                        metadata.update(xmp_meta)
+                    elif k == 'icc_profile':
+                        meta = self.parse_icc_profile(v)
+                        metadata.update(meta)
+                    elif k == 'photoshop':
+                        meta = self.parse_photoshop(v)
+                        metadata.update(meta)
+                    else:
+                        metadata[f"info.{k}"] = v
 
             # EXIF 데이터 추출 (JPEG, TIFF에 주로 존재)
+            is_add_exif_metadata = False
             if hasattr(img, '_getexif'):
                 img_exif = img._getexif()
-                if img_exif:
+                if img_exif and len(img_exif) > 0:
                     for tag_id, value in img_exif.items():
                         tag = TAGS.get(tag_id, tag_id)
                         metadata[f"exif.{tag}"] = value
+                else:
+                    is_add_exif_metadata = True
+            else:
+                is_add_exif_metadata = True
+
+            if is_add_exif_metadata:
+                # PIL 로 추출한 메타 데이터에 exif 정보가 없다면 exifread 라이브러리 사용하여 추출
+                eme = ExifreadMetadataExtractor(self.file_path)
+                eme_metadata = eme.extract_metadata()
+                exif_metadata = {f'exif.{key}': value for key, value in eme_metadata.items()}
+                metadata.update(exif_metadata)
 
             # 텍스트 추출
             try:
@@ -126,5 +153,53 @@ class PilMetadataExtractor:
         # 텍스트 정리
         return self.get_clean_text(text)
 
+
+    def parse_xmp(self, xmp_bytes):
+        metadata = {}
+        try:
+            # XMP는 바이트 문자열이므로 디코딩 필요
+            xmp_str = xmp_bytes.decode('utf-8', errors='ignore')
+
+            # XML 파싱
+            root = ET.fromstring(xmp_str)
+
+            # 네임스페이스 처리
+            namespaces = {
+                'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+                'aux': 'http://ns.adobe.com/exif/1.0/aux/',
+                'xmp': 'http://ns.adobe.com/xap/1.0/',
+                'photoshop': 'http://ns.adobe.com/photoshop/1.0/'
+            }
+
+            # <rdf:Description> 노드 찾기
+            description = root.find('.//rdf:Description', namespaces)
+            if description is not None:
+                for attr, value in description.attrib.items():
+                    # attr은 {namespace}Key 형식
+                    if '}' in attr:
+                        _, key = attr.rsplit('}', 1)
+                        metadata[f"info.xmp.{key}"] = value
+        except Exception as e:
+            metadata['info.xmp.error'] = str(e)
+
+        return metadata
+
+    def parse_icc_profile(self, icc_bytes):
+
+        # 첫 4바이트가 b'\\x00'이면 이스케이프된 문자열
+        if icc_bytes.startswith(b'\\x'):
+            decoded = icc_bytes.decode('utf-8')  # 바이트 → 문자열
+            unescaped = decoded.encode('utf-8').decode('unicode_escape')  # 이스케이프 해제
+            icc_bytes = unescaped.encode('latin1')  # 바이너리 바이트 변환
+
+        icc_metadata = parse_icc_bytes(icc_bytes)
+        metadata = {f'info.icc_profile.{key}': value for key, value in icc_metadata.items()}
+        return metadata
+
+    def parse_photoshop(self, photoshop_info):
+        photoshop_metadata = {}
+        photoshop_metadata['info.photoshop.x_resolution'] = photoshop_info[1005]['XResolution']
+        photoshop_metadata['info.photoshop.y_resolution'] = photoshop_info[1005]['YResolution']
+        return photoshop_metadata
 
 

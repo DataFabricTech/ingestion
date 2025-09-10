@@ -12,11 +12,12 @@ class ExifreadMetadataExtractor:
             tags = exifread.process_file(f)
 
         # 모든 메타
-        for k in tags:
-            metadata[k] = tags[k]
+        for k, v in tags.items():
+            if k == 'JPEGThumbnail':
+                continue
+            metadata[k] = v
 
         return metadata
-
 
 
 

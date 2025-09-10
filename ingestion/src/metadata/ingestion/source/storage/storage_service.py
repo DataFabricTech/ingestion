@@ -447,10 +447,10 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             file_extension = path.split('.')[-1]
 
             if file_extension in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
-                                  FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value]:
+                                  FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value,
+                                  FileFormat.cr2.value, FileFormat.nef.value, FileFormat.tiff.value, FileFormat.tif.value]:
                 metadata = self._get_pil_meta(local_file_path)
-            elif file_extension in [FileFormat.cr2.value, FileFormat.nef.value, FileFormat.arw.value,
-                                    FileFormat.orf.value, FileFormat.tiff.value, FileFormat.tif.value]:
+            elif file_extension in [FileFormat.arw.value, FileFormat.orf.value]:
                 metadata = self._get_exifread_meta(local_file_path)
             elif file_extension == FileFormat.psd.value:
                 metadata = self._get_psd_meta(local_file_path)
