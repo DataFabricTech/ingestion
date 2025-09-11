@@ -1,95 +1,99 @@
-FROM rockylinux:8.9
+# ------------------------------
+# 1단계: 빌드용 이미지
+# ------------------------------
+FROM rockylinux:8.9 AS builder
 
-# python, pip 설치
+# 개발 도구 설치
+# mesa-libGL, libzstd-devel : cr2 관련 OpenGL 패키지
 RUN dnf -y groupinstall "Development Tools" && \
     dnf -y install \
-    python38 \
-    python38-devel \
-    python3-pip \
-    gcc \
-    make \
-    glibc-devel \
-    cyrus-sasl-devel \
-    cyrus-sasl-plain \
-    python3-devel \
-    libffi-devel  \
-    openssh-server \
-    sudo \
-    zlib-devel \
-    unixODBC \
-    unixODBC-devel && \
-    python3.8 -m pip install --upgrade pip && \
-    dnf clean all
+        python38 \
+        python38-devel \
+        python3-pip \
+        gcc \
+        make \
+        glibc-devel \
+        cyrus-sasl-devel \
+        cyrus-sasl-plain \
+        python3-devel \
+        libffi-devel  \
+        openssh-server \
+        sudo \
+        zlib-devel \
+        unixODBC \
+        unixODBC-devel \
+        mesa-libGL \
+        libzstd-devel && \
+    dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
-# cr2 관련 OpenGL 패키지
-RUN dnf -y install mesa-libGL
 
-RUN dnf -y install libzstd-devel
+# 파이선 설치
+RUN python3.8 -m pip install --upgrade pip etuptools packaging wheel cython
+
 
 WORKDIR /metadata_collector
 
 # 프로젝트 파일들을 컨테이너로 복사
 COPY ../setup.py /metadata_collector/setup.py
-
-#COPY ../.env /metadata_collector/.env
 COPY ../src /metadata_collector/src
 COPY ../metadata_collector_main.py /metadata_collector/metadata_collector_main.py
-
-COPY ../odbc/odbcinst.ini /etc/odbcinst.ini
-COPY ../odbc/odbc.ini /etc/odbc.ini
-
-# SASL 관련 라이브러리 설치
-#RUN dnf -y update && \
-#    dnf -y install \
-#    cyrus-sasl-devel \
-#    python3-devel \
-#    libffi-devel  \
-#    openssh-server \
-#    sudo && \
-#    dnf clean all
-
-# tmp 디렉토리
-RUN mkdir /metadata_collector/tmp
-
-# ssh 관련
-RUN ssh-keygen -A
-RUN mkdir /var/run/sshd
-RUN echo 'root:root' | chpasswd
-
-# root 계정의 비밀번호 인증 허용
-RUN sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-EXPOSE 22
-
-# python 링크
-RUN ln -s /usr/bin/python3.8 /usr/bin/python
-RUN ln -s /usr/bin/pip3.8 /usr/bin/pip
-
-# pip와 setuptools를 최신 버전으로 업그레이드
-RUN pip install --upgrade pip setuptools packaging
-
-# metadata_collector 설치
-RUN pip install ".[all]"
-
-## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
-# 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
-RUN pip install --upgrade setuptools packaging wheel cython
-#--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
-RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
-##
-
 # generate
 COPY ../scripts /metadata_collector/scripts
 COPY ../spec /metadata_collector/spec
 COPY ../Makefile /metadata_collector/Makefile
-RUN make install_antlr_cli
-RUN make generate
+# odbc
+COPY ../odbc/odbcinst.ini /etc/odbcinst.ini
+COPY ../odbc/odbc.ini /etc/odbc.ini
 
-# bashrc 설정 추가
+# metadata_collector 설치
+RUN pip install ".[all]"
+
+#--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
+RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
+
+# generate
+RUN make install_antlr_cli && make generate
+
+
+# ------------------------------
+# 2단계: 런타임용 슬림 이미지
+# ------------------------------
+FROM rockylinux:8.9
+
+# 런타임에 필요한 최소 패키지 설치
+RUN dnf -y install \
+        python38 \
+        python3-pip \
+        mesa-libGL \
+        libzstd-devel \
+        unixODBC \
+        openssh-server \
+        sudo && \
+    dnf clean all && rm -rf /var/cache/dnf /tmp/*
+
+WORKDIR /metadata_collector
+
+# 빌드 스테이지에서 필요한 파일만 복사
+COPY --from=builder /metadata_collector /metadata_collector
+
+# Python 링크 설정
+RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/pip3.8 /usr/bin/pip
+
+# SSH 설정
+RUN ssh-keygen -A && \
+    mkdir /var/run/sshd && \
+    echo 'root:root' | chpasswd && \
+    sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# alias 설정
 RUN echo 'alias ll="ls -alF --color=auto"' >> /root/.bashrc
 
-# PYTHONPATH 환경 변수 설정
+# ENV 설정
 ENV PYTHONPATH="/metadata_collector/src:/metadata_collector/site-package:$PYTHONPATH"
 
-#CMD ["tail", "-f", "/dev/null"]
-CMD ["sh", "-c", "cp /metadata_collector/conf/odbc/odbcinst.ini /etc/odbcinst.ini && tail -f /dev/null"]
+# 포트 노출
+EXPOSE 22
+
+# 컨테이너 유지 및 odbc 설정
+CMD ["sh", "-c", "cp /metadata_collector/conf/odbc/odbcinst.ini /etc/odbcinst.ini && cp /metadata_collector/conf/odbc/odbc.ini /etc/odbc.ini && tail -f /dev/null"]
