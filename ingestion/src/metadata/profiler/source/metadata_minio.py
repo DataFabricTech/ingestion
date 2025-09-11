@@ -144,7 +144,8 @@ class MetadataSourceForMinio(Source):
             FileFormat.cr2,
             FileFormat.nef,
             FileFormat.tiff,
-            FileFormat.tif
+            FileFormat.tif,
+            FileFormat.txt
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats

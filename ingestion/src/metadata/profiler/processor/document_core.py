@@ -15,7 +15,7 @@ Main Profile definition and queries to execute
 from __future__ import annotations
 
 import traceback
-from typing import Optional
+from typing import Optional, Tuple
 
 from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
 from metadata.generated.schema.entity.data.container import FileFormat
@@ -40,30 +40,28 @@ class DocProfiler:
 
     def process(self) -> ProfilerResponse:
 
-        # summary
-        if self.file_format in [FileFormat.hwp]:
-            sample_data = self.generate_sample_data()
-
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-        else:
-            str_summary = None
-
         # sample : 이미지 변환
         if self.source_config.generateSampleData:
-            sample_data = self.generate_sample_data()
+            sample_data, sample_image_data = self.generate_sample_data()
+
+            if sample_data is not None:
+                str_summary = self.summarizer.summarize(sample_data)
+            else:
+                str_summary = None
         else:
             sample_data = None
+            str_summary = None
 
         profile_response = ProfilerResponse(
             table=self.profiler_interface.table_entity,
             unstructured_sample_data=sample_data,
-            unstructured_summary=str_summary
+            unstructured_summary=str_summary,
+            image_sample_data=sample_image_data
         )
 
         return profile_response
 
-    def generate_sample_data(self) -> Optional[str]:
+    def generate_sample_data(self) -> Tuple[Optional[str], Optional[str]]:
         """
         Fetch and ingest sample data
         """
@@ -72,8 +70,8 @@ class DocProfiler:
                 "Fetching sample data for "
                 f"{self.profiler_interface.table_entity.fullyQualifiedName.__root__}..."  # type: ignore
             )
-            sample_data = self.profiler_interface.fetch_sample_data(get_chunk_size=-1)
-            return sample_data
+            sample_data, sample_image_data = self.profiler_interface.fetch_sample_data(get_chunk_size=-1)
+            return sample_data, sample_image_data
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(f"Error fetching sample data: {err}")

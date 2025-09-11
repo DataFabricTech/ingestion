@@ -512,7 +512,10 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
         """Cleanup "`" character in columns and ingest"""
         if isinstance(record.table, Container):
             if record.table.fileFormats is not None :
-                if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.hwp, FileFormat.hwpx, FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
+                if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
+                                                   FileFormat.txt,
+                                                   FileFormat.hwp, FileFormat.hwpx,
+                                                   FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
                     logger.info(f"profile update for document file")
 
                     record.table.rdfs = [Rdf(name='summary', object=f"{record.unstructured_summary}")]
@@ -520,26 +523,18 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                         container=record.table
                     )
 
+                    res = None
                     if record.unstructured_sample_data:
                         res = self.metadata.ingest_container_unstructured_sample_data(
                             container=record.table, sample_data=record.unstructured_sample_data
                         )
-                        # if not table_data:
-                        #     self.status.failed(
-                        #         StackTraceError(
-                        #             name=container.fullyQualifiedName.__root__,
-                        #             error="Error trying to ingest sample data for container",
-                        #         )
-                        #     )
-                        # else:
-                        #     logger.debug(
-                        #         f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
-                        #     )
-                        return Either(right=res)
-                    elif record.image_sample_data:
+
+                    if record.image_sample_data:
                         res = self.metadata.ingest_container_image_sample_data(
                             container=record.table, sample_data=record.image_sample_data
                         )
+
+                    if res is not None:
                         return Either(right=res)
 
         column_profile = record.profile.columnProfile

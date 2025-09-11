@@ -153,7 +153,7 @@ base_requirements = {
     "botocore==1.32.4",
     "datamodel-code-generator==0.22.0",
     "pillow==10.4.0",
-    "pypdf==5.9.0",
+    "pymupdf==1.24.11",
     "imageio==2.35.1",
     "OpenEXR==3.3.5",
     "exifread==3.5.1",

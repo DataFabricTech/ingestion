@@ -79,7 +79,7 @@ class PilMetadataExtractor:
 
         return metadata
 
-    def get_sample_data(self, sample_width: int = 2000, sample_height: int = 2000):
+    def get_sample_data(self, max_side=2000):
 
         # 메모리에 저장 (BytesIO 사용)
         buffered = BytesIO()
@@ -106,13 +106,13 @@ class PilMetadataExtractor:
             width, height = img.size
 
             is_resize = False
-            if height > width and height > sample_height: # 세로 이미지
+            if height > width and height > max_side: # 세로 이미지
                 aspect_ratio = width / height
-                sample_width = int(sample_height * aspect_ratio)
+                sample_width = int(max_side * aspect_ratio)
                 is_resize = True
-            elif width > sample_width: # 가로 이미지, 정사각형 (가로기준하면될듯)
+            elif width > max_side: # 가로 이미지, 정사각형 (가로기준하면될듯)
                 aspect_ratio = height / width
-                sample_height = int(sample_width * aspect_ratio)
+                sample_height = int(max_side * aspect_ratio)
                 is_resize = True
             else: # 사이즈가 작아서 리사이즈 없음
                 pass

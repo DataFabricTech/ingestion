@@ -11,7 +11,7 @@
 #  pylint: disable=arguments-differ
 import os
 import uuid
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, List, Tuple
 
 from sqlalchemy import Column
 
@@ -25,6 +25,7 @@ from metadata.utils.local_dir import ensure_directory_exists
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
+from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
 from metadata.utils.s3_utils import get_normalized_key
 
 from utils.process_config import config
@@ -97,7 +98,7 @@ class DocumentProfilerInterface(ProfilerInterface):
             logger.error(e)
             return None
 
-    def fetch_sample_data(self, **kwargs) -> Optional[str]:
+    def fetch_sample_data(self, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         """
         Fetch sample data from minio document(doc, hwp)
         """
@@ -109,20 +110,32 @@ class DocumentProfilerInterface(ProfilerInterface):
             normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
 
             if normalized_key is None:
-                return None
+                return None, None
 
             local_file_path = self._get_document_data(bucket_name, normalized_key)
             if local_file_path is None:
-                return None
+                return None, None
 
+            sample_data = None
+            sample_image_data =None
+            # get sample data
             if self.table_entity.fileFormats[0] in [FileFormat.hwp, FileFormat.hwpx]:
-                return self.get_hwp_sample(local_file_path, get_chunk_size)
+                sample_data = self.get_hwp_sample(local_file_path, get_chunk_size)
             # elif file_extension == "docx" or file_extension == "doc":
-            elif self.table_entity.fileFormats[0] == FileFormat.docx:
-                return self.get_word_sample(local_file_path)
-            else:
+            elif self.table_entity.fileFormats[0] in [FileFormat.docx]:
+                sample_data = self.get_ms_sample(local_file_path)
+                sample_image_data = self.get_word_sample_image(local_file_path)
+
+            # get sample image data
+            if self.table_entity.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
+                                                      FileFormat.xlsx, FileFormat.xls,
+                                                      FileFormat.txt]:
+                sample_image_data = self.get_word_sample_image(local_file_path)
+
+            if sample_data is None and sample_image_data is None:
                 logger.warn("Unsupported file type")
-                return None
+            return sample_data, sample_image_data
+
         except Exception as e:
             logger.error(e)
         finally:
@@ -133,10 +146,23 @@ class DocumentProfilerInterface(ProfilerInterface):
         sample_data = hwp_extractor.get_sample_data(chunk_size)
         return sample_data
 
-    def get_word_sample(self, local_file_path):
+    def get_ms_sample(self, local_file_path):
         word_extractor = MsWordMetadataExtractor(local_file_path)
         sample_text = word_extractor.get_sample_data(1000)
         return sample_text
+
+    def get_word_sample_image(self, local_file_path):
+        extractor = PdfMetadataExtractor(local_file_path)
+        pdf_path = ""
+        try:
+            pdf_path = extractor.convert_to_pdf()
+            sample_text = extractor.get_sample_data(pdf_path)
+            return sample_text
+        except Exception as e:
+            logger.error(e)
+            return None
+        finally:
+            os.remove(pdf_path)
 
     def _get_sampler(self):
         pass

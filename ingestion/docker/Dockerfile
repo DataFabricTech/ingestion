@@ -68,7 +68,8 @@ RUN dnf -y install \
         libzstd-devel \
         unixODBC \
         openssh-server \
-        sudo && \
+        sudo \
+        libreoffice && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 WORKDIR /metadata_collector
