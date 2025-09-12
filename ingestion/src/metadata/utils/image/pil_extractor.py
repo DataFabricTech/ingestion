@@ -197,9 +197,17 @@ class PilMetadataExtractor:
         return metadata
 
     def parse_photoshop(self, photoshop_info):
+        """
+            photoshop 메타 데이터 정보
+            https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
+            1005 : 이미지의 해상도 정보
+        """
         photoshop_metadata = {}
-        photoshop_metadata['info.photoshop.x_resolution'] = photoshop_info[1005]['XResolution']
-        photoshop_metadata['info.photoshop.y_resolution'] = photoshop_info[1005]['YResolution']
+        if 1005 in photoshop_info:
+            if 'XResolution' in photoshop_info[1005]:
+                photoshop_metadata['info.photoshop.x_resolution'] = photoshop_info[1005]['XResolution']
+            if 'YResolution' in photoshop_info[1005]:
+                photoshop_metadata['info.photoshop.y_resolution'] = photoshop_info[1005]['YResolution']
         return photoshop_metadata
 
 

@@ -3,28 +3,22 @@ import os
 from docx import Document
 from tika import parser
 
-from metadata.ml.summarization import Summarization
-
+from datetime import datetime
 
 class MsWordMetadataExtractor:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-        self.summarizer = Summarization()
 
-    def extract_metadata(self) -> dict:
-
+    def get_metadata_from_tika(self, file_path):
         # Tika로 문서 파싱
-        parsed = parser.from_file(self.file_path)
+        parsed = parser.from_file(file_path)
         # 메타데이터 추출
-        metadata = parsed['metadata']
-        # 파일 확장자가 docx가 아니면 tika 결과만을 반환
-        file_extension = os.path.splitext(self.file_path)[1]
-        if file_extension != '.docx':
-            return metadata
+        return parsed['metadata']
 
+    # docx 만 지원함
+    def get_metadata_from_docx(self, file_path):
         # 문서 열기
-        doc = Document(self.file_path)
+        doc = Document(file_path)
 
+        metadata = {}
         # 메타데이터 추출
         core_properties = doc.core_properties
         if core_properties.author is not None:
@@ -56,16 +50,94 @@ class MsWordMetadataExtractor:
         if core_properties.version is not None:
             metadata['Version'] = core_properties.version
 
-        sample_data = self.get_sample_data(-1)
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-            metadata['Summary'] = str_summary
         return metadata
 
-    def get_sample_data(self, chunk_size: int = 1000) -> str:
+    def get_metadata(self, file_path: str) -> dict:
+
+        metadata = self.get_metadata_from_tika(file_path)
+
+        # 파일 확장자가 docx가 아니면 tika 결과만을 반환
+        file_extension = os.path.splitext(file_path)[1]
+        if file_extension == '.docx':
+            metadata.update(self.get_metadata_from_docx(file_path))
+
+        # key 변경
+        new_metas = {}
+        for k, v in metadata.items():
+            if isinstance(v, str) and v == "":
+                continue
+            if k == "Author":
+                new_metas["author"] = v
+            if k == "Category":
+                new_metas["category"] = v
+            if k == 'Comments':
+                new_metas["comments"] = v
+            if k == 'Content Status':
+                new_metas["content status"] = v
+            if k == 'Created':
+                if isinstance(v, str):
+                    new_metas["created"] = v
+                if isinstance(v, datetime):
+                    # datetime 형식의 경우 str로 변환
+                    new_metas["created"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+            if k == 'Identifier':
+                new_metas["identifier"] = v
+            if k == 'Language':
+                new_metas["language"] = v
+            if k == 'Last Modified By':
+                new_metas["last modified by"] = v
+            if k == 'Modified':
+                if isinstance(v, str):
+                    new_metas["modified"] = v
+                if isinstance(v, datetime):
+                    # datetime 형식의 경우 str로 변환
+                    new_metas["modified"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+            if k == 'Revision':
+                new_metas["revision"] = v
+            if k == 'Subject':
+                new_metas["subject"] = v
+            if k == 'Title':
+                new_metas["title"] = v
+            if k == 'Version':
+                new_metas["version"] = v
+            if k == "cp:revision":
+                new_metas["revision"] = v
+            if k == "meta:word-count":
+                new_metas["word_count"] = v
+            if k == "meta:character-count":
+                new_metas["character_count"] = v
+            if k == "extended-properties:Application":
+                if isinstance(v, str):
+                    new_metas["application"] = v
+                if isinstance(v, list):
+                    # v duplicate 삭제
+                    values = " ".join(list(set(v)))
+                    new_metas["application"] = values
+            if k == "dcterms:created":
+                new_metas["created"] = (v if isinstance(v, str) else v[0])
+            if k == "dcterms:modified":
+                new_metas["modified"] = (v if isinstance(v, str) else v[0])
+            if k == "Content-Length":
+                new_metas["content-Length"] = v
+            if k == "meta:last-author":
+                new_metas["last-author"] = (v if isinstance(v, str) else v[0])
+            if k == "xmpTPg:NPages":
+                new_metas["page_count"] = v
+            if k == "dc:language":
+                new_metas["language"] = (v if isinstance(v, str) else v[0])
+            if k == "meta:line-count":
+                new_metas["line_count"] = v
+            if k == "meta:paragraph-count":
+                new_metas["paragraph_count"] = v
+            if k == "tiff:ImageLength":
+                new_metas["image_count"] = len(v)
+
+        return new_metas
+
+    def get_sample_data(self, file_path, chunk_size: int = 1000) -> str:
         sample_text = ""
         # Word 문서를 불러 옵니다.
-        doc = Document(self.file_path)
+        doc = Document(file_path)
         # 문서의 모든 단락을 순회
         for para in doc.paragraphs:
             # 단락이 비어 있지 않으면 추가

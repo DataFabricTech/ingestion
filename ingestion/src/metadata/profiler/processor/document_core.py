@@ -40,11 +40,12 @@ class DocProfiler:
 
     def process(self) -> ProfilerResponse:
 
-        # sample : 이미지 변환
+        # sample : 이미지 변환, summary
         if self.source_config.generateSampleData:
             sample_data, sample_image_data = self.generate_sample_data()
 
             if sample_data is not None:
+                ############## sample_data는 1000자 일테니 summary용 데이터를 가지고와야할듯.
                 str_summary = self.summarizer.summarize(sample_data)
             else:
                 str_summary = None

@@ -25,6 +25,8 @@ from metadata.utils.local_dir import ensure_directory_exists
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
+from metadata.utils.word.txt_extractor import TxtMetadataExtractor
+from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
 from metadata.utils.s3_utils import get_normalized_key
 
@@ -100,7 +102,7 @@ class DocumentProfilerInterface(ProfilerInterface):
 
     def fetch_sample_data(self, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         """
-        Fetch sample data from minio document(doc, hwp)
+        Fetch sample data from minio document
         """
         get_chunk_size = kwargs.get('chunk_size', 1000)
         local_file_path = ""
@@ -121,15 +123,17 @@ class DocumentProfilerInterface(ProfilerInterface):
             # get sample data
             if self.table_entity.fileFormats[0] in [FileFormat.hwp, FileFormat.hwpx]:
                 sample_data = self.get_hwp_sample(local_file_path, get_chunk_size)
-            # elif file_extension == "docx" or file_extension == "doc":
             elif self.table_entity.fileFormats[0] in [FileFormat.docx]:
-                sample_data = self.get_ms_sample(local_file_path)
-                sample_image_data = self.get_word_sample_image(local_file_path)
+                sample_data = self.get_ms_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.txt]:
+                sample_data = self.get_txt_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.xml]:
+                sample_data = self.get_xml_sample(local_file_path, get_chunk_size)
 
             # get sample image data
             if self.table_entity.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
-                                                      FileFormat.xlsx, FileFormat.xls,
-                                                      FileFormat.txt]:
+                                                    FileFormat.txt,
+                                                    FileFormat.xml]:
                 sample_image_data = self.get_word_sample_image(local_file_path)
 
             if sample_data is None and sample_image_data is None:
@@ -142,13 +146,23 @@ class DocumentProfilerInterface(ProfilerInterface):
             os.remove(local_file_path)
 
     def get_hwp_sample(self, local_file_path, chunk_size=1000):
-        hwp_extractor = HwpMetadataExtractor(local_file_path)
-        sample_data = hwp_extractor.get_sample_data(chunk_size)
+        hwp_extractor = HwpMetadataExtractor()
+        sample_data = hwp_extractor.get_sample_data(local_file_path, chunk_size)
         return sample_data
 
-    def get_ms_sample(self, local_file_path):
-        word_extractor = MsWordMetadataExtractor(local_file_path)
-        sample_text = word_extractor.get_sample_data(1000)
+    def get_ms_sample(self, local_file_path, chunk_size=1000):
+        word_extractor = MsWordMetadataExtractor()
+        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
+
+    def get_txt_sample(self, local_file_path, chunk_size=1000):
+        word_extractor = TxtMetadataExtractor()
+        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
+
+    def get_xml_sample(self, local_file_path, chunk_size=1000):
+        word_extractor = XmlMetadataExtractor()
+        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
         return sample_text
 
     def get_word_sample_image(self, local_file_path):

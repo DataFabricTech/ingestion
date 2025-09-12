@@ -14,7 +14,6 @@ Base class for ingesting Object Storage services
 import os
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
 from enum import Enum
 from typing import Any, Iterable, List, Optional, Set
 
@@ -214,6 +213,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             ManifestMetadataConfig
         ] = self.get_manifest_file()
 
+        self.metadata_extractor = {}
+
     @property
     def name(self) -> str:
         return self.service_connection.type.name
@@ -409,22 +410,29 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         try:
             file_extension = path.split('.')[-1]
-
-            if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
-                metadata = self._get_hwp_meta(local_file_path)
-            elif file_extension in [FileFormat.doc.value, FileFormat.docx.value]:
-                metadata = self._get_word_meta(local_file_path)
-            elif file_extension == FileFormat.txt.value:
-                metadata = self._get_txt_meta(local_file_path)
-            elif file_extension == FileFormat.json.value:
-                metadata = self._get_json_meta(local_file_path)
-            elif file_extension == FileFormat.xml.value:
-                metadata = self._get_xml_meta(local_file_path)
+            if file_extension in self.metadata_extractor:
+                extractor = self.metadata_extractor[file_extension]
             else:
-                logger.warn("Unsupported file type")
-                return None
+                if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
+                    extractor = HwpMetadataExtractor()
+                elif file_extension in [FileFormat.doc.value, FileFormat.docx.value]:
+                    extractor = MsWordMetadataExtractor()
+                elif file_extension == FileFormat.txt.value:
+                    extractor = TxtMetadataExtractor()
+                # elif file_extension == FileFormat.json.value:
+                #     extractor = JsonMetadataExtractor()
+                elif file_extension == FileFormat.xml.value:
+                    extractor = XmlMetadataExtractor()
+                else:
+                    logger.warn("Unsupported file type")
+                    return None
+
+                self.metadata_extractor[file_extension] = extractor
+
+            metadata = extractor.get_metadata(local_file_path)
 
             rdfs = self._get_common_rdfs(metadata.items())
+
         except Exception as e:
             ingestion_logger().error(f"get rdfs fail : bucket : {bucket_name}, path : {path}, {e}")
             return None
@@ -490,116 +498,40 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         return rdfs
 
-    def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from hwp/hwpx file
-        """
-        extractor = HwpMetadataExtractor(local_file_path)
-        return extractor.get_metadata()
+    # def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    #     """
+    #     Extract metadata from hwp/hwpx file
+    #     """
+    #     extractor = HwpMetadataExtractor(local_file_path)
+    #     return extractor.get_metadata()
 
-    def _get_word_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from word(doc/docx) document
-        """
-        extractor = MsWordMetadataExtractor(local_file_path)
-        metas = extractor.extract_metadata()
-        # key 변경
-        new_metas = {}
-        for k, v in metas.items():
-            if isinstance(v, str) and v == "":
-                continue
-            if k == "Author":
-                new_metas["author"] = v
-            if k == "Category":
-                new_metas["category"] = v
-            if k == 'Comments':
-                new_metas["comments"] = v
-            if k == 'Content Status':
-                new_metas["content status"] = v
-            if k == 'Created':
-                if isinstance(v, str):
-                    new_metas["created"] = v
-                if isinstance(v, datetime):
-                    # datetime 형식의 경우 str로 변환
-                    new_metas["created"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
-            if k == 'Identifier':
-                new_metas["identifier"] = v
-            if k == 'Language':
-                new_metas["language"] = v
-            if k == 'Last Modified By':
-                new_metas["last modified by"] = v
-            if k == 'Modified':
-                if isinstance(v, str):
-                    new_metas["modified"] = v
-                if isinstance(v, datetime):
-                    # datetime 형식의 경우 str로 변환
-                    new_metas["modified"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
-            if k == 'Revision':
-                new_metas["revision"] = v
-            if k == 'Subject':
-                new_metas["subject"] = v
-            if k == 'Title':
-                new_metas["title"] = v
-            if k == 'Version':
-                new_metas["version"] = v
-            if k == "cp:revision":
-                new_metas["revision"] = v
-            if k == "meta:word-count":
-                new_metas["word_count"] = v
-            if k == "meta:character-count":
-                new_metas["character_count"] = v
-            if k == "extended-properties:Application":
-                if isinstance(v, str):
-                    new_metas["application"] = v
-                if isinstance(v, list):
-                    # v duplicate 삭제
-                    values = " ".join(list(set(v)))
-                    new_metas["application"] = values
-            if k == "dcterms:created":
-                new_metas["created"] = (v if isinstance(v, str) else v[0])
-            if k == "dcterms:modified":
-                new_metas["modified"] = (v if isinstance(v, str) else v[0])
-            if k == "Content-Length":
-                new_metas["content-Length"] = v
-            if k == "meta:last-author":
-                new_metas["last-author"] = (v if isinstance(v, str) else v[0])
-            if k == "xmpTPg:NPages":
-                new_metas["page_count"] = v
-            if k == "dc:language":
-                new_metas["language"] = (v if isinstance(v, str) else v[0])
-            if k == "Summary":
-                new_metas["summary"] = (v if isinstance(v, str) else v[0])
-            if k == "meta:line-count":
-                new_metas["line_count"] = v
-            if k == "meta:paragraph-count":
-                new_metas["paragraph_count"] = v
-            if k == "tiff:ImageLength":
-                new_metas["image_count"] = len(v)
-            # if v is not None:
-            #     rdfs.append(Rdf(name=k, object=v))
+    # def _get_word_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    #     """
+    #     Extract metadata from word(doc/docx) document
+    #     """
+    #     extractor = MsWordMetadataExtractor(local_file_path)
+    #     return extractor.extract_metadata()
 
-        return new_metas
+    # def _get_txt_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    #     """
+    #     Extract metadata from txt file
+    #     """
+    #     extractor = TxtMetadataExtractor(local_file_path)
+    #     return extractor.extract_metadata()
 
-    def _get_txt_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from txt file
-        """
-        extractor = TxtMetadataExtractor(local_file_path)
-        return extractor.extract_metadata()
+    # def _get_json_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    #     """
+    #     Extract metadata from json file
+    #     """
+    #     extractor = JsonMetadataExtractor(local_file_path)
+    #     return extractor.extract_metadata()
 
-    def _get_json_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from json file
-        """
-        extractor = JsonMetadataExtractor(local_file_path)
-        return extractor.extract_metadata()
-
-    def _get_xml_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from json file
-        """
-        extractor = XmlMetadataExtractor(local_file_path)
-        return extractor.extract_metadata()
+    # def _get_xml_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    #     """
+    #     Extract metadata from json file
+    #     """
+    #     extractor = XmlMetadataExtractor(local_file_path)
+    #     return extractor.extract_metadata()
 
     def _get_pil_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
         """

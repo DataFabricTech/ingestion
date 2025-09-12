@@ -129,11 +129,11 @@ class MetadataSourceForMinio(Source):
         supported_file_formats = [
             FileFormat.csv,
             FileFormat.tsv,
-            # FileFormat.xls,
+            FileFormat.xls,
             FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
-            # FileFormat.doc,
+            FileFormat.doc,
             FileFormat.docx,
             FileFormat.jpeg,
             FileFormat.jpg,
@@ -145,7 +145,9 @@ class MetadataSourceForMinio(Source):
             FileFormat.nef,
             FileFormat.tiff,
             FileFormat.tif,
-            FileFormat.txt
+            FileFormat.txt,
+            FileFormat.json,
+            FileFormat.xml
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats

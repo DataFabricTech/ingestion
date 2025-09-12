@@ -514,6 +514,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
             if record.table.fileFormats is not None :
                 if record.table.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
                                                    FileFormat.txt,
+                                                   FileFormat.xml,
                                                    FileFormat.hwp, FileFormat.hwpx,
                                                    FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
                     logger.info(f"profile update for document file")

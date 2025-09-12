@@ -1,20 +1,15 @@
 import xml.etree.ElementTree as ET
 
-from metadata.ml.summarization import Summarization
-
 class XmlMetadataExtractor:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-        self.summarizer = Summarization()
 
     def count_elements(self, element, tag_counter):
         for child in element:
             tag_counter[child.tag] = tag_counter.get(child.tag, 0) + 1
             self.count_elements(child, tag_counter)
 
-    def extract_metadata(self) -> dict:
+    def get_metadata(self, file_path) -> dict:
 
-        with open(self.file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             raw_text = f.read()
 
         try:
@@ -46,16 +41,11 @@ class XmlMetadataExtractor:
             metadata["word_count"] = word_count
 
 
-        sample_data = self.get_sample_data(-1)
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-            metadata['summary'] = str_summary
-
         return metadata
 
-    def get_sample_data(self, chunk_size: int = 1000) -> str:
+    def get_sample_data(self, file_path, chunk_size: int = 1000) -> str:
         sample_text = ""
-        with open(self.file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.strip():
                     sample_text += line

@@ -1,15 +1,11 @@
-import json
-
-from metadata.ml.summarization import Summarization
-
+"""
+json은 정형데이터로 처리되어 이 클래스는 사용되지 않는다.
+"""
 class JsonMetadataExtractor:
-    def __init__(self, file_path: str):
-        self.file_path = file_path
-        self.summarizer = Summarization()
 
-    def extract_metadata(self) -> dict:
+    def get_metadata(self, file_path) -> dict:
 
-        with open(self.file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             raw_text = f.read()
             # try:
             #     data = json.loads(raw_text)
@@ -38,15 +34,11 @@ class JsonMetadataExtractor:
             'line_count' : line_count,
         }
 
-        sample_data = self.get_sample_data(-1)
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-            metadata['summary'] = str_summary
         return metadata
 
-    def get_sample_data(self, chunk_size: int = 1000) -> str:
+    def get_sample_data(self, file_path, chunk_size: int = 1000) -> str:
         sample_text = ""
-        with open(self.file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
                 if line.strip():  # 공백 줄은 제외
                     sample_text += line
