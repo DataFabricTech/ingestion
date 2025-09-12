@@ -1,6 +1,16 @@
 import cv2
 from ultralytics import YOLO
 
+"""
+ YOLOv8 모델 
+| 모델명         | 파라미터 수 | 속도    | 정확도    | 용도            |
+| ------------ | ---------| ------- | ------- | -------------- |
+| `yolov8n.pt` | 가장 적음  | 매우 빠름 | 낮은 편   | 모바일, 실시간 추론 |
+| `yolov8s.pt` | 적음      | 빠름     | 중간     | 일반 추론         |
+| `yolov8m.pt` | 중간      | 평균     | 중간 이상 | 균형형            |
+| `yolov8l.pt` | 많음      | 느림     | 높음     | 정확도 우선        |
+| `yolov8x.pt` | 가장 많음  | 느림     | 매우 높음 | 고정밀 모델링      |
+"""
 class YoloDetector:
     def __init__(self, file_path: str):
         self.file_path = file_path
@@ -8,7 +18,7 @@ class YoloDetector:
     def detected_objects(self):
 
         # YOLOv8 모델 불러오기 (사전 학습된 모델)
-        model = YOLO("yolov8n.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
+        model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
 
         # 이미지 불러오기
         image = cv2.imread(self.file_path)
