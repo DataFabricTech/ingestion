@@ -28,11 +28,16 @@ RUN dnf -y groupinstall "Development Tools" && \
 
 
 # 파이선 설치
-RUN python3.8 -m pip install --upgrade pip etuptools packaging wheel cython
+RUN python3.8 -m pip install --upgrade pip setuptools packaging wheel cython
+# Python 링크 설정
+RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/pip3.8 /usr/bin/pip
 
+RUN python3.8 -m site && python3.8 -m pip list
 
 WORKDIR /metadata_collector
 
+RUN python3.8 -m site && python3.8 -m pip list
 # 프로젝트 파일들을 컨테이너로 복사
 COPY ../setup.py /metadata_collector/setup.py
 COPY ../src /metadata_collector/src
@@ -48,6 +53,9 @@ COPY ../odbc/odbc.ini /etc/odbc.ini
 # metadata_collector 설치
 RUN pip install ".[all]"
 
+## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
+# 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
+RUN pip install --upgrade setuptools packaging wheel cython
 #--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
 RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
 
@@ -64,6 +72,8 @@ FROM rockylinux:8.9
 RUN dnf -y install \
         python38 \
         python3-pip \
+        cyrus-sasl-devel \
+        cyrus-sasl-plain \
         mesa-libGL \
         libzstd-devel \
         unixODBC \
@@ -75,6 +85,16 @@ RUN dnf -y install \
 WORKDIR /metadata_collector
 
 # 빌드 스테이지에서 필요한 파일만 복사
+# python
+COPY --from=builder /usr/local/lib/python3.8 /usr/local/lib/python3.8
+COPY --from=builder /usr/local/lib64/python3.8 /usr/local/lib64/python3.8
+COPY --from=builder /usr/bin/pip3.8 /usr/bin/pip3.8
+# psd-tools 같은 CLI 도구 포함됨
+COPY --from=builder /usr/local/bin /usr/local/bin
+# odbc 정보
+COPY --from=builder /etc/odbcinst.ini /etc/odbcinst.ini
+COPY --from=builder /etc/odbc.ini /etc/odbc.ini
+
 COPY --from=builder /metadata_collector /metadata_collector
 
 # Python 링크 설정
