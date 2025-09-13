@@ -213,6 +213,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             ManifestMetadataConfig
         ] = self.get_manifest_file()
 
+        # extractor 재사용을 위한 맵
         self.metadata_extractor = {}
 
     @property
@@ -498,77 +499,42 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         return rdfs
 
-    # def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-    #     """
-    #     Extract metadata from hwp/hwpx file
-    #     """
-    #     extractor = HwpMetadataExtractor(local_file_path)
-    #     return extractor.get_metadata()
-
-    # def _get_word_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-    #     """
-    #     Extract metadata from word(doc/docx) document
-    #     """
-    #     extractor = MsWordMetadataExtractor(local_file_path)
-    #     return extractor.extract_metadata()
-
-    # def _get_txt_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-    #     """
-    #     Extract metadata from txt file
-    #     """
-    #     extractor = TxtMetadataExtractor(local_file_path)
-    #     return extractor.extract_metadata()
-
-    # def _get_json_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-    #     """
-    #     Extract metadata from json file
-    #     """
-    #     extractor = JsonMetadataExtractor(local_file_path)
-    #     return extractor.extract_metadata()
-
-    # def _get_xml_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-    #     """
-    #     Extract metadata from json file
-    #     """
-    #     extractor = XmlMetadataExtractor(local_file_path)
-    #     return extractor.extract_metadata()
-
-    def _get_pil_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_pil_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from jpg file
         """
         extractor = PilMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_pdf_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_pdf_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from pdf file
         """
         extractor = PdfMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_exifread_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_exifread_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from image file
         """
         extractor = ExifreadMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_psd_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_psd_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from image file
         """
         extractor = PsdMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_imageio_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_imageio_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from image file
         """
         extractor = ImageioMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_exr_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
+    def _get_exr_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from image file
         """
