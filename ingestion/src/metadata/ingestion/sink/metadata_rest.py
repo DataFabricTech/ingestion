@@ -520,20 +520,41 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                                                    FileFormat.pdf]:
                     logger.info(f"profile update for document file")
 
-                    record.table.rdfs = [Rdf(name='summary', object=f"{record.unstructured_summary}")]
-                    self.metadata.ingest_container_unstructured_profile_data(
-                        container=record.table
-                    )
+
+                    rdfs = []
+                    if record.unstructured_summary or record.image_text or record.image_detected_objects:
+
+                        rdfs = []
+                        if record.unstructured_summary is not None:
+                            rdfs.append(Rdf(name='summary', object=f"{record.unstructured_summary}"))
+
+                        if record.image_text is not None:
+                            rdfs.append(Rdf(name='image_text', object=f"{record.image_text}"))
+
+                        if record.image_detected_objects is not None and len(record.image_detected_objects) > 0:
+                            rdfs.append(Rdf(name='image_detected_objects', object=f"{record.image_detected_objects}"))
+
+                    if len(rdfs) > 0:
+                        record.table.rdfs = rdfs
+                        self.metadata.ingest_container_unstructured_profile_data(
+                            container=record.table
+                        )
+
 
                     res = None
                     if record.unstructured_sample_data:
-                        res = self.metadata.ingest_container_unstructured_sample_data(
-                            container=record.table, sample_data=record.unstructured_sample_data
+                        res = self.metadata.ingest_container_sample_data_image(
+                            "UNSTRUCTURED", container=record.table, sample_data=record.unstructured_sample_data
                         )
 
                     if record.image_sample_data:
-                        res = self.metadata.ingest_container_image_sample_data(
-                            container=record.table, sample_data=record.image_sample_data
+                        res = self.metadata.ingest_container_sample_data_image(
+                            "IMAGE", container=record.table, sample_data=record.image_sample_data
+                        )
+
+                    if record.image_detected_objects_image:
+                        res = self.metadata.ingest_container_sample_data_image(
+                            "DETECTED_OBJECTS_IMAGE", container=record.table, sample_data=record.image_detected_objects_image
                         )
 
                     if res is not None:

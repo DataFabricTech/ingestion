@@ -69,7 +69,6 @@ from metadata.utils.storage_metadata_config import (
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.txt_extractor import TxtMetadataExtractor
-from metadata.utils.word.json_extractor import JsonMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 
 from metadata.utils.image.pil_extractor import PilMetadataExtractor
@@ -78,8 +77,6 @@ from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
 from metadata.utils.image.psd_extractor import PsdMetadataExtractor
 from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
 from metadata.utils.image.exr_extractor import ExrMetadataExtractor
-
-from metadata.utils.image.yolo_detector import YoloDetector
 
 from utils.process_config import config
 
@@ -473,14 +470,6 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                 logger.warn("Unsupported file type")
                 return None
 
-            # 이미지 객체 탐지
-            try:
-                detected_objects = self._get_detected_objects(local_file_path)
-                if len(detected_objects) > 0:
-                    metadata["detected_objects"] = detected_objects
-            except Exception as e:
-                logger.debug(f"image file detected fail [{e}], file {local_file_path}")
-
             rdfs = self._get_common_rdfs(metadata.items())
 
         finally:
@@ -540,10 +529,3 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         """
         extractor = ExrMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
-
-    def _get_detected_objects(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        이미지 객체 탐지
-        """
-        detector = YoloDetector(local_file_path)
-        return detector.detected_objects()

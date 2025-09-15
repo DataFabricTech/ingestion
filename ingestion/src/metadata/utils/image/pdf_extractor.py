@@ -23,8 +23,10 @@ class PdfMetadataExtractor:
         if not input_path.exists():
             raise FileNotFoundError(f"{input_path} not found")
 
+        liberoffice_path = "libreoffice"
+        # liberoffice_path = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
         subprocess.run([
-            "libreoffice",
+            liberoffice_path,
             "--headless", "--convert-to", "pdf",
             "--outdir", str(output_dir),
             str(input_path)

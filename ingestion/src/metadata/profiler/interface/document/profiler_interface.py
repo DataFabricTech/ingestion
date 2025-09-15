@@ -138,6 +138,7 @@ class DocumentProfilerInterface(ProfilerInterface):
 
             if sample_data is None and sample_image_data is None:
                 logger.warn("Unsupported file type")
+
             return sample_data, sample_image_data
 
         except Exception as e:

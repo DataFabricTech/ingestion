@@ -69,22 +69,24 @@ class PilMetadataExtractor:
                 exif_metadata = {f'exif.{key}': value for key, value in eme_metadata.items()}
                 metadata.update(exif_metadata)
 
-            # 텍스트 추출
-            try:
-                image_text = self.get_image_text(img)
-                if len(image_text) > 0:
-                    metadata["image_text"] = image_text
-            except Exception as e:
-                logger.debug(f"get text fail [{e}], file : {self.file_path}")
 
         return metadata
 
     def get_sample_data(self, max_side=2000):
 
+        image_text = None
         # 메모리에 저장 (BytesIO 사용)
         buffered = BytesIO()
         with Image.open(self.file_path) as img:
 
+            # 텍스트 추출
+            try:
+                image_text = self.get_image_text(img)
+            except Exception as e:
+                logger.debug(f"get text fail [{e}], file : {self.file_path}")
+            ###
+
+            # 이미지 사이즈 변경
             # EXIF 회전 정보 적용
             try:
                 # EXIF 정보에서 회전 값 추출
@@ -126,7 +128,9 @@ class PilMetadataExtractor:
                 img.save(buffered, format="JPEG")
 
         # base64 인코딩
-        return base64.b64encode(buffered.getvalue()).decode("utf-8")
+        resize_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        return image_text, resize_image
 
     def get_clean_text(self, text):
         """

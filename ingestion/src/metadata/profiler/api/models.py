@@ -121,6 +121,9 @@ class ProfilerResponse(ConfigModel):
     image_sample_data: Optional[str] = None
     column_tags: Optional[List[ColumnTag]] = None
     unstructured_summary: Optional[str] = None
+    image_text: Optional[str] = None
+    image_detected_objects: Optional[List] = None
+    image_detected_objects_image: Optional[str] = None
 
     def __str__(self):
         """Return the table name being processed"""

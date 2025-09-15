@@ -26,6 +26,7 @@ from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.s3_utils import get_normalized_key
 from metadata.utils.image.pil_extractor import PilMetadataExtractor
 from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
+from metadata.utils.image.yolo_detector import YoloDetector
 
 from utils.process_config import config
 
@@ -114,18 +115,28 @@ class ImageProfilerInterface(ProfilerInterface):
             if local_file_path is None:
                 return None
 
+            image_text = None
+            resize_image = None
+            detected_objects = None
             if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
                                                     FileFormat.bmp, FileFormat.gif, FileFormat.webp,
                                                     FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
-                return self.get_pil_sample(local_file_path)
+                image_text, resize_image = self.get_pil_sample(local_file_path)
 
             elif self.table_entity.fileFormats[0] in [FileFormat.pdf]:
-                return self.get_pdf_sample(local_file_path)
+                resize_image = self.get_pdf_sample(local_file_path)
 
             else:
                 logger.warn("Unsupported file type")
-                return None
 
+            # 이미지 객체 탐지
+            try:
+                detected_objects, detected_objects_image = self._get_detected_objects(local_file_path)
+            except Exception as e:
+                logger.debug(f"image file detected fail [{e}], file {local_file_path}")
+
+
+            return image_text, resize_image, detected_objects, detected_objects_image
         except Exception as e:
             logger.error(e)
         finally:
@@ -133,13 +144,21 @@ class ImageProfilerInterface(ProfilerInterface):
 
     def get_pil_sample(self, local_file_path):
         extractor = PilMetadataExtractor(local_file_path)
-        sample_text = extractor.get_sample_data()
-        return sample_text
+        image_text, resize_image = extractor.get_sample_data()
+        return image_text, resize_image
 
     def get_pdf_sample(self, local_file_path):
         extractor = PdfMetadataExtractor(local_file_path)
         sample_text = extractor.get_sample_data(local_file_path)
         return sample_text
+
+    def _get_detected_objects(self, local_file_path: str) -> Optional[List]:
+        """
+        이미지 객체 탐지
+        """
+        detector = YoloDetector(local_file_path)
+        detected_objects, detected_objects_image = detector.detected_objects()
+        return detected_objects, detected_objects_image
 
     def _get_sampler(self):
         pass

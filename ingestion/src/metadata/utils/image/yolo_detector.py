@@ -1,5 +1,6 @@
 import cv2
 from ultralytics import YOLO
+import base64
 
 """
  YOLOv8 모델 
@@ -44,4 +45,17 @@ class YoloDetector:
                 "bbox" : f"({x1}, {y1}), ({x2}, {y2})"
             })
 
-        return detected_objects
+
+        # 탐지 결과 시각화 (bounding box 그리기)
+        annotated_frame = results[0].plot()
+
+        success, encoded_image = cv2.imencode('.jpeg', annotated_frame)
+
+        if success:
+            # 인코딩된 이미지를 base64로 변환
+            detected_objects_image = base64.b64encode(encoded_image).decode('utf-8')
+        else:
+            detected_objects_image = None
+
+
+        return detected_objects, detected_objects_image
