@@ -43,16 +43,13 @@ class PdfMetadataExtractor:
             for i, page in enumerate(file):
                 text = page.get_text()
                 if any(kw in text for kw in keywords):
-                    print("catch")
                     page_num = i + 1  # 목차 다음 페이지
-            print(page_num)
             page = file.load_page(page_num)
 
             # 페이지 원본 크기
             rect = page.rect
             width, height = rect.width, rect.height
 
-            print(f"원본 가로,세로 : {width}, {height}")
             if height > width and height > max_side: # 세로 이미지
                 scale = width / height
                 is_resize = True

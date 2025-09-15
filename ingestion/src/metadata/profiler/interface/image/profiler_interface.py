@@ -25,6 +25,7 @@ from metadata.utils.local_dir import ensure_directory_exists
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.s3_utils import get_normalized_key
 from metadata.utils.image.pil_extractor import PilMetadataExtractor
+from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
 
 from utils.process_config import config
 
@@ -115,8 +116,11 @@ class ImageProfilerInterface(ProfilerInterface):
 
             if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
                                                     FileFormat.bmp, FileFormat.gif, FileFormat.webp,
-                                                    FileFormat.cr2.value, FileFormat.nef.value, FileFormat.tiff.value, FileFormat.tif.value]:
+                                                    FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
                 return self.get_pil_sample(local_file_path)
+
+            elif self.table_entity.fileFormats[0] in [FileFormat.pdf]:
+                return self.get_pdf_sample(local_file_path)
 
             else:
                 logger.warn("Unsupported file type")
@@ -130,6 +134,11 @@ class ImageProfilerInterface(ProfilerInterface):
     def get_pil_sample(self, local_file_path):
         extractor = PilMetadataExtractor(local_file_path)
         sample_text = extractor.get_sample_data()
+        return sample_text
+
+    def get_pdf_sample(self, local_file_path):
+        extractor = PdfMetadataExtractor(local_file_path)
+        sample_text = extractor.get_sample_data(local_file_path)
         return sample_text
 
     def _get_sampler(self):

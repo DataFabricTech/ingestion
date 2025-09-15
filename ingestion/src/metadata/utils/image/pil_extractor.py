@@ -71,7 +71,7 @@ class PilMetadataExtractor:
 
             # 텍스트 추출
             try:
-                image_text = self.get_text(img)
+                image_text = self.get_image_text(img)
                 if len(image_text) > 0:
                     metadata["image_text"] = image_text
             except Exception as e:
@@ -109,9 +109,11 @@ class PilMetadataExtractor:
             if height > width and height > max_side: # 세로 이미지
                 aspect_ratio = width / height
                 sample_width = int(max_side * aspect_ratio)
+                sample_height = max_side
                 is_resize = True
             elif width > max_side: # 가로 이미지, 정사각형 (가로기준하면될듯)
                 aspect_ratio = height / width
+                sample_width = max_side
                 sample_height = int(max_side * aspect_ratio)
                 is_resize = True
             else: # 사이즈가 작아서 리사이즈 없음
@@ -139,7 +141,7 @@ class PilMetadataExtractor:
 
         return cleaned_text
 
-    def get_text(self, image):
+    def get_image_text(self, image):
         # 이미지 열기
         # image = Image.open(self.file_path)
 

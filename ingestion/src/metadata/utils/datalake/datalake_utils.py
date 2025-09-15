@@ -46,7 +46,7 @@ def fetch_dataframe(
     """
     Method to get dataframe for profiling
     """
-    # dispatch to handle fetching of data from multiple file formats (csv, tsv, json, avro and parquet)
+    # dispatch to handle fetching of data from multiple file formats (csv, json, avro and parquet)
     key: str = file_fqn.key
     bucket_name: str = file_fqn.bucket_name
     try:

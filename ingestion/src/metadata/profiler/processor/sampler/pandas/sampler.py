@@ -24,10 +24,12 @@ from metadata.generated.schema.entity.data.table import (
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
+    ColumnName
 )
 from metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
 from metadata.utils.sqa_like_column import SQALikeColumn
 
+from pydantic import ValidationError
 
 class DatalakeSampler(SamplerInterface):
     """
@@ -167,4 +169,16 @@ class DatalakeSampler(SamplerInterface):
             return self._fetch_sample_data_from_user_query()
 
         cols, rows = self.get_col_row(data_frame=self.table, columns=columns)
-        return TableData(columns=cols, rows=rows)
+
+        # column name 유효성 검사
+        invalid_index = []
+        for idx, col in enumerate(cols):
+            try:
+                ColumnName(__root__=col)
+            except ValidationError:
+                invalid_index.append(idx)
+
+        filtered_cols = [item for i, item in enumerate(cols) if i not in invalid_index]
+        filtered_rows = [item for i, item in enumerate(rows) if i not in invalid_index]
+
+        return TableData(columns=filtered_cols, rows=filtered_rows)

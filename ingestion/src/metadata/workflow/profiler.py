@@ -62,10 +62,10 @@ class ProfilerWorkflow(IngestionWorkflow):
         self.source = source_class.create(self.config.dict(), self.metadata)
 
         profiler_processor = self._get_profiler_processor()
-        pii_processor = self._get_pii_processor()
-        glossary_processor = self._get_glossary_processor()
+        # pii_processor = self._get_pii_processor()
+        # glossary_processor = self._get_glossary_processor()
         sink = self._get_sink()
-        self.steps = (profiler_processor, pii_processor, glossary_processor, sink)
+        self.steps = (profiler_processor, sink)
         # self.steps = (profiler_processor, pii_processor, sink)
 
     def test_connection(self):

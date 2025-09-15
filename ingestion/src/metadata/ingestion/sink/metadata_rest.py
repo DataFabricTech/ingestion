@@ -516,7 +516,8 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                                                    FileFormat.txt,
                                                    FileFormat.xml,
                                                    FileFormat.hwp, FileFormat.hwpx,
-                                                   FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp]:
+                                                   FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp,
+                                                   FileFormat.pdf]:
                     logger.info(f"profile update for document file")
 
                     record.table.rdfs = [Rdf(name='summary', object=f"{record.unstructured_summary}")]

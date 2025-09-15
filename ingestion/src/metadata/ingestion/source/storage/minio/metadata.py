@@ -376,7 +376,7 @@ class MinioSource(StorageServiceSource):
                     continue
 
                 if (metadata_entry.structureFormat in
-                        [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value, FileFormat.json.value]):
+                        [FileFormat.csv.value, FileFormat.xls.value, FileFormat.xlsx.value, FileFormat.json.value]):
                     logger.info(f"Structured Data Metadata Ingestion From : {file_name}")
                     structured_container: Optional[MinioContainerDetails] = (
                         self._generate_container_details(
