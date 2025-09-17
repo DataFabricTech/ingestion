@@ -516,7 +516,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                                                    FileFormat.txt,
                                                    FileFormat.xml,
                                                    FileFormat.hwp, FileFormat.hwpx,
-                                                   FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp,
+                                                   FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp, FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif,
                                                    FileFormat.pdf]:
                     logger.info(f"profile update for document file")
 
@@ -536,10 +536,10 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
 
                     if len(rdfs) > 0:
                         record.table.rdfs = rdfs
-                        self.metadata.ingest_container_unstructured_profile_data(
-                            container=record.table
-                        )
 
+                    self.metadata.ingest_container_unstructured_profile_data(
+                        container=record.table
+                    )
 
                     res = None
                     if record.unstructured_sample_data:

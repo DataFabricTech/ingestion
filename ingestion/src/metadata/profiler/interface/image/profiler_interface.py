@@ -108,12 +108,9 @@ class ImageProfilerInterface(ProfilerInterface):
             data_path = str(self.table_entity.prefix).strip('/')
             normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
 
-            if normalized_key is None:
-                return None
-
             local_file_path = self._get_file(bucket_name, normalized_key)
             if local_file_path is None:
-                return None
+                return None, None, None, None
 
             image_text = None
             resize_image = None
@@ -139,8 +136,10 @@ class ImageProfilerInterface(ProfilerInterface):
             return image_text, resize_image, detected_objects, detected_objects_image
         except Exception as e:
             logger.error(e)
+            raise e
         finally:
-            os.remove(local_file_path)
+            if len(local_file_path) > 0:
+                os.remove(local_file_path)
 
     def get_pil_sample(self, local_file_path):
         extractor = PilMetadataExtractor(local_file_path)

@@ -125,6 +125,8 @@ class PilMetadataExtractor:
                 resized_img = img.resize((sample_width, sample_height))
                 resized_img.save(buffered, format="JPEG")
             else:
+                if img.mode in ('P', 'RGBA'): # P:gif, RGBA:png
+                    img = img.convert("RGB")  # 알파 채널 제거
                 img.save(buffered, format="JPEG")
 
         # base64 인코딩

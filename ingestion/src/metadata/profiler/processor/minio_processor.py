@@ -73,6 +73,10 @@ class MinioProfilerProcessor(Processor):
             self.status.failures.extend(
                 record.profiler_source.interface.status.failures
             )
+            return Either(left=StackTraceError(
+                name=f"{record.entity.fullyQualifiedName.__root__}",
+                error=str(exc),
+            ))
         else:
             # at this point we know we have an interface variable since we the `try` block above didn't raise
             self.status.failures.extend(record.profiler_source.interface.status.failures)  # type: ignore
