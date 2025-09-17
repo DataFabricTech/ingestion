@@ -71,7 +71,7 @@ class PdfMetadataExtractor:
             pix = page.get_pixmap(matrix=matrix)
 
             # 이미지 저장
-            sample_data_bytes = pix.tobytes("png")
+            sample_data_bytes = pix.tobytes("jpeg")
 
         # base64 인코딩
         return base64.b64encode(sample_data_bytes).decode("utf-8")

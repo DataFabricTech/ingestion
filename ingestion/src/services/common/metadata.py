@@ -1,4 +1,5 @@
-from services.common.source import CommonSource, CollectorStatus
+from services.common.source import CommonSource
+from metadata.generated.schema.entity.data.ingestion import CollectorStatus
 
 class MetadataExecutor:
 
@@ -26,7 +27,7 @@ class MetadataExecutor:
             #workflow.stop()
         except Exception as e:
             print(e)
-            workflow.update_ingestion_status(workflow_config.source.serviceName, CollectorStatus.INGESTION_FAILED.value, e.args[0])
+            workflow.update_ingestion_status(workflow_config.source.serviceName, CollectorStatus.INGESTION_FAILED, e.args[0])
 
 
 

@@ -113,7 +113,7 @@ from metadata.generated.schema.entity.data.searchIndex import SearchIndex
 # from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
 from metadata.generated.schema.entity.data.table import Table
 # from metadata.generated.schema.entity.data.topic import Topic
-from metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus, ExecuteIngestion
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck, MetadataSystemCollectorStatus, ExecuteIngestion
 # from metadata.generated.schema.entity.domains.dataProduct import DataProduct
 # from metadata.generated.schema.entity.domains.domain import Domain
 # from metadata.generated.schema.entity.policies.policy import Policy
@@ -234,7 +234,7 @@ ROUTES = {
     # DataProduct.__name__: "/dataProducts",
     # CreateDataProductRequest.__name__: "/dataProducts",
     IngestionCheck.__name__: "/ingestion/check",
-    IngestionStatus.__name__: "/ingestion/collector/status",
+    MetadataSystemCollectorStatus.__name__: "/ingestion/collector/status",
     ProfilerResponse.__name__: "/profiler",
     CreateTableProfileRequest.__name__: "/profiler",
     ExecuteIngestion.__name__: "/profile/execute/storage"

@@ -5,18 +5,10 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
 from metadata.generated.schema.entity.services.searchService import SearchServiceType
+from metadata.generated.schema.entity.data.ingestion import CollectorStatus
 
 from typing import Union
 from abc import ABC, abstractmethod
-
-from enum import Enum
-
-
-class CollectorStatus(Enum):
-    INGESTION = 'INGESTION'
-    INGESTION_COMPLETED = 'INGESTION_COMPLETED'
-    INGESTION_FAILED = 'INGESTION_FAILED'
-
 
 class CommonSource(ABC):
 
@@ -156,6 +148,6 @@ class CommonSource(ABC):
     # @staticmethod
     def check_result_status(self, status):
         if status == 1:
-            return CollectorStatus.INGESTION_FAILED.value
+            return CollectorStatus.INGESTION_FAILED
         else:
-            return CollectorStatus.INGESTION_COMPLETED.value
+            return CollectorStatus.INGESTION_COMPLETED

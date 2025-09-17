@@ -65,7 +65,7 @@ class ImageProfiler:
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(f"Error fetching sample data: {err}")
-            return None
+            return None, None, None, None
 
     def close(self):
         pass

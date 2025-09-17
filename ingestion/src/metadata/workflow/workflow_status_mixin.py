@@ -24,6 +24,7 @@ from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipel
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
+from metadata.generated.schema.entity.data.ingestion import CollectorStatus
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Source
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
@@ -158,7 +159,7 @@ class WorkflowStatusMixin:
         if "metadata-rest" == self.config.sink.type :
             self.metadata.check_ingestion_status(service_id, source_filter)
 
-    def update_ingestion_status(self, system_id, status, err_description=None):
+    def update_ingestion_status(self, system_id, status: CollectorStatus, err_description=None):
         self.metadata.update_ingestion_status(system_id, status, err_description)
 
     def execute_profile(self, system_id, workflow: "BaseWorkflow"):

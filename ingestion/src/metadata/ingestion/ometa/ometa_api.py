@@ -21,6 +21,8 @@ from pydantic import BaseModel
 # from requests.utils import requote_uri
 from requests.compat import quote
 
+import json
+
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
 )
@@ -31,7 +33,7 @@ from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityHistory import EntityVersionHistory
 from metadata.generated.schema.type.entityReference import EntityReference
-from metadata.generated.schema.entity.data.ingestion import IngestionCheck, IngestionStatus, ExecuteIngestion
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck, MetadataSystemCollectorStatus, ExecuteIngestion, CollectorStatus
 from metadata.ingestion.models.encoders import show_secrets_encoder
 from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
 from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
@@ -341,13 +343,18 @@ class OpenMetadata(
         #     )
         # return resp
 
-    def update_ingestion_status(self, system_id, status, err_message=None):
+    def update_ingestion_status(self, system_id, status: CollectorStatus, err_message=None):
 
-        data = IngestionStatus(
+        data = MetadataSystemCollectorStatus(
             system_id = system_id,
-            status = status,
+            status = status.value,
             err_description = err_message,
             user = 'METADATA COLLECTOR')
+
+        # json_data = json.dumps(
+        #     data.model_dump(by_alias=True, exclude_none=True),
+        #     default=str  # Enum, UUID, datetime 등을 문자열로 직렬화
+        # )
 
         try:
             self.client.put(
