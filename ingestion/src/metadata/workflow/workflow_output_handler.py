@@ -263,9 +263,9 @@ def print_workflow_summary(workflow: "BaseWorkflow") -> None:
     Returns:
         Print Workflow status when the workflow logger level is DEBUG
     """
-
-    if is_debug_enabled(workflow):
-        print_workflow_status_debug(workflow)
+    # phy
+    # if is_debug_enabled(workflow):
+        # print_workflow_status_debug(workflow)
 
     failures = []
     total_records = 0

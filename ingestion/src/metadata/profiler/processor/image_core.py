@@ -29,9 +29,10 @@ class ImageProfiler:
     Image Profiler.
     """
 
-    def __init__(self, source_config: StorageServiceProfilerPipeline, profiler_interface):
+    def __init__(self, source_config: StorageServiceProfilerPipeline, profiler_interface, detected_objects_model):
         self.source_config = source_config
         self.profiler_interface = profiler_interface
+        self.detected_objects_model = detected_objects_model
 
     def process(self) -> ProfilerResponse:
 
@@ -63,7 +64,8 @@ class ImageProfiler:
                 "Fetching sample data for "
                 f"{self.profiler_interface.table_entity.fullyQualifiedName.__root__}..."  # type: ignore
             )
-            image_text, resize_image, detected_objects, detected_objects_image = self.profiler_interface.fetch_sample_data()
+
+            image_text, resize_image, detected_objects, detected_objects_image = self.profiler_interface.fetch_sample_data(detected_objects_model=self.detected_objects_model)
             return image_text, resize_image, detected_objects, detected_objects_image
         except Exception as err:
             logger.debug(traceback.format_exc())

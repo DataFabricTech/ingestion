@@ -265,6 +265,7 @@ class MinIOProfilerSource(ProfilerSourceInterface):
                                            FileFormat.bmp, FileFormat.gif, FileFormat.webp,
                                            FileFormat.cr2, FileFormat.nef, FileFormat.tiff,	FileFormat.tif,
                                            FileFormat.pdf]:
+
                 profiler_interface = self.create_image_profiler_interface(
                     entity,
                     config,
@@ -275,6 +276,7 @@ class MinIOProfilerSource(ProfilerSourceInterface):
                 return ImageProfiler(
                     source_config=self.source_config,
                     profiler_interface=profiler_interface,
+                    detected_objects_model=self.global_profiler_configuration["detected_objects_model"]
                 )
 
         # not document, image

@@ -36,6 +36,8 @@ from metadata.utils import fqn
 from metadata.utils.filters import filter_by_container
 from metadata.utils.logger import profiler_logger
 
+from ultralytics import YOLO
+
 logger = profiler_logger()
 
 #CONTAINER_FIELDS = ["tableProfilerConfig", "dataModel", "customMetrics"]
@@ -126,6 +128,11 @@ class MetadataSourceForMinio(Source):
         global_profiler_config = {
 
         }
+
+        # 이미지 객체 탐지 모델 로딩(YOLOv8 모델 불러오기 (사전 학습된 모델))
+        detected_objects_model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
+        global_profiler_config["detected_objects_model"] = detected_objects_model
+        logger.debug(">>>>> model loading ")
         supported_file_formats = [
             FileFormat.csv,
             FileFormat.xls,

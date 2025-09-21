@@ -1,5 +1,4 @@
 import cv2
-from ultralytics import YOLO
 import base64
 
 """
@@ -13,26 +12,28 @@ import base64
 | `yolov8x.pt` | 가장 많음  | 느림     | 매우 높음 | 고정밀 모델링      |
 """
 class YoloDetector:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, model):
         self.file_path = file_path
+        self.model = model
 
     def detected_objects(self):
 
-        # YOLOv8 모델 불러오기 (사전 학습된 모델)
-        model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
+        # # YOLOv8 모델 불러오기 (사전 학습된 모델)
+        # model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
 
         # 이미지 불러오기
         image = cv2.imread(self.file_path)
 
         # 객체 탐지 수행
-        results = model(image)
+        # 이미지를 320 * 320 으로 줄여서 (기본 640) 탐지 -> 속도 개선
+        results = self.model(image, imgsz=320)
 
         # 탐지된 객체 정보 출력
         detected_objects = []
         for box in results[0].boxes:
             # 클래스 ID → 이름
             cls_id = int(box.cls[0])
-            class_name = model.names[cls_id]
+            class_name = self.model.names[cls_id]
             # 신뢰도
             confidence = float(box.conf[0])
             # 바운딩 박스 좌표 (x1, y1, x2, y2)

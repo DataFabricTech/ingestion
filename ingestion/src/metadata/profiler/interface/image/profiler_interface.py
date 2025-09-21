@@ -103,12 +103,15 @@ class ImageProfilerInterface(ProfilerInterface):
         Fetch sample data from minio - image
         """
         local_file_path = ""
+        detected_objects_model = kwargs.get('detected_objects_model')
         try:
             bucket_name = self.table_entity.fullPath.replace("s3://", "").split("/")[0]
             data_path = str(self.table_entity.prefix).strip('/')
             normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
 
+            logger.debug("get_file start")
             local_file_path = self._get_file(bucket_name, normalized_key)
+            logger.debug("get_file end")
             if local_file_path is None:
                 return None, None, None, None
 
@@ -128,7 +131,7 @@ class ImageProfilerInterface(ProfilerInterface):
 
             # 이미지 객체 탐지
             try:
-                detected_objects, detected_objects_image = self._get_detected_objects(local_file_path)
+                detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
             except Exception as e:
                 logger.debug(f"image file detected fail [{e}], file {local_file_path}")
 
@@ -151,12 +154,14 @@ class ImageProfilerInterface(ProfilerInterface):
         sample_text = extractor.get_sample_data(local_file_path)
         return sample_text
 
-    def _get_detected_objects(self, local_file_path: str) -> Optional[List]:
+    def _get_detected_objects(self, local_file_path: str, detected_objects_model) -> Optional[List]:
         """
         이미지 객체 탐지
         """
-        detector = YoloDetector(local_file_path)
+        detector = YoloDetector(local_file_path, detected_objects_model)
+        logger.debug("detected start")
         detected_objects, detected_objects_image = detector.detected_objects()
+        logger.debug("detected end")
         return detected_objects, detected_objects_image
 
     def _get_sampler(self):
