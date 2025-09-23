@@ -27,6 +27,7 @@ from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 from metadata.utils.word.txt_extractor import TxtMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
+from metadata.utils.word.json_extractor import JsonMetadataExtractor
 from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
 from metadata.utils.s3_utils import get_normalized_key
 
@@ -129,11 +130,14 @@ class DocumentProfilerInterface(ProfilerInterface):
                 sample_data = self.get_txt_sample(local_file_path, get_chunk_size)
             elif self.table_entity.fileFormats[0] in [FileFormat.xml]:
                 sample_data = self.get_xml_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.json]:
+                sample_data = self.get_json_sample(local_file_path, get_chunk_size)
 
             # get sample image data
             if self.table_entity.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
                                                     FileFormat.txt,
-                                                    FileFormat.xml]:
+                                                    FileFormat.xml,
+                                                    FileFormat.json]:
                 sample_image_data = self.get_word_sample_image(local_file_path)
 
             if sample_data is None and sample_image_data is None:
@@ -152,18 +156,18 @@ class DocumentProfilerInterface(ProfilerInterface):
         return sample_data
 
     def get_ms_sample(self, local_file_path, chunk_size=1000):
-        word_extractor = MsWordMetadataExtractor()
-        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
+        extractor = MsWordMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
         return sample_text
 
     def get_txt_sample(self, local_file_path, chunk_size=1000):
-        word_extractor = TxtMetadataExtractor()
-        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
+        extractor = TxtMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
         return sample_text
 
     def get_xml_sample(self, local_file_path, chunk_size=1000):
-        word_extractor = XmlMetadataExtractor()
-        sample_text = word_extractor.get_sample_data(local_file_path, chunk_size)
+        extractor = XmlMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
         return sample_text
 
     def get_word_sample_image(self, local_file_path):
@@ -178,6 +182,11 @@ class DocumentProfilerInterface(ProfilerInterface):
             return None
         finally:
             os.remove(pdf_path)
+
+    def get_json_sample(self, local_file_path, chunk_size=1000):
+        extractor = JsonMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
 
     def _get_sampler(self):
         pass

@@ -247,7 +247,7 @@ class MinIOProfilerSource(ProfilerSourceInterface):
 
         # JBLIM : For MinIO Document Data
         if entity.fileFormats is not None:
-            if entity.fileFormats[0] in [FileFormat.hwpx, FileFormat.hwp, FileFormat.doc, FileFormat.docx, FileFormat.txt, FileFormat.xml]:
+            if entity.fileFormats[0] in [FileFormat.hwpx, FileFormat.hwp, FileFormat.doc, FileFormat.docx, FileFormat.txt, FileFormat.xml, FileFormat.json]:
                 profiler_interface = self.create_document_profiler_interface(
                     entity,
                     config,

@@ -376,7 +376,7 @@ class MinioSource(StorageServiceSource):
                     continue
 
                 if (metadata_entry.structureFormat in
-                        [FileFormat.csv.value, FileFormat.xls.value, FileFormat.xlsx.value, FileFormat.json.value]):
+                        [FileFormat.csv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
                     logger.info(f"Structured Data Metadata Ingestion From : {file_name}")
                     structured_container: Optional[MinioContainerDetails] = (
                         self._generate_container_details(
@@ -395,7 +395,8 @@ class MinioSource(StorageServiceSource):
                         self.status.warnings.append(f"failed to generate structured container metadata: {file_name}")
                 elif metadata_entry.structureFormat in [FileFormat.doc.value, FileFormat.docx.value,
                                                         FileFormat.hwp.value, FileFormat.hwpx.value,
-                                                        FileFormat.txt.value, FileFormat.xml.value]:
+                                                        FileFormat.txt.value, FileFormat.xml.value,
+                                                        FileFormat.json.value]:
                     logger.info(f"Unstructured Data Metadata Ingestion From : {file_name}")
                     unstructured_container: Optional[MinioContainerDetails] = (
                         self._generate_unstructured_container_details(
