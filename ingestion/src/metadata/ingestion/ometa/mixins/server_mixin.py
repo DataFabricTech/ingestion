@@ -105,7 +105,7 @@ class OMetaServerMixin:
 
         return Settings()
 
-    def get_profiler_config_detect_model_settings(self, detect_object_model) -> Optional[Settings]:
-        return Settings(detect_object_model=detect_object_model)
+    def get_profiler_config_detect_model_settings(self, detected_objects_model) -> Optional[Settings]:
+        return Settings(detected_objects_model=detected_objects_model)
 
 
