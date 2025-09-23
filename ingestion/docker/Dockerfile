@@ -79,10 +79,10 @@ RUN dnf -y install \
         unixODBC \
         openssh-server \
         sudo \
-        libreoffice \ # pdf 변환
-        google-noto-sans-cjk-ttc-fonts \ # 한글 폰트 설치
-        fontconfig && \ # 글꼴 캐시 유틸
-        fc-cache -fv && \ # 글꼴 캐시 갱신
+        libreoffice \                               # pdf 변환
+        google-noto-sans-cjk-ttc-fonts \            # 한글 폰트 설치
+        fontconfig && \                             # 글꼴 캐시 유틸
+        fc-cache -fv && \                           # 글꼴 캐시 갱신
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 WORKDIR /metadata_collector
