@@ -20,11 +20,6 @@ services:
       - /etc/hosts:/etc/hosts
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config_docker.ini
-    networks:
-      - data-catalog-network
 #    command: ["tail", "-f", "/dev/null"]
     command: /bin/bash -c "/usr/sbin/sshd -D & tail -f /dev/null"
 
-networks:
-  data-catalog-network:
-    external: true
