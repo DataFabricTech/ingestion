@@ -92,4 +92,20 @@ class OMetaServerMixin:
 
         return Settings(config_type = "profilerConfiguration")
 
+    def get_profiler_config_none_settings(self) -> Optional[Settings]:
+        """Get profiler config setting
+
+        Returns:
+            Settings
+        """
+        # response = self.client.get("/system/settings/profilerConfiguration")
+        # if not response:
+        #     return None
+        # return Settings.parse_obj(response)
+
+        return Settings()
+
+    def get_profiler_config_detect_model_settings(self, detect_object_model) -> Optional[Settings]:
+        return Settings(detect_object_model=detect_object_model)
+
 

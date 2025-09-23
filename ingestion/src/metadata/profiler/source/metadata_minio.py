@@ -125,13 +125,11 @@ class MetadataSourceForMinio(Source):
 
     def _iter(self, *_, **__) -> Iterable[Either[MinIoProfilerSourceAndEntity]]:
         global_profiler_config = self.metadata.get_profiler_config_settings()
-        global_profiler_config = {
-
-        }
+        global_profiler_config = self.metadata.get_profiler_config_none_settings() # {} 로 재정의하고 있었음 이유 모름..
 
         # 이미지 객체 탐지 모델 로딩(YOLOv8 모델 불러오기 (사전 학습된 모델))
         detected_objects_model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
-        global_profiler_config["detected_objects_model"] = detected_objects_model
+        global_profiler_config = self.metadata.get_profiler_config_detect_model_settings(detected_objects_model)
         logger.debug(">>>>> model loading ")
         supported_file_formats = [
             FileFormat.csv,

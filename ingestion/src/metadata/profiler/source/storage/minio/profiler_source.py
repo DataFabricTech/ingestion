@@ -276,7 +276,7 @@ class MinIOProfilerSource(ProfilerSourceInterface):
                 return ImageProfiler(
                     source_config=self.source_config,
                     profiler_interface=profiler_interface,
-                    detected_objects_model=self.global_profiler_configuration["detected_objects_model"]
+                    detected_objects_model=self.global_profiler_configuration.detected_objects_model
                 )
 
         # not document, image
