@@ -47,16 +47,16 @@ class YoloDetector:
             })
 
 
-        # 탐지 결과 시각화 (bounding box 그리기)
-        annotated_frame = results[0].plot()
+        detected_objects_image = None
+        if len(detected_objects) > 0:
+            # 탐지 결과 시각화 (bounding box 그리기)
+            annotated_frame = results[0].plot()
 
-        success, encoded_image = cv2.imencode('.jpeg', annotated_frame)
+            success, encoded_image = cv2.imencode('.jpeg', annotated_frame)
 
-        if success:
-            # 인코딩된 이미지를 base64로 변환
-            detected_objects_image = base64.b64encode(encoded_image).decode('utf-8')
-        else:
-            detected_objects_image = None
+            if success:
+                # 인코딩된 이미지를 base64로 변환
+                detected_objects_image = base64.b64encode(encoded_image).decode('utf-8')
 
 
         return detected_objects, detected_objects_image
