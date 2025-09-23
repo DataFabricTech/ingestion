@@ -41,11 +41,11 @@ class PdfMetadataExtractor:
 
             # 페이지 가져오기 (keywords 가 포함된 페이지를 찾으면 그 다음 페이지를 이미지화한다)
             page_num = 0
-            keywords = ["목차", "Table of Contents", "Contents"]
-            for i, page in enumerate(file):
-                text = page.get_text()
-                if any(kw in text for kw in keywords):
-                    page_num = i + 1  # 목차 다음 페이지
+            # keywords = ["목차", "Table of Contents", "Contents"]
+            # for i, page in enumerate(file):
+            #     text = page.get_text()
+            #     if any(kw in text for kw in keywords):
+            #         page_num = i + 1  # 목차 다음 페이지
             page = file.load_page(page_num)
 
             # 페이지 원본 크기
