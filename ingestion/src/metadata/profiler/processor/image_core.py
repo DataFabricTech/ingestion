@@ -40,10 +40,7 @@ class ImageProfiler:
         resize_image = None
         detected_objects = None
         if self.source_config.generateSampleData:
-            try:
-                image_text, resize_image, detected_objects, detected_objects_image = self.generate_sample_data()
-            except Exception as e:
-                raise e
+            image_text, resize_image, detected_objects, detected_objects_image = self.generate_sample_data()
 
         profile_response = ProfilerResponse(
             table=self.profiler_interface.table_entity,
@@ -59,6 +56,11 @@ class ImageProfiler:
         """
         Fetch and ingest sample data
         """
+        image_text = None
+        resize_image = None
+        detected_objects = None
+        detected_objects_image = None
+
         try:
             logger.debug(
                 "Fetching sample data for "
@@ -66,11 +68,12 @@ class ImageProfiler:
             )
 
             image_text, resize_image, detected_objects, detected_objects_image = self.profiler_interface.fetch_sample_data(detected_objects_model=self.detected_objects_model)
-            return image_text, resize_image, detected_objects, detected_objects_image
+
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(f"Error fetching sample data: {err}")
-            raise err
+
+        return image_text, resize_image, detected_objects, detected_objects_image
 
     def close(self):
         pass

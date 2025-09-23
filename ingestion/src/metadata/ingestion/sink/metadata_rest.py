@@ -560,57 +560,63 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                     if res is not None:
                         return Either(right=res)
 
-        column_profile = record.profile.columnProfile
-        for column in column_profile:
-            column.name = column.name.replace("`", "")
+            return None
 
-        record.profile.columnProfile = column_profile
+        if record.profile.columnProfile:
+            column_profile = record.profile.columnProfile
+            for column in column_profile:
+                column.name = column.name.replace("`", "")
 
-        # JBLIM - Modify For Container Data
-        if isinstance(record.table, Container):
-            return self.write_container_profiler_response(record)
+            record.profile.columnProfile = column_profile
 
-        table = self.metadata.ingest_profile_data(
-            table=record.table,
-            profile_request=record.profile,
-        )
-        logger.debug(
-            f"Successfully ingested profile metrics for {record.table.fullyQualifiedName.__root__}"
-        )
+            # JBLIM - Modify For Container Data
+            # 위에서 처리하기 떄문에 아래 메소드 (write_container_profiler_response) 역할 확인
+            # if isinstance(record.table, Container):
+            #     return self.write_container_profiler_response(record)
 
-        if record.sample_data:
-            table_data = self.metadata.ingest_table_sample_data(
-                table=record.table, sample_data=record.sample_data
+            table = self.metadata.ingest_profile_data(
+                table=record.table,
+                profile_request=record.profile,
             )
-            if not table_data:
-                self.status.failed(
-                    StackTraceError(
-                        name=table.fullyQualifiedName.__root__,
-                        error="Error trying to ingest sample data for table",
-                    )
-                )
-            else:
-                logger.debug(
-                    f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
-                )
-
-        if record.column_tags:
-            patched = self.metadata.patch_column_tags(
-                table=record.table, column_tags=record.column_tags
+            logger.debug(
+                f"Successfully ingested profile metrics for {record.table.fullyQualifiedName.__root__}"
             )
-            if not patched:
-                self.status.failed(
-                    StackTraceError(
-                        name=table.fullyQualifiedName.__root__,
-                        error="Error patching tags for table",
-                    )
-                )
-            else:
-                logger.debug(
-                    f"Successfully patched tag {record.column_tags} for {record.table.fullyQualifiedName.__root__}"
-                )
 
-        return Either(right=table)
+            if record.sample_data:
+                table_data = self.metadata.ingest_table_sample_data(
+                    table=record.table, sample_data=record.sample_data
+                )
+                if not table_data:
+                    self.status.failed(
+                        StackTraceError(
+                            name=table.fullyQualifiedName.__root__,
+                            error="Error trying to ingest sample data for table",
+                        )
+                    )
+                else:
+                    logger.debug(
+                        f"Successfully ingested sample data for {record.table.fullyQualifiedName.__root__}"
+                    )
+
+            if record.column_tags:
+                patched = self.metadata.patch_column_tags(
+                    table=record.table, column_tags=record.column_tags
+                )
+                if not patched:
+                    self.status.failed(
+                        StackTraceError(
+                            name=table.fullyQualifiedName.__root__,
+                            error="Error patching tags for table",
+                        )
+                    )
+                else:
+                    logger.debug(
+                        f"Successfully patched tag {record.column_tags} for {record.table.fullyQualifiedName.__root__}"
+                    )
+
+            return Either(right=table)
+
+        return None
 
 
     def write_container_profiler_response(self, record: ProfilerResponse) -> Either[Container]:
