@@ -561,7 +561,7 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                     if res is not None:
                         return Either(right=res)
 
-            return None
+                    return None
 
         if record.profile.columnProfile:
             column_profile = record.profile.columnProfile
@@ -571,9 +571,8 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
             record.profile.columnProfile = column_profile
 
             # JBLIM - Modify For Container Data
-            # 위에서 처리하기 떄문에 아래 메소드 (write_container_profiler_response) 역할 확인
-            # if isinstance(record.table, Container):
-            #     return self.write_container_profiler_response(record)
+            if isinstance(record.table, Container):
+                return self.write_container_profiler_response(record)
 
             table = self.metadata.ingest_profile_data(
                 table=record.table,
