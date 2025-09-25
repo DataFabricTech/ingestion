@@ -78,6 +78,7 @@ from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
 from metadata.utils.image.psd_extractor import PsdMetadataExtractor
 from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
 from metadata.utils.image.exr_extractor import ExrMetadataExtractor
+from metadata.utils.audio.pydub_extractor import PydubMetadataExtractor
 
 from utils.process_config import config
 
@@ -478,6 +479,31 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         return rdfs
 
+    def _get_audio_meta(self, bucket_name: str, path: str,
+                        client: Any) -> Optional[List[Rdf]]:
+        """
+        Read the audio from the bucket
+        """
+        local_file_path = self._get_document_data(bucket_name, path, client)
+        if local_file_path is None:
+            return None
+
+        try:
+            file_extension = path.split('.')[-1]
+
+            if file_extension in [FileFormat.wav.value, FileFormat.mp3.value]:
+                metadata = self._get_pydub_meta(local_file_path)
+            else:
+                logger.warn("Unsupported file type")
+                return None
+
+            rdfs = self._get_common_rdfs(metadata.items())
+
+        finally:
+            os.remove(local_file_path)
+
+        return rdfs
+
     def _get_common_rdfs(self, meta_items: dict) -> Optional[List[Rdf]]:
         rdfs = []
         for k, v in meta_items:
@@ -529,4 +555,11 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         Extract metadata from image file
         """
         extractor = ExrMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_pydub_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from audio file
+        """
+        extractor = PydubMetadataExtractor(local_file_path)
         return extractor.extract_metadata()

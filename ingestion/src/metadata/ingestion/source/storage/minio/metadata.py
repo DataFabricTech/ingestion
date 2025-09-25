@@ -429,6 +429,20 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Image Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate image container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value]:
+                    logger.info(f"Audio Data Metadata Ingestion From : {file_name}")
+                    container: Optional[MinioContainerDetails] = (
+                        self._generate_audio_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if container:
+                        yield container
+                    else:
+                        logger.warn(f"Failed To Generated Audio Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate audio container metadata: {file_name}")
                 else:
                     logger.info(f"Unsupported format {metadata_entry.structureFormat}")
                     # self.status.filter(abs_file_name, f"Unsupported format {metadata_entry.structureFormat}")
@@ -849,6 +863,49 @@ class MinioSource(StorageServiceSource):
             return None
 
         rdfs = self._get_image_meta(
+            bucket_name=bucket_name,
+            path=normalized_key,
+            client=self.minio_client,
+        )
+
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        metric = self._fetch_metric(bucket_name=bucket_name, key=normalized_key)
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metric[Metric.LAST_MODIFIED] if Metric.LAST_MODIFIED in metric else None,
+            number_of_objects=metric[Metric.NUMBER_OF_OBJECTS] if Metric.NUMBER_OF_OBJECTS in metric else 0,
+            size=metric[Metric.BUCKET_SIZE_BYTES] if Metric.BUCKET_SIZE_BYTES in metric else 0,
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat
+        )
+
+    def _generate_audio_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        rdfs = self._get_audio_meta(
             bucket_name=bucket_name,
             path=normalized_key,
             client=self.minio_client,

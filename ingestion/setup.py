@@ -73,6 +73,7 @@ VERSIONS = {
     "s3fs": "s3fs==2023.12.1",
     "fsspec": "fsspec>=2022.11.0,<=2023.12.1",
     "openpyxl": "openpyxl~=3.1.3",
+    "pydub":"pydub==0.25.1"
 }
 
 COMMONS = {
