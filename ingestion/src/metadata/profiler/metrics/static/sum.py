@@ -59,10 +59,12 @@ class Sum(StaticMetric):
             try:
                 for df in dfs:
                     if is_quantifiable(df[self.col.name].dtype):
-                        return None
-                    return_value += df[self.col.name].sum()
+                        return_value += df[self.col.name].sum()
+
             except Exception as e:
-                logger.error(f"sum value ERROR column name : {self.col.name}, error : {e}")
+                logger.warning(
+                    f"Don't know how to process type {self.col.type} when computing SUM, error : {e}"
+                )
                 return None
 
             return return_value

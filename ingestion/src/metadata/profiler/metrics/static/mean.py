@@ -118,10 +118,11 @@ class Mean(StaticMetric):
 
         if is_quantifiable(self.col.type):
             for df in dfs:
-                mean = df[self.col.name].mean()
-                if not pd.isnull(mean):
-                    means.append(mean)
-                    weights.append(df[self.col.name].count())
+                if is_quantifiable(df[self.col.name].dtype):
+                    mean = df[self.col.name].mean()
+                    if not pd.isnull(mean):
+                        means.append(mean)
+                        weights.append(df[self.col.name].count())
 
         if is_concatenable(self.col.type):
             length_vectorize_func = vectorize(len)
