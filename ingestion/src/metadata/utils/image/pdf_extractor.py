@@ -1,6 +1,13 @@
+import subprocess
 import fitz
 from pathlib import Path
 import base64
+import time
+import asyncio
+
+from metadata.utils.logger import profiler_logger
+
+logger = profiler_logger()
 
 class PdfMetadataExtractor:
     def __init__(self, file_path: str):
@@ -12,9 +19,8 @@ class PdfMetadataExtractor:
             return file.metadata
 
 
+    # async def convert_to_pdf(self):
     def convert_to_pdf(self):
-        # libreoffice
-        import subprocess
 
         input_path = Path(self.file_path)
         output_dir = input_path.parent
@@ -23,14 +29,38 @@ class PdfMetadataExtractor:
         if not input_path.exists():
             raise FileNotFoundError(f"{input_path} not found")
 
+        start1=time.time()
+
         liberoffice_path = "libreoffice"
         # liberoffice_path = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
-        subprocess.run([
-            liberoffice_path,
-            "--headless", "--convert-to", "pdf",
-            "--outdir", str(output_dir),
-            str(input_path)
-        ], check=True)
+
+        try:
+            subprocess.run([
+                liberoffice_path,
+                "--headless", "--convert-to", "pdf",
+                "--outdir", str(output_dir),
+                str(input_path)
+            ], check=True)
+
+            # process = await asyncio.create_subprocess_exec(
+            #     liberoffice_path,
+            #     "--headless", "--convert-to", "pdf",
+            #     "--outdir", str(output_dir),
+            #     str(input_path)
+            # )
+            #
+            # await process.wait()
+
+        except subprocess.CalledProcessError as e:
+            logger.error(f"LibreOffice 변환 실패: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"예상치 못한 오류 발생: {e}")
+            return None
+
+        start2=time.time()
+
+        print(f"file to pdf duration {start2-start1}")
 
         return output_pdf
 

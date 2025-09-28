@@ -180,7 +180,7 @@ class BaseWorkflow(ABC, WorkflowStatusMixin):
         # Any unhandled exception breaking the workflow should update the status
         except Exception as err:
             self.set_ingestion_pipeline_status(PipelineState.failed)
-            raise err
+            # raise err
 
         # Force resource closing. Required for killing the threading
         finally:

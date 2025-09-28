@@ -175,8 +175,11 @@ class DocumentProfilerInterface(ProfilerInterface):
         pdf_path = ""
         try:
             pdf_path = extractor.convert_to_pdf()
-            sample_text = extractor.get_sample_data(pdf_path)
-            return sample_text
+            if pdf_path:
+                sample_text = extractor.get_sample_data(pdf_path)
+                return sample_text
+            else:
+                return None
         except Exception as e:
             logger.error(e)
             return None

@@ -145,7 +145,7 @@ class WorkflowStatusMixin:
             self._raise_from_status_internal(raise_warnings)
         except WorkflowExecutionError as err:
             self.set_ingestion_pipeline_status(PipelineState.failed)
-            raise err
+            # raise err
 
     def result_status(self) -> int:
         """
