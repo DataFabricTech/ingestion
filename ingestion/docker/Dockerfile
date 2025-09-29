@@ -3,6 +3,13 @@
 # ------------------------------
 FROM rockylinux:8.9 AS builder
 
+# EPEL, RPM Fusion 리포 설치 및 powertools 활성화 후 mediainfo 설치
+RUN dnf install -y epel-release dnf-utils && \
+    dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
+    dnf config-manager --set-enabled powertools && \
+    dnf install -y mediainfo && \
+    dnf clean all && rm -rf /var/cache/dnf /tmp/*
+
 # 개발 도구 설치
 # mesa-libGL, libzstd-devel : cr2 관련 OpenGL 패키지
 RUN dnf -y groupinstall "Development Tools" && \
@@ -69,7 +76,11 @@ RUN make install_antlr_cli && make generate
 FROM rockylinux:8.9
 
 # 런타임에 필요한 최소 패키지 설치
-RUN dnf -y install \
+RUN dnf install -y epel-release dnf-utils && \
+    dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
+    dnf config-manager --set-enabled powertools && \
+    dnf -y install \
+        mediainfo \
         python38 \
         python3-pip \
         cyrus-sasl-devel \
