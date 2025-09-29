@@ -1,6 +1,4 @@
-"""
-json은 정형데이터로 처리되어 이 클래스는 사용되지 않는다.
-"""
+
 class JsonMetadataExtractor:
 
     def get_metadata(self, file_path) -> dict:

@@ -1,26 +1,32 @@
-import ffmpeg
+from pymediainfo import MediaInfo
 
-class FfmpegMetadataExtractor:
+class MediaInfoMetadataExtractor:
     def __init__(self, file_path: str):
         self.file_path = file_path
 
     def extract_metadata(self) -> dict:
 
-        probe = ffmpeg.probe(self.file_path)
+        media_info = MediaInfo.parse(self.file_path)
         metadata = {}
-        if 'format' in probe:
-            metadata.update(self.get_metadata(probe['format'], 'format'))
+        for track in media_info.tracks:
+            if track.track_type == "General":
+                metadata['general.file_size'] = int(getattr(track, 'file_size', 0))
+                metadata['general.format'] = getattr(track, 'format', None)
+                metadata['general.duration_ms'] = int(getattr(track, 'duration', 0))
+                metadata['general.overall_bit_rate'] = int(getattr(track, 'overall_bit_rate', 0))
+                metadata['general.frame_count'] = int(getattr(track, 'frame_count', 0))
+                metadata['general.frame_rate'] = float(getattr(track, 'frame_rate', 0))
 
-        if 'streams' in probe:
-            for i, stream in enumerate(probe['streams']):
-                metadata.update(self.get_metadata(stream, f"stream.{i}"))
-
-    def get_metadata(self, data :dict, key):
-        metadata = {}
-        for k, v in data.items():
-            if k in ('tags', 'disposition'):
-                metadata.update(self.get_metadata(data[k], f"{key}.{k}"))
-            else:
-                metadata[f"{key}.{k}"] = v
+            elif track.track_type == "Video":
+                metadata['video.video_codec'] = getattr(track, 'codec_id', None)
+                metadata['video.video_format'] = getattr(track, 'format', None)
+                metadata['video.width'] = int(getattr(track, 'width', 0))
+                metadata['video.height'] = int(getattr(track, 'height', 0))
+                metadata['video.bit_depth'] = int(getattr(track, 'bit_depth', 0))
+                metadata['video.frame_rate_video'] = float(getattr(track, 'frame_rate', 0))
+                metadata['video.color_space'] = getattr(track, 'color_space', None)
+                metadata['video.scan_type'] = getattr(track, 'scan_type', None)
+                metadata['video.display_aspect_ratio'] = getattr(track, 'display_aspect_ratio', None)
+                metadata['video.encoded_library_name'] = getattr(track, 'encoded_library_name', None)
 
         return metadata

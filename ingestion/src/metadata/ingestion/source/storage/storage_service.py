@@ -79,7 +79,7 @@ from metadata.utils.image.psd_extractor import PsdMetadataExtractor
 from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
 from metadata.utils.image.exr_extractor import ExrMetadataExtractor
 from metadata.utils.media.audio_extractor import MutagenMetadataExtractor
-from metadata.utils.media.video_extractor import FfmpegMetadataExtractor
+from metadata.utils.media.video_extractor import MediaInfoMetadataExtractor
 
 from utils.process_config import config
 
@@ -497,7 +497,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             elif file_extension in [FileFormat.mp3.value]:
                 metadata = self._get_mp3_meta(local_file_path)
             elif file_extension in [FileFormat.mp4.value]:
-                metadata = self._get_ffmpeg_meta(local_file_path)
+                metadata = self._get_mediainfo_meta(local_file_path)
             else:
                 logger.warn("Unsupported file type")
                 return None
@@ -576,9 +576,9 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         extractor = MutagenMetadataExtractor(local_file_path)
         return extractor.extract_metadata_from_wav()
 
-    def _get_ffmpeg_meta(self, local_file_path: str) -> dict:
+    def _get_mediainfo_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from video file
         """
-        extractor = FfmpegMetadataExtractor(local_file_path)
+        extractor = MediaInfoMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
