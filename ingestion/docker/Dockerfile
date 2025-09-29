@@ -83,7 +83,6 @@ RUN dnf -y install \
         google-noto-sans-cjk-ttc-fonts \
         fontconfig && \
         fc-cache -fv && \
-        praat && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 # ------------
@@ -92,7 +91,6 @@ RUN dnf -y install \
 # google-noto-sans-cjk-ttc-fonts : 한글 폰트 설치
 # fontconfig : 글꼴 캐시 유틸
 # fc-cache -fv : 글꼴 캐시 갱신
-# praat : 오디오
 # ------------
 
 

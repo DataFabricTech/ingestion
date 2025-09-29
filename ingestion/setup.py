@@ -72,8 +72,7 @@ VERSIONS = {
     "torch": "torch==2.4.1",
     "s3fs": "s3fs==2023.12.1",
     "fsspec": "fsspec>=2022.11.0,<=2023.12.1",
-    "openpyxl": "openpyxl~=3.1.3",
-    "pydub":"pydub==0.25.1"
+    "openpyxl": "openpyxl~=3.1.3"
 }
 
 COMMONS = {
@@ -161,7 +160,9 @@ base_requirements = {
     "ultralytics==8.3.195",
     "opencv-python==4.12.0.88",
     "pytesseract==0.3.13",
-    "xlrd==2.0.2"
+    "xlrd==2.0.2",
+    "mutagen==1.47.0",
+    "ffmpeg-python==0.2.0",
 }
 
 

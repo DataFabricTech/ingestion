@@ -78,7 +78,8 @@ from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
 from metadata.utils.image.psd_extractor import PsdMetadataExtractor
 from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
 from metadata.utils.image.exr_extractor import ExrMetadataExtractor
-from metadata.utils.audio.pydub_extractor import PydubMetadataExtractor
+from metadata.utils.media.audio_extractor import MutagenMetadataExtractor
+from metadata.utils.media.video_extractor import FfmpegMetadataExtractor
 
 from utils.process_config import config
 
@@ -479,7 +480,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         return rdfs
 
-    def _get_audio_meta(self, bucket_name: str, path: str,
+    def _get_media_meta(self, bucket_name: str, path: str,
                         client: Any) -> Optional[List[Rdf]]:
         """
         Read the audio from the bucket
@@ -491,8 +492,12 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         try:
             file_extension = path.split('.')[-1]
 
-            if file_extension in [FileFormat.wav.value, FileFormat.mp3.value]:
-                metadata = self._get_pydub_meta(local_file_path)
+            if file_extension in [FileFormat.wav.value]:
+                metadata = self._get_wave_meta(local_file_path)
+            elif file_extension in [FileFormat.mp3.value]:
+                metadata = self._get_mp3_meta(local_file_path)
+            elif file_extension in [FileFormat.mp4.value]:
+                metadata = self._get_ffmpeg_meta(local_file_path)
             else:
                 logger.warn("Unsupported file type")
                 return None
@@ -557,9 +562,23 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         extractor = ExrMetadataExtractor(local_file_path)
         return extractor.extract_metadata()
 
-    def _get_pydub_meta(self, local_file_path: str) -> dict:
+    def _get_mp3_meta(self, local_file_path: str) -> dict:
         """
         Extract metadata from audio file
         """
-        extractor = PydubMetadataExtractor(local_file_path)
+        extractor = MutagenMetadataExtractor(local_file_path)
+        return extractor.extract_metadata_from_mp3()
+
+    def _get_wave_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from audio file
+        """
+        extractor = MutagenMetadataExtractor(local_file_path)
+        return extractor.extract_metadata_from_wav()
+
+    def _get_ffmpeg_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from video file
+        """
+        extractor = FfmpegMetadataExtractor(local_file_path)
         return extractor.extract_metadata()

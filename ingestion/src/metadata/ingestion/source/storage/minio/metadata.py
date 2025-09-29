@@ -429,10 +429,10 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Image Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate image container metadata: {file_name}")
-                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value]:
-                    logger.info(f"Audio Data Metadata Ingestion From : {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value, FileFormat.mp4.value]:
+                    logger.info(f"Media Data Metadata Ingestion From : {file_name}")
                     container: Optional[MinioContainerDetails] = (
-                        self._generate_audio_container_details(
+                        self._generate_media_container_details(
                             bucket_name=bucket,
                             metadata_entry=metadata_entry,
                             parent=EntityReference(id=parent_container.id, type="container",
@@ -892,7 +892,7 @@ class MinioSource(StorageServiceSource):
             extension=metadata_entry.structureFormat
         )
 
-    def _generate_audio_container_details(
+    def _generate_media_container_details(
             self,
             bucket_name: str,
             metadata_entry: MetadataEntry,
@@ -905,7 +905,7 @@ class MinioSource(StorageServiceSource):
         if normalized_key is None:
             return None
 
-        rdfs = self._get_audio_meta(
+        rdfs = self._get_media_meta(
             bucket_name=bucket_name,
             path=normalized_key,
             client=self.minio_client,
