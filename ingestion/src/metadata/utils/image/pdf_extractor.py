@@ -2,7 +2,6 @@ import subprocess
 import fitz
 from pathlib import Path
 import base64
-import time
 import asyncio
 
 from metadata.utils.logger import profiler_logger
@@ -28,8 +27,6 @@ class PdfMetadataExtractor:
 
         if not input_path.exists():
             raise FileNotFoundError(f"{input_path} not found")
-
-        start1=time.time()
 
         liberoffice_path = "libreoffice"
         # liberoffice_path = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
@@ -57,10 +54,6 @@ class PdfMetadataExtractor:
         except Exception as e:
             logger.error(f"예상치 못한 오류 발생: {e}")
             return None
-
-        start2=time.time()
-
-        print(f"file to pdf duration {start2-start1}")
 
         return output_pdf
 
