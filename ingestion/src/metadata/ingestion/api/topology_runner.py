@@ -403,25 +403,25 @@ class TopologyRunnerMixin(Generic[C]):
             yield entity_request
 
         # We have ack the sink waiting for a response, but got nothing back
-        if stage.must_return and entity is None:
-            # we'll only check the get by name for entities like database service
-            # without which we cannot proceed ahead in the ingestion
-            tries = 3
-            while not entity and tries > 0:
-                entity = self.metadata.get_by_name(
-                    entity=stage.type_,
-                    fqn=entity_fqn,
-                    fields=["*"],  # Get all the available data from the Entity
-                )
-                tries -= 1
-
-            if not entity:
-                # Safe access to Entity Request name
-                raise MissingExpectedEntityAckException(
-                    f"Missing ack back from [{stage.type_.__name__}: {entity_fqn}] - "
-                    "Possible causes are changes in the server Fernet key or mismatched JSON Schemas "
-                    "for the service connection."
-                )
+        # if stage.must_return and entity is None:
+        #     # we'll only check the get by name for entities like database service
+        #     # without which we cannot proceed ahead in the ingestion
+        #     tries = 3
+        #     while not entity and tries > 0:
+        #         entity = self.metadata.get_by_name(
+        #             entity=stage.type_,
+        #             fqn=entity_fqn,
+        #             fields=["*"],  # Get all the available data from the Entity
+        #         )
+        #         tries -= 1
+        #
+        #     if not entity:
+        #         # Safe access to Entity Request name
+        #         raise MissingExpectedEntityAckException(
+        #             f"Missing ack back from [{stage.type_.__name__}: {entity_fqn}] - "
+        #             "Possible causes are changes in the server Fernet key or mismatched JSON Schemas "
+        #             "for the service connection."
+        #         )
 
         self.context.get().update_context_name(stage=stage, right=right)
 
