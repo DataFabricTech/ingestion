@@ -132,10 +132,7 @@ class ImageProfilerInterface(ProfilerInterface):
             if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
                                                     FileFormat.bmp, FileFormat.gif, FileFormat.webp,
                                                     FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
-                try:
-                    detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
-                except Exception as e:
-                    logger.debug(f"image file detected fail [{e}], file {local_file_path}")
+                detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
             else:
                 logger.warn("Unsupported get detected object file type")
 
