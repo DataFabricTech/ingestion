@@ -518,7 +518,8 @@ class MetadataRestSink(Sink):  # pylint: disable=too-many-public-methods
                                                    FileFormat.hwp, FileFormat.hwpx,
                                                    FileFormat.jpeg, FileFormat.jpg, FileFormat.png, FileFormat.bmp, FileFormat.gif, FileFormat.webp, FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif,
                                                    FileFormat.pdf,
-                                                   FileFormat.json]:
+                                                   FileFormat.json,
+                                                   FileFormat.xlsx, FileFormat.xls]:
                     logger.info(f"profile update for document file")
 
 

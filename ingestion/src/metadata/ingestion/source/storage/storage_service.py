@@ -71,6 +71,7 @@ from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.txt_extractor import TxtMetadataExtractor
 from metadata.utils.word.xml_extractor import XmlMetadataExtractor
 from metadata.utils.word.json_extractor import JsonMetadataExtractor
+from metadata.utils.word.xls_extractor import XlsMetadataExtractor
 
 from metadata.utils.image.pil_extractor import PilMetadataExtractor
 from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
@@ -424,6 +425,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                     extractor = JsonMetadataExtractor()
                 elif file_extension == FileFormat.xml.value:
                     extractor = XmlMetadataExtractor()
+                elif file_extension in [FileFormat.xls.value, FileFormat.xlsx.value]:
+                    extractor = XlsMetadataExtractor()
                 else:
                     logger.warn("Unsupported file type")
                     return None

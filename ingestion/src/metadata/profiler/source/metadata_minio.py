@@ -133,8 +133,8 @@ class MetadataSourceForMinio(Source):
         logger.debug(">>>>> model loading ")
         supported_file_formats = [
             FileFormat.csv,
-            # FileFormat.xls,
-            # FileFormat.xlsx,
+            FileFormat.xls,
+            FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
             FileFormat.doc,

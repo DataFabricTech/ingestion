@@ -137,7 +137,8 @@ class DocumentProfilerInterface(ProfilerInterface):
             if self.table_entity.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
                                                     FileFormat.txt,
                                                     FileFormat.xml,
-                                                    FileFormat.json]:
+                                                    FileFormat.json,
+                                                    FileFormat.xlsx, FileFormat.xls]:
                 sample_image_data = self.get_word_sample_image(local_file_path)
 
             if sample_data is None and sample_image_data is None:

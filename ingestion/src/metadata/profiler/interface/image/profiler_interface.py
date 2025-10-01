@@ -109,15 +109,14 @@ class ImageProfilerInterface(ProfilerInterface):
             data_path = str(self.table_entity.prefix).strip('/')
             normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
 
-            logger.debug("get_file start")
             local_file_path = self._get_file(bucket_name, normalized_key)
-            logger.debug("get_file end")
             if local_file_path is None:
                 return None, None, None, None
 
             image_text = None
             resize_image = None
             detected_objects = None
+            detected_objects_image = None
             if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
                                                     FileFormat.bmp, FileFormat.gif, FileFormat.webp,
                                                     FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
@@ -130,10 +129,15 @@ class ImageProfilerInterface(ProfilerInterface):
                 logger.warn("Unsupported file type")
 
             # 이미지 객체 탐지
-            try:
-                detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
-            except Exception as e:
-                logger.debug(f"image file detected fail [{e}], file {local_file_path}")
+            if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
+                                                    FileFormat.bmp, FileFormat.gif, FileFormat.webp,
+                                                    FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
+                try:
+                    detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
+                except Exception as e:
+                    logger.debug(f"image file detected fail [{e}], file {local_file_path}")
+            else:
+                logger.warn("Unsupported get detected object file type")
 
 
             return image_text, resize_image, detected_objects, detected_objects_image
@@ -159,9 +163,7 @@ class ImageProfilerInterface(ProfilerInterface):
         이미지 객체 탐지
         """
         detector = YoloDetector(local_file_path, detected_objects_model)
-        logger.debug("detected start")
         detected_objects, detected_objects_image = detector.detected_objects()
-        logger.debug("detected end")
         return detected_objects, detected_objects_image
 
     def _get_sampler(self):

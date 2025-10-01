@@ -331,6 +331,3 @@ def remove_control_characters(s):
     return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
 
-def gettext(path: str):
-
-    f = olefile.OleFileIO(path)
