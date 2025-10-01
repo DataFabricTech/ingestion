@@ -429,7 +429,8 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Image Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate image container metadata: {file_name}")
-                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value, FileFormat.mp4.value]:
+                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value,
+                                                        FileFormat.mp4.value, FileFormat.mov.value, FileFormat.m4v.value]:
                     logger.info(f"Media Data Metadata Ingestion From : {file_name}")
                     container: Optional[MinioContainerDetails] = (
                         self._generate_media_container_details(

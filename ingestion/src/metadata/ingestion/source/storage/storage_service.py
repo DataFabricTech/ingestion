@@ -496,7 +496,7 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
                 metadata = self._get_wave_meta(local_file_path)
             elif file_extension in [FileFormat.mp3.value]:
                 metadata = self._get_mp3_meta(local_file_path)
-            elif file_extension in [FileFormat.mp4.value]:
+            elif file_extension in [FileFormat.mp4.value, FileFormat.mov.value, FileFormat.m4v.value]:
                 metadata = self._get_mediainfo_meta(local_file_path)
             else:
                 logger.warn("Unsupported file type")
