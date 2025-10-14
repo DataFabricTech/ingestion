@@ -3,7 +3,7 @@ import os
 from docx import Document
 from tika import parser
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 class MsWordMetadataExtractor:
 
@@ -79,7 +79,13 @@ class MsWordMetadataExtractor:
                     new_metas["created"] = v
                 if isinstance(v, datetime):
                     # datetime 형식의 경우 str로 변환
-                    new_metas["created"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+                    # new_metas["created"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+                    # UTC가 아니면 UTC로 변환 (타임존 없는 경우)
+                    if v.tzinfo is None:
+                        v = v.replace(tzinfo=timezone.utc)
+
+                    # ISO 8601 형식으로 변환 (Elasticsearch 호환)
+                    new_metas["created"] = v.isoformat().replace("+00:00", "Z")
             if k == 'Identifier':
                 new_metas["identifier"] = v
             if k == 'Language':
@@ -91,7 +97,13 @@ class MsWordMetadataExtractor:
                     new_metas["modified"] = v
                 if isinstance(v, datetime):
                     # datetime 형식의 경우 str로 변환
-                    new_metas["modified"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+                    # new_metas["modified"] = v.strftime('%Y-%m-%d %H:%M:%S %Z')
+                    # UTC가 아니면 UTC로 변환 (타임존 없는 경우)
+                    if v.tzinfo is None:
+                        v = v.replace(tzinfo=timezone.utc)
+
+                    # ISO 8601 형식으로 변환 (Elasticsearch 호환)
+                    new_metas["modified"] = v.isoformat().replace("+00:00", "Z")
             if k == 'Revision':
                 new_metas["revision"] = v
             if k == 'Subject':
