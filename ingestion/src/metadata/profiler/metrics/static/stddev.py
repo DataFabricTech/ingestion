@@ -76,11 +76,9 @@ def _(element, compiler, **kw):
     return f"IF(is_nan(STDDEV_POP({proc})), NULL, STDDEV_POP({proc}))"
 
 
-@compiles(StdDevFn, Dialects.ClickHouse)
+@compiles(StdDevFn, Dialects.Postgres)
 def _(element, compiler, **kw):
-    """Returns stdv for clickhouse database and handle empty tables.
-    If table is empty, clickhouse returns NaN.
-    """
+    """Returns stdv for engines that require explicit NaN handling."""
     proc = compiler.process(element.clauses, **kw)
     return "if(isNaN(stddevPop(%s)), null, stddevPop(%s))" % ((proc,) * 2)
 

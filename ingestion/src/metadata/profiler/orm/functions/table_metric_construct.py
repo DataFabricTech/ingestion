@@ -15,16 +15,13 @@ Run profiler metrics on the table
 """
 
 import traceback
-from typing import Callable, List, Optional, Tuple, cast
+from typing import Callable, List, Optional, Tuple
 
 from sqlalchemy import Column, MetaData, Table, func, inspect, literal, select
 from sqlalchemy.orm import DeclarativeMeta
 from sqlalchemy.sql.expression import ColumnOperators, and_, cte
 from sqlalchemy.types import String
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
-    BigQueryConnection,
-)
 from metadata.profiler.metrics.registry import Metrics
 from metadata.profiler.orm.registry import Dialects
 from metadata.profiler.processor.runner import QueryRunner
@@ -167,73 +164,6 @@ def mysql_table_construct(runner: QueryRunner, **kwargs):
     return runner._session.execute(query).first()
 
 
-def bigquery_table_construct(runner: QueryRunner, **kwargs):
-    """bigquery table construct for table metrics
-
-    Args:
-        runner (QueryRunner): query runner object
-    """
-    try:
-        schema_name, table_name = _get_table_and_schema_name(runner.table)
-    except AttributeError:
-        raise AttributeError(ERROR_MSG)
-
-    conn_config = kwargs.get("conn_config")
-    conn_config = cast(BigQueryConnection, conn_config)
-
-    table_storage = _build_table(
-        "TABLE_STORAGE", f"region-{conn_config.usageLocation}.INFORMATION_SCHEMA"
-    )
-    col_names, col_count = _get_col_names_and_count(runner.table)
-    columns = [
-        Column("total_rows").label("rowCount"),
-        Column("total_logical_bytes").label("sizeInBytes"),
-        Column("creation_time").label("createDateTime"),
-        col_names,
-        col_count,
-    ]
-
-    where_clause = [
-        Column("table_schema") == schema_name,
-        Column("table_name") == table_name,
-    ]
-
-    query = _build_query(columns, table_storage, where_clause)
-
-    return runner._session.execute(query).first()
-
-
-def clickhouse_table_construct(runner: QueryRunner, **kwargs):
-    """clickhouse table construct for table metrics
-
-    Args:
-        runner (QueryRunner): query runner object
-    """
-    try:
-        schema_name, table_name = _get_table_and_schema_name(runner.table)
-    except AttributeError:
-        raise AttributeError(ERROR_MSG)
-
-    tables = _build_table("tables", "system")
-    col_names, col_count = _get_col_names_and_count(runner.table)
-
-    columns = [
-        Column("total_rows").label("rowCount"),
-        Column("total_bytes").label("sizeInBytes"),
-        col_names,
-        col_count,
-    ]
-
-    where_clause = [
-        Column("database") == schema_name,
-        Column("name") == table_name,
-    ]
-
-    query = _build_query(columns, tables, where_clause)
-
-    return runner._session.execute(query).first()
-
-
 def oracle_table_construct(runner: QueryRunner, **kwargs):
     """oracle table construct for table metrics
 
@@ -359,7 +289,5 @@ table_metric_construct_factory = TableMetricConstructFactory()
 table_metric_construct_factory.register("base", base_table_construct)
 table_metric_construct_factory.register(Dialects.Redshift, redshift_table_construct)
 table_metric_construct_factory.register(Dialects.MySQL, mysql_table_construct)
-table_metric_construct_factory.register(Dialects.BigQuery, bigquery_table_construct)
-table_metric_construct_factory.register(Dialects.ClickHouse, clickhouse_table_construct)
 table_metric_construct_factory.register(Dialects.Oracle, oracle_table_construct)
 table_metric_construct_factory.register(Dialects.Snowflake, snowflake_table_construct)

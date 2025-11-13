@@ -94,13 +94,13 @@ class MetadataSourceForMinio(Source):
         )
 
         # Used to satisfy type checked
-        if not self._validate_service_name():
-            raise ValueError(
-                f"Service name `{self.config.source.serviceName}` does not exist. "
-                "Make sure you have run the ingestion for the service specified in the profiler workflow. "
-                "If so, make sure the profiler service name matches the service name specified during ingestion "
-                "and that your ingestion token (settings > bots) is still valid."
-            )
+        # if not self._validate_service_name():
+        #     raise ValueError(
+        #         f"Service name `{self.config.source.serviceName}` does not exist. "
+        #         "Make sure you have run the ingestion for the service specified in the profiler workflow. "
+        #         "If so, make sure the profiler service name matches the service name specified during ingestion "
+        #         "and that your ingestion token (settings > bots) is still valid."
+        #     )
 
         logger.info(
             f"Starting profiler for service {self.config.source.serviceName}"

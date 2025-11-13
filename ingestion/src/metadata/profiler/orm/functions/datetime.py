@@ -48,45 +48,28 @@ def _(elements, compiler, **kwargs):
     return f"TO_DATE(CURRENT_DATE - INTERVAL '{interval}' {interval_unit})"
 
 
-@compiles(DateAddFn, Dialects.BigQuery)
-def _(elements, compiler, **kwargs):
-    """generic date and datetime function"""
-    interval, interval_unit = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return f"CAST(CURRENT_DATE - interval {interval} {interval_unit} AS DATE)"
-
-
 @compiles(DateAddFn, Dialects.MSSQL)
-@compiles(DateAddFn, Dialects.AzureSQL)
 @compiles(DateAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """data function for mssql and azuresql"""
+    """date function for mssql and snowflake"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
     return f"CAST(DATEADD({interval_unit},-{interval},GETDATE()) AS DATE)"
 
 
-@compiles(DateAddFn, Dialects.Db2)
 @compiles(DateAddFn, Dialects.IbmDbSa)
 def _(elements, compiler, **kwargs):
-    """data function for DB2"""
+    """Date function for IBM DB connections"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
     return f"CAST({func.current_date()} - {interval} {interval_unit} AS DATE)"
 
 
-@compiles(DateAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    interval = elements.clauses.clauses[0].value
-    interval_unit = compiler.process(elements.clauses.clauses[1], **kwargs)
-    return f"toDate(NOW() - interval '{interval}' {interval_unit})"
-
-
 @compiles(DateAddFn, Dialects.Redshift)
 def _(elements, compiler, **kwargs):
+    """Redshift datetime function"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
@@ -94,7 +77,8 @@ def _(elements, compiler, **kwargs):
 
 
 @compiles(DateAddFn, Dialects.SQLite)
-def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
+def _(elements, compiler, **kwargs):
+    """SQLite timestamp and datetime function"""
     interval = elements.clauses.clauses[0].value
     interval_unit = elements.clauses.clauses[1].text
     return f"DATE({func.current_date()}, '-{interval} {interval_unit}')"
@@ -119,36 +103,17 @@ def _(elements, compiler, **kwargs):
     return mysql_function(elements, compiler, **kwargs)
 
 
-@compiles(DatetimeAddFn, Dialects.BigQuery)
-def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
-    """BigQuery date and datetime function"""
-    interval = elements.clauses.clauses[0].value
-    interval_unit = elements.clauses.clauses[1].text
-
-    return (
-        f"DATETIME_SUB({func.current_datetime()}, INTERVAL {interval} {interval_unit})"
-    )
-
-
-@compiles(DatetimeAddFn, Dialects.Db2)
 @compiles(DatetimeAddFn, Dialects.IbmDbSa)
 def _(elements, compiler, **kwargs):
-    """DB2 datetime function"""
-    return db2_function(elements, compiler, **kwargs)
+    """Ibm DB datetime function reuses the generic implementation"""
+    return generic_function(elements, compiler, **kwargs)
 
 
-@compiles(DatetimeAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    """Clickhouse datetime function"""
-    return clickhouse_function(elements, compiler, **kwargs)
-
-
-@compiles(DatetimeAddFn, Dialects.AzureSQL)
 @compiles(DatetimeAddFn, Dialects.MSSQL)
 @compiles(DatetimeAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """AzreSQL, MSSQL, Snowflake datetime function"""
-    return azure_mssql_snflk_function(elements, compiler, **kwargs)
+    """MSSQL, Snowflake datetime function"""
+    return mssql_snflk_function(elements, compiler, **kwargs)
 
 
 @compiles(DatetimeAddFn, Dialects.Redshift)
@@ -176,51 +141,23 @@ def _(elements, compiler, **kwargs):
     return generic_function(elements, compiler, **kwargs)
 
 
-@compiles(TimestampAddFn, Dialects.BigQuery)
-def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
-    """Bigquery timestamp function"""
-    interval = elements.clauses.clauses[0].value
-    interval_unit = elements.clauses.clauses[1].text
-
-    # bigquery does not support month or year interval for timestamp.
-    if interval_unit.lower() in {"year", "month"}:
-        raise ValueError(
-            "Bigquery does not support `month` or `year` interval for table partitioned on timestamp",
-            "field types. You can set the `interval_unit to day or hour directly from OpenMetadata UI`."
-            # pylint: disable=line-too-long
-            "Visit https://docs.open-metadata.org/connectors/ingestion/workflows/profiler#4-updating-profiler-setting-at-the-table-level for more details.",
-        )
-
-    return (
-        f"DATETIME_SUB({func.current_timestamp()}, INTERVAL {interval} {interval_unit})"
-    )
-
-
 @compiles(TimestampAddFn, Dialects.MySQL)
 def _(elements, compiler, **kwargs):
     """MySQL timestamp function"""
     return mysql_function(elements, compiler, **kwargs)
 
 
-@compiles(TimestampAddFn, Dialects.Db2)
 @compiles(TimestampAddFn, Dialects.IbmDbSa)
 def _(elements, compiler, **kwargs):
-    """DB2 timestamp function"""
-    return db2_function(elements, compiler, **kwargs)
+    """Ibm DB timestamp function reuses the generic implementation"""
+    return generic_function(elements, compiler, **kwargs)
 
 
-@compiles(TimestampAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    """Clickhouse datetime function"""
-    return clickhouse_function(elements, compiler, **kwargs)
-
-
-@compiles(TimestampAddFn, Dialects.AzureSQL)
 @compiles(TimestampAddFn, Dialects.MSSQL)
 @compiles(TimestampAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """Azure SQL, MSSQL and Snowflake timestamp function"""
-    return azure_mssql_snflk_function(elements, compiler, **kwargs)
+    """MSSQL and Snowflake timestamp function"""
+    return mssql_snflk_function(elements, compiler, **kwargs)
 
 
 @compiles(TimestampAddFn, Dialects.Redshift)
@@ -273,25 +210,9 @@ def redshift_function(elements, compiler, **kwargs):
     )
 
 
-def azure_mssql_snflk_function(elements, compiler, **kwargs):
-    """Azure, MSSQL and Snowflake timestamp and datetime function"""
+def mssql_snflk_function(elements, compiler, **kwargs):
+    """MSSQL and Snowflake timestamp and datetime function"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
     return f"DATEADD({interval_unit}, -{interval}, {func.current_timestamp()})"
-
-
-def clickhouse_function(elements, compiler, **kwargs):
-    """ClickHouse timestamp and datetime function"""
-    interval, interval_unit = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return f"(NOW() - interval {interval} {interval_unit})"
-
-
-def db2_function(elements, compiler, **kwargs):
-    """DB2 timestamp and datetime function"""
-    interval, interval_unit = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return f"CAST({func.current_timestamp()} - {interval} {interval_unit} AS TIMESTAMP)"

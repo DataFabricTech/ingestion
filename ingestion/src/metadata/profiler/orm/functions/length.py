@@ -38,16 +38,12 @@ def _(element, compiler, **kw):
 @compiles(LenFn, Dialects.Vertica)
 @compiles(LenFn, Dialects.Hive)
 @compiles(LenFn, Dialects.Impala)
-@compiles(LenFn, Dialects.Databricks)
 @compiles(LenFn, Dialects.MySQL)
 @compiles(LenFn, Dialects.MariaDB)
-@compiles(LenFn, Dialects.Athena)
 @compiles(LenFn, Dialects.Trino)
 @compiles(LenFn, Dialects.Presto)
-@compiles(LenFn, Dialects.BigQuery)
 @compiles(LenFn, Dialects.Oracle)
 @compiles(LenFn, Dialects.IbmDbSa)
-@compiles(LenFn, Dialects.Db2)
 @compiles(LenFn, Dialects.Hana)
 @compiles(LenFn, Dialects.Druid)
 def _(element, compiler, **kw):
@@ -57,14 +53,6 @@ def _(element, compiler, **kw):
 @compiles(LenFn, Dialects.Postgres)
 def _(element, compiler, **kw):
     return "LENGTH(CAST(%s AS text))" % compiler.process(element.clauses, **kw)
-
-
-@compiles(LenFn, Dialects.ClickHouse)
-def _(element, compiler, **kw):
-    """Handles lenght function for ClickHouse"""
-    if isinstance(element.clauses.clauses[0].type, sqltypes.Enum):
-        return "length(cast(%s, 'String'))" % compiler.process(element.clauses, **kw)
-    return "length(%s)" % compiler.process(element.clauses, **kw)
 
 
 @compiles(LenFn, Dialects.MSSQL)

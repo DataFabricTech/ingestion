@@ -41,13 +41,8 @@ def _(*_, **__):
     return "SELECT 42 FROM DUAL"
 
 
-@compiles(ConnTestFn, Dialects.BigQuery)
-def _(*_, **__):
-    return "SELECT SESSION_USER()"
-
-
-@compiles(ConnTestFn, Dialects.Db2)
-@compiles(ConnTestFn, Dialects.IbmDbSa)
+@compiles(ConnTestFn, Dialects.Redshift)
+@compiles(ConnTestFn, Dialects.Postgres)
 def _(*_, **__):
     return "SELECT 42 FROM SYSIBM.SYSDUMMY1;"
 

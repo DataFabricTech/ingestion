@@ -13,14 +13,10 @@
 Factory class for creating profiler source objects
 """
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
-    BigqueryType,
-)
 from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
     MinioType,
 )
 from metadata.profiler.source.base.profiler_source import ProfilerSource
-from metadata.profiler.source.bigquery.profiler_source import BigQueryProfilerSource
 from metadata.profiler.source.storage.minio.profiler_source import MinIOProfilerSource
 
 
@@ -44,11 +40,6 @@ class ProfilerSourceFactory:
 
 
 profiler_source_factory = ProfilerSourceFactory()
-profiler_source_factory.register_source(
-    BigqueryType.BigQuery.value.lower(),
-    BigQueryProfilerSource,
-)
-
 profiler_source_factory.register_source(
     MinioType.MinIO.value.lower(),
     MinIOProfilerSource,

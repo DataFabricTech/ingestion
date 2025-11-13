@@ -20,9 +20,6 @@ from typing import List, Optional
 from sqlalchemy import Column, MetaData, inspect
 from sqlalchemy.orm import DeclarativeMeta
 
-from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
-    DatabricksConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
     SnowflakeType,
 )
@@ -84,12 +81,11 @@ class SQAInterfaceMixin:
             )
 
     def set_catalog(self, session) -> None:
-        """Set catalog for the session. Right now only databricks requires it
-
-        Args:
-            session (Session): sqa session object
-        """
-        if isinstance(self.service_connection_config, DatabricksConnection):
+        """Set catalog for the session when supported by the connection."""
+        if (
+            hasattr(self.service_connection_config, "catalog")
+            and self.service_connection_config.catalog
+        ):
             bind = session.get_bind()
             bind.execute(
                 "USE CATALOG %(catalog)s;",

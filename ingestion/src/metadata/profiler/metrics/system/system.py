@@ -20,18 +20,10 @@ from typing import Dict, List, Optional
 from sqlalchemy import text
 from sqlalchemy.orm import DeclarativeMeta, Session
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
-    BigQueryConnection,
-)
 from metadata.profiler.metrics.core import SystemMetric
 from metadata.profiler.metrics.system.dml_operation import (
     DML_OPERATION_MAP,
     DatabaseDMLOperations,
-)
-from metadata.profiler.metrics.system.queries.bigquery import (
-    DML_STAT_TO_DML_STATEMENT_MAPPING,
-    JOBS,
-    BigQueryQueryResult,
 )
 from metadata.profiler.metrics.system.queries.redshift import (
     STL_QUERY,
@@ -76,7 +68,7 @@ def get_system_metrics_for_dialect(
         session (Session): session object
 
     Returns:
-        Optional[Dict]: For BigQuery, Snowflake, Redshift returns
+        Optional[Dict]: For Snowflake, Redshift returns
             {
                 timestamp: <timestamp>,
                 operationType: <Enum: 'INSERT', 'UPDATE', 'DELETE'>
@@ -84,106 +76,6 @@ def get_system_metrics_for_dialect(
             } else returns None
     """
     logger.debug(f"System metrics not support for {dialect}. Skipping processing.")
-
-
-@get_system_metrics_for_dialect.register(Dialects.BigQuery)
-def _(
-    dialect: str,
-    session: Session,
-    table: DeclarativeMeta,
-    conn_config: BigQueryConnection,
-    *args,
-    **kwargs,
-) -> List[Dict]:
-    """Compute system metrics for bigquery
-
-    Args:
-        dialect (str): bigquery
-        session (Session): session Object
-        table (DeclarativeMeta): orm table
-
-    Returns:
-        List[Dict]:
-    """
-    logger.debug(f"Fetching system metrics for {dialect}")
-
-    project_id = session.get_bind().url.host
-    dataset_id = table.__table_args__["schema"]  # type: ignore
-
-    metric_results: List[Dict] = []
-
-    jobs = get_value_from_cache(
-        SYSTEM_QUERY_RESULT_CACHE, f"{Dialects.BigQuery}.{project_id}.{dataset_id}.jobs"
-    )
-
-    if not jobs:
-        cursor_jobs = session.execute(
-            text(
-                JOBS.format(
-                    usage_location=conn_config.usageLocation,
-                    dataset_id=dataset_id,
-                    project_id=project_id,
-                    insert=DatabaseDMLOperations.INSERT.value,
-                    update=DatabaseDMLOperations.UPDATE.value,
-                    delete=DatabaseDMLOperations.DELETE.value,
-                    merge=DatabaseDMLOperations.MERGE.value,
-                )
-            )
-        )
-        jobs = [
-            BigQueryQueryResult(
-                query_type=row.statement_type,
-                timestamp=row.start_time,
-                table_name=row.destination_table,
-                dml_statistics=row.dml_statistics,
-            )
-            for row in cursor_jobs
-        ]
-        set_cache(
-            SYSTEM_QUERY_RESULT_CACHE,
-            f"{Dialects.BigQuery}.{project_id}.{dataset_id}.jobs",
-            jobs,
-        )
-
-    for job in jobs:
-        if job.table_name.get("table_id") == table.__tablename__:  # type: ignore
-            rows_affected = None
-            try:
-                if job.query_type == DatabaseDMLOperations.INSERT.value:
-                    rows_affected = job.dml_statistics.get("inserted_row_count")
-                if job.query_type == DatabaseDMLOperations.DELETE.value:
-                    rows_affected = job.dml_statistics.get("deleted_row_count")
-                if job.query_type == DatabaseDMLOperations.UPDATE.value:
-                    rows_affected = job.dml_statistics.get("updated_row_count")
-            except AttributeError:
-                logger.debug(traceback.format_exc())
-                rows_affected = None
-
-            if job.query_type == DatabaseDMLOperations.MERGE.value:
-                for indx, key in enumerate(job.dml_statistics):
-                    if job.dml_statistics[key] != 0:
-                        metric_results.append(
-                            {
-                                # Merge statement can include multiple DML operations
-                                # We are padding timestamps by 0,1,2 millisesond to avoid
-                                # duplicate timestamps
-                                "timestamp": int(job.timestamp.timestamp() * 1000)
-                                + indx,
-                                "operation": DML_STAT_TO_DML_STATEMENT_MAPPING.get(key),
-                                "rowsAffected": job.dml_statistics[key],
-                            }
-                        )
-                continue
-
-            metric_results.append(
-                {
-                    "timestamp": int(job.timestamp.timestamp() * 1000),
-                    "operation": job.query_type,
-                    "rowsAffected": rows_affected,
-                }
-            )
-
-    return metric_results
 
 
 @get_system_metrics_for_dialect.register(Dialects.Redshift)
@@ -297,7 +189,7 @@ def _(
     We'll be fetching all the queries ran for the past 24 hours and filtered on specific query types
     (INSERTS, MERGE, DELETE, UPDATE).
 
-    :waring: Unlike redshift and bigquery results are not cached as we'll be looking
+    :waring: Unlike redshift results are not cached as we'll be looking
     at DDL for each table
 
     To get the number of rows affected we'll use the specific query ID.
@@ -375,7 +267,7 @@ class System(SystemMetric):
         1. freshness
         2. affected rows
 
-    This is supported only for BigQuery, Snowflake, and Redshift
+    This is supported only for Snowflake and Redshift
     """
 
     @classmethod

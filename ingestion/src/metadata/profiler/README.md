@@ -94,6 +94,6 @@ We currently have 2 main categories of interfaces:
 1. `SQLAlchemyInterface`: handles the logic to compute metrics for SQL based assets (e.g. Redshift, Snowflake, MySQL, etc.)
 2. `PanadasInterface`: handles the logic to compute metrics for Pandas based assets (e.g. Datalake connectors)
 
-These interfaces can easily be extended to support connector specificity (e.g. BigQuery Struct computation, etc.).
+These interfaces can easily be extended to support connector specificity (e.g. struct computation for complex column types, etc.).
 
 <img src="../../../../openmetadata-docs/images/connectors/profiler/profilerUMLDiagram.png" width="100%">

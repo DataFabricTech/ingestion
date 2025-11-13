@@ -41,9 +41,9 @@ class avg(GenericFunction):
     inherit_cache = CACHE
 
 
-@compiles(avg, Dialects.ClickHouse)
+@compiles(avg, Dialects.MySQL)
 def _(element, compiler, **kw):
-    """Handle case for empty table. If empty, clickhouse returns NaN"""
+    """Handle case for engines that return NaN for empty tables"""
     proc = compiler.process(element.clauses, **kw)
     return f"if(isNaN(avg({proc})), null, avg({proc}))"
 

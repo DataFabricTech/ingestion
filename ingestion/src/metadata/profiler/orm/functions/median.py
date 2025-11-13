@@ -36,26 +36,6 @@ def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
     return "percentile_cont(%.2f) WITHIN GROUP (ORDER BY %s ASC)" % (percentile, col)
 
 
-@compiles(MedianFn, Dialects.BigQuery)
-def _(elements, compiler, **kwargs):
-    col, _, percentile = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return "percentile_cont(%s , %s) OVER()" % (col, percentile)
-
-
-@compiles(MedianFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    col, _, percentile = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    quantile_str = f"quantile({percentile})({col})"
-    null_check = (
-        "isNull" if isinstance(elements.clauses.clauses[0].type, DECIMAL) else "isNaN"
-    )
-    return f"if({null_check}({quantile_str}), null, {quantile_str})"
-
-
 @compiles(MedianFn, Dialects.Druid)
 def _(elements, compiler, **kwargs):
     col, _, percentile = [
@@ -65,7 +45,6 @@ def _(elements, compiler, **kwargs):
 
 
 # pylint: disable=unused-argument
-@compiles(MedianFn, Dialects.Athena)
 @compiles(MedianFn, Dialects.Presto)
 def _(elements, compiler, **kwargs):
     col = compiler.process(elements.clauses.clauses[0])

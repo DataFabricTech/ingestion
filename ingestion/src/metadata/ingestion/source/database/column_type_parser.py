@@ -225,13 +225,12 @@ class ColumnTypeParser:
         "CLOB": "CLOB",
         "NCLOB": "CLOB",
         "LONG": "LONG",
-        # clickhouse
+        # legacy engines
         "LOWCARDINALITY": "LOWCARDINALITY",
         "DATETIME64": "DATETIME",
         "SimpleAggregateFunction()": "AGGREGATEFUNCTION",
         "IPV4": "IPV4",
         "IPV6": "IPV6",
-        # Databricks
         "VOID": "NULL",
         # mysql
         "TINYBLOB": "BLOB",
