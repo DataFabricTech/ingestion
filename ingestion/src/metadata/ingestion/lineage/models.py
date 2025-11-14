@@ -70,6 +70,7 @@ class Dialect(Enum):
     SQLITE = "sqlite"
     TERADATA = "teradata"
     TSQL = "tsql"
+    SINGLESTORE = "singlestore"
 
 
 MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
@@ -83,6 +84,7 @@ MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
     str(DeltaLakeType.DeltaLake.value): Dialect.SPARKSQL,
     str(SQLiteType.SQLite.value): Dialect.SQLITE,
     str(MssqlType.Mssql.value): Dialect.TSQL,
+    str(SingleStoreType.SingleStore.value): Dialect.SINGLESTORE,
 }
 
 

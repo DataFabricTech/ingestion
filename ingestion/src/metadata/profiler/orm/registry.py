@@ -52,7 +52,6 @@ class Dialects(Enum):
 
     BigQuery = "bigquery"
     Druid = "druid"
-    DynamoDB = "dynamoDB"
     Glue = "glue"
     Hana = "hana"
     Hive = "hive"

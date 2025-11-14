@@ -206,7 +206,6 @@ plugins: Dict[str, Set[str]] = {
     "deltalake": {"delta-spark<=2.3.0"},
     # "docker": {"python_on_whales==0.55.0"},
     "druid": {"pydruid>=0.6.5"},
-    "dynamodb": {VERSIONS["boto3"]},
     "elasticsearch": {
         "elasticsearch==7.13.1",
         VERSIONS["elasticsearch8"],

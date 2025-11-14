@@ -26,7 +26,7 @@ from metadata.generated.schema.api.data.createFile import CreateFileRequest
 from metadata.generated.schema.entity.data.container import (
     Container,
     FileFormat,
-    ContainerDataModelModel,
+    ContainerDataModel,
 )
 from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
     MinioConnection,
@@ -742,7 +742,7 @@ class MinioSource(StorageServiceSource):
         )
 
         if columns:
-            data_model = ContainerDataModelModel(columns=columns)
+            data_model = ContainerDataModel(columns=columns)
         else:
             data_model = None
 
