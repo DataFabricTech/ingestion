@@ -50,7 +50,6 @@ class Dialects(Enum):
     Keep this alphabetically ordered
     """
 
-    Athena = "awsathena"
     AzureSQL = "azuresql"
     BigQuery = "bigquery"
     ClickHouse = "clickhouse"

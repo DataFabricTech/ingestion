@@ -16,9 +16,6 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from metadata.generated.schema.entity.services.connections.database.athenaConnection import (
-    AthenaType,
-)
 from metadata.generated.schema.entity.services.connections.database.azureSQLConnection import (
     AzureSQLType,
 )
@@ -73,7 +70,6 @@ class Dialect(Enum):
     """
 
     ANSI = "ansi"
-    ATHENA = "athena"
     BIGQUERY = "bigquery"
     CLICKHOUSE = "clickhouse"
     DATABRICKS = "databricks"
@@ -96,7 +92,6 @@ class Dialect(Enum):
 
 
 MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
-    str(AthenaType.Athena.value): Dialect.ATHENA,
     str(BigqueryType.BigQuery.value): Dialect.BIGQUERY,
     str(ClickhouseType.Clickhouse.value): Dialect.CLICKHOUSE,
     str(DatabricksType.Databricks.value): Dialect.DATABRICKS,

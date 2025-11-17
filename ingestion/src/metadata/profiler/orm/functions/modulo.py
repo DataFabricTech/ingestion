@@ -51,7 +51,6 @@ def _(element, compiler, **kw):
 @compiles(ModuloFn, Dialects.Redshift)
 @compiles(ModuloFn, Dialects.Snowflake)
 @compiles(ModuloFn, Dialects.Postgres)
-@compiles(ModuloFn, Dialects.Athena)
 @compiles(ModuloFn, Dialects.MySQL)
 @compiles(ModuloFn, Dialects.Oracle)
 @compiles(ModuloFn, Dialects.Presto)

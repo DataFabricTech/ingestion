@@ -65,7 +65,6 @@ def _(elements, compiler, **kwargs):
 
 
 # pylint: disable=unused-argument
-@compiles(MedianFn, Dialects.Athena)
 @compiles(MedianFn, Dialects.Presto)
 def _(elements, compiler, **kwargs):
     col = compiler.process(elements.clauses.clauses[0])
