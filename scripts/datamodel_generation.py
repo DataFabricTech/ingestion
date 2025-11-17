@@ -65,14 +65,17 @@ def _patched_get_ref_body_from_url(self, resolved_ref):
                 os.path.join(os.getcwd(), "spec/src/main/resources/json/schema"),
             ]
             
+            tried_paths = []
             for base_path in base_paths:
                 local_path = os.path.join(base_path, clean_path)
+                tried_paths.append(local_path)
                 if os.path.exists(local_path):
                     with open(local_path, 'r', encoding='utf-8') as f:
                         return json.load(f)
         
         # If local file doesn't exist, raise an error instead of trying to download
-        tried_paths = [f"./spec/src/main/resources/json/schema/{clean_path}" if 'clean_path' in locals() else 'N/A']
+        if 'tried_paths' not in locals():
+            tried_paths = [f"./spec/src/main/resources/json/schema/{clean_path}" if 'clean_path' in locals() else 'N/A']
         raise ValueError(f"Remote URL references are disabled. Local file not found for: {resolved_ref}. Tried paths: {tried_paths}")
     return _original_get_ref_body_from_url(self, resolved_ref)
 

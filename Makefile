@@ -66,7 +66,8 @@ install_antlr_cli:  ## Install antlr CLI locally
 	else \
 		mkdir -p /tmp/antlr && \
 		curl -L https://www.antlr.org/download/antlr-4.9.2-complete.jar -o /tmp/antlr/antlr-4.9.2-complete.jar && \
-		echo '#!/usr/bin/java -jar /tmp/antlr/antlr-4.9.2-complete.jar "$$@"' > /usr/local/bin/antlr4 && \
+		echo '#!/bin/sh' > /usr/local/bin/antlr4 && \
+		echo 'exec /usr/bin/java -jar /tmp/antlr/antlr-4.9.2-complete.jar "$$@"' >> /usr/local/bin/antlr4 && \
 		chmod 755 /usr/local/bin/antlr4; \
 	fi
 
