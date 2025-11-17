@@ -12,7 +12,6 @@ RUN dnf install -y epel-release dnf-utils && \
 
 # 개발 도구 설치
 # mesa-libGL, libzstd-devel : cr2 관련 OpenGL 패키지
-# java-1.8.0-openjdk : antlr4 실행에 필요
 RUN dnf -y groupinstall "Development Tools" && \
     dnf -y install \
         python38 \
@@ -31,23 +30,18 @@ RUN dnf -y groupinstall "Development Tools" && \
         unixODBC \
         unixODBC-devel \
         mesa-libGL \
-        libzstd-devel \
-        java-1.8.0-openjdk \
-        curl && \
+        libzstd-devel && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 
-# 파이선 설치
-RUN python3.8 -m pip install --upgrade pip setuptools packaging wheel cython
+# 파이선 설치 (캐시 없이 설치)
+RUN python3.8 -m pip install --no-cache-dir --upgrade pip setuptools packaging wheel cython
 # Python 링크 설정
 RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
     ln -s /usr/bin/pip3.8 /usr/bin/pip
 
-RUN python3.8 -m site && python3.8 -m pip list
-
 WORKDIR /metadata_collector
 
-RUN python3.8 -m site && python3.8 -m pip list
 # 프로젝트 파일들을 컨테이너로 복사
 COPY ../setup.py /metadata_collector/setup.py
 COPY ../src /metadata_collector/src
@@ -60,17 +54,44 @@ COPY ../Makefile /metadata_collector/Makefile
 COPY ../odbc/odbcinst.ini /etc/odbcinst.ini
 COPY ../odbc/odbc.ini /etc/odbc.ini
 
-# metadata_collector 설치
-RUN pip install ".[all]"
+# metadata_collector 설치 (캐시 없이 설치)
+RUN pip install --no-cache-dir ".[all]"
 
 ## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
 # 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
-RUN pip install --upgrade setuptools packaging wheel cython
+RUN pip install --no-cache-dir --upgrade setuptools packaging wheel cython
 #--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
-RUN pip install psd-tools==1.10.7 --no-build-isolation --no-deps
+RUN pip install --no-cache-dir psd-tools==1.10.7 --no-build-isolation --no-deps
 
 # generate
 RUN make install_antlr_cli && make generate
+
+# Python 패키지 최적화: 불필요한 파일 제거
+RUN find /usr/local/lib/python3.8 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type f -name "*.pyc" -delete && \
+    find /usr/local/lib/python3.8 -type f -name "*.pyo" -delete && \
+    find /usr/local/lib/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type f -name "*.txt" -not -name "*.dist-info" -exec rm -f {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type f -name "*.pyc" -delete && \
+    find /usr/local/lib64/python3.8 -type f -name "*.pyo" -delete && \
+    find /usr/local/lib64/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
+    find /metadata_collector -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /metadata_collector -type f -name "*.pyc" -delete && \
+    find /metadata_collector -type f -name "*.pyo" -delete
+
+# pip 캐시 및 빌드 아티팩트 정리
+RUN rm -rf /root/.cache/pip && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
 
 
 # ------------------------------
@@ -122,6 +143,25 @@ COPY --from=builder /etc/odbcinst.ini /etc/odbcinst.ini
 COPY --from=builder /etc/odbc.ini /etc/odbc.ini
 
 COPY --from=builder /metadata_collector /metadata_collector
+
+# 런타임에서 추가 정리: 테스트 파일, 문서, 예제 등 제거 (dist-info와 egg-info는 유지 - pip 관리에 필요)
+RUN find /usr/local/lib/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type d -name "*.egg" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type d -name "*.egg" -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib64/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
+    find /metadata_collector -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
+    find /metadata_collector -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
+    find /metadata_collector -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
+    find /metadata_collector -type f -name "*.pyc" -delete && \
+    find /metadata_collector -type f -name "*.pyo" -delete
 
 # Python 링크 설정
 RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
