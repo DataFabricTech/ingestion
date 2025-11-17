@@ -12,6 +12,7 @@ RUN dnf install -y epel-release dnf-utils && \
 
 # 개발 도구 설치
 # mesa-libGL, libzstd-devel : cr2 관련 OpenGL 패키지
+# java-1.8.0-openjdk : antlr4 실행에 필요
 RUN dnf -y groupinstall "Development Tools" && \
     dnf -y install \
         python38 \
@@ -30,7 +31,9 @@ RUN dnf -y groupinstall "Development Tools" && \
         unixODBC \
         unixODBC-devel \
         mesa-libGL \
-        libzstd-devel && \
+        libzstd-devel \
+        java-1.8.0-openjdk \
+        curl && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 
