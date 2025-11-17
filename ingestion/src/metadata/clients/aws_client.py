@@ -33,7 +33,6 @@ class AWSServices(Enum):
     SAGEMAKER = "sagemaker"
     KINESIS = "kinesis"
     QUICKSIGHT = "quicksight"
-    ATHENA = "athena"
     RDS = "rds"
     LAKE_FORMATION = "lakeformation"
 
@@ -187,9 +186,6 @@ class AWSClient:
 
     def get_quicksight_client(self):
         return self.get_client(AWSServices.QUICKSIGHT.value)
-
-    def get_athena_client(self):
-        return self.get_client(AWSServices.ATHENA.value)
 
     def get_lake_formation_client(self):
         return self.get_client(AWSServices.LAKE_FORMATION.value)

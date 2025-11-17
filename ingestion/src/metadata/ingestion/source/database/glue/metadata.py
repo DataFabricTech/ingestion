@@ -263,7 +263,6 @@ class GlueSource(DatabaseServiceSource):
                     table_type: TableType = TableType.Regular
                     if parameters and parameters.table_type == "ICEBERG":
                         # iceberg tables need to pass a key/value pair in the DDL `'table_type'='ICEBERG'`
-                        # https://docs.aws.amazon.com/athena/latest/ug/querying-iceberg-creating-tables.html
                         table_type = TableType.Iceberg
                     elif table.TableType == "EXTERNAL_TABLE":
                         table_type = TableType.External
