@@ -18,12 +18,38 @@ from a configured secrets' manager.
 import datamodel_code_generator.model.pydantic
 from datamodel_code_generator.imports import Import
 import os
+import re
+import json
 
 
 
 datamodel_code_generator.model.pydantic.types.IMPORT_SECRET_STR = Import.from_full_path(
     "metadata.ingestion.models.custom_pydantic.CustomSecretStr"
 )
+
+# Monkey patch to disable remote reference resolution
+# datamodel-code-generator tries to download URLs from $id fields, which causes YAML parsing errors
+from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
+
+_original_get_ref_body_from_url = JsonSchemaParser._get_ref_body_from_url
+
+def _patched_get_ref_body_from_url(self, resolved_ref):
+    """Patch to prevent remote URL resolution - convert to local file path"""
+    if resolved_ref.startswith('http://') or resolved_ref.startswith('https://'):
+        # Convert URL to local file path
+        # e.g., https://open-metadata.org/schema/type/basic.json -> ./spec/src/main/resources/json/schema/type/basic.json
+        url_match = re.search(r'https?://[^/]+/(.+)', resolved_ref)
+        if url_match:
+            local_path = f"./spec/src/main/resources/json/schema/{url_match.group(1)}"
+            if os.path.exists(local_path):
+                # Use local file instead of remote URL
+                with open(local_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        # If local file doesn't exist, raise an error instead of trying to download
+        raise ValueError(f"Remote URL references are disabled. Local file not found for: {resolved_ref}")
+    return _original_get_ref_body_from_url(self, resolved_ref)
+
+JsonSchemaParser._get_ref_body_from_url = _patched_get_ref_body_from_url
 
 from datamodel_code_generator.__main__ import main
 
