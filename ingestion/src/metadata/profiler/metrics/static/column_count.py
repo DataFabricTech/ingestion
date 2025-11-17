@@ -36,9 +36,10 @@ def _(element, compiler, **kw):
 
 
 @compiles(ColumnCountFn, Dialects.IbmDbSa)
+@compiles(ColumnCountFn, Dialects.Db2)
 def _(element, compiler, **kw):
-    """Returns column count for IBM DB connections and handles casting variables.
-    If casting is not provided for parameters, the driver may raise errors.
+    """Returns column count for db2 database and handles casting variables.
+    If casting is not provided for variables, db2 throws error.
     """
     proc = compiler.process(element.clauses, **kw)
     return f"CAST({proc} AS BIGINT)"

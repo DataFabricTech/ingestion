@@ -17,8 +17,10 @@ from collections import defaultdict
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseServiceType,
 )
+from metadata.profiler.orm.converter.bigquery.converter import BigqueryMapTypes
 from metadata.profiler.orm.converter.common import CommonMapTypes
 from metadata.profiler.orm.converter.snowflake.converter import SnowflakeMapTypes
 
 converter_registry = defaultdict(lambda: CommonMapTypes)
+converter_registry[DatabaseServiceType.BigQuery] = BigqueryMapTypes
 converter_registry[DatabaseServiceType.Snowflake] = SnowflakeMapTypes

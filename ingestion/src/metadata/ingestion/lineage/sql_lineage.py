@@ -134,7 +134,7 @@ search_cache = LRUCache(LRU_CACHE_SIZE)
 #     empty_list: List[Any] = [None]  # Otherwise, there's a typing error in the concat
 #
 #     if len(split_table) > 3:
-#         # In certain warehouses it is possible that tables within information schema when
+#         # In case of bigquery, it is possible that tables within information schema when
 #         # referred with their fully qualified name may look like this
 #         # `project-id.dataset-id.information_schema.table-name` in such cases there
 #         # will be 4 values to unpack vs the expected 3 values, hence in such case we

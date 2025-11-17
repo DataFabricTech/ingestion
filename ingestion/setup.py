@@ -42,6 +42,7 @@ VERSIONS = {
     "transformers": "transformers==4.46.3",
     "pandas": "pandas==1.3.5",
     "pyarrow": "pyarrow~=10.0",
+    "pydomo": "pydomo~=0.3",
     "pymysql": "pymysql>=1.0.2",
     "pyodbc": "pyodbc>=4.0.35,<5",
     "python-docx": "python-docx==1.1.2",
@@ -50,6 +51,8 @@ VERSIONS = {
     "packaging": "packaging==21.3",
     "azure-storage-blob": "azure-storage-blob~=12.14",
     "azure-identity": "azure-identity~=1.12",
+    "sqlalchemy-databricks": "sqlalchemy-databricks~=0.1",
+    "databricks-sdk": "databricks-sdk==0.16.0",
     "google": "google>=3.0.0",
     "tika": "tika==2.6.0",
     "trino": "trino[sqlalchemy]",
@@ -61,7 +64,6 @@ VERSIONS = {
     "mongo": "pymongo~=4.3",
     "redshift": "sqlalchemy-redshift==0.8.12",
     "snowflake": "snowflake-sqlalchemy~=1.4",
-    "snowflake_connector_python": "snowflake-connector-python~=3.3",
     "elasticsearch8": "elasticsearch8~=8.9.0",
     "giturlparse": "giturlparse",
 
@@ -173,9 +175,25 @@ plugins: Dict[str, Set[str]] = {
         "attrs",
     },  # Same as ingestion container. For development.
     # "amundsen": {VERSIONS["neo4j"]},
+    # "athena": {"pyathena==3.0.8"},
     # "atlas": {},
+    # "azuresql": {VERSIONS["pyodbc"]},
     # "azure-sso": {VERSIONS["msal"]},
     "backup": {VERSIONS["boto3"], "azure-identity", "azure-storage-blob"},
+    "bigquery": {
+        "cachetools",
+        "google-cloud-datacatalog>=3.6.2",
+        "google-cloud-logging",
+        VERSIONS["pyarrow"],
+        "sqlalchemy-bigquery>=1.2.2",
+    },
+    "clickhouse": {"clickhouse-driver~=0.2", "clickhouse-sqlalchemy~=0.2"},
+    # "dagster": {
+    #     VERSIONS["pymysql"],
+    #     "psycopg2-binary",
+    #     VERSIONS["geoalchemy2"],
+    #     "dagster_graphql~=1.1",
+    # },
     "dbt": {
         "google-cloud",
         VERSIONS["boto3"],
@@ -184,6 +202,8 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["azure-storage-blob"],
         VERSIONS["azure-identity"],
     },
+    "db2": {"ibm-db-sa~=0.3"},
+    "databricks": {VERSIONS["sqlalchemy-databricks"], VERSIONS["databricks-sdk"]},
     "datalake-azure": {
         VERSIONS["azure-storage-blob"],
         VERSIONS["azure-identity"],
@@ -206,6 +226,7 @@ plugins: Dict[str, Set[str]] = {
     },
     "deltalake": {"delta-spark<=2.3.0"},
     # "docker": {"python_on_whales==0.55.0"},
+    "domo": {VERSIONS["pydomo"]},
     "druid": {"pydruid>=0.6.5"},
     "elasticsearch": {
         "elasticsearch==7.13.1",
@@ -238,6 +259,7 @@ plugins: Dict[str, Set[str]] = {
     # },
     # "mlflow": {"mlflow-skinny>=2.3.0", "alembic~=1.10.2"},
     "mongo": {VERSIONS["mongo"], VERSIONS["pandas"]},
+    "couchbase": {"couchbase==4.3.2"},
     "mssql": {"sqlalchemy-pytds~=0.3"},
     "mssql-odbc": {VERSIONS["pyodbc"]},
     "mysql": {VERSIONS["pymysql"]},
@@ -255,7 +277,7 @@ plugins: Dict[str, Set[str]] = {
     # "powerbi": {VERSIONS["msal"]},
     # "qliksense": {"websocket-client~=1.6.1"},
     # "presto": {*COMMONS["hive"]},
-    # "pymssql": {"pymssql~=2.2.0"},
+    "pymssql": {"pymssql~=2.2.0"},
     "quicksight": {VERSIONS["boto3"]},
     # "redash": {VERSIONS["packaging"]},
     # "redpanda": {*COMMONS["kafka"]},
@@ -270,11 +292,9 @@ plugins: Dict[str, Set[str]] = {
     # "sap-hana": {"hdbcli", "sqlalchemy-hana"},
     # "singlestore": {VERSIONS["pymysql"]},
     # "sklearn": {VERSIONS["scikit-learn"]},
-    "snowflake": {
-        VERSIONS["snowflake_connector_python"],
-        "snowflake-sqlalchemy>=1.4.6",
-    },
+    "snowflake": {VERSIONS["snowflake"]},
     # "superset": {},  # uses requests
+    # "tableau": {VERSIONS["tableau"]},
     "trino": {VERSIONS["trino"]},
     "vertica": {"sqlalchemy-vertica[vertica-python]>=0.0.5"},
     # "pii-processor": pii_requirements,
@@ -311,11 +331,14 @@ plugins: Dict[str, Set[str]] = {
 #     "pytest-order",
 #     # install dbt dependency
 #     "dbt-artifacts-parser",
+#     VERSIONS["sqlalchemy-databricks"],
+#     VERSIONS["databricks-sdk"],
 #     VERSIONS["google"],
 #     VERSIONS["scikit-learn"],
 #     VERSIONS["pyarrow"],
 #     VERSIONS["trino"],
 #     VERSIONS["spacy"],
+#     VERSIONS["pydomo"],
 #     VERSIONS["looker-sdk"],
 #     VERSIONS["lkml"],
 #     VERSIONS["tableau"],
@@ -369,8 +392,8 @@ setup(
                 *[
                     requirements
                     for plugin, requirements in plugins.items()
-                    # if plugin not in {"airflow", "great-expectations"}
-                    if plugin not in {"great-expectations"}
+                    # if plugin not in {"airflow", "db2", "great-expectations"}
+                    if plugin not in {"db2", "great-expectations"}
                 ]
             )
         ),

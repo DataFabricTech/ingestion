@@ -45,8 +45,8 @@ class DynamicImportException(Exception):
 def get_module_dir(type_: str) -> str:
     """
     Build the module directory in the ingestion package
-    from a source type, e.g., mysql or snowflake-lineage
-    -> snowflake
+    from a source type, e.g., mysql or clickhouse-lineage
+    -> clickhouse
     """
     return type_.split(TYPE_SEPARATOR)[0]
 
@@ -54,9 +54,8 @@ def get_module_dir(type_: str) -> str:
 def get_module_name(type_: str) -> str:
     """
     Build the module name in the ingestion package
-    from a source type, e.g.,
-    mysql -> source
-    snowflake-lineage -> lineage
+    from a source type, e.g., query-parser
+    -> query_parser
     """
     return type_.replace(TYPE_SEPARATOR, CLASS_SEPARATOR)
 
@@ -66,7 +65,7 @@ def get_source_module_name(type_: str) -> str:
     Build the module name in the ingestion package
     from a source type, e.g.,
     mysql -> source
-    snowflake-lineage -> lineage
+    clickhouse-lineage -> lineage
     """
     raw_module = type_.split(TYPE_SEPARATOR)[-1]
 
@@ -79,8 +78,8 @@ def get_source_module_name(type_: str) -> str:
 def get_class_name_root(type_: str) -> str:
     """
     Build the class name in the ingestion package
-    from a source type, e.g., mysql or snowflake-lineage
-    -> SnowflakeLineage
+    from a source type, e.g., mysql or clickhouse-lineage
+    -> ClickhouseLineage
     """
     return "".join([i.title() for i in type_.split(TYPE_SEPARATOR)]).replace(
         CLASS_SEPARATOR, ""

@@ -39,8 +39,7 @@ def _(element, compiler, **kw):
     return f"SUM(TRY_CAST({proc} AS BIGINT))"
 
 
-@compiles(SumFn, Dialects.Postgres)
-@compiles(SumFn, Dialects.Trino)
+@compiles(SumFn, Dialects.BigQuery)
 def _(element, compiler, **kw):
     """Handle case where column type is INTEGER but SUM returns a NUMBER"""
     proc = compiler.process(element.clauses, **kw)
@@ -86,7 +85,15 @@ def _(element, compiler, **kw):
 
 
 @compiles(SumFn, Dialects.IbmDbSa)
+@compiles(SumFn, Dialects.Db2)
 def _(element, compiler, **kw):
-    """Handle the case for IBM Db where it requires to type cast the variables"""
+    """Handle the case for DB2 where it requires to type cast the variables"""
     proc = compiler.process(element.clauses, **kw).replace("?", "CAST(? AS INT)")
     return f"SUM(CAST({proc} AS BIGINT))"
+
+
+@compiles(SumFn, Dialects.ClickHouse)
+def _(element, compiler, **kw):
+    """Handle case where column type is INTEGER but SUM returns a NUMBER"""
+    proc = compiler.process(element.clauses, **kw)
+    return f"SUM(accurateCastOrNull({proc},'BIGINT'))"

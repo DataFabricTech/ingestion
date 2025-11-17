@@ -131,7 +131,7 @@ class ImageProfilerInterface(ProfilerInterface):
             # 이미지 객체 탐지
             if self.table_entity.fileFormats[0] in [FileFormat.jpeg, FileFormat.jpg, FileFormat.png,
                                                     FileFormat.bmp, FileFormat.gif, FileFormat.webp,
-                                                    FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
+                                                    FileFormat.cr2, FileFormat.nef, FileFormat.tiff, FileFormat.tif]:
                 detected_objects, detected_objects_image = self._get_detected_objects(local_file_path, detected_objects_model)
             else:
                 logger.warn("Unsupported get detected object file type")

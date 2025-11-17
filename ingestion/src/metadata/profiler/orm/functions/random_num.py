@@ -45,13 +45,18 @@ def _(*_, **__):
 @compiles(RandomNumFn, Dialects.Impala)
 @compiles(RandomNumFn, Dialects.MySQL)
 @compiles(RandomNumFn, Dialects.IbmDbSa)
+@compiles(RandomNumFn, Dialects.Db2)
 @compiles(RandomNumFn, Dialects.Hana)
 def _(*_, **__):
     return "ABS(RAND()) * 100"
 
 
-@compiles(RandomNumFn, Dialects.Redshift)
-@compiles(RandomNumFn, Dialects.Postgres)
+@compiles(RandomNumFn, Dialects.BigQuery)
+def _(*_, **__):
+    return "CAST(100*RAND() AS INT64)"
+
+
+@compiles(RandomNumFn, Dialects.SQLite)
 def _(*_, **__):
     """
     SQLite random returns a number between -9223372036854775808
@@ -68,6 +73,15 @@ def _(*_, **__):
     use it for a random sample.
     """
     return "ABS(CHECKSUM(NewId()))"
+
+
+@compiles(RandomNumFn, Dialects.ClickHouse)
+def _(*_, **__):
+    """
+    ClickHouse random returns a number between 0 and 4,294,967,295.
+    We need to divide it by 4294967295 to get a number between 0 and 1.
+    """
+    return "toInt8(RAND(10)/4294967295*100)"
 
 
 @compiles(RandomNumFn, Dialects.Postgres)

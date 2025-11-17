@@ -19,7 +19,9 @@ from metadata.data_quality.interface.sqlalchemy.sqa_test_suite_interface import 
     SQATestSuiteInterface,
 )
 from metadata.ingestion.connections.session import create_and_bind_session
-from metadata.ingestion.source.connections import get_connection
+from metadata.ingestion.source.database.databricks.connection import (
+    get_connection as databricks_get_connection,
+)
 
 
 class UnityCatalogTestSuiteInterface(SQATestSuiteInterface):
@@ -28,6 +30,6 @@ class UnityCatalogTestSuiteInterface(SQATestSuiteInterface):
 
     def create_session(self):
         self.session = create_and_bind_session(
-            get_connection(self.service_connection_config)
+            databricks_get_connection(self.service_connection_config)
         )
         self.set_catalog(self.session)

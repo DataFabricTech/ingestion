@@ -64,7 +64,7 @@ class YoloDetector:
                         detected_objects_image = base64.b64encode(encoded_image).decode('utf-8')
 
             else:
-                raise Exception(f"Cannot load image.")
+                raise Exception(f"Cannot load image. The file format '{self.file_path.split('.')[-1]}' is not supported by OpenCV's cv2.imread().")
         except Exception as e:
             raise Exception(f"Cannot detected image {e}")
 

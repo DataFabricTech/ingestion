@@ -190,17 +190,6 @@ class CommonDbSourceService(
         """
         yield from self._get_filtered_schema_names()
 
-    def get_source_url(
-        self,
-        database_name: Optional[str] = None,
-        schema_name: Optional[str] = None,
-        table_name: Optional[str] = None,
-        table_type: Optional[TableType] = None,
-    ) -> Optional[str]:
-        """Default implementation returns None. Sources can override if needed."""
-
-        return None
-
     def yield_database_schema(
         self, schema_name: str
     ) -> Iterable[Either[CreateDatabaseSchemaRequest]]:
@@ -602,9 +591,20 @@ class CommonDbSourceService(
     def standardize_table_name(self, schema_name: str, table: str) -> str:
         """
         This method is interesting to be maintained in case
-        some connector needs to perform
+        some connector, such as BigQuery, needs to perform
         some added logic here.
 
         Returning `table` is just the default implementation.
         """
         return table
+
+    def get_source_url(
+        self,
+        database_name: Optional[str] = None,
+        schema_name: Optional[str] = None,
+        table_name: Optional[str] = None,
+        table_type: Optional[TableType] = None,
+    ) -> Optional[str]:
+        """
+        By default the source url is not supported for
+        """

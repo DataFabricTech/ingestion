@@ -16,6 +16,24 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
+from metadata.generated.schema.entity.services.connections.database.athenaConnection import (
+    AthenaType,
+)
+from metadata.generated.schema.entity.services.connections.database.azureSQLConnection import (
+    AzureSQLType,
+)
+from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+    BigqueryType,
+)
+from metadata.generated.schema.entity.services.connections.database.clickhouseConnection import (
+    ClickhouseType,
+)
+from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
+    DatabricksType,
+)
+from metadata.generated.schema.entity.services.connections.database.db2Connection import (
+    Db2Type,
+)
 from metadata.generated.schema.entity.services.connections.database.deltaLakeConnection import (
     DeltaLakeType,
 )
@@ -55,6 +73,11 @@ class Dialect(Enum):
     """
 
     ANSI = "ansi"
+    ATHENA = "athena"
+    BIGQUERY = "bigquery"
+    CLICKHOUSE = "clickhouse"
+    DATABRICKS = "databricks"
+    DB2 = "db2"
     DUCKDB = "duckdb"
     EXASOL = "exasol"
     HIVE = "hive"
@@ -70,10 +93,14 @@ class Dialect(Enum):
     SQLITE = "sqlite"
     TERADATA = "teradata"
     TSQL = "tsql"
-    SINGLESTORE = "singlestore"
 
 
 MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
+    str(AthenaType.Athena.value): Dialect.ATHENA,
+    str(BigqueryType.BigQuery.value): Dialect.BIGQUERY,
+    str(ClickhouseType.Clickhouse.value): Dialect.CLICKHOUSE,
+    str(DatabricksType.Databricks.value): Dialect.DATABRICKS,
+    str(Db2Type.Db2.value): Dialect.DB2,
     str(HiveType.Hive.value): Dialect.HIVE,
     str(ImpalaType.Impala.value): Dialect.IMPALA,
     str(MySQLType.Mysql.value): Dialect.MYSQL,
@@ -84,7 +111,7 @@ MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
     str(DeltaLakeType.DeltaLake.value): Dialect.SPARKSQL,
     str(SQLiteType.SQLite.value): Dialect.SQLITE,
     str(MssqlType.Mssql.value): Dialect.TSQL,
-    str(SingleStoreType.SingleStore.value): Dialect.SINGLESTORE,
+    str(AzureSQLType.AzureSQL.value): Dialect.TSQL,
 }
 
 

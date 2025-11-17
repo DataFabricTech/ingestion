@@ -194,10 +194,17 @@ def get_query_filter_for_runner(kwargs: Dict) -> Optional[BinaryExpression]:
 def handle_array(
         query: Query, column: Column, table: Union[DeclarativeMeta, AliasedClass]
 ) -> Query:
-    """Handle query for array. The current implementation is connector-specific
-    and should be refactored in the future to add a more generic support
-    for query on arrays, complex types etc"""
-    # TODO: move this logic elsewhere. This is specific to certain warehouse implementations and should be refactored in the future
+    """Handle query for array. The curent implementation is
+    specific to BigQuery. This should be refactored in the future
+    to add a more generic support
+
+    Args:
+        query (Query): query object
+        column (Column): SQA Column object
+        table (Union[DeclarativeMeta, AliasedClass]): table or aliased
+    Returns:
+        Query: query object with the FROM clause set
+    """
     # pylint: disable=protected-access
     if not hasattr(column, "_is_array"):
         return query.select_from(table)

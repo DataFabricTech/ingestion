@@ -445,7 +445,7 @@ class OpenMetadata(
         fields_str = "?fields=" + ",".join(fields) if fields else ""
         try:
             #phy
-            # print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
+            print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
             resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
             if not resp:
                 if nullable:

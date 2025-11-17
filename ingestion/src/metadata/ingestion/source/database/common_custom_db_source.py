@@ -335,18 +335,10 @@ class CommonCustomDbSourceService(
                         continue
                     yield view_name, view_and_type.type_
         except Exception as err:
-            if (
-                self.config.serviceConnection.__root__.connectionOptions
-                and self.config.serviceConnection.__root__.connectionOptions.__root__
-            ):
-                # connectionOptions override the default behavior
-                pass
-            else:
-                # If some connector needs to perform any additional
-                logger.warning(
-                    f"Fetching tables names failed for schema {schema_name} due to - {err}"
-                )
-                logger.debug(traceback.format_exc())
+            logger.warning(
+                f"Fetching tables names failed for schema {schema_name} due to - {err}"
+            )
+            logger.debug(traceback.format_exc())
 
     def get_view_definition(
         self, table_type: str, table_name: str, schema_name: str, inspector: Inspector
@@ -602,9 +594,20 @@ class CommonCustomDbSourceService(
     def standardize_table_name(self, schema_name: str, table: str) -> str:
         """
         This method is interesting to be maintained in case
-        some connector needs to perform
+        some connector, such as BigQuery, needs to perform
         some added logic here.
 
         Returning `table` is just the default implementation.
         """
         return table
+
+    def get_source_url(
+        self,
+        database_name: Optional[str] = None,
+        schema_name: Optional[str] = None,
+        table_name: Optional[str] = None,
+        table_type: Optional[TableType] = None,
+    ) -> Optional[str]:
+        """
+        By default the source url is not supported for
+        """
