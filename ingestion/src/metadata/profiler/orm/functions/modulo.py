@@ -65,13 +65,6 @@ def _(element, compiler, **kw):
     return f"MOD({value}, {base})"
 
 
-@compiles(ModuloFn, Dialects.ClickHouse)
-def _(element, compiler, **kw):
-    """Handles modulo function for ClickHouse"""
-    value, base = validate_and_compile(element, compiler, **kw)
-    return f"modulo({value}, {base})"
-
-
 @compiles(ModuloFn, Dialects.SQLite)
 def _(element, compiler, **kw):
     """SQLite modulo function"""
