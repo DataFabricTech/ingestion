@@ -187,6 +187,7 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["pyarrow"],
         "sqlalchemy-bigquery>=1.2.2",
     },
+    "clickhouse": {"clickhouse-driver~=0.2", "clickhouse-sqlalchemy~=0.2"},
     # "dagster": {
     #     VERSIONS["pymysql"],
     #     "psycopg2-binary",

@@ -58,6 +58,14 @@ def _(element, compiler, **kw):
     return "LENGTH(CAST(%s AS text))" % compiler.process(element.clauses, **kw)
 
 
+@compiles(LenFn, Dialects.ClickHouse)
+def _(element, compiler, **kw):
+    """Handles lenght function for ClickHouse"""
+    if isinstance(element.clauses.clauses[0].type, sqltypes.Enum):
+        return "length(cast(%s, 'String'))" % compiler.process(element.clauses, **kw)
+    return "length(%s)" % compiler.process(element.clauses, **kw)
+
+
 @compiles(LenFn, Dialects.MSSQL)
 def _(element, compiler, **kw):
     if isinstance(element.clauses.clauses[0].type, (sqltypes.TEXT, sqltypes.NVARCHAR)):

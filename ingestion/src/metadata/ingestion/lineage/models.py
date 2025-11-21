@@ -22,6 +22,9 @@ from metadata.generated.schema.entity.services.connections.database.azureSQLConn
 from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigqueryType,
 )
+from metadata.generated.schema.entity.services.connections.database.clickhouseConnection import (
+    ClickhouseType,
+)
 from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
     DatabricksType,
 )
@@ -68,6 +71,7 @@ class Dialect(Enum):
 
     ANSI = "ansi"
     BIGQUERY = "bigquery"
+    CLICKHOUSE = "clickhouse"
     DATABRICKS = "databricks"
     DB2 = "db2"
     DUCKDB = "duckdb"
@@ -89,6 +93,7 @@ class Dialect(Enum):
 
 MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
     str(BigqueryType.BigQuery.value): Dialect.BIGQUERY,
+    str(ClickhouseType.Clickhouse.value): Dialect.CLICKHOUSE,
     str(DatabricksType.Databricks.value): Dialect.DATABRICKS,
     str(Db2Type.Db2.value): Dialect.DB2,
     str(HiveType.Hive.value): Dialect.HIVE,

@@ -76,6 +76,15 @@ def _(element, compiler, **kw):
     return f"IF(is_nan(STDDEV_POP({proc})), NULL, STDDEV_POP({proc}))"
 
 
+@compiles(StdDevFn, Dialects.ClickHouse)
+def _(element, compiler, **kw):
+    """Returns stdv for clickhouse database and handle empty tables.
+    If table is empty, clickhouse returns NaN.
+    """
+    proc = compiler.process(element.clauses, **kw)
+    return "if(isNaN(stddevPop(%s)), null, stddevPop(%s))" % ((proc,) * 2)
+
+
 @compiles(StdDevFn, Dialects.Druid)
 def _(element, compiler, **kw):  # pylint: disable=unused-argument
     """returns  stdv for druid. Could not validate with our cluster

@@ -52,6 +52,7 @@ class Dialects(Enum):
 
     AzureSQL = "azuresql"
     BigQuery = "bigquery"
+    ClickHouse = "clickhouse"
     Databricks = "databricks"
     Db2 = "db2"
     Druid = "druid"
