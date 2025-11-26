@@ -45,8 +45,8 @@ class DynamicImportException(Exception):
 def get_module_dir(type_: str) -> str:
     """
     Build the module directory in the ingestion package
-    from a source type, e.g., mysql or clickhouse-lineage
-    -> clickhouse
+    from a source type, e.g., mysql or mysql-lineage
+    -> mysql
     """
     return type_.split(TYPE_SEPARATOR)[0]
 
@@ -65,7 +65,7 @@ def get_source_module_name(type_: str) -> str:
     Build the module name in the ingestion package
     from a source type, e.g.,
     mysql -> source
-    clickhouse-lineage -> lineage
+    mysql-lineage -> lineage
     """
     raw_module = type_.split(TYPE_SEPARATOR)[-1]
 
@@ -78,8 +78,8 @@ def get_source_module_name(type_: str) -> str:
 def get_class_name_root(type_: str) -> str:
     """
     Build the class name in the ingestion package
-    from a source type, e.g., mysql or clickhouse-lineage
-    -> ClickhouseLineage
+    from a source type, e.g., mysql or mysql-lineage
+    -> MysqlLineage
     """
     return "".join([i.title() for i in type_.split(TYPE_SEPARATOR)]).replace(
         CLASS_SEPARATOR, ""

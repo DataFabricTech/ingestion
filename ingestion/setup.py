@@ -187,7 +187,6 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["pyarrow"],
         "sqlalchemy-bigquery>=1.2.2",
     },
-    "clickhouse": {"clickhouse-driver~=0.2", "clickhouse-sqlalchemy~=0.2"},
     # "dagster": {
     #     VERSIONS["pymysql"],
     #     "psycopg2-binary",
@@ -277,7 +276,7 @@ plugins: Dict[str, Set[str]] = {
     # "powerbi": {VERSIONS["msal"]},
     # "qliksense": {"websocket-client~=1.6.1"},
     # "presto": {*COMMONS["hive"]},
-    "pymssql": {"pymssql~=2.2.0"},
+    # "pymssql": {"pymssql~=2.2.0"},
     "quicksight": {VERSIONS["boto3"]},
     # "redash": {VERSIONS["packaging"]},
     # "redpanda": {*COMMONS["kafka"]},

@@ -78,13 +78,6 @@ def _(elements, compiler, **kwargs):
     return f"CAST({func.current_date()} - {interval} {interval_unit} AS DATE)"
 
 
-@compiles(DateAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    interval = elements.clauses.clauses[0].value
-    interval_unit = compiler.process(elements.clauses.clauses[1], **kwargs)
-    return f"toDate(NOW() - interval '{interval}' {interval_unit})"
-
-
 @compiles(DateAddFn, Dialects.Redshift)
 def _(elements, compiler, **kwargs):
     interval, interval_unit = [
@@ -135,12 +128,6 @@ def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
 def _(elements, compiler, **kwargs):
     """DB2 datetime function"""
     return db2_function(elements, compiler, **kwargs)
-
-
-@compiles(DatetimeAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    """Clickhouse datetime function"""
-    return clickhouse_function(elements, compiler, **kwargs)
 
 
 @compiles(DatetimeAddFn, Dialects.AzureSQL)
@@ -209,12 +196,6 @@ def _(elements, compiler, **kwargs):
     return db2_function(elements, compiler, **kwargs)
 
 
-@compiles(TimestampAddFn, Dialects.ClickHouse)
-def _(elements, compiler, **kwargs):
-    """Clickhouse datetime function"""
-    return clickhouse_function(elements, compiler, **kwargs)
-
-
 @compiles(TimestampAddFn, Dialects.AzureSQL)
 @compiles(TimestampAddFn, Dialects.MSSQL)
 @compiles(TimestampAddFn, Dialects.Snowflake)
@@ -279,14 +260,6 @@ def azure_mssql_snflk_function(elements, compiler, **kwargs):
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
     return f"DATEADD({interval_unit}, -{interval}, {func.current_timestamp()})"
-
-
-def clickhouse_function(elements, compiler, **kwargs):
-    """ClickHouse timestamp and datetime function"""
-    interval, interval_unit = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return f"(NOW() - interval {interval} {interval_unit})"
 
 
 def db2_function(elements, compiler, **kwargs):
