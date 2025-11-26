@@ -66,28 +66,6 @@ RUN pip install --no-cache-dir psd-tools==1.10.7 --no-build-isolation --no-deps
 # generate
 RUN make install_antlr_cli && make generate
 
-# Python 패키지 최적화: 불필요한 파일 제거
-RUN find /usr/local/lib/python3.8 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type f -name "*.pyc" -delete && \
-    find /usr/local/lib/python3.8 -type f -name "*.pyo" -delete && \
-    find /usr/local/lib/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type f -name "*.txt" -not -name "*.dist-info" -exec rm -f {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type f -name "*.pyc" -delete && \
-    find /usr/local/lib64/python3.8 -type f -name "*.pyo" -delete && \
-    find /usr/local/lib64/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
-    find /metadata_collector -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    find /metadata_collector -type f -name "*.pyc" -delete && \
-    find /metadata_collector -type f -name "*.pyo" -delete
-
 # pip 캐시 및 빌드 아티팩트 정리
 RUN rm -rf /root/.cache/pip && \
     rm -rf /tmp/* && \
