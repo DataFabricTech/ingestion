@@ -258,7 +258,6 @@ plugins: Dict[str, Set[str]] = {
     # },
     # "mlflow": {"mlflow-skinny>=2.3.0", "alembic~=1.10.2"},
     "mongo": {VERSIONS["mongo"], VERSIONS["pandas"]},
-    "couchbase": {"couchbase==4.3.2"},
     "mssql": {"sqlalchemy-pytds~=0.3"},
     "mssql-odbc": {VERSIONS["pyodbc"]},
     "mysql": {VERSIONS["pymysql"]},
