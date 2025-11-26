@@ -122,25 +122,6 @@ COPY --from=builder /etc/odbc.ini /etc/odbc.ini
 
 COPY --from=builder /metadata_collector /metadata_collector
 
-# 런타임에서 추가 정리: 테스트 파일, 문서, 예제 등 제거 (dist-info와 egg-info는 유지 - pip 관리에 필요)
-RUN find /usr/local/lib/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type d -name "*.egg" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "example" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type d -name "*.egg" -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib64/python3.8 -type f -name "*.md" -delete 2>/dev/null || true && \
-    find /metadata_collector -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true && \
-    find /metadata_collector -type d -name "test" -exec rm -rf {} + 2>/dev/null || true && \
-    find /metadata_collector -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    find /metadata_collector -type f -name "*.pyc" -delete && \
-    find /metadata_collector -type f -name "*.pyo" -delete
-
 # Python 링크 설정
 RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
     ln -s /usr/bin/pip3.8 /usr/bin/pip
