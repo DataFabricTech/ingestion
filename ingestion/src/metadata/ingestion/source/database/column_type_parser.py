@@ -230,7 +230,6 @@ class ColumnTypeParser:
         "SimpleAggregateFunction()": "AGGREGATEFUNCTION",
         "IPV4": "IPV4",
         "IPV6": "IPV6",
-        # Databricks
         "VOID": "NULL",
         # mysql
         "TINYBLOB": "BLOB",
