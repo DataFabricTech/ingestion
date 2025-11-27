@@ -58,10 +58,9 @@ def _(elements, compiler, **kwargs):
 
 
 @compiles(DateAddFn, Dialects.MSSQL)
-@compiles(DateAddFn, Dialects.AzureSQL)
 @compiles(DateAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """data function for mssql and azuresql"""
+    """data function for mssql"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]
@@ -130,11 +129,10 @@ def _(elements, compiler, **kwargs):
     return db2_function(elements, compiler, **kwargs)
 
 
-@compiles(DatetimeAddFn, Dialects.AzureSQL)
 @compiles(DatetimeAddFn, Dialects.MSSQL)
 @compiles(DatetimeAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """AzreSQL, MSSQL, Snowflake datetime function"""
+    """MSSQL, Snowflake datetime function"""
     return azure_mssql_snflk_function(elements, compiler, **kwargs)
 
 
@@ -196,11 +194,10 @@ def _(elements, compiler, **kwargs):
     return db2_function(elements, compiler, **kwargs)
 
 
-@compiles(TimestampAddFn, Dialects.AzureSQL)
 @compiles(TimestampAddFn, Dialects.MSSQL)
 @compiles(TimestampAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
-    """Azure SQL, MSSQL and Snowflake timestamp function"""
+    """MSSQL and Snowflake timestamp function"""
     return azure_mssql_snflk_function(elements, compiler, **kwargs)
 
 
@@ -255,7 +252,7 @@ def redshift_function(elements, compiler, **kwargs):
 
 
 def azure_mssql_snflk_function(elements, compiler, **kwargs):
-    """Azure, MSSQL and Snowflake timestamp and datetime function"""
+    """MSSQL and Snowflake timestamp and datetime function"""
     interval, interval_unit = [
         compiler.process(element, **kwargs) for element in elements.clauses
     ]

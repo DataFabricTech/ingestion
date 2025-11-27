@@ -16,9 +16,6 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
-from metadata.generated.schema.entity.services.connections.database.azureSQLConnection import (
-    AzureSQLType,
-)
 from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
     BigqueryType,
 )
@@ -96,7 +93,6 @@ MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
     str(DeltaLakeType.DeltaLake.value): Dialect.SPARKSQL,
     str(SQLiteType.SQLite.value): Dialect.SQLITE,
     str(MssqlType.Mssql.value): Dialect.TSQL,
-    str(AzureSQLType.AzureSQL.value): Dialect.TSQL,
 }
 
 

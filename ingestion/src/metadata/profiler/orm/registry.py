@@ -50,7 +50,6 @@ class Dialects(Enum):
     Keep this alphabetically ordered
     """
 
-    AzureSQL = "azuresql"
     BigQuery = "bigquery"
     Db2 = "db2"
     Druid = "druid"
