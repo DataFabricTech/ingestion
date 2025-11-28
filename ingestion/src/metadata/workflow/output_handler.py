@@ -70,11 +70,11 @@ URLS = {
 }
 
 DEFAULT_EXAMPLE_FILE = {
-    WorkflowType.INGEST: "bigquery",
-    WorkflowType.PROFILE: "bigquery_profiler",
+    WorkflowType.INGEST: "mysql",
+    WorkflowType.PROFILE: "mysql_profiler",
     WorkflowType.TEST: "test_suite",
-    WorkflowType.LINEAGE: "bigquery_lineage",
-    WorkflowType.USAGE: "bigquery_usage",
+    WorkflowType.LINEAGE: "mysql_lineage",
+    WorkflowType.USAGE: "mysql_usage",
 }
 
 

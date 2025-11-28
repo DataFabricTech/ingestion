@@ -180,13 +180,13 @@ plugins: Dict[str, Set[str]] = {
     # "azuresql": {VERSIONS["pyodbc"]},
     # "azure-sso": {VERSIONS["msal"]},
     "backup": {VERSIONS["boto3"], "azure-identity", "azure-storage-blob"},
-    "bigquery": {
-        "cachetools",
-        "google-cloud-datacatalog>=3.6.2",
-        "google-cloud-logging",
-        VERSIONS["pyarrow"],
-        "sqlalchemy-bigquery>=1.2.2",
-    },
+    # "bigquery": {
+    #     "cachetools",
+    #     "google-cloud-datacatalog>=3.6.2",
+    #     "google-cloud-logging",
+    #     VERSIONS["pyarrow"],
+    #     "sqlalchemy-bigquery>=1.2.2",
+    # },
     # "dagster": {
     #     VERSIONS["pymysql"],
     #     "psycopg2-binary",

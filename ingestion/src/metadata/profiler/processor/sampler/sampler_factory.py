@@ -15,9 +15,6 @@ Factory class for creating sampler objects
 
 from typing import Union
 
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
-    BigQueryConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
@@ -26,9 +23,6 @@ from metadata.generated.schema.entity.services.connections.database.trinoConnect
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
 from metadata.profiler.processor.sampler.pandas.sampler import DatalakeSampler
-from metadata.profiler.processor.sampler.sqlalchemy.bigquery.sampler import (
-    BigQuerySampler,
-)
 from metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
 from metadata.profiler.processor.sampler.sqlalchemy.trino.sampler import TrinoSampler
 
@@ -56,6 +50,5 @@ class SamplerFactory:
 
 sampler_factory_ = SamplerFactory()
 sampler_factory_.register(DatabaseConnection.__name__, SQASampler)
-sampler_factory_.register(BigQueryConnection.__name__, BigQuerySampler)
 sampler_factory_.register(DatalakeConnection.__name__, DatalakeSampler)
 sampler_factory_.register(TrinoConnection.__name__, TrinoSampler)

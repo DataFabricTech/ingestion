@@ -53,7 +53,8 @@ def get_partition_details(entity: Table) -> Optional[PartitionProfilerConfig]:
         # if table has partitioning defined in the profiler config, return it
         return profiler_partitioning_config
 
-    if service_type == DatabaseServiceType.BigQuery:
+    # BigQuery removed
+    if False:  # service_type == DatabaseServiceType.BigQuery:
         if table_partition:
             column_partitions: Optional[
                 List[PartitionColumnDetails]

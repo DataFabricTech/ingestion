@@ -39,13 +39,6 @@ def _(element, compiler, **kw):
     return f"SUM(TRY_CAST({proc} AS BIGINT))"
 
 
-@compiles(SumFn, Dialects.BigQuery)
-def _(element, compiler, **kw):
-    """Handle case where column type is INTEGER but SUM returns a NUMBER"""
-    proc = compiler.process(element.clauses, **kw)
-    return f"SUM(CAST({proc} AS NUMERIC))"
-
-
 @compiles(SumFn, Dialects.MySQL)
 def _(element, compiler, **kw):
     """MySQL uses (UN)SIGNED INTEGER to cast to BIGINT

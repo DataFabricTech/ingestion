@@ -36,14 +36,6 @@ def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
     return "percentile_cont(%.2f) WITHIN GROUP (ORDER BY %s ASC)" % (percentile, col)
 
 
-@compiles(MedianFn, Dialects.BigQuery)
-def _(elements, compiler, **kwargs):
-    col, _, percentile = [
-        compiler.process(element, **kwargs) for element in elements.clauses
-    ]
-    return "percentile_cont(%s , %s) OVER()" % (col, percentile)
-
-
 @compiles(MedianFn, Dialects.Druid)
 def _(elements, compiler, **kwargs):
     col, _, percentile = [
