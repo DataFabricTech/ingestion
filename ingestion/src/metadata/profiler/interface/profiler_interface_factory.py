@@ -15,9 +15,6 @@ Factory class for creating profiler interface objects
 
 from typing import cast
 
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.singleStoreConnection import (
     SingleStoreConnection,
 )
@@ -72,9 +69,6 @@ profiler_interface_factory = ProfilerInterfaceFactory()
 profiler_interface_factory.register(DatabaseConnection.__name__, SQAProfilerInterface)
 profiler_interface_factory.register(
     SingleStoreConnection.__name__, SingleStoreProfilerInterface
-)
-profiler_interface_factory.register(
-    DatalakeConnection.__name__, PandasProfilerInterface
 )
 profiler_interface_factory.register(
     SnowflakeConnection.__name__, SnowflakeProfilerInterface

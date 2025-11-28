@@ -27,9 +27,6 @@ from metadata.generated.schema.entity.data.table import (
     DataType,
     TableData,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
-)
 from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
 from metadata.profiler.api.models import ThreadPoolMetrics
@@ -141,9 +138,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         from metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
             sampler_factory_,
         )
+        from metadata.generated.schema.entity.services.connections.storage.minioConnection import (  # pylint: disable=import-outside-toplevel
+            MinioConnection,
+        )
 
         return sampler_factory_.create(
-            DatalakeConnection.__name__,
+            MinioConnection.__name__,
             client=self.client,
             table=self.dfs,
             profile_sample_config=self.profile_sample_config,

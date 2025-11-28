@@ -15,14 +15,10 @@ Factory class for creating sampler objects
 
 from typing import Union
 
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from metadata.profiler.processor.sampler.pandas.sampler import DatalakeSampler
 from metadata.profiler.processor.sampler.sqlalchemy.sampler import SQASampler
 from metadata.profiler.processor.sampler.sqlalchemy.trino.sampler import TrinoSampler
 
@@ -39,7 +35,7 @@ class SamplerFactory:
 
     def create(
         self, source_type: str, *args, **kwargs
-    ) -> Union[SQASampler, DatalakeSampler]:
+    ) -> SQASampler:
         """Create source object based on source type"""
         sampler_class = self._sampler_type.get(source_type)
         if not sampler_class:
@@ -50,5 +46,4 @@ class SamplerFactory:
 
 sampler_factory_ = SamplerFactory()
 sampler_factory_.register(DatabaseConnection.__name__, SQASampler)
-sampler_factory_.register(DatalakeConnection.__name__, DatalakeSampler)
 sampler_factory_.register(TrinoConnection.__name__, TrinoSampler)
