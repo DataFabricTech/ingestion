@@ -76,12 +76,12 @@ VERSIONS = {
 }
 
 COMMONS = {
-    "datalake": {
-        VERSIONS["boto3"],
-        VERSIONS["pandas"],
-        VERSIONS["pyarrow"],
-        "python-snappy~=0.6.1",
-    },
+    # "datalake": {
+    #     VERSIONS["boto3"],
+    #     VERSIONS["pandas"],
+    #     VERSIONS["pyarrow"],
+    #     "python-snappy~=0.6.1",
+    # },
     "hive": {
         "presto-types-parser>=0.0.2",
         VERSIONS["pyhive"],
@@ -202,26 +202,26 @@ plugins: Dict[str, Set[str]] = {
         VERSIONS["azure-identity"],
     },
     "db2": {"ibm-db-sa~=0.3"},
-    "datalake-azure": {
-        VERSIONS["azure-storage-blob"],
-        VERSIONS["azure-identity"],
-        "adlfs>=2022.2.0",  # Python 3.7 does only support up to 2022.2.0
-        *COMMONS["datalake"],
-    },
+    # "datalake-azure": {
+    #     VERSIONS["azure-storage-blob"],
+    #     VERSIONS["azure-identity"],
+    #     "adlfs>=2022.2.0",  # Python 3.7 does only support up to 2022.2.0
+    #     *COMMONS["datalake"],
+    # },
     # "datalake-gcs": {
     #     VERSIONS["google-cloud-storage"],
     #     "gcsfs==2022.11.0",
     #     *COMMONS["datalake"],
     # },
-    "datalake-s3": {
-        # requires aiobotocore
-        # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
-        # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
-        # Leaving this marked to the automatic resolution to speed up installation.
-        # "s3fs==0.4.2",
-        # "s3fs==2023.12.1",
-        *COMMONS["datalake"],
-    },
+    # "datalake-s3": {
+    #     # requires aiobotocore
+    #     # https://github.com/fsspec/s3fs/blob/9bf99f763edaf7026318e150c4bd3a8d18bb3a00/requirements.txt#L1
+    #     # however, the latest version of `s3fs` conflicts its `aiobotocore` dep with `boto3`'s dep on `botocore`.
+    #     # Leaving this marked to the automatic resolution to speed up installation.
+    #     # "s3fs==0.4.2",
+    #     # "s3fs==2023.12.1",
+    #     *COMMONS["datalake"],
+    # },
     # "docker": {"python_on_whales==0.55.0"},
     "domo": {VERSIONS["pydomo"]},
     "druid": {"pydruid>=0.6.5"},

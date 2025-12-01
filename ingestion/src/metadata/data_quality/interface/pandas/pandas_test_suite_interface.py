@@ -19,8 +19,8 @@ from typing import Optional
 from metadata.data_quality.interface.test_suite_interface import TestSuiteInterface
 from metadata.data_quality.validations.validator import Validator
 from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
+    MinioConnection,
 )
 from metadata.generated.schema.tests.basic import TestCaseResult
 from metadata.generated.schema.tests.testCase import TestCase
@@ -38,12 +38,12 @@ class PandasTestSuiteInterface(TestSuiteInterface, PandasInterfaceMixin):
     """
     Sequential interface protocol for testSuite and Profiler. This class
     implements specific operations needed to run profiler and test suite workflow
-    against a Datalake source.
+    against a Minio source.
     """
 
     def __init__(
         self,
-        service_connection_config: DatalakeConnection,
+        service_connection_config: MinioConnection,
         ometa_client: OpenMetadata,
         table_entity: Table = None,
         **kwargs,  # pylint: disable=unused-argument

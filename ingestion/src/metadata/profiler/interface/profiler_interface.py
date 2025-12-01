@@ -35,8 +35,8 @@ from metadata.generated.schema.entity.data.table import (
 from metadata.generated.schema.entity.services.connections.connectionBasicType import (
     SampleDataStorageConfig,
 )
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
+    MinioConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
@@ -87,7 +87,7 @@ class ProfilerInterface(ABC):
     # pylint: disable=too-many-arguments,unused-argument
     def __init__(
         self,
-        service_connection_config: Union[DatabaseConnection, DatalakeConnection],
+        service_connection_config: Union[DatabaseConnection, MinioConnection],
         ometa_client: OpenMetadata,
         entity: Table,
         storage_config: SampleDataStorageConfig,

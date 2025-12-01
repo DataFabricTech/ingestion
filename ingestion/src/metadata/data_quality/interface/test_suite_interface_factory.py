@@ -28,9 +28,6 @@ from metadata.data_quality.interface.sqlalchemy.unity_catalog.test_suite_interfa
 )
 from metadata.data_quality.interface.test_suite_interface import TestSuiteInterface
 from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
-    DatalakeConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
     SnowflakeConnection,
 )
@@ -51,7 +48,6 @@ class TestSuiteInterfaceFactory:
         """Initialize the interface factory"""
         self._interface_type = {
             "base": SQATestSuiteInterface,
-            DatalakeConnection.__name__: PandasTestSuiteInterface,
         }
 
     def register(self, interface_type: str, interface: TestSuiteInterface):
@@ -113,7 +109,6 @@ test_suite_interface_factory = TestSuiteInterfaceFactory()
 
 test_suite_interface = {
     DatabaseConnection.__name__: SQATestSuiteInterface,
-    DatalakeConnection.__name__: PandasTestSuiteInterface,
     SnowflakeConnection.__name__: SnowflakeTestSuiteInterface,
     UnityCatalogConnection.__name__: UnityCatalogTestSuiteInterface,
 }
