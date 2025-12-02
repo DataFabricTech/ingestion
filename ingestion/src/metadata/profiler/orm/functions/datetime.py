@@ -48,6 +48,15 @@ def _(elements, compiler, **kwargs):
     return f"TO_DATE(CURRENT_DATE - INTERVAL '{interval}' {interval_unit})"
 
 
+@compiles(DateAddFn, Dialects.BigQuery)
+def _(elements, compiler, **kwargs):
+    """generic date and datetime function"""
+    interval, interval_unit = [
+        compiler.process(element, **kwargs) for element in elements.clauses
+    ]
+    return f"CAST(CURRENT_DATE - interval {interval} {interval_unit} AS DATE)"
+
+
 @compiles(DateAddFn, Dialects.MSSQL)
 @compiles(DateAddFn, Dialects.Snowflake)
 def _(elements, compiler, **kwargs):
@@ -102,6 +111,17 @@ def _(elements, compiler, **kwargs):
     return mysql_function(elements, compiler, **kwargs)
 
 
+@compiles(DatetimeAddFn, Dialects.BigQuery)
+def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
+    """BigQuery date and datetime function"""
+    interval = elements.clauses.clauses[0].value
+    interval_unit = elements.clauses.clauses[1].text
+
+    return (
+        f"DATETIME_SUB({func.current_datetime()}, INTERVAL {interval} {interval_unit})"
+    )
+
+
 @compiles(DatetimeAddFn, Dialects.Db2)
 @compiles(DatetimeAddFn, Dialects.IbmDbSa)
 def _(elements, compiler, **kwargs):
@@ -139,6 +159,26 @@ class TimestampAddFn(FunctionElement):
 def _(elements, compiler, **kwargs):
     """Generic timestamp function"""
     return generic_function(elements, compiler, **kwargs)
+
+
+@compiles(TimestampAddFn, Dialects.BigQuery)
+def _(elements, compiler, **kwargs):  # pylint: disable=unused-argument
+    """Bigquery timestamp function"""
+    interval = elements.clauses.clauses[0].value
+    interval_unit = elements.clauses.clauses[1].text
+
+    # bigquery does not support month or year interval for timestamp.
+    if interval_unit.lower() in {"year", "month"}:
+        raise ValueError(
+            "Bigquery does not support `month` or `year` interval for table partitioned on timestamp",
+            "field types. You can set the `interval_unit to day or hour directly from OpenMetadata UI`."
+            # pylint: disable=line-too-long
+            "Visit https://docs.open-metadata.org/connectors/ingestion/workflows/profiler#4-updating-profiler-setting-at-the-table-level for more details.",
+        )
+
+    return (
+        f"DATETIME_SUB({func.current_timestamp()}, INTERVAL {interval} {interval_unit})"
+    )
 
 
 @compiles(TimestampAddFn, Dialects.MySQL)

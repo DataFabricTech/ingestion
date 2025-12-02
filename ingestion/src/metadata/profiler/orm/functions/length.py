@@ -42,6 +42,7 @@ def _(element, compiler, **kw):
 @compiles(LenFn, Dialects.MariaDB)
 @compiles(LenFn, Dialects.Trino)
 @compiles(LenFn, Dialects.Presto)
+@compiles(LenFn, Dialects.BigQuery)
 @compiles(LenFn, Dialects.Oracle)
 @compiles(LenFn, Dialects.IbmDbSa)
 @compiles(LenFn, Dialects.Db2)

@@ -45,8 +45,8 @@ def main():
         sys.exit(1)
 
     if args.collector_type == 'ingestion':
-        metadata_collector_execute(system_id=args.system_id, sink='metadata-rest',
-                                   filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)
+        # metadata_collector_execute(system_id=args.system_id, sink='metadata-rest',
+        #                            filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)
 
         # metadata_collector_execute(system_id='109ae637-9e13-44f9-9686-a79cf1e12499',
         #                 sink='metadata-rest')
@@ -54,8 +54,8 @@ def main():
         # metadata_collector_execute(system_id='08c36eb4-9cca-4a08-b40e-b9d26d3cc174',
         #                 sink='metadata-rest')
 
-        # metadata_collector_execute(system_id=args.system_id, sink='file',
-        #                            filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)
+        metadata_collector_execute(system_id=args.system_id, sink='file',
+                                   filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)
     elif args.collector_type == 'profile':
         metadata_profiler_execute(system_id=args.system_id, sink='metadata-rest',
                                 filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)

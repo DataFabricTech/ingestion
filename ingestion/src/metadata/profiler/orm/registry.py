@@ -50,6 +50,7 @@ class Dialects(Enum):
     Keep this alphabetically ordered
     """
 
+    BigQuery = "bigquery"
     Db2 = "db2"
     Druid = "druid"
     Glue = "glue"

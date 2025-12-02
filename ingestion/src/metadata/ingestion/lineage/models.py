@@ -16,6 +16,9 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Extra, Field
 
+from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
+    BigqueryType,
+)
 from metadata.generated.schema.entity.services.connections.database.db2Connection import (
     Db2Type,
 )
@@ -55,6 +58,7 @@ class Dialect(Enum):
     """
 
     ANSI = "ansi"
+    BIGQUERY = "bigquery"
     DB2 = "db2"
     DUCKDB = "duckdb"
     EXASOL = "exasol"
@@ -74,6 +78,7 @@ class Dialect(Enum):
 
 
 MAP_CONNECTION_TYPE_DIALECT: Dict[str, Dialect] = {
+    str(BigqueryType.BigQuery.value): Dialect.BIGQUERY,
     str(Db2Type.Db2.value): Dialect.DB2,
     str(HiveType.Hive.value): Dialect.HIVE,
     str(ImpalaType.Impala.value): Dialect.IMPALA,

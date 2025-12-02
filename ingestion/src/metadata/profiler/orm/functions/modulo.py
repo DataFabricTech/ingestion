@@ -47,6 +47,7 @@ def _(element, compiler, **kw):
     return f"{value} %% {base}"
 
 
+@compiles(ModuloFn, Dialects.BigQuery)
 @compiles(ModuloFn, Dialects.Redshift)
 @compiles(ModuloFn, Dialects.Snowflake)
 @compiles(ModuloFn, Dialects.Postgres)
