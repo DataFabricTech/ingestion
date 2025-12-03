@@ -21,8 +21,8 @@ from sqlalchemy import MetaData
 from metadata.generated.schema.entity.data.database import Database
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import ColumnProfilerConfig, Table
-from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
-    MinioConnection,
+from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+    DatalakeConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import (
     DatabaseConnection,
@@ -45,7 +45,7 @@ from metadata.profiler.processor.core import Profiler
 from metadata.profiler.processor.default import DefaultProfiler, get_default_metrics
 from metadata.profiler.source.profiler_source_interface import ProfilerSourceInterface
 
-NON_SQA_DATABASE_CONNECTIONS = (MinioConnection,)
+NON_SQA_DATABASE_CONNECTIONS = (DatalakeConnection,)
 
 
 class ProfilerSource(ProfilerSourceInterface):

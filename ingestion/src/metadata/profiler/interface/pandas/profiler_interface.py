@@ -27,6 +27,9 @@ from metadata.generated.schema.entity.data.table import (
     DataType,
     TableData,
 )
+from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+    DatalakeConnection,
+)
 from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.mixins.pandas.pandas_mixin import PandasInterfaceMixin
 from metadata.profiler.api.models import ThreadPoolMetrics
@@ -138,20 +141,9 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         from metadata.profiler.processor.sampler.sampler_factory import (  # pylint: disable=import-outside-toplevel
             sampler_factory_,
         )
-        from metadata.generated.schema.entity.services.connections.storage.minioConnection import (  # pylint: disable=import-outside-toplevel
-            MinioConnection,
-        )
-
-        # Use the actual connection type from service_connection_config
-        # MinioConnection uses DatalakeSampler (pandas-based sampler)
-        connection_type = self.service_connection_config.__class__.__name__
-        
-        # Fallback to MinioConnection if connection type is not registered
-        if connection_type != MinioConnection.__name__:
-            connection_type = MinioConnection.__name__
 
         return sampler_factory_.create(
-            connection_type,
+            DatalakeConnection.__name__,
             client=self.client,
             table=self.dfs,
             profile_sample_config=self.profile_sample_config,

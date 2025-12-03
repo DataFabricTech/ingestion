@@ -23,8 +23,8 @@ from metadata.data_quality.interface.test_suite_interface_factory import (
 )
 from metadata.data_quality.runner.core import DataTestsRunner
 from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
-    MinioConnection,
+from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+    DatalakeConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
 from metadata.generated.schema.metadataIngestion.workflow import (
@@ -33,7 +33,7 @@ from metadata.generated.schema.metadataIngestion.workflow import (
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 
-NON_SQA_DATABASE_CONNECTIONS = (MinioConnection,)
+NON_SQA_DATABASE_CONNECTIONS = (DatalakeConnection,)
 
 
 class BaseTestSuiteRunner:

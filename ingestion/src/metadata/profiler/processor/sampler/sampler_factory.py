@@ -15,11 +15,11 @@ Factory class for creating sampler objects
 
 from typing import Union
 
+from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
+    DatalakeConnection,
+)
 from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
-)
-from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
-    MinioConnection,
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
 from metadata.profiler.processor.sampler.pandas.sampler import DatalakeSampler
@@ -50,5 +50,5 @@ class SamplerFactory:
 
 sampler_factory_ = SamplerFactory()
 sampler_factory_.register(DatabaseConnection.__name__, SQASampler)
-sampler_factory_.register(MinioConnection.__name__, DatalakeSampler)
+sampler_factory_.register(DatalakeConnection.__name__, DatalakeSampler)
 sampler_factory_.register(TrinoConnection.__name__, TrinoSampler)
