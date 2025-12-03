@@ -34,6 +34,8 @@ def main():
     parser.add_argument('--include', nargs='*', help="포함할 인자들 (예: schema=public table=users)")
     parser.add_argument('--exclude', nargs='*', help="제외할 인자들 (예: bucket=data)")
 
+    parser.add_argument('--threads', type=int, help="병렬처리 스레드 수(기본 1)", default=None)
+
     args = parser.parse_args()
 
     try:
@@ -46,7 +48,7 @@ def main():
 
     if args.collector_type == 'ingestion':
         metadata_collector_execute(system_id=args.system_id, sink='metadata-rest',
-                                   filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict)
+                                   filter_include_dict=filter_include_dict, filter_exclude_dict=filter_exclude_dict, threads=args.threads)
 
         # metadata_collector_execute(system_id='109ae637-9e13-44f9-9686-a79cf1e12499',
         #                 sink='metadata-rest')

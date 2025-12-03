@@ -78,9 +78,9 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
     )
 
 
-def metadata_collector_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None):
+def metadata_collector_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None, threads=None):
 
-    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter = metadata_process.get_config("ingestion", system_id, filter_include_dict, filter_exclude_dict)
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter = metadata_process.get_config("ingestion", system_id, filter_include_dict, filter_exclude_dict, threads)
 
     sink_host = config.sink_host
     sink_port = config.sink_port

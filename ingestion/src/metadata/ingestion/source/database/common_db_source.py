@@ -112,6 +112,11 @@ class CommonDbSourceService(
         self.context.get().table_views = []
         self.context.get().table_constrains = []
         super().__init__()
+        
+        # Set threads for parallel processing
+        if hasattr(self.source_config, 'threads') and self.source_config.threads:
+            self.context.set_threads(self.source_config.threads)
+            logger.info(f"Parallel processing enabled with {self.source_config.threads} threads")
 
     def set_inspector(self, database_name: str) -> None:
         """

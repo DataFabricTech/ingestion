@@ -158,6 +158,7 @@ class StorageServiceTopology(ServiceTopology):
                 use_cache=True,
             )
         ],
+        threads=True,  # Enable multithreading for container/file processing
     )
 
 
@@ -216,6 +217,12 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         # extractor 재사용을 위한 맵
         self.metadata_extractor = {}
+        
+        # Set threads for parallel processing
+        # Now StorageServiceMetadataPipeline has threads field (after spec update)
+        if hasattr(self.source_config, 'threads') and self.source_config.threads:
+            self.context.set_threads(self.source_config.threads)
+            logger.info(f"Parallel processing enabled with {self.source_config.threads} threads")
 
     @property
     def name(self) -> str:

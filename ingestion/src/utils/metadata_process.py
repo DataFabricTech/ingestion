@@ -22,7 +22,9 @@ class MetadataProcess:
     def is_data_catalog_storage(self, host, port):
         return config.minio_url == f"{host}:{port}"
 
-    def get_database_filter(self):
+    def get_database_filter(self, threads=1):
+        # threads가 None이면 기본값 1 사용
+        threads = threads if threads is not None else 1
         filter = {
             "type": "DatabaseMetadata",
             "markDeletedTables": False,
@@ -34,6 +36,7 @@ class MetadataProcess:
             "queryLogDuration": 1,
             "queryParsingTimeoutLimit": 300,
             "useFqnForFiltering": False,
+            "threads": threads,
             "databaseFilterPattern": {
                 "includes": [],
                 "excludes": []
@@ -50,13 +53,18 @@ class MetadataProcess:
 
         return filter
 
-    def get_storage_filter(self, collector_type, is_data_catalog_storage):
+    def get_storage_filter(self, collector_type, is_data_catalog_storage, threads=1):
+        # threads는 StorageServiceMetadataPipeline에 필드가 없으므로 여기서는 사용하지 않음
+        # StorageServiceSource에서 별도로 처리
+        
         if is_data_catalog_storage:
             bucket_exclude_pattern = [config.minio_dataextract_bucket, config.minio_sample_data_bucket] # data catalog 사용 bucket
         else:
             bucket_exclude_pattern = []
 
         if "ingestion" == collector_type:
+            # threads가 None이면 기본값 1 사용
+            threads = threads if threads is not None else 1
             source_filter = {
                 "type": "StorageMetadata",
                 "bucketFilterPattern": {
@@ -67,7 +75,8 @@ class MetadataProcess:
                     "includes": [],
                     "excludes": []
                 },
-                "useFqnForFiltering": True
+                "useFqnForFiltering": True,
+                "threads": threads  # Now supported in StorageServiceMetadataPipeline
             }
         elif "profile" == collector_type:
             source_filter = {
@@ -132,12 +141,12 @@ class MetadataProcess:
 
         return bucket_filter, object_filter
 
-    def get_source_filter(self, collector_type, host, port, service_type, database, schema, source_fileter_for_db, filter_include_dict, filter_exclude_dict):
+    def get_source_filter(self, collector_type, host, port, service_type, database, schema, source_fileter_for_db, filter_include_dict, filter_exclude_dict, threads=None):
 
         source_filter = None
         # database
         if service_type in DatabaseServiceType.__members__:
-            source_filter = self.get_database_filter()
+            source_filter = self.get_database_filter(threads=threads)
             include_database_filter, include_schema_filter, include_table_filter = self.get_database_type_filter(filter_include_dict)
             exclude_database_filter, exclude_schema_filter, exclude_table_filter = self.get_database_type_filter(filter_exclude_dict)
 
@@ -176,7 +185,7 @@ class MetadataProcess:
 
         #storage
         if service_type in StorageServiceType.__members__:
-            source_filter = self.get_storage_filter(collector_type, self.is_data_catalog_storage(host, port))
+            source_filter = self.get_storage_filter(collector_type, self.is_data_catalog_storage(host, port), threads=threads)
             include_bucket_filter, include_object_filter = self.get_storage_type_filter(filter_include_dict)
             exclude_bucket_filter, exclude_object_filter = self.get_storage_type_filter(filter_exclude_dict)
 
@@ -192,7 +201,7 @@ class MetadataProcess:
 
         return source_filter
 
-    def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict):
+    def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict, threads=None):
 
         system_info = self.get_meta_system_info(system_id)
         system_id = system_info['system_id']
@@ -204,9 +213,21 @@ class MetadataProcess:
         user = system_info['login'] if 'login' in system_info else None
         password = system_info['password'] if 'password' in system_info else None
         catalog = system_info['catalog'] if 'catalog' in system_info else None
+        
+        # threads가 None이면 system_info에서 가져오거나 기본값 1 사용
+        if threads is None:
+            threads = system_info.get('threads', 1)
+            # threads가 문자열로 올 수 있으므로 정수로 변환
+            if isinstance(threads, str):
+                try:
+                    threads = int(threads)
+                except ValueError:
+                    threads = 1
+            elif not isinstance(threads, int):
+                threads = 1
 
         # system_info['filter_config'] : 25.07.21 사용안함
-        source_filter = self.get_source_filter(collector_type, host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict)
+        source_filter = self.get_source_filter(collector_type, host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict, threads=threads)
 
         if password is not None and len(password) > 0:
             password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)

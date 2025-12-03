@@ -112,6 +112,11 @@ class CommonCustomDbSourceService(
         self.context.get().table_views = []
         self.context.get().table_constrains = []
         super().__init__()
+        
+        # Set threads for parallel processing
+        if hasattr(self.source_config, 'threads') and self.source_config.threads:
+            self.context.set_threads(self.source_config.threads)
+            logger.info(f"Parallel processing enabled with {self.source_config.threads} threads")
 
     def get_connection(self, service_connection) -> Engine:
         # will override
