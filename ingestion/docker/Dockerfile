@@ -94,7 +94,9 @@ RUN dnf install -y epel-release dnf-utils && \
         sudo \
         libreoffice \
         google-noto-sans-cjk-ttc-fonts \
-        fontconfig && \
+        fontconfig \
+        libnsl \
+        libaio && \
         fc-cache -fv && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
