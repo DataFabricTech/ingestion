@@ -18,6 +18,7 @@ services:
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/site-package:/metadata_collector/site-package
       - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/metadata_collector/ingestion/script
       - /etc/hosts:/etc/hosts
+      - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/instantclient:/instantclient
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config_docker.ini
 #    command: ["tail", "-f", "/dev/null"]
