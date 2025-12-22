@@ -114,8 +114,13 @@ def get_connection(connection: OracleConnection) -> Engine:
             logger.info(
                 f"Initializing Oracle thick client at {connection.instantClientDirectory}"
             )
-            # 환경변수 설정
-            os.environ[LD_LIB_ENV] = connection.instantClientDirectory
+            # 환경변수 설정 (기존 경로 유지)
+            existing_path = os.environ.get(LD_LIB_ENV, "")
+            if existing_path:
+                os.environ[LD_LIB_ENV] = f"{connection.instantClientDirectory}:{existing_path}"
+            else:
+                os.environ[LD_LIB_ENV] = connection.instantClientDirectory
+
             # 명시적으로 lib_dir 파라미터 전달
             try:
                 oracledb.init_oracle_client(lib_dir=connection.instantClientDirectory)
