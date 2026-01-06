@@ -30,7 +30,8 @@ RUN dnf -y groupinstall "Development Tools" && \
         unixODBC \
         unixODBC-devel \
         mesa-libGL \
-        libzstd-devel && \
+        libzstd-devel \
+        unzip && \
     dnf clean all && rm -rf /var/cache/dnf /tmp/*
 
 
@@ -53,8 +54,25 @@ COPY ../Makefile /metadata_collector/Makefile
 # odbc
 COPY ../odbc/odbcinst.ini /etc/odbcinst.ini
 COPY ../odbc/odbc.ini /etc/odbc.ini
-# oracle client
-COPY ../instantclient /metadata_collector/instantclient
+
+# oracle client (zip -> extract to /instantclient and create /instantclient/current)
+# 빌드 컨텍스트가 repo root(docker-compose context: ../)인 전제에서 `instantclient/*.zip`를 사용합니다.
+ARG ORACLE_IC_DIR=""
+COPY instantclient/*.zip /tmp/instantclient/
+RUN mkdir -p /instantclient && \
+    for f in /tmp/instantclient/*.zip; do unzip -q "$f" -d /instantclient; done && \
+    rm -rf /tmp/instantclient && \
+    if [ -n "$ORACLE_IC_DIR" ] && [ -d "/instantclient/$ORACLE_IC_DIR" ]; then \
+        ln -sfn "/instantclient/$ORACLE_IC_DIR" /instantclient/current; \
+    else \
+        CANDIDATE="$(find /instantclient -maxdepth 1 -type d -name 'instantclient_*' | sort | tail -n 1)"; \
+        if [ -n "$CANDIDATE" ]; then \
+            ln -sfn "$CANDIDATE" /instantclient/current; \
+        else \
+            echo "ERROR: Could not find extracted instantclient directory under /instantclient (expected instantclient_*)"; \
+            exit 1; \
+        fi; \
+    fi
 
 # metadata_collector 설치 (캐시 없이 설치)
 RUN pip install --no-cache-dir ".[all]"
@@ -125,6 +143,7 @@ COPY --from=builder /etc/odbcinst.ini /etc/odbcinst.ini
 COPY --from=builder /etc/odbc.ini /etc/odbc.ini
 
 COPY --from=builder /metadata_collector /metadata_collector
+COPY --from=builder /instantclient /instantclient
 
 # Python 링크 설정
 RUN ln -s /usr/bin/python3.8 /usr/bin/python && \
@@ -141,6 +160,7 @@ RUN echo 'alias ll="ls -alF --color=auto"' >> /root/.bashrc
 
 # ENV 설정
 ENV PYTHONPATH="/metadata_collector/src:/metadata_collector/site-package:$PYTHONPATH"
+ENV LD_LIBRARY_PATH="/instantclient/current:${LD_LIBRARY_PATH}"
 
 # 포트 노출
 EXPOSE 22
