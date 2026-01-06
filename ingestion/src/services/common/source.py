@@ -25,7 +25,8 @@ class CommonSource(ABC):
                  source_filter=None,
                  system_id=None,
                  processor_type=None,
-                 source_catalog=None):
+                 source_catalog=None,
+                 oracle_instant_client_directory=None):
 
         if system_id is None:
             raise ValueError("system_id 는 필수 값 입니다.")
@@ -46,6 +47,7 @@ class CommonSource(ABC):
         self.system_id = system_id
         self.processor_type = processor_type
         self.source_catalog = source_catalog
+        self.oracle_instant_client_directory = oracle_instant_client_directory
 
 
     def getMetadataWorkflowConfig(self) -> OpenMetadataWorkflowConfig:

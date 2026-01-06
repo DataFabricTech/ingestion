@@ -19,6 +19,7 @@ class OracleSource(DatabaseSource):
             "password": self.source_password,
             "hostPort": f"{self.source_host}:{self.source_port}",
             "oracleConnectionType": {"oracleServiceName": self.source_database},
+            "instantClientDirectory": self.oracle_instant_client_directory,
         }))
 
 

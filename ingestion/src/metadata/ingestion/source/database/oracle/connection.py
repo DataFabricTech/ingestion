@@ -114,20 +114,14 @@ def get_connection(connection: OracleConnection) -> Engine:
             logger.info(
                 f"Initializing Oracle thick client at {connection.instantClientDirectory}"
             )
-            # 환경변수 설정 (기존 경로 유지)
-            existing_path = os.environ.get(LD_LIB_ENV, "")
-            if existing_path:
-                os.environ[LD_LIB_ENV] = f"{connection.instantClientDirectory}:{existing_path}"
-            else:
-                os.environ[LD_LIB_ENV] = connection.instantClientDirectory
+            lib_dir = connection.instantClientDirectory
 
-            # 명시적으로 lib_dir 파라미터 전달
-            try:
-                oracledb.init_oracle_client(lib_dir=connection.instantClientDirectory)
-            except DatabaseError as init_err:
-                # 이미 초기화된 경우 무시
-                if "already initialized" not in str(init_err).lower():
-                    raise
+            # 기존 LD_LIBRARY_PATH 보존 + prefix 추가
+            prev = os.environ.get("LD_LIBRARY_PATH", "")
+            os.environ["LD_LIBRARY_PATH"] = f"{lib_dir}:{prev}" if prev else lib_dir
+
+            # lib_dir을 명시적으로 지정 (권장)
+            oracledb.init_oracle_client(lib_dir=lib_dir)
     except DatabaseError as err:
         logger.info(f"Could not initialize Oracle thick client: {err}")
 

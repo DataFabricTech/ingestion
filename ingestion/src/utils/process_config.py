@@ -24,6 +24,8 @@ class Config(BaseSettings):
     minio_dataextract_bucket: str
     minio_sample_data_bucket: str
 
+    oracle_instant_client_directory: str
+
     @classmethod
     def get_yaml(cls):
         # .env 파일 로드
@@ -54,6 +56,8 @@ class Config(BaseSettings):
         metadata_collector_config = config_data["metadata_collector"]
         document_tmp_dir = metadata_collector_config["document_tmp_dir"]
 
+        oracle_instant_client_directory = metadata_collector_config["oracle_instant_client_directory"]
+
         return cls(
             crypt_key=config_data["security"]["cryptkey"],
             catalog_api_base_url=catalog_api_base_url,
@@ -64,7 +68,8 @@ class Config(BaseSettings):
             minio_url=minio_url,
             document_tmp_dir=document_tmp_dir,
             minio_dataextract_bucket=minio_dataextract_bucket,
-            minio_sample_data_bucket=minio_sample_data_bucket
+            minio_sample_data_bucket=minio_sample_data_bucket,
+            oracle_instant_client_directory=oracle_instant_client_directory
         )
 
 

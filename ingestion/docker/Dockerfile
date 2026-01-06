@@ -53,6 +53,8 @@ COPY ../Makefile /metadata_collector/Makefile
 # odbc
 COPY ../odbc/odbcinst.ini /etc/odbcinst.ini
 COPY ../odbc/odbc.ini /etc/odbc.ini
+# oracle client
+COPY ../instantclient /metadata_collector/instantclient
 
 # metadata_collector 설치 (캐시 없이 설치)
 RUN pip install --no-cache-dir ".[all]"
