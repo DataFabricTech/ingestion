@@ -56,7 +56,11 @@ class Config(BaseSettings):
         metadata_collector_config = config_data["metadata_collector"]
         document_tmp_dir = metadata_collector_config["document_tmp_dir"]
 
-        oracle_instant_client_directory = metadata_collector_config["oracle_instant_client_directory"]
+        # Oracle Instant Client 경로는 버전이 바뀌어도 고정 경로(/instantclient/current)를 쓰도록 기본값 제공
+        oracle_instant_client_directory = metadata_collector_config.get(
+            "oracle_instant_client_directory",
+            fallback="/instantclient/current",
+        ).strip() or "/instantclient/current"
 
         return cls(
             crypt_key=config_data["security"]["cryptkey"],
