@@ -75,7 +75,6 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
         source_filter=source_filter,
         source_database=source_database,
         source_catalog=source_catalog,
-        oracle_instant_client_directory=config.oracle_instant_client_directory
     )
 
 
