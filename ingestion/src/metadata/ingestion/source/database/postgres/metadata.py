@@ -13,7 +13,7 @@ Postgres source module
 """
 import traceback
 from collections import namedtuple
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, Optional, Tuple, Set
 
 from sqlalchemy import sql
 from sqlalchemy.dialects.postgresql.base import PGDialect, ischema_names
@@ -122,6 +122,8 @@ class PostgresSource(CommonDbSourceService, MultiDBSource):
     Database metadata from Postgres Source
     """
 
+    _SYSTEM_SCHEMAS: Set[str] = {"information_schema", "pg_catalog"}
+
     @classmethod
     def create(cls, config_dict, metadata: OpenMetadata):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
@@ -190,6 +192,27 @@ class PostgresSource(CommonDbSourceService, MultiDBSource):
                     logger.error(
                         f"Error trying to connect to database {new_database}: {exc}"
                     )
+
+    def _is_system_schema(self, schema_name: str) -> bool:
+        if not schema_name:
+            return True
+        lower_name = schema_name.lower()
+        return lower_name in self._SYSTEM_SCHEMAS or lower_name.startswith("pg_")
+
+    def get_raw_database_schema_names(self) -> Iterable[str]:
+        """
+        Exclude Postgres system schemas such as information_schema and pg_*.
+        """
+        if self.service_connection.__dict__.get("databaseSchema"):
+            schema_name = self.service_connection.databaseSchema
+            if schema_name and not self._is_system_schema(schema_name):
+                yield schema_name
+            return
+
+        for schema_name in self.inspector.get_schema_names():
+            if self._is_system_schema(schema_name):
+                continue
+            yield schema_name
 
     def get_table_partition_details(
         self, table_name: str, schema_name: str, inspector
