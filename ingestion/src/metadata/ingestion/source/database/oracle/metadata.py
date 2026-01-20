@@ -12,9 +12,8 @@
 # pylint: disable=protected-access
 """Oracle source module"""
 import traceback
-from typing import Dict, Iterable, List, Optional, Set
+from typing import Dict, Iterable, List, Optional
 
-from sqlalchemy import text
 from sqlalchemy.dialects.oracle.base import INTERVAL, OracleDialect, ischema_names
 from sqlalchemy.engine import Inspector
 
@@ -105,47 +104,6 @@ class OracleSource(CommonDbSourceService):
     Database metadata from Oracle Source
     """
 
-    _DEFAULT_SYSTEM_SCHEMAS: Set[str] = {
-        "ANONYMOUS",
-        "APPQOSSYS",
-        "AUDSYS",
-        "DBSFWUSER",
-        "DIP",
-        "DVF",
-        "DVSYS",
-        "GGSYS",
-        "GSMADMIN_INTERNAL",
-        "GSMCATUSER",
-        "GSMROOTUSER",
-        "GSMUSER",
-        "LBACSYS",
-        "OJVMSYS",
-        "OUTLN",
-        "REMOTE_SCHEDULER_AGENT",
-        "SYS",
-        "SYS$UMF",
-        "SYSBACKUP",
-        "SYSDG",
-        "SYSKM",
-        "SYSRAC",
-        "SYSTEM",
-        "XDB",
-        "XS$NULL",
-        "CTXSYS",
-        "MDSYS",
-        "ORDSYS",
-        "WMSYS",
-        "DBSNMP",
-        "APEX_PUBLIC_USER",
-        "APEX_040000",
-        "FLOWS_FILES",
-        "SI_INFORMTN_SCHEMA",
-        "ORDPLUGINS",
-        "ORDDATA",
-        "ORACLE_OCM",
-        "MDDATA",
-    }
-
     @classmethod
     def create(cls, config_dict, metadata: OpenMetadata):
         config = WorkflowSource.parse_obj(config_dict)
@@ -178,81 +136,6 @@ class OracleSource(CommonDbSourceService):
         ]
 
         return regular_tables + material_tables
-
-    def _has_oracle_maintained_column(self) -> bool:
-        try:
-            result = self.connection.execute(
-                text(
-                    """
-                    SELECT COUNT(*)
-                    FROM all_tab_cols
-                    WHERE owner = 'SYS'
-                      AND table_name = 'DBA_USERS'
-                      AND column_name = 'ORACLE_MAINTAINED'
-                    """
-                )
-            ).scalar()
-            return bool(result and int(result) > 0)
-        except Exception as exc:  # pylint: disable=broad-except
-            logger.warning(
-                "Failed to detect ORACLE_MAINTAINED column; "
-                "falling back to default system schema list: %s",
-                exc,
-            )
-            return False
-
-    def _get_system_schemas(self) -> Set[str]:
-        """
-        Resolve system schemas across Oracle versions.
-        - 12c+ : DBA_USERS.ORACLE_MAINTAINED = 'Y'
-        - 11g  : DBA_REGISTRY schemas + default list
-        """
-        system_schemas: Set[str] = set(self._DEFAULT_SYSTEM_SCHEMAS)
-        try:
-            if self._has_oracle_maintained_column():
-                rows = self.connection.execute(
-                    text(
-                        """
-                        SELECT username
-                        FROM dba_users
-                        WHERE oracle_maintained = 'Y'
-                        """
-                    )
-                ).fetchall()
-                system_schemas.update(row[0].upper() for row in rows if row and row[0])
-
-            rows = self.connection.execute(
-                text(
-                    """
-                    SELECT schema
-                    FROM dba_registry
-                    WHERE schema IS NOT NULL
-                    """
-                )
-            ).fetchall()
-            system_schemas.update(row[0].upper() for row in rows if row and row[0])
-        except Exception as exc:  # pylint: disable=broad-except
-            logger.warning(
-                "Failed to fetch system schemas from Oracle dictionary views: %s",
-                exc,
-            )
-        return system_schemas
-
-    def get_raw_database_schema_names(self) -> Iterable[str]:
-        system_schemas = self._get_system_schemas()
-
-        if self.service_connection.__dict__.get("databaseSchema"):
-            schema_name = self.service_connection.databaseSchema
-            if schema_name and schema_name.upper() not in system_schemas:
-                yield schema_name
-            return
-
-        for schema_name in self.inspector.get_schema_names():
-            if not schema_name:
-                continue
-            if schema_name.upper() in system_schemas:
-                continue
-            yield schema_name
 
     def get_view_definition(
         self, table_type: str, table_name: str, schema_name: str, inspector: Inspector

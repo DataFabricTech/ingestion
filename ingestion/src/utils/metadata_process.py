@@ -141,7 +141,7 @@ class MetadataProcess:
 
         return bucket_filter, object_filter
 
-    def get_source_filter(self, collector_type, host, port, service_type, database, schema, source_fileter_for_db, filter_include_dict, filter_exclude_dict, threads=None):
+    def get_source_filter(self, collector_type, host, port, user, service_type, database, schema, source_fileter_for_db, filter_include_dict, filter_exclude_dict, threads=None):
 
         source_filter = None
         # database
@@ -150,11 +150,18 @@ class MetadataProcess:
             include_database_filter, include_schema_filter, include_table_filter = self.get_database_type_filter(filter_include_dict)
             exclude_database_filter, exclude_schema_filter, exclude_table_filter = self.get_database_type_filter(filter_exclude_dict)
 
-            if service_type in [DatabaseServiceType.Oracle.value, DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
+            if service_type in [DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
                 if database is not None:
                     include_database_filter.append(database)
                 if schema is not None:
                     include_schema_filter.append(schema)
+
+            if service_type in [DatabaseServiceType.Oracle.value]:
+                if database is not None:
+                    include_database_filter.append(database)
+
+                # 오라클은 계정이 곧 스키마 개념이다. 그래서 스키마 필터에 user 를 넣어준다. (수집 시스템 관리에서 스키마정보는 받지 않는다)
+                include_schema_filter.append(user)
 
             if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value, DatabaseServiceType.MariaDB.value]:
                 # 해당 system들은 schema를 database 개념으로 사용하기 때문에 database로 설정된 값을 schema에 적용:25.08.04
@@ -227,7 +234,7 @@ class MetadataProcess:
                 threads = 1
 
         # system_info['filter_config'] : 25.07.21 사용안함
-        source_filter = self.get_source_filter(collector_type, host, port, system_type, database, schema, None, filter_include_dict, filter_exclude_dict, threads=threads)
+        source_filter = self.get_source_filter(collector_type, host, port, user, system_type, database, schema, None, filter_include_dict, filter_exclude_dict, threads=threads)
 
         if password is not None and len(password) > 0:
             password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
