@@ -95,6 +95,21 @@ class MssqlSource(CommonDbSourceService, MultiDBSource):
     Database metadata from MSSQL Source
     """
 
+    _SYSTEM_SCHEMAS: Set[str] = {
+        "sys",
+        "information_schema",
+        "guest",
+        "db_owner",
+        "db_accessadmin",
+        "db_securityadmin",
+        "db_ddladmin",
+        "db_backupoperator",
+        "db_datareader",
+        "db_datawriter",
+        "db_denydatareader",
+        "db_denydatawriter",
+    }
+
     @classmethod
     def create(cls, config_dict, metadata: OpenMetadata):
         """Create class instance"""
@@ -105,6 +120,20 @@ class MssqlSource(CommonDbSourceService, MultiDBSource):
                 f"Expected MssqlConnection, but got {connection}"
             )
         return cls(config, metadata)
+
+    def get_raw_database_schema_names(self) -> Iterable[str]:
+        if self.service_connection.__dict__.get("databaseSchema"):
+            schema_name = self.service_connection.databaseSchema
+            if schema_name and schema_name.lower() not in self._SYSTEM_SCHEMAS:
+                yield schema_name
+            return
+
+        for schema_name in self.inspector.get_schema_names():
+            if not schema_name:
+                continue
+            if schema_name.lower() in self._SYSTEM_SCHEMAS:
+                continue
+            yield schema_name
 
     def get_configured_database(self) -> Optional[str]:
         if not self.service_connection.ingestAllDatabases:
