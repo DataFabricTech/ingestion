@@ -18,6 +18,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from sqlalchemy import exc, inspect, sql, util
 from sqlalchemy.engine.base import Connection
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import sqltypes
 from trino.sqlalchemy import datatype, error
 from trino.sqlalchemy.datatype import JSON
@@ -239,3 +240,49 @@ class TrinoSource(CommonDbSourceService):
                         logger.warning(
                             f"Error trying to connect to database {new_catalog}: {err}"
                         )
+
+    def get_raw_database_schema_names(self) -> Iterable[str]:
+        """
+        Override to handle errors when connecting to Hive metastore for certain catalogs.
+        Some catalogs (like Hive) may fail to connect to their metastore, and we should
+        skip them gracefully rather than failing the entire ingestion.
+        """
+        if self.service_connection.__dict__.get("databaseSchema"):
+            yield self.service_connection.databaseSchema
+        else:
+            try:
+                for schema_name in self.inspector.get_schema_names():
+                    yield schema_name
+            except OperationalError as err:
+                # Check if this is a Hive metastore connection error
+                # SQLAlchemy wraps TrinoExternalError in OperationalError
+                error_str = str(err).lower()
+                # Also check the original exception if available
+                orig_error_str = ""
+                if hasattr(err, 'orig') and err.orig:
+                    orig_error_str = str(err.orig).lower()
+                
+                if ("hive_metastore_error" in error_str or 
+                    "failed connecting to hive metastore" in error_str or
+                    "hive_metastore_error" in orig_error_str or
+                    "failed connecting to hive metastore" in orig_error_str):
+                    catalog_name = getattr(self.service_connection, 'catalog', 'unknown')
+                    logger.warning(
+                        f"Failed to connect to Hive metastore for catalog '{catalog_name}'. "
+                        f"Skipping schema listing for this catalog. Error: {err}"
+                    )
+                    logger.debug(traceback.format_exc())
+                    # Return empty iterator to skip this catalog's schemas
+                    return
+                # Re-raise if it's a different OperationalError
+                raise
+            except Exception as err:
+                # Catch any other unexpected errors
+                catalog_name = getattr(self.service_connection, 'catalog', 'unknown')
+                logger.warning(
+                    f"Error listing schemas for catalog '{catalog_name}': {err}. "
+                    f"Skipping schema listing for this catalog."
+                )
+                logger.debug(traceback.format_exc())
+                # Return empty iterator to skip this catalog's schemas
+                return

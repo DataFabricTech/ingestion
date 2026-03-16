@@ -10,7 +10,7 @@
 #  limitations under the License.
 """MSSQL source module"""
 import traceback
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Set
 
 from sqlalchemy.dialects.mssql.base import MSDialect, ischema_names
 
@@ -18,7 +18,7 @@ from sqlalchemy.dialects.mssql.base import MSDialect, ischema_names
 #     CreateStoredProcedureRequest,
 # )
 from metadata.generated.schema.entity.data.database import Database
-# from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
+from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 # from metadata.generated.schema.entity.data.storedProcedure import StoredProcedureCode
 from metadata.generated.schema.entity.services.connections.database.mssqlConnection import (
     MssqlConnection,
@@ -59,7 +59,7 @@ from metadata.ingestion.source.database.multi_db_source import MultiDBSource
 #     StoredProcedureMixin,
 # )
 from metadata.utils import fqn
-from metadata.utils.filters import filter_by_database
+from metadata.utils.filters import filter_by_database, filter_by_schema
 # from metadata.utils.helpers import get_start_and_end
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.sqa_utils import update_mssql_ischema_names
@@ -110,6 +110,34 @@ class MssqlSource(CommonDbSourceService, MultiDBSource):
         "db_denydatawriter",
     }
 
+    def _is_system_schema(self, schema_name: str) -> bool:
+        if not schema_name:
+            return True
+        return schema_name.lower() in self._SYSTEM_SCHEMAS
+
+    def _is_schema_included_in_filter(self, schema_name: str) -> bool:
+        """
+        schemaFilterPattern.includes에 명시된 스키마인지 확인.
+        include에 있으면 시스템 스키마라도 수집 대상으로 허용하기 위함.
+        """
+        if (
+            not self.source_config.schemaFilterPattern
+            or not self.source_config.schemaFilterPattern.includes
+        ):
+            return False
+        name = (
+            fqn.build(
+                self.metadata,
+                entity_type=DatabaseSchema,
+                service_name=self.context.get().database_service,
+                database_name=self.context.get().database,
+                schema_name=schema_name,
+            )
+            if self.source_config.useFqnForFiltering
+            else schema_name
+        )
+        return not filter_by_schema(self.source_config.schemaFilterPattern, name)
+
     @classmethod
     def create(cls, config_dict, metadata: OpenMetadata):
         """Create class instance"""
@@ -122,16 +150,25 @@ class MssqlSource(CommonDbSourceService, MultiDBSource):
         return cls(config, metadata)
 
     def get_raw_database_schema_names(self) -> Iterable[str]:
+        """
+        Exclude MSSQL system schemas (sys, information_schema, guest, db_* 등).
+        단, schemaFilterPattern.includes에 명시된 스키마는 시스템 스키마여도 수집.
+        """
         if self.service_connection.__dict__.get("databaseSchema"):
             schema_name = self.service_connection.databaseSchema
-            if schema_name and schema_name.lower() not in self._SYSTEM_SCHEMAS:
+            if schema_name and (
+                not self._is_system_schema(schema_name)
+                or self._is_schema_included_in_filter(schema_name)
+            ):
                 yield schema_name
             return
 
         for schema_name in self.inspector.get_schema_names():
             if not schema_name:
                 continue
-            if schema_name.lower() in self._SYSTEM_SCHEMAS:
+            if self._is_system_schema(schema_name):
+                if self._is_schema_included_in_filter(schema_name):
+                    yield schema_name
                 continue
             yield schema_name
 

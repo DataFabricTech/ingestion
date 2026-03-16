@@ -151,13 +151,13 @@ class MetadataProcess:
             exclude_database_filter, exclude_schema_filter, exclude_table_filter = self.get_database_type_filter(filter_exclude_dict)
 
             if service_type in [DatabaseServiceType.Postgres.value,  DatabaseServiceType.Mssql.value]:
-                if database is not None:
+                if database is not None and len(database) > 0:
                     include_database_filter.append(database)
-                if schema is not None:
+                if schema is not None and len(schema) > 0:
                     include_schema_filter.append(schema)
 
             if service_type in [DatabaseServiceType.Oracle.value]:
-                if database is not None:
+                if database is not None and len(database) > 0:
                     include_database_filter.append(database)
 
                 # 오라클은 계정이 곧 스키마 개념이다. 그래서 스키마 필터에 user 를 넣어준다. (수집 시스템 관리에서 스키마정보는 받지 않는다)
@@ -165,19 +165,19 @@ class MetadataProcess:
 
             if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value, DatabaseServiceType.MariaDB.value]:
                 # 해당 system들은 schema를 database 개념으로 사용하기 때문에 database로 설정된 값을 schema에 적용:25.08.04
-                if database is not None:
+                if database is not None and len(database) > 0:
                     include_schema_filter.append(database)
 
             #custom
             if service_type in ["Tibero"]:
-                if schema is not None:
+                if schema is not None and len(schema) > 0:
                     include_database_filter.append(schema)
-                if database is not None:
+                if database is not None and len(database) > 0:
                     include_schema_filter.append(database)
 
             # custom : altibase 는 schema만 입력(database는 필터 동작 X)
             if service_type in ["Altibase"]:
-                if schema is not None:
+                if schema is not None and len(schema) > 0:
                     include_schema_filter.append(schema)
 
 

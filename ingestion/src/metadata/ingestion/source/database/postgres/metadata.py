@@ -53,8 +53,9 @@ from metadata.ingestion.source.database.postgres.utils import (
     get_table_owner,
     get_view_definition,
 )
+from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.utils import fqn
-from metadata.utils.filters import filter_by_database
+from metadata.utils.filters import filter_by_database, filter_by_schema
 from metadata.utils.logger import ingestion_logger
 from metadata.utils.sqlalchemy_utils import (
     get_all_table_comments,
@@ -199,18 +200,48 @@ class PostgresSource(CommonDbSourceService, MultiDBSource):
         lower_name = schema_name.lower()
         return lower_name in self._SYSTEM_SCHEMAS or lower_name.startswith("pg_")
 
+    def _is_schema_included_in_filter(self, schema_name: str) -> bool:
+        """
+        schemaFilterPattern.includes에 명시된 스키마인지 확인.
+        include에 있으면 시스템 스키마라도 수집 대상으로 허용하기 위함.
+        """
+        if (
+            not self.source_config.schemaFilterPattern
+            or not self.source_config.schemaFilterPattern.includes
+        ):
+            return False
+        name = (
+            fqn.build(
+                self.metadata,
+                entity_type=DatabaseSchema,
+                service_name=self.context.get().database_service,
+                database_name=self.context.get().database,
+                schema_name=schema_name,
+            )
+            if self.source_config.useFqnForFiltering
+            else schema_name
+        )
+        # filter_by_schema가 False면 필터 통과(수집 대상)
+        return not filter_by_schema(self.source_config.schemaFilterPattern, name)
+
     def get_raw_database_schema_names(self) -> Iterable[str]:
         """
         Exclude Postgres system schemas such as information_schema and pg_*.
+        단, schemaFilterPattern.includes에 명시된 스키마는 시스템 스키마여도 수집.
         """
         if self.service_connection.__dict__.get("databaseSchema"):
             schema_name = self.service_connection.databaseSchema
-            if schema_name and not self._is_system_schema(schema_name):
+            if schema_name and (
+                not self._is_system_schema(schema_name)
+                or self._is_schema_included_in_filter(schema_name)
+            ):
                 yield schema_name
             return
 
         for schema_name in self.inspector.get_schema_names():
             if self._is_system_schema(schema_name):
+                if self._is_schema_included_in_filter(schema_name):
+                    yield schema_name
                 continue
             yield schema_name
 
