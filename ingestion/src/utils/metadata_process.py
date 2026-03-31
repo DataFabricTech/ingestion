@@ -3,6 +3,7 @@ from utils.request_manager import RequestManager
 from utils.security_manager import SecurityManager
 
 from metadata.generated.schema.entity.services.databaseService import DatabaseServiceType
+from metadata.generated.schema.entity.services.searchService import SearchServiceType
 from metadata.generated.schema.entity.services.storageService import StorageServiceType
 
 class MetadataProcess:
@@ -202,10 +203,32 @@ class MetadataProcess:
             source_filter["containerFilterPattern"]["includes"].extend(include_object_filter)
             source_filter["containerFilterPattern"]["excludes"].extend(exclude_object_filter)
 
+        # search (Elasticsearch 등)
+        if service_type in SearchServiceType.__members__:
+            source_filter = self.get_search_filter(schema=schema)
 
         if source_filter is None:
             raise Exception(f"filter config invalid. {service_type}, {host}")
 
+        return source_filter
+
+    def get_search_filter(self, schema=None):
+        """Search 서비스(Elasticsearch 등) 메타데이터 수집용 필터.
+        schema 값이 있으면 searchIndexFilterPattern.includes에 넣어 특정 인덱스만 수집.
+        """
+        source_filter = {
+            "type": "SearchMetadata",
+            "markDeletedSearchIndexes": True,
+            "includeSampleData": True,
+            "sampleSize": 10,
+        }
+        if schema is not None:
+            includes = [schema] if isinstance(schema, str) else list(schema)
+            if includes:
+                source_filter["searchIndexFilterPattern"] = {
+                    "includes": includes,
+                    "excludes": [],
+                }
         return source_filter
 
     def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict, threads=None):

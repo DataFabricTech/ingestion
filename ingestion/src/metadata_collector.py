@@ -18,6 +18,7 @@ from services.storage.minio.source import MinioSource
 from services.database.mariadb.source import MariadbSource
 from services.database.druid.source import DruidSource
 from services.database.trino.source import TrinoSource
+from services.search.elasticsearch.source import ElasticsearchSource
 
 from metadata.utils.logger import ingestion_logger
 
@@ -42,6 +43,7 @@ source_factory_map = {
     DatabaseServiceType.MariaDB: lambda **kwargs: MariadbSource(**kwargs),
     DatabaseServiceType.Druid: lambda **kwargs: DruidSource(**kwargs),
     DatabaseServiceType.Trino: lambda **kwargs: TrinoSource(**kwargs),
+    SearchServiceType.ElasticSearch: lambda **kwargs: ElasticsearchSource(**kwargs),
 }
 
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
@@ -55,6 +57,8 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
         pass
     elif service_type in StorageServiceType.__members__:
         service_type = StorageServiceType(service_type)
+    elif service_type in SearchServiceType.__members__:
+        service_type = SearchServiceType(service_type)
     else:
         raise Exception(f"system_type invalid. {service_type}")
 

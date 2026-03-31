@@ -53,9 +53,9 @@ from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline
 # from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
 #     PipelineServiceMetadataPipeline,
 # )
-# from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
-#     SearchServiceMetadataPipeline,
-# )
+from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
+    SearchServiceMetadataPipeline,
+)
 # from metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
 #     StorageServiceMetadataPipeline,
 # )
@@ -71,7 +71,7 @@ SERVICE_TYPE_REF = {
     # ServiceType.Messaging.value: "messagingService",
     # ServiceType.MlModel.value: "mlmodelService",
     # ServiceType.Metadata.value: "metadataService",
-    # ServiceType.Search.value: "searchService",
+    ServiceType.Search.value: "searchService",
     # ServiceType.Storage.value: "storageService",
 }
 
@@ -85,7 +85,7 @@ SOURCE_CONFIG_TYPE_INGESTION = {
     # PipelineServiceMetadataPipeline.__name__: PipelineType.metadata,
     # MlModelServiceMetadataPipeline.__name__: PipelineType.metadata,
     # StorageServiceMetadataPipeline.__name__: PipelineType.metadata,
-    # SearchServiceMetadataPipeline.__name__: PipelineType.metadata,
+    SearchServiceMetadataPipeline.__name__: PipelineType.metadata,
     # TestSuitePipeline.__name__: PipelineType.TestSuite,
     # MetadataToElasticSearchPipeline.__name__: PipelineType.elasticSearchReindex,
     # DataInsightPipeline.__name__: PipelineType.dataInsight,

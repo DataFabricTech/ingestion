@@ -7,8 +7,6 @@ services:
       dockerfile: docker/Dockerfile
     image: data-catalog-metadata-collector:$DATA_CATALOG_SOLUTION_IMG_VERSION
     container_name: metadata-collector
-    ports:
-      - "2222:22"
     stdin_open: true
     tty: true
     volumes:
