@@ -742,7 +742,10 @@ class MinioSource(StorageServiceSource):
         )
 
         if columns:
-            data_model = ContainerDataModel(columns=columns)
+            data_model = ContainerDataModel(
+                isPartitioned=metadata_entry.isPartitioned,
+                columns=columns,
+            )
         else:
             data_model = None
 

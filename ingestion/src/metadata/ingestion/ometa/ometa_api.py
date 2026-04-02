@@ -285,6 +285,7 @@ class OpenMetadata(
             )
         # phy
         # print(f'PUT {self.get_suffix(entity)}')
+        # print(f'PUT {type(data)}')
         # print(f'PUT {data.json(encoder=show_secrets_encoder)}')
         resp = self.client.put(
             self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)

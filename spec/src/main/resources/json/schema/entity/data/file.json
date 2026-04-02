@@ -148,7 +148,7 @@
     },
     "dataModel": {
       "description": "References to the file's data model, if data is structured, or null otherwise",
-      "$ref": "#/definitions/containerDataModel",
+      "$ref": "#/definitions/fileDataModel",
       "default": null
     },
     "tableProfilerConfig": {
