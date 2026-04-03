@@ -1,3 +1,5 @@
+import sys
+from pathlib import Path
 from typing import Union
 
 from metadata.generated.schema.entity.services.pipelineService import PipelineServiceType
@@ -29,6 +31,26 @@ logger = ingestion_logger()
 logger.setLevel("INFO")
 
 metadata_process = MetadataProcess()
+
+
+def _resolve_first_jks_or_exit(system_id: str) -> str:
+    """ingestion_system_config_path/<system_id> 에서 이름순 첫 .jks 절대경로. 없으면 로그 후 종료."""
+    base = Path(config.ingestion_system_config_path) / system_id
+    if not base.is_dir():
+        logger.error(
+            "HTTPS + JKS: 시스템 설정 디렉터리가 없습니다: %s",
+            base,
+        )
+        sys.exit(1)
+    jks_files = sorted(base.glob("*.jks"))
+    if not jks_files:
+        logger.error(
+            "HTTPS + JKS: 디렉터리에 .jks 파일이 없습니다: %s",
+            base,
+        )
+        sys.exit(1)
+    return str(jks_files[0].resolve())
+
 
 source_factory_map = {
     DatabaseServiceType.Tibero: lambda **kwargs: TiberoSource(**kwargs),
@@ -66,7 +88,12 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     source_factory = source_factory_map.get(service_type)
 
-    es_jks_path = "/Users/hy/Downloads/ovdcm-elasticsearch-truststore.jks"
+    es_jks_path = None
+    if (
+        (es_protocol or "").strip().lower() == "https"
+        and service_type == SearchServiceType.ElasticSearch
+    ):
+        es_jks_path = _resolve_first_jks_or_exit(system_id)
 
     return source_factory(
         system_id = system_id,

@@ -15,6 +15,7 @@ services:
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/libs:/metadata_collector/libs
       - $DATA_CATALOG_SOLUTION_DATA/metadata_collector/site-package:/metadata_collector/site-package
       - $DATA_CATALOG_SOLUTION_DATA/ingestion/script:/metadata_collector/ingestion/script
+      - $DATA_CATALOG_SOLUTION_DATA/ingestion/system_config:/ingestion/system_config
       - /etc/hosts:/etc/hosts
     environment:
       - METADATA_COLLECTOR_CONFIG_FILE=/metadata_collector/conf/config_docker.ini
