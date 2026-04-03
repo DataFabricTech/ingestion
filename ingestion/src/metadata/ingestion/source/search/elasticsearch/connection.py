@@ -16,6 +16,7 @@ import ssl
 from pathlib import Path
 from typing import Optional
 
+from elastic_transport import NodeConfig, Urllib3HttpNode
 from elasticsearch8 import Elasticsearch
 from httpx import create_ssl_context
 
@@ -41,6 +42,10 @@ from metadata.generated.schema.entity.services.connections.search.elasticSearchC
     ElasticsearchConnection,
 )
 from metadata.ingestion.connections.builders import init_empty_connection_arguments
+from metadata.ingestion.source.search.elasticsearch.jks_ssl import (
+    build_ssl_context_from_jks,
+    pop_jks_spec_from_connection_args,
+)
 # from metadata.ingestion.connections.test_connections import test_connection_steps
 # from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.utils.constants import UTF_8
@@ -49,6 +54,24 @@ from metadata.utils.helpers import init_staging_dir
 CA_CERT_FILE_NAME = "root.pem"
 CLIENT_CERT_FILE_NAME = "client.pem"
 KEY_CERT_FILE_NAME = "client_key.pem"
+
+
+class Urllib3HttpNodeRelaxedHostname(Urllib3HttpNode):
+    """ssl_context 를 쓰면 NodeConfig 에 ssl_assert_hostname 을 넣을 수 없다(elastic_transport 제약).
+
+    urllib3 가 URL 호스트(IP)와 인증서 SAN 을 맞추다 실패하는 경우가 있어,
+    풀 생성 후 assert_hostname 만 끈다.
+    """
+
+    def __init__(self, config: NodeConfig) -> None:
+        super().__init__(config)
+        if (
+            config.scheme == "https"
+            and config.ssl_context is not None
+            and not config.ssl_assert_fingerprint
+            and hasattr(self.pool, "assert_hostname")
+        ):
+            self.pool.assert_hostname = False
 
 
 def _clean_cert_value(cert_data: str) -> str:
@@ -168,16 +191,33 @@ def get_connection(connection: ElasticsearchConnection) -> Elasticsearch:
     if not connection.connectionArguments:
         connection.connectionArguments = init_empty_connection_arguments()
 
-    if connection.sslConfig:
-        ssl_context = get_ssl_context(connection.sslConfig)
-
-    return Elasticsearch(
-        connection.hostPort,
-        http_auth=basic_auth,
-        api_key=api_key,
-        ssl_context=ssl_context,
-        **connection.connectionArguments.__root__,
+    jks_spec, conn_args = pop_jks_spec_from_connection_args(
+        connection.connectionArguments.__root__
     )
+
+    if jks_spec:
+        ssl_context = build_ssl_context_from_jks(
+            jks_spec["keystorePath"],
+            jks_spec.get("password") or "",
+            jks_spec.get("alias"),
+        )
+    elif connection.sslConfig:
+        ssl_context = get_ssl_context(connection.sslConfig)
+    else:
+        ssl_context = None
+
+    # urllib3 측 assert_hostname(IP vs cert SAN) 은 ssl_assert_hostname 으로 끌 수 있으나
+    # ssl_context 와 함께 NodeConfig 에 넣을 수 없다 → Urllib3HttpNodeRelaxedHostname 사용.
+    es_kwargs = {
+        "http_auth": basic_auth,
+        "api_key": api_key,
+        "ssl_context": ssl_context,
+    }
+    es_kwargs.update(conn_args)
+    if ssl_context is not None:
+        es_kwargs.setdefault("node_class", Urllib3HttpNodeRelaxedHostname)
+
+    return Elasticsearch(connection.hostPort, **es_kwargs)
 
 
 # def test_connection(

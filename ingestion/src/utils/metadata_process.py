@@ -243,7 +243,9 @@ class MetadataProcess:
         user = system_info['login'] if 'login' in system_info else None
         password = system_info['password'] if 'password' in system_info else None
         catalog = system_info['catalog'] if 'catalog' in system_info else None
-        
+        es_protocol = system_info['es_protocol'] if 'es_protocol' in system_info else None
+        es_ssl_password = system_info['es_ssl_password'] if 'es_ssl_password' in system_info else None
+
         # threads가 None이면 system_info에서 가져오거나 기본값 1 사용
         if threads is None:
             threads = system_info.get('threads', 1)
@@ -261,5 +263,7 @@ class MetadataProcess:
 
         if password is not None and len(password) > 0:
             password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
+        if es_ssl_password is not None and len(es_ssl_password) > 0:
+            es_ssl_password = SecurityManager.decodeWithcryptkey(config.crypt_key, es_ssl_password)
 
-        return system_id, system_type, host, port, user, password, database, catalog, source_filter
+        return system_id, system_type, host, port, user, password, database, catalog, source_filter, es_protocol, es_ssl_password

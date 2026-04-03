@@ -25,7 +25,10 @@ class CommonSource(ABC):
                  source_filter=None,
                  system_id=None,
                  processor_type=None,
-                 source_catalog=None):
+                 source_catalog=None,
+                 es_protocol=None,
+                 es_ssl_password=None,
+                 es_jks_path=None):
 
         if system_id is None:
             raise ValueError("system_id 는 필수 값 입니다.")
@@ -46,7 +49,9 @@ class CommonSource(ABC):
         self.system_id = system_id
         self.processor_type = processor_type
         self.source_catalog = source_catalog
-
+        self.es_protocol = es_protocol
+        self.es_ssl_password = es_ssl_password
+        self.es_jks_path = es_jks_path
 
     def getMetadataWorkflowConfig(self) -> OpenMetadataWorkflowConfig:
         service_type_str = self.service_type if type(self.service_type) == str else self.service_type.value

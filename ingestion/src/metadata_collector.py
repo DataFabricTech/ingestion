@@ -49,7 +49,7 @@ source_factory_map = {
 def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServiceType, SearchServiceType, StorageServiceType, str],
                sink_type, sink_host, sink_port,
                source_host, source_port, source_user, source_password, source_database, source_catalog,
-               source_filter):
+               source_filter, es_protocol, es_ssl_password):
 
     if service_type in DatabaseServiceType.__members__:
         service_type = DatabaseServiceType(service_type)
@@ -66,6 +66,8 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
 
     source_factory = source_factory_map.get(service_type)
 
+    es_jks_path = "/Users/hy/Downloads/ovdcm-elasticsearch-truststore.jks"
+
     return source_factory(
         system_id = system_id,
         service_type=service_type,
@@ -79,17 +81,20 @@ def get_source(system_id, service_type: Union[PipelineServiceType, DatabaseServi
         source_filter=source_filter,
         source_database=source_database,
         source_catalog=source_catalog,
+        es_protocol=es_protocol,
+        es_ssl_password=es_ssl_password,
+        es_jks_path=es_jks_path,
     )
 
 
 def metadata_collector_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None, threads=None):
 
-    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter = metadata_process.get_config("ingestion", system_id, filter_include_dict, filter_exclude_dict, threads)
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter, es_protocol, es_ssl_password = metadata_process.get_config("ingestion", system_id, filter_include_dict, filter_exclude_dict, threads)
 
     sink_host = config.sink_host
     sink_port = config.sink_port
 
-    source = get_source(system_id, system_type, sink, sink_host, sink_port, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter)
+    source = get_source(system_id, system_type, sink, sink_host, sink_port, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter, es_protocol, es_ssl_password)
 
     # db 상태 업데이트
     metadata_process.set_meta_system_status(system_id, "INGESTION")

@@ -113,6 +113,7 @@ base_requirements = {
     # "chardet==4.0.0",
     # "croniter~=1.3.0",
     "cryptography",
+    "pyjks>=20.0.0",
     "email-validator>=1.0.3",
     VERSIONS["google"],
     "google-auth>=1.33.0",
