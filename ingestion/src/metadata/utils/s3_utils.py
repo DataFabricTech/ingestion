@@ -65,6 +65,6 @@ def get_normalized_key(client, bucket_name, key):
             else:
                 raise
 
-    logger.debug(f"Not found: {key}")
-    raise FileNotFoundError(f"Not found from minio: {key}")
+    logger.warning(f"Object not found in MinIO (may have been deleted): {key}. Using original key as fallback.")
+    return key
 
