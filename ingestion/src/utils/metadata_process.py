@@ -235,6 +235,49 @@ class MetadataProcess:
                 }
         return source_filter
 
+    def apply_filter_config(self, source_filter, filter_config, service_type):
+        if service_type in StorageServiceType.__members__:
+            bucket = filter_config.get('bucket', {})
+            bucket_includes = source_filter["bucketFilterPattern"]["includes"]
+            bucket_excludes = source_filter["bucketFilterPattern"]["excludes"]
+
+            if bucket.get('includes'):
+                bucket_excludes.clear()
+                bucket_includes.extend(bucket['includes'])
+            elif bucket.get('excludes'):
+                for b in bucket['excludes']:
+                    if b in bucket_includes:
+                        bucket_includes.remove(b)
+                bucket_excludes.extend(bucket['excludes'])
+
+            container = filter_config.get('container', {})
+            container_includes = source_filter["containerFilterPattern"]["includes"]
+            container_excludes = source_filter["containerFilterPattern"]["excludes"]
+
+            if container.get('includes'):
+                container_excludes.clear()
+                container_includes.extend(container['includes'])
+            elif container.get('excludes'):
+                for c in container['excludes']:
+                    if c in container_includes:
+                        container_includes.remove(c)
+                container_excludes.extend(container['excludes'])
+
+        if service_type in DatabaseServiceType.__members__:
+            for key, pattern_key in [('schema', 'schemaFilterPattern'), ('table', 'tableFilterPattern')]:
+                fc = filter_config.get(key, {})
+                includes = source_filter[pattern_key]["includes"]
+                excludes = source_filter[pattern_key]["excludes"]
+
+                if fc.get('includes'):
+                    excludes.clear()
+                    includes.extend(fc['includes'])
+                elif fc.get('excludes'):
+                    for v in fc['excludes']:
+                        if v in includes:
+                            includes.remove(v)
+                    excludes.extend(fc['excludes'])
+
     def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict, threads=None):
 
         system_info = self.get_meta_system_info(system_id)
@@ -262,8 +305,15 @@ class MetadataProcess:
             elif not isinstance(threads, int):
                 threads = 1
 
-        # system_info['filter_config'] : 25.07.21 사용안함
+        filter_config = system_info.get('filter_config')
+
         source_filter = self.get_source_filter(collector_type, host, port, user, system_type, database, schema, None, filter_include_dict, filter_exclude_dict, threads=threads)
+
+        if filter_config and isinstance(filter_config, dict):
+            classifications_rules = filter_config.get('classifications_rules')
+            if classifications_rules:
+                source_filter['classifications_rules'] = classifications_rules
+            self.apply_filter_config(source_filter, filter_config, system_type)
 
         if password is not None and len(password) > 0:
             password = SecurityManager.decodeWithcryptkey(config.crypt_key, password)
