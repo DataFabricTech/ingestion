@@ -77,12 +77,6 @@ RUN mkdir -p /instantclient && \
 # metadata_collector 설치 (캐시 없이 설치)
 RUN pip install --no-cache-dir ".[all]"
 
-## psd-tool 별도 설치 (옵션 설정을 하는데 setup.py에서는 설정을 못함)
-# 빌드 도구 재설치, pip install ".[all]" 이후에 갱신? 되는것같음
-RUN pip install --no-cache-dir --upgrade setuptools packaging wheel cython
-#--no-build-isolation --no-deps 옵션을 추가해야해서 따로 설치
-RUN pip install --no-cache-dir psd-tools==1.10.7 --no-build-isolation --no-deps
-
 # generate
 RUN make install_antlr_cli && make generate
 

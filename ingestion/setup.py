@@ -165,7 +165,8 @@ base_requirements = {
     "mutagen==1.47.0",
     "ffmpeg-python==0.2.0",
     "pymediainfo==6.1.0",
-    "httpx==0.28.1"
+    "httpx==0.28.1",
+    "psd-tools==1.10.7"
 }
 
 
