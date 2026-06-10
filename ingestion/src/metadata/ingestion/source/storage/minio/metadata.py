@@ -9,6 +9,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import fnmatch
+import json
 import os
 import traceback
 import urllib.parse
@@ -95,6 +97,10 @@ class MinioSource(StorageServiceSource):
         # self._bucket_cache: Dict[str, Container] = {}
         self._dir_cache: Dict[str, List[str]] = {}
         self._metadata_cache: Dict[str, MetadataEntry] = {}
+
+        conn_args = getattr(self.service_connection, 'connectionArguments', None)
+        raw = (conn_args.__root__ or {}).get('classifications_rules') if conn_args else None
+        self._classifications_rules: List[dict] = json.loads(raw) if raw else []
 
     @classmethod
     def create(
@@ -552,6 +558,19 @@ class MinioSource(StorageServiceSource):
             )
         return None
 
+    def _get_classifications(self, bucket_name: str, file_path: str) -> Optional[List[str]]:
+        """Match bucket/file_path against classifications_rules and return matched category names."""
+        if not self._classifications_rules:
+            return None
+        full_path = f"{bucket_name}/{file_path.lstrip('/')}"
+        matched = []
+        for rule in self._classifications_rules:
+            pattern = rule.get('pattern', '')
+            category = rule.get('category', '')
+            if category and fnmatch.fnmatch(full_path, pattern):
+                matched.append(category)
+        return matched if matched else None
+
     def yield_create_file_requests(
             self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateFileRequest]]:
@@ -769,7 +788,8 @@ class MinioSource(StorageServiceSource):
                 prefix=data_path,
             ),
             extension=metadata_entry.structureFormat,
-            owner=metadata_entry.owner
+            owner=metadata_entry.owner,
+            classifications=self._get_classifications(bucket_name, data_path),
         )
 
     def _generate_unsupported_container_details(
@@ -804,7 +824,8 @@ class MinioSource(StorageServiceSource):
                 bucket_name=bucket_name,
                 prefix=data_path,
             ),
-            extension=metadata_entry.structureFormat
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
         )
 
     def _generate_unstructured_container_details(
@@ -846,7 +867,8 @@ class MinioSource(StorageServiceSource):
                 bucket_name=bucket_name,
                 prefix=data_path,
             ),
-            extension=metadata_entry.structureFormat
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
         )
 
     def _generate_image_container_details(
@@ -887,7 +909,8 @@ class MinioSource(StorageServiceSource):
                 bucket_name=bucket_name,
                 prefix=data_path,
             ),
-            extension=metadata_entry.structureFormat
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
         )
 
     def _generate_media_container_details(
@@ -928,7 +951,8 @@ class MinioSource(StorageServiceSource):
                 bucket_name=bucket_name,
                 prefix=data_path,
             ),
-            extension=metadata_entry.structureFormat
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
         )
 
     def _fetch_metric(self, bucket_name: str, key: str):
