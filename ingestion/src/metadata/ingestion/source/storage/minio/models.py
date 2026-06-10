@@ -93,6 +93,9 @@ class MinioContainerDetails(BaseModel):
     owner: Optional[str] = Field(
         None, description='Owner of this entity'
     )
+    classifications: Optional[List[str]] = Field(
+        None, description="Classification tags for the container"
+    )
 
 
 class StructuredDataDetails(BaseModel):
