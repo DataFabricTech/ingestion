@@ -161,8 +161,12 @@ class MetadataProcess:
                 if database is not None and len(database) > 0:
                     include_database_filter.append(database)
 
-                # 오라클은 계정이 곧 스키마 개념이다. 그래서 스키마 필터에 user 를 넣어준다. (수집 시스템 관리에서 스키마정보는 받지 않는다)
-                include_schema_filter.append(user)
+                # 권한이 있는 계정으로 다른 스키마 수집하는 경우가 있을 수 있다.
+                if schema is not None and len(schema) > 0:
+                    include_schema_filter.append(schema)
+                else:
+                    # 오라클은 계정이 곧 스키마 개념이다. schema 정보가 없다면 스키마 필터에 user 를 넣어준다. (수집 시스템 관리에서 스키마정보는 받지 않는다)
+                    include_schema_filter.append(user)
 
             if service_type in [DatabaseServiceType.Hive.value, DatabaseServiceType.Mysql.value, DatabaseServiceType.MariaDB.value]:
                 # 해당 system들은 schema를 database 개념으로 사용하기 때문에 database로 설정된 값을 schema에 적용:25.08.04
