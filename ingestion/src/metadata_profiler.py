@@ -49,8 +49,8 @@ def get_source(system_id, service_type: Union[StorageServiceType],
 
 def metadata_profiler_execute(system_id, sink="file", filter_include_dict=None, filter_exclude_dict=None):
 
-    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter, es_protocol, es_ssl_password, _es_jks_path, _es_jks_alias = metadata_process.get_config("profile", system_id, filter_include_dict, filter_exclude_dict)
-
+    system_id, system_type, source_host, source_port, source_user, source_password, source_database, source_catalog, source_filter, es_protocol, es_ssl_password = metadata_process.get_config("profile", system_id, filter_include_dict, filter_exclude_dict)
+    
     sink_host = config.sink_host
     sink_port = config.sink_port
 
