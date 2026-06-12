@@ -32,6 +32,7 @@ CLI `--include` / `--exclude` 보다 우선 적용되며, 충돌 시 `filter_con
       "includes": ["string", ...],
       "excludes": ["string", ...]
     },
+    "includeViews": true,
     "classifications_rules": { ... }
   }
 }
@@ -63,6 +64,7 @@ CLI `--include` / `--exclude` 보다 우선 적용되며, 충돌 시 `filter_con
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
+| `includeViews` | `boolean` | View 수집 여부. `false`로 설정 시 DB 서비스의 view를 수집하지 않음 (기본값: `true`) |
 | `classifications_rules` | `object` | 분류 규칙. 상세 구조는 [classifications_rules.md](classifications_rules.md) 참고 |
 
 ---
@@ -135,6 +137,16 @@ CLI와 config 기본값이 그대로 적용됩니다.
       "includes": [],
       "excludes": ["temp_%", "bak_%"]
     }
+  }
+}
+```
+
+### Database — View 수집 제외
+
+```json
+{
+  "filter_config": {
+    "includeViews": false
   }
 }
 ```

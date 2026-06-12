@@ -278,6 +278,9 @@ class MetadataProcess:
                             includes.remove(v)
                     excludes.extend(fc['excludes'])
 
+            if 'includeViews' in filter_config:
+                source_filter['includeViews'] = bool(filter_config['includeViews'])
+
     def get_config(self, collector_type, system_id, filter_include_dict, filter_exclude_dict, threads=None):
 
         system_info = self.get_meta_system_info(system_id)
