@@ -69,6 +69,9 @@ logger = ingestion_logger()
 
 S3_CLIENT_ROOT_RESPONSE = "Contents"
 
+# SHP 데이터셋의 주 파일(.shp)이 존재할 때 수집 대상에서 제외할 동반 파일 확장자
+SHP_COMPANION_EXTENSIONS = {'dbf', 'shx', 'prj', 'cpg', 'qix'}
+
 
 def get_file_format(file_name: str) -> (str, str):
     """
@@ -362,6 +365,11 @@ class MinioSource(StorageServiceSource):
                     if directory not in abs_file_name or directory != os.path.dirname(abs_file_name):
                         continue
 
+                # SHP 동반 파일(.dbf/.shx/.prj/.cpg/.qix)은 주 파일(.shp)이 같은 경로에 있으면 제외
+                if self._is_shp_companion(abs_file_name):
+                    logger.info(f"Skipping SHP companion file: {abs_file_name}")
+                    continue
+
                 # file_name 은 Path/File 형태이다. 순수한 file_name을 가져온다.
                 file_name = Path(abs_file_name).name
 
@@ -452,6 +460,20 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Audio Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate audio container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.shp.value, FileFormat.geojson.value]:
+                    logger.info(f"Spatial Data Metadata Ingestion From : {file_name}")
+                    spatial_container: Optional[MinioContainerDetails] = (
+                        self._generate_shp_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if spatial_container:
+                        yield spatial_container
+                    else:
+                        logger.warn(f"Failed To Generated Spatial Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate spatial container metadata: {file_name}")
                 else:
                     logger.info(f"Unsupported format {metadata_entry.structureFormat}")
                     # self.status.filter(abs_file_name, f"Unsupported format {metadata_entry.structureFormat}")
@@ -935,6 +957,53 @@ class MinioSource(StorageServiceSource):
         prefix = (
             f"{KEY_SEPARATOR}{data_path}"
         )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _is_shp_companion(self, abs_file_name: str) -> bool:
+        """동일 기본명의 .shp가 _metadata_cache에 존재하면 동반 파일로 판단"""
+        base, ext = os.path.splitext(abs_file_name)
+        if ext.lower().lstrip('.') not in SHP_COMPANION_EXTENSIONS:
+            return False
+        return (base + '.shp') in self._metadata_cache
+
+    def _generate_shp_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        rdfs = self._get_shp_meta(
+            bucket_name=bucket_name,
+            path=normalized_key,
+            client=self.minio_client,
+        )
+
+        prefix = f"{KEY_SEPARATOR}{data_path}"
 
         return MinioContainerDetails(
             name=Path(data_path).name,

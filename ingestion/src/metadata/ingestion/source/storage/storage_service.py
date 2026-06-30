@@ -519,6 +519,96 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         return rdfs
 
+    def _get_shp_meta(self, bucket_name: str, path: str, client: Any) -> Optional[List[Rdf]]:
+        """
+        SHP 파일과 동반 파일(.dbf, .prj)을 MinIO에서 읽어 공간 메타데이터를 추출한다.
+        외부 라이브러리 없이 struct로 파싱한다.
+        """
+        import struct
+
+        SHAPE_TYPES = {
+            0: 'Null Shape', 1: 'Point', 3: 'Polyline', 5: 'Polygon', 8: 'MultiPoint',
+            11: 'PointZ', 13: 'PolylineZ', 15: 'PolygonZ', 18: 'MultiPointZ',
+            21: 'PointM', 23: 'PolylineM', 25: 'PolygonM', 28: 'MultiPointM',
+            31: 'MultiPatch',
+        }
+        DBF_FIELD_TYPES = {
+            'C': 'String', 'N': 'Numeric', 'F': 'Float',
+            'D': 'Date', 'L': 'Logical', 'M': 'Memo',
+        }
+
+        metadata = {}
+        base_path = path.rsplit('.', 1)[0]
+        s3reader = S3Reader(client)
+        local_dir = config.document_tmp_dir
+        ensure_directory_exists(local_dir)
+
+        # --- .shp 헤더 파싱 (shape type, bounding box) ---
+        shp_local = f"{local_dir}/{uuid.uuid4().hex}.shp"
+        try:
+            s3reader.download(path, local_file_path=shp_local, bucket_name=bucket_name, verbose=False)
+            with open(shp_local, 'rb') as f:
+                header = f.read(100)
+            if len(header) >= 68:
+                shape_type = struct.unpack_from('<i', header, 32)[0]
+                metadata['geometry_type'] = SHAPE_TYPES.get(shape_type, f'Unknown({shape_type})')
+                xmin, ymin, xmax, ymax = struct.unpack_from('<dddd', header, 36)
+                metadata['bbox_xmin'] = round(xmin, 6)
+                metadata['bbox_ymin'] = round(ymin, 6)
+                metadata['bbox_xmax'] = round(xmax, 6)
+                metadata['bbox_ymax'] = round(ymax, 6)
+        except Exception as e:
+            logger.warning(f"SHP header parse failed: {e}")
+        finally:
+            if os.path.exists(shp_local):
+                os.remove(shp_local)
+
+        # --- .prj 파싱 (좌표계 WKT) ---
+        prj_local = f"{local_dir}/{uuid.uuid4().hex}.prj"
+        prj_path = base_path + '.prj'
+        try:
+            s3reader.download(prj_path, local_file_path=prj_local, bucket_name=bucket_name, verbose=False)
+            with open(prj_local, 'r', encoding='utf-8', errors='ignore') as f:
+                crs_wkt = f.read().strip()
+            if crs_wkt:
+                metadata['crs'] = crs_wkt[:500]
+        except Exception:
+            pass
+        finally:
+            if os.path.exists(prj_local):
+                os.remove(prj_local)
+
+        # --- .dbf 헤더 파싱 (컬럼 목록, 레코드 수) ---
+        dbf_local = f"{local_dir}/{uuid.uuid4().hex}.dbf"
+        dbf_path = base_path + '.dbf'
+        try:
+            s3reader.download(dbf_path, local_file_path=dbf_local, bucket_name=bucket_name, verbose=False)
+            with open(dbf_local, 'rb') as f:
+                raw = f.read()
+            if len(raw) >= 32:
+                record_count = struct.unpack_from('<I', raw, 4)[0]
+                header_size = struct.unpack_from('<H', raw, 8)[0]
+                metadata['feature_count'] = record_count
+                fields = []
+                offset = 32
+                while offset + 32 <= header_size and raw[offset] != 0x0D:
+                    name = raw[offset:offset + 11].split(b'\x00')[0].decode('utf-8', errors='ignore').strip()
+                    ftype = chr(raw[offset + 11])
+                    flen = raw[offset + 16]
+                    fields.append(f"{name}({DBF_FIELD_TYPES.get(ftype, ftype)},{flen})")
+                    offset += 32
+                if fields:
+                    metadata['columns'] = ', '.join(fields)
+        except Exception as e:
+            logger.warning(f"DBF parse failed: {e}")
+        finally:
+            if os.path.exists(dbf_local):
+                os.remove(dbf_local)
+
+        if not metadata:
+            return None
+        return self._get_common_rdfs(metadata.items())
+
     def _get_common_rdfs(self, meta_items: dict) -> Optional[List[Rdf]]:
         rdfs = []
         for k, v in meta_items:
