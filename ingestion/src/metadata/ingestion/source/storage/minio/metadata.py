@@ -12,6 +12,7 @@
 import fnmatch
 import json
 import os
+import re
 import traceback
 import urllib.parse
 import unicodedata
@@ -600,6 +601,7 @@ class MinioSource(StorageServiceSource):
         file_request = CreateFileRequest(
             name=basic.EntityName(__root__=container_details.name),
             prefix=container_details.prefix,
+            description=self._build_file_description(container_details),
             numberOfObjects=container_details.number_of_objects,
             size=container_details.size,
             dataModel=container_details.data_model,
@@ -615,6 +617,51 @@ class MinioSource(StorageServiceSource):
         if container_details.rdfs:
             file_request.rdfs = container_details.rdfs
         yield Either(right=file_request)
+
+    # 데이터셋 경계 판별 — 경로 세그먼트 중 "원천 식별자_이름" 형태를 찾는다.
+    # 폴더 깊이에 의존하지 않는다: 같은 적재 도구·기관이라도 ZIP 내부 구조에 따라
+    # 파일 깊이가 달라지기 때문이다(실측: 6/7/8 세그먼트가 혼재).
+    # 지금은 description 보정에만 쓰지만, 추후 Dataset 엔티티를 도입할 때
+    # 이 함수가 그대로 경계 판별 로직이 된다(반환값이 곧 데이터셋 키).
+    DATASET_SEG_RE = re.compile(r"^(\d{7,8})_(.+)$")
+
+    @classmethod
+    def resolve_dataset(cls, prefix: str) -> Optional[Dict[str, str]]:
+        """경로에서 데이터셋 식별자와 이름을 찾는다. 없으면 None."""
+        if not prefix:
+            return None
+        for seg in prefix.strip(KEY_SEPARATOR).split(KEY_SEPARATOR):
+            m = cls.DATASET_SEG_RE.match(seg)
+            if m:
+                return {"id": m.group(1), "name": m.group(2).replace("_", " ").strip()}
+        return None
+
+    @staticmethod
+    def _is_opaque_name(stem: str) -> bool:
+        """파일명이 의미 없는 코드값인지 판단.
+
+        360도 사진처럼 '104A00' 형태로 적재된 파일은 이름만으로 무슨 데이터인지
+        알 수 없어 검색도 되지 않는다. 반면 '국가철도공단_부산4호선_장애인화장실'처럼
+        한글이 들어간 이름은 이미 충분한 정보를 갖고 있으므로 건드리지 않는다.
+        """
+        if not stem:
+            return True
+        return not re.search(r"[가-힣]", stem)
+
+    def _build_file_description(self, container_details: MinioContainerDetails) -> Optional[str]:
+        """파일명이 코드값일 때만 데이터셋명을 붙여 검색·표시가 가능하게 한다.
+
+        description은 검색 가중치가 가장 높은 필드(4,000,000)라 이 보정만으로
+        '360도 사진' 같은 질의에 이미지가 잡히게 된다. 이름이 이미 멀쩡한 파일은
+        그대로 두어 기존 검색 순위에 영향을 주지 않는다.
+        """
+        stem = Path(container_details.name).stem
+        if not self._is_opaque_name(stem):
+            return None
+        ds = self.resolve_dataset(container_details.prefix)
+        if not ds:
+            return None
+        return f"{ds['name']} {stem}".strip()
 
     def _clean_path(self, path: str) -> str:
         return path.strip(KEY_SEPARATOR)
