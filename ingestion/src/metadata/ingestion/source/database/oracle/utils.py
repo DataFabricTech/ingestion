@@ -170,7 +170,7 @@ def get_columns(self, connection, table_name, schema=None, **kw):
     cols = connection.execute(sql.text(text), params)
 
     for row in cols:
-        colname = self.normalize_name(row[0])
+        colname = _preserve_raw_case(self, row[0])
         length = row[2]
         nullable = row[5] == "Y"
         default = row[6]
