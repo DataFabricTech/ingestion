@@ -159,7 +159,7 @@ base_requirements = {
     "opencv-python==4.12.0.88",
     "pytesseract==0.3.13",
     "xlrd==2.0.2",
-    "mutagen==1.47.0",
+    "tinytag==2.3.2",
     "ffmpeg-python==0.2.0",
     "pymediainfo==6.1.0",
     "httpx==0.28.1",
