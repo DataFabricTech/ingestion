@@ -146,7 +146,6 @@ base_requirements = {
     "zstd==1.5.6.1",
     "torch==2.4.1",
     "python-docx==1.1.2",
-    "pyhwp==0.1b15",
     "tika==2.6.0",
     "nltk==3.9.1",
     "transformers==4.46.3",
@@ -154,11 +153,9 @@ base_requirements = {
     "botocore==1.32.4",
     "datamodel-code-generator==0.22.0",
     "pillow==10.4.0",
-    "pymupdf==1.24.11",
     "imageio==2.35.1",
     "OpenEXR==3.3.5",
     "exifread==3.5.1",
-    "ultralytics==8.3.195",
     "opencv-python==4.12.0.88",
     "pytesseract==0.3.13",
     "xlrd==2.0.2",
@@ -303,6 +300,11 @@ plugins: Dict[str, Set[str]] = {
     "fsspec": {VERSIONS["fsspec"]},
     # "s3fs": {VERSIONS["s3fs"]},
     "openpyxl": {VERSIONS["openpyxl"]},
+    # AGPL-3.0 패키지에 의존하는 선택 기능.
+    # 설치하면 해당 기능 사용에 AGPL-3.0 조건이 적용된다.
+    "pdf": {"pymupdf==1.24.11"},
+    "hwp": {"pyhwp==0.1b15"},
+    "yolo": {"ultralytics==8.3.195"},
     "dev": {"datamodel-code-generator==0.22.0"}
 }
 
@@ -391,7 +393,7 @@ setup(
                     requirements
                     for plugin, requirements in plugins.items()
                     # if plugin not in {"airflow", "db2", "great-expectations"}
-                    if plugin not in {"db2", "great-expectations"}
+                    if plugin not in {"db2", "great-expectations", "pdf", "hwp", "yolo"}
                 ]
             )
         ),

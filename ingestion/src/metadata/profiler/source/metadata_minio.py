@@ -36,9 +36,17 @@ from metadata.utils import fqn
 from metadata.utils.filters import filter_by_container
 from metadata.utils.logger import profiler_logger
 
-from ultralytics import YOLO
-
 logger = profiler_logger()
+
+# Ultralytics(AGPL-3.0)는 선택 설치다. 미설치 시 이미지 객체 탐지만 비활성화된다.
+#   pip install 'openmetadata-ingestion[yolo]'
+try:
+    from ultralytics import YOLO  # AGPL-3.0 — optional extra [yolo]
+
+    _HAS_ULTRALYTICS = True
+except ImportError:  # pragma: no cover
+    YOLO = None
+    _HAS_ULTRALYTICS = False
 
 #CONTAINER_FIELDS = ["tableProfilerConfig", "dataModel", "customMetrics"]
 CONTAINER_FIELDS = ["dataModel", "parent", "fileFormats"]
@@ -127,10 +135,18 @@ class MetadataSourceForMinio(Source):
         global_profiler_config = self.metadata.get_profiler_config_settings()
         global_profiler_config = self.metadata.get_profiler_config_none_settings() # {} 로 재정의하고 있었음 이유 모름..
 
-        # 이미지 객체 탐지 모델 로딩(YOLOv8 모델 불러오기 (사전 학습된 모델))
-        detected_objects_model = YOLO("yolov8s.pt")  # 또는 yolov8s.pt, yolov8m.pt 등
-        global_profiler_config = self.metadata.get_profiler_config_detect_model_settings(detected_objects_model)
-        logger.debug(">>>>> model loading ")
+        # 이미지 객체 탐지 모델 로딩. Ultralytics 미설치 시 탐지 없이 진행한다.
+        if _HAS_ULTRALYTICS:
+            detected_objects_model = YOLO("yolov8s.pt")
+            global_profiler_config = self.metadata.get_profiler_config_detect_model_settings(
+                detected_objects_model
+            )
+            logger.debug(">>>>> model loading ")
+        else:
+            logger.info(
+                "이미지 객체 탐지 비활성화: Ultralytics가 설치되지 않았습니다. "
+                "pip install 'openmetadata-ingestion[yolo]' 로 활성화할 수 있습니다."
+            )
         supported_file_formats = [
             FileFormat.csv,
             FileFormat.xls,

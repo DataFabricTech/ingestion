@@ -1,5 +1,4 @@
 import subprocess
-import fitz
 from pathlib import Path
 import base64
 import asyncio
@@ -8,11 +7,32 @@ from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 
+# PyMuPDF(AGPL-3.0)는 선택 설치다. 미설치 시 PDF 추출만 비활성화된다.
+#   pip install 'openmetadata-ingestion[pdf]'
+try:
+    import fitz  # PyMuPDF (AGPL-3.0) — optional extra [pdf]
+
+    _HAS_PYMUPDF = True
+except ImportError:  # pragma: no cover
+    fitz = None
+    _HAS_PYMUPDF = False
+
+
+def _pdf_unavailable(feature: str):
+    logger.info(
+        "%s 비활성화: PyMuPDF가 설치되지 않았습니다. "
+        "pip install 'openmetadata-ingestion[pdf]' 로 활성화할 수 있습니다.",
+        feature,
+    )
+    return None
+
 class PdfMetadataExtractor:
     def __init__(self, file_path: str):
         self.file_path = file_path
 
     def extract_metadata(self) -> dict:
+        if not _HAS_PYMUPDF:
+            return _pdf_unavailable("PDF 메타데이터 추출")
 
         with fitz.open(self.file_path) as file:
             return file.metadata
@@ -59,6 +79,8 @@ class PdfMetadataExtractor:
 
 
     def get_sample_data(self, input_path, max_side=2000):
+        if not _HAS_PYMUPDF:
+            return _pdf_unavailable("PDF 샘플 데이터 추출")
 
         with fitz.open(input_path) as file:
 

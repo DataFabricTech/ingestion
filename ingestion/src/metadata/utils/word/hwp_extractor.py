@@ -1,6 +1,3 @@
-from hwp5 import filestructure as FS
-from hwp5.filestructure import Hwp5File
-from hwp5.storage.ole import OleStorage
 import xml.etree.ElementTree as ET
 import zipfile
 import olefile
@@ -8,6 +5,33 @@ import zlib
 import struct
 import re
 import unicodedata
+
+from metadata.utils.logger import profiler_logger
+
+logger = profiler_logger()
+
+# pyhwp(AGPL-3.0)는 선택 설치다. 미설치 시 HWP 추출만 비활성화된다.
+#   pip install 'openmetadata-ingestion[hwp]'
+try:
+    from hwp5 import filestructure as FS
+    from hwp5.filestructure import Hwp5File
+    from hwp5.storage.ole import OleStorage
+
+    _HAS_PYHWP = True
+except ImportError:  # pragma: no cover
+    FS = None
+    Hwp5File = None
+    OleStorage = None
+    _HAS_PYHWP = False
+
+
+def _hwp_unavailable(feature: str):
+    logger.info(
+        "%s 비활성화: pyhwp가 설치되지 않았습니다. "
+        "pip install 'openmetadata-ingestion[hwp]' 로 활성화할 수 있습니다.",
+        feature,
+    )
+    return None
 
 class HwpMetadataExtractor:
     FILE_HEADER_SECTION = "FileHeader"
@@ -67,12 +91,18 @@ class HwpMetadataExtractor:
         return character_count, word_count
 
     def get_plaintext_lines(self, summary):
+        if not _HAS_PYHWP:
+            return _hwp_unavailable("HWP 텍스트 추출")
+
         from hwp5.msoleprops import PropertySetStreamTextFormatter
         stream = summary.getPropertySetStream
         formatter = PropertySetStreamTextFormatter()
         return list(formatter.formatTextLines(stream))
 
     def extract_metadata(self, file_path) -> dict:
+        if not _HAS_PYHWP:
+            return _hwp_unavailable("HWP 메타데이터 추출")
+
         olestg = OleStorage(file_path)
         hwp5file = FS.Hwp5File(olestg)
         summary: FS.HwpSummaryInfo = hwp5file.summaryinfo
