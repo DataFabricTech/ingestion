@@ -20,6 +20,7 @@ from typing import List, Optional
 
 from metadata.generated.schema.type.filterPattern import FilterPattern
 
+import unicodedata
 
 class InvalidPatternException(Exception):
     """
@@ -54,29 +55,49 @@ def _filter(filter_pattern: Optional[FilterPattern], name: str) -> bool:
         # No filter pattern, nothing to filter
         return False
 
-    if filter_pattern and not name:
-        # Filter pattern is present but not the name so we'll filter it out
-        return True
-
     if filter_pattern.includes:
         validate_regex(filter_pattern.includes)
-        return not any(  # pylint: disable=use-a-generator
-            [
-                name
-                for regex in filter_pattern.includes
-                if (re.match(regex, name, re.IGNORECASE))
-            ]
-        )
+        # return not any(  # pylint: disable=use-a-generator
+        #     [
+        #         name
+        #         for regex in filter_pattern.includes
+        #         if (re.match(regex, name, re.IGNORECASE))
+        #     ]
+        # )
+        for regex in filter_pattern.includes:
+            # 정규식 매칭
+            if re.match(regex, name, re.IGNORECASE):
+                return False  # 정규식 매칭됨 → 매칭
+
+            # 문자열 매칭
+            # NFC 정규화(한글 이름일 경우가있기 때문에)
+            normalize_name = unicodedata.normalize('NFC', name)
+            normalize_regex = unicodedata.normalize('NFC', regex)
+            if normalize_name.lower() == normalize_regex.lower():
+                return False  # 문자열 비교 매칭됨 → 매칭
+        return True  # 모두 실패 → 매칭 안됨
 
     if filter_pattern.excludes:
         validate_regex(filter_pattern.excludes)
-        return any(  # pylint: disable=use-a-generator
-            [
-                name
-                for regex in filter_pattern.excludes
-                if (re.match(regex, name, re.IGNORECASE))
-            ]
-        )
+        # return any(  # pylint: disable=use-a-generator
+        #     [
+        #         name
+        #         for regex in filter_pattern.excludes
+        #         if (re.match(regex, name, re.IGNORECASE))
+        #     ]
+        # )
+        for regex in filter_pattern.excludes:
+            # 정규식 매칭
+            if re.match(regex, name, re.IGNORECASE):
+                return True  # 정규식 매칭됨 → 매칭
+
+            # 문자열 매칭
+            # NFC 정규화(한글 이름일 경우가있기 때문에)
+            normalize_name = unicodedata.normalize('NFC', name)
+            normalize_regex = unicodedata.normalize('NFC', regex)
+            if normalize_name.lower() == normalize_regex.lower():
+                return True  # 문자열 비교 매칭됨 → 매칭
+        return False  # 모두 실패 → 매칭 안됨
 
     return False
 
@@ -212,7 +233,6 @@ def filter_by_mlmodel(
     :return: True for filtering, False otherwise
     """
     return _filter(mlmodel_filter_pattern, mlmodel_name)
-
 
 def filter_by_bucket(
         bucket_filter_pattern: Optional[FilterPattern], bucket_name: str

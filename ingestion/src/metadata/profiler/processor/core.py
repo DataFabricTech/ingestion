@@ -83,12 +83,12 @@ class Profiler(Generic[TMetric]):
     # pylint: disable=too-many-instance-attributes
 
     def __init__(
-        self,
-        *metrics: Type[TMetric],
-        profiler_interface: ProfilerInterface,
-        include_columns: Optional[List[ColumnProfilerConfig]] = None,
-        exclude_columns: Optional[List[str]] = None,
-        global_profiler_configuration: Optional[Settings] = None,
+            self,
+            *metrics: Type[TMetric],
+            profiler_interface: ProfilerInterface,
+            include_columns: Optional[List[ColumnProfilerConfig]] = None,
+            exclude_columns: Optional[List[str]] = None,
+            global_profiler_configuration: Optional[Settings] = None,
     ):
         """
         :param metrics: Metrics to run. We are receiving the uninitialized classes
@@ -194,7 +194,7 @@ class Profiler(Generic[TMetric]):
         return {}
 
     def _check_profile_and_handle(
-        self, profile: CreateTableProfileRequest
+            self, profile: CreateTableProfileRequest
     ) -> CreateTableProfileRequest:
         """Check if the profile data are empty. if empty then raise else return
 
@@ -209,8 +209,8 @@ class Profiler(Generic[TMetric]):
         """
         for attrs, val in profile.tableProfile:
             if (
-                attrs not in {"timestamp", "profileSample", "profileSampleType"}
-                and val is not None
+                    attrs not in {"timestamp", "profileSample", "profileSampleType"}
+                    and val is not None
             ):
                 return
 
@@ -224,7 +224,7 @@ class Profiler(Generic[TMetric]):
         )
 
     def get_custom_metrics(
-        self, column_name: Optional[str] = None
+            self, column_name: Optional[str] = None
     ) -> Optional[List[CustomMetricEntity]]:
         """Get custom metrics for a table or column
 
@@ -295,7 +295,7 @@ class Profiler(Generic[TMetric]):
             return
 
         for metric in self.metric_filter.get_column_metrics(
-            ComposedMetric, col, self.profiler_interface.table_entity.serviceType
+                ComposedMetric, col, self.profiler_interface.table_entity.serviceType
         ):
             # Composed metrics require the results as an argument
             logger.debug(f"Running composed metric {metric.name()} for {col.name}")
@@ -322,7 +322,7 @@ class Profiler(Generic[TMetric]):
             )
             return
         for metric in self.metric_filter.get_column_metrics(
-            HybridMetric, col, self.profiler_interface.table_entity.serviceType
+                HybridMetric, col, self.profiler_interface.table_entity.serviceType
         ):
             logger.debug(f"Running hybrid metric {metric.name()} for {col.name}")
             self._column_results[col.name][
@@ -538,10 +538,10 @@ class Profiler(Generic[TMetric]):
                 data=table_data, profiler_interface=self.profiler_interface
             )
             table_data.rows = table_data.rows[
-                : min(
-                    SAMPLE_DATA_DEFAULT_COUNT, self.profiler_interface.sample_data_count
-                )
-            ]
+                              : min(
+                                  SAMPLE_DATA_DEFAULT_COUNT, self.profiler_interface.sample_data_count
+                              )
+                              ]
             return table_data
         except Exception as err:
             logger.debug(traceback.format_exc())
@@ -575,21 +575,34 @@ class Profiler(Generic[TMetric]):
             # There are columns that we might have skipped from
             # computing metrics, if the type is not supported.
             # Let's filter those out.
-            column_profile = [
-                ColumnProfile(
-                    **self.column_results.get(
-                        col.name
-                        if not isinstance(col.name, ColumnName)
-                        else col.name.__root__
-                    )
-                )
-                for col in self.columns
-                if self.column_results.get(
-                    col.name
-                    if not isinstance(col.name, ColumnName)
-                    else col.name.__root__
-                )
-            ]
+            # column_profile = [
+            #     ColumnProfile(
+            #         **self.column_results.get(
+            #             col.name
+            #             if not isinstance(col.name, ColumnName)
+            #             else col.name.__root__
+            #         )
+            #     )
+            #     for col in self.columns
+            #     if self.column_results.get(
+            #         col.name
+            #         if not isinstance(col.name, ColumnName)
+            #         else col.name.__root__
+            #     )
+            # ]
+
+            column_profile = []
+            for col in self.columns:
+                col_name = col.name if not isinstance(col.name, ColumnName) else col.name.__root__
+                result = self.column_results.get(col_name)
+
+                if result:
+                    try:
+                        profile = ColumnProfile(**result)
+                        column_profile.append(profile)
+                    except Exception as e:
+                        logger.error(f"convert column to ColumnProfile ERROR column name : {col_name}, error : {e}")
+
 
             table_profile = TableProfile(
                 timestamp=self.profile_date,

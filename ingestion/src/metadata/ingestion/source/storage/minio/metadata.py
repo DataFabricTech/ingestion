@@ -9,9 +9,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import fnmatch
+import json
 import os
+import re
 import traceback
 import urllib.parse
+import unicodedata
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -21,6 +25,7 @@ from metadata.generated.schema.entity.classification.tag import Tag
 from pydantic import ValidationError
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
+from metadata.generated.schema.api.data.createFile import CreateFileRequest
 from metadata.generated.schema.entity.data.container import (
     Container,
     FileFormat,
@@ -59,11 +64,14 @@ from metadata.readers.dataframe.dsv import (
 from metadata.utils import fqn
 from metadata.utils.filters import filter_by_container, filter_by_bucket
 from metadata.utils.logger import ingestion_logger
-from metadata.utils.s3_utils import list_s3_objects
+from metadata.utils.s3_utils import list_s3_objects, get_normalized_key
 
 logger = ingestion_logger()
 
 S3_CLIENT_ROOT_RESPONSE = "Contents"
+
+# SHP 데이터셋의 주 파일(.shp)이 존재할 때 수집 대상에서 제외할 동반 파일 확장자
+SHP_COMPANION_EXTENSIONS = {'dbf', 'shx', 'prj', 'cpg', 'qix'}
 
 
 def get_file_format(file_name: str) -> (str, str):
@@ -93,6 +101,10 @@ class MinioSource(StorageServiceSource):
         # self._bucket_cache: Dict[str, Container] = {}
         self._dir_cache: Dict[str, List[str]] = {}
         self._metadata_cache: Dict[str, MetadataEntry] = {}
+
+        conn_args = getattr(self.service_connection, 'connectionArguments', None)
+        raw = (conn_args.__root__ or {}).get('classifications_rules') if conn_args else None
+        self._classifications_rules: List[dict] = json.loads(raw) if raw else []
 
     @classmethod
     def create(
@@ -163,22 +175,27 @@ class MinioSource(StorageServiceSource):
         )
 
     def _set_bucket_obj_info(self, bucket_name: str):
+
         total_count = 0
         total_size = 0
         try:
-            for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url'):
+            for obj in list_s3_objects(self.minio_client, Bucket=bucket_name, EncodingType='url', FetchOwner=True):
                 total_count += 1
                 decoded_key = urllib.parse.unquote_plus(obj['Key'])
+                normalize_key = unicodedata.normalize('NFC', decoded_key)
+
                 total_size += obj['Size']
-                file_format, separator = get_file_format(decoded_key)
-                self._metadata_cache[decoded_key] = MetadataEntry(
-                    dataPath=f"{decoded_key}",
+                file_format, separator = get_file_format(normalize_key)
+                self._metadata_cache[normalize_key] = MetadataEntry(
+                    dataPath=f"{normalize_key}",
                     contentSize=obj['Size'],
+                    lastModified=obj['LastModified'].isoformat() if obj.get('LastModified') else None,
                     structureFormat=file_format,
                     separator=separator,
+                    owner=obj['Owner']['DisplayName']
                 )
                 logger.debug(
-                    f"key : {decoded_key}, format : {file_format}, size : {obj['Size']}")
+                    f"key : {normalize_key}, format : {file_format}, size : {obj['Size']}")
         except Exception as exc:
             logger.debug(traceback.format_exc())
             logger.error(f"Unable to list objects in bucket: {bucket_name} - {exc}")
@@ -186,19 +203,22 @@ class MinioSource(StorageServiceSource):
 
     def get_directories(self):
         directory = []
+        self.context.get().directory = None #현재 directory 초기화
+
         bucket_container = self.get_bucket_entity()
         bucket_name = bucket_container.name.__root__
 
         service = self.context.get().objectstore_service
-        self._dir_cache[bucket_name] = [service, bucket_name]
+        dir_cache_key = f"{service}.{bucket_name}"
+        self._dir_cache[dir_cache_key] = [service, bucket_name]
         for file_name, entity in self._metadata_cache.items():
             # 촤상위 디렉토리에 대한 처리
             if '/' not in file_name:
                 if '/' not in directory:
                     directory.append('/')
-                    self._dir_cache[bucket_name].append('/')
+                    self._dir_cache[dir_cache_key].append('/')
                     yield self._generate_directory_container(bucket_name, ['/'], bucket_container)
-                    self._dir_cache[bucket_name].remove('/')
+                    self._dir_cache[dir_cache_key].remove('/')
             else:
                 dir_path = os.path.dirname(file_name)
                 path_parts = dir_path.split('/')
@@ -210,10 +230,10 @@ class MinioSource(StorageServiceSource):
                         directory.append(prefix)
                         parent_entity = self.get_parent_entity(path_parts[:i - 1])
                         # 디렉토리 하위의 컨테이너에서 FQN 생성을 위해 상위 개체 정보를 저장한다.
-                        self._dir_cache[bucket_name].extend(path_parts[:i])
+                        self._dir_cache[dir_cache_key].extend(path_parts[:i])
                         yield self._generate_directory_container(bucket_name, path_parts[:i], parent_entity)
                         # 다른 디렉토리를 위해 현재 디렉토리 정보를 삭제한다.
-                        self._dir_cache[bucket_name] = [item for item in self._dir_cache[bucket_name] if
+                        self._dir_cache[dir_cache_key] = [item for item in self._dir_cache[dir_cache_key] if
                                                         item not in path_parts[:i]]
 
     def get_bucket_entity(self) -> Container:
@@ -342,9 +362,14 @@ class MinioSource(StorageServiceSource):
                     if '/' in abs_file_name:
                         continue
                 else:
-                    directory = '/'.join(self._dir_cache[bucket][2:])
+                    directory = '/'.join(self._dir_cache[f"{service}.{bucket}"][2:])
                     if directory not in abs_file_name or directory != os.path.dirname(abs_file_name):
                         continue
+
+                # SHP 동반 파일(.dbf/.shx/.prj/.cpg/.qix)은 주 파일(.shp)이 같은 경로에 있으면 제외
+                if self._is_shp_companion(abs_file_name):
+                    logger.info(f"Skipping SHP companion file: {abs_file_name}")
+                    continue
 
                 # file_name 은 Path/File 형태이다. 순수한 file_name을 가져온다.
                 file_name = Path(abs_file_name).name
@@ -367,7 +392,7 @@ class MinioSource(StorageServiceSource):
                     continue
 
                 if (metadata_entry.structureFormat in
-                        [FileFormat.csv.value, FileFormat.tsv.value, FileFormat.xls.value, FileFormat.xlsx.value]):
+                        [FileFormat.csv.value]):
                     logger.info(f"Structured Data Metadata Ingestion From : {file_name}")
                     structured_container: Optional[MinioContainerDetails] = (
                         self._generate_container_details(
@@ -385,7 +410,10 @@ class MinioSource(StorageServiceSource):
                         logger.warn(f"Failed To Generated Structured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate structured container metadata: {file_name}")
                 elif metadata_entry.structureFormat in [FileFormat.doc.value, FileFormat.docx.value,
-                                                        FileFormat.hwp.value, FileFormat.hwpx.value]:
+                                                        FileFormat.hwp.value, FileFormat.hwpx.value,
+                                                        FileFormat.txt.value, FileFormat.xml.value,
+                                                        FileFormat.json.value,
+                                                        FileFormat.xls.value, FileFormat.xlsx.value]:
                     logger.info(f"Unstructured Data Metadata Ingestion From : {file_name}")
                     unstructured_container: Optional[MinioContainerDetails] = (
                         self._generate_unstructured_container_details(
@@ -399,9 +427,69 @@ class MinioSource(StorageServiceSource):
                     else:
                         logger.warn(f"Failed To Generated Unstructured Container Metadata: {file_name}")
                         self.status.warnings.append(f"failed to generate unstructured container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.jpeg.value, FileFormat.jpg.value, FileFormat.png.value, FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value,
+                                                        FileFormat.cr2.value, FileFormat.nef.value, FileFormat.tiff.value, FileFormat.tif.value,
+                                                        FileFormat.arw.value, FileFormat.orf.value,
+                                                        FileFormat.psd.value,
+                                                        FileFormat.hdr.value, FileFormat.exr.value,
+                                                        FileFormat.pdf.value]:
+                    logger.info(f"Image Data Metadata Ingestion From : {file_name}")
+                    image_container: Optional[MinioContainerDetails] = (
+                        self._generate_image_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if image_container:
+                        yield image_container
+                    else:
+                        logger.warn(f"Failed To Generated Image Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate image container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.wav.value, FileFormat.mp3.value,
+                                                        FileFormat.mp4.value, FileFormat.mov.value, FileFormat.m4v.value]:
+                    logger.info(f"Media Data Metadata Ingestion From : {file_name}")
+                    container: Optional[MinioContainerDetails] = (
+                        self._generate_media_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if container:
+                        yield container
+                    else:
+                        logger.warn(f"Failed To Generated Audio Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate audio container metadata: {file_name}")
+                elif metadata_entry.structureFormat in [FileFormat.shp.value, FileFormat.geojson.value]:
+                    logger.info(f"Spatial Data Metadata Ingestion From : {file_name}")
+                    spatial_container: Optional[MinioContainerDetails] = (
+                        self._generate_shp_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if spatial_container:
+                        yield spatial_container
+                    else:
+                        logger.warn(f"Failed To Generated Spatial Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate spatial container metadata: {file_name}")
                 else:
-                    logger.debug(f"Unsupported format {metadata_entry.structureFormat}")
+                    logger.info(f"Unsupported format {metadata_entry.structureFormat}")
                     # self.status.filter(abs_file_name, f"Unsupported format {metadata_entry.structureFormat}")
+                    unsupported_container: Optional[MinioContainerDetails] = (
+                        self._generate_unsupported_container_details(
+                            bucket_name=bucket,
+                            metadata_entry=metadata_entry,
+                            parent=EntityReference(id=parent_container.id, type="container",
+                                                   fullyQualifiedName=parent_container_fqn),
+                        ))
+                    if unsupported_container:
+                        yield unsupported_container
+                    else:
+                        logger.warn(f"Failed To Generated Unsupported Container Metadata: {file_name}")
+                        self.status.warnings.append(f"failed to generate unsupported container metadata: {file_name}")
 
             except ValidationError as err:
                 self.status.failed(
@@ -424,6 +512,7 @@ class MinioSource(StorageServiceSource):
         service = self.context.get().objectstore_service
         bucket = self.context.get().bucket
         directory = self.context.get().directory
+        # directory = getattr(self.context.get(), "directory", None)
 
         if directory == '/' or directory is None:
             return fqn._build(  # pylint: disable=protected-access
@@ -434,14 +523,15 @@ class MinioSource(StorageServiceSource):
             )
         else:
             return fqn._build(  # pylint: disable=protected-access
-                *self._dir_cache[bucket]
+                *self._dir_cache[f"{service}.{bucket}"]
             )
 
     def yield_create_container_requests(
             self, container_details: MinioContainerDetails
     ) -> Iterable[Either[CreateContainerRequest]]:
         """ Get 태그 """
-        tag_label = self.get_classification_tag_label(container_details)
+        # tag_label = self.get_classification_tag_label(container_details)
+        tag_label = None
         container_request = CreateContainerRequest(
             name=basic.EntityName(__root__=container_details.name),
             prefix=container_details.prefix,
@@ -454,6 +544,7 @@ class MinioSource(StorageServiceSource):
             sourceUrl=container_details.sourceUrl,
             fileFormats=container_details.file_formats,
             fullPath=container_details.fullPath,
+            systemType=self.config.systemType
         )
         if container_details.rdfs:
             container_request.rdfs = container_details.rdfs
@@ -489,6 +580,88 @@ class MinioSource(StorageServiceSource):
                 source=TagSource.Classification,
             )
         return None
+
+    def _get_classifications(self, bucket_name: str, file_path: str) -> Optional[List[str]]:
+        """Match bucket/file_path against classifications_rules and return matched category names."""
+        if not self._classifications_rules:
+            return None
+        full_path = f"{bucket_name}/{file_path.lstrip('/')}"
+        matched = []
+        for rule in self._classifications_rules:
+            pattern = rule.get('pattern', '')
+            category = rule.get('category', '')
+            if category and fnmatch.fnmatch(full_path, pattern):
+                matched.append(category)
+        return matched if matched else None
+
+    def yield_create_file_requests(
+            self, container_details: MinioContainerDetails
+    ) -> Iterable[Either[CreateFileRequest]]:
+
+        file_request = CreateFileRequest(
+            name=basic.EntityName(__root__=container_details.name),
+            prefix=container_details.prefix,
+            description=self._build_file_description(container_details),
+            numberOfObjects=container_details.number_of_objects,
+            size=container_details.size,
+            dataModel=container_details.data_model,
+            service=self.context.get().objectstore_service,
+            parent=container_details.parent,
+            extension=basic.EntityExtension(__root__=container_details.extension),
+            sourceUrl=container_details.sourceUrl,
+            fileFormats=container_details.file_formats,
+            fullPath=container_details.fullPath,
+            systemType=self.config.systemType,
+            owner=container_details.owner
+        )
+        if container_details.rdfs:
+            file_request.rdfs = container_details.rdfs
+        yield Either(right=file_request)
+
+    # 데이터셋 경계 판별 — 경로 세그먼트 중 "원천 식별자_이름" 형태를 찾는다.
+    # 폴더 깊이에 의존하지 않는다: 같은 적재 도구·기관이라도 ZIP 내부 구조에 따라
+    # 파일 깊이가 달라지기 때문이다(실측: 6/7/8 세그먼트가 혼재).
+    # 지금은 description 보정에만 쓰지만, 추후 Dataset 엔티티를 도입할 때
+    # 이 함수가 그대로 경계 판별 로직이 된다(반환값이 곧 데이터셋 키).
+    DATASET_SEG_RE = re.compile(r"^(\d{7,8})_(.+)$")
+
+    @classmethod
+    def resolve_dataset(cls, prefix: str) -> Optional[Dict[str, str]]:
+        """경로에서 데이터셋 식별자와 이름을 찾는다. 없으면 None."""
+        if not prefix:
+            return None
+        for seg in prefix.strip(KEY_SEPARATOR).split(KEY_SEPARATOR):
+            m = cls.DATASET_SEG_RE.match(seg)
+            if m:
+                return {"id": m.group(1), "name": m.group(2).replace("_", " ").strip()}
+        return None
+
+    @staticmethod
+    def _is_opaque_name(stem: str) -> bool:
+        """파일명이 의미 없는 코드값인지 판단.
+
+        360도 사진처럼 '104A00' 형태로 적재된 파일은 이름만으로 무슨 데이터인지
+        알 수 없어 검색도 되지 않는다. 반면 '국가철도공단_부산4호선_장애인화장실'처럼
+        한글이 들어간 이름은 이미 충분한 정보를 갖고 있으므로 건드리지 않는다.
+        """
+        if not stem:
+            return True
+        return not re.search(r"[가-힣]", stem)
+
+    def _build_file_description(self, container_details: MinioContainerDetails) -> Optional[str]:
+        """파일명이 코드값일 때만 데이터셋명을 붙여 검색·표시가 가능하게 한다.
+
+        description은 검색 가중치가 가장 높은 필드(4,000,000)라 이 보정만으로
+        '360도 사진' 같은 질의에 이미지가 잡히게 된다. 이름이 이미 멀쩡한 파일은
+        그대로 두어 기존 검색 순위에 영향을 주지 않는다.
+        """
+        stem = Path(container_details.name).stem
+        if not self._is_opaque_name(stem):
+            return None
+        ds = self.resolve_dataset(container_details.prefix)
+        if not ds:
+            return None
+        return f"{ds['name']} {stem}".strip()
 
     def _clean_path(self, path: str) -> str:
         return path.strip(KEY_SEPARATOR)
@@ -643,38 +816,86 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
         columns = self._get_columns(
             bucket_name=bucket_name,
-            sample_key=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            sample_key=normalized_key,
             metadata_entry=metadata_entry,
             config_source=self.config.serviceConnection.__root__.config.minioConfig,
             client=self.minio_client,
         )
+
         if columns:
-            prefix = (
-                f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
+            data_model = ContainerDataModel(
+                isPartitioned=metadata_entry.isPartitioned,
+                columns=columns,
             )
-            return MinioContainerDetails(
-                name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
-                prefix=prefix,
-                creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                                 key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-                number_of_objects=self._fetch_metric(
-                    bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-                ),
-                size=self._fetch_metric(
-                    bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-                ),
-                file_formats=[FileFormat(metadata_entry.structureFormat)],
-                data_model=ContainerDataModel(columns=columns),
-                parent=parent,
-                fullPath=self._get_full_path(bucket_name, prefix),
-                sourceUrl=self._get_object_source_url(
-                    bucket_name=bucket_name,
-                    prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
-                ),
-            )
-        return None
+        else:
+            data_model = None
+
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=data_model,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            owner=metadata_entry.owner,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _generate_unsupported_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat.none],
+            data_model=None,
+            rdfs=None,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
 
     def _generate_unstructured_container_details(
             self,
@@ -683,52 +904,191 @@ class MinioSource(StorageServiceSource):
             parent: Optional[EntityReference] = None,
     ) -> Optional[MinioContainerDetails]:
 
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
         rdfs = self._get_document_meta(
             bucket_name=bucket_name,
-            path=metadata_entry.dataPath.strip(KEY_SEPARATOR),
+            path=normalized_key,
             metadata_entry=metadata_entry,
             client=self.minio_client,
         )
-        if rdfs:
-            prefix = (
-                f"{KEY_SEPARATOR}{metadata_entry.dataPath.strip(KEY_SEPARATOR)}"
-            )
-            return MinioContainerDetails(
-                name=Path(metadata_entry.dataPath.strip(KEY_SEPARATOR)).name,
-                prefix=prefix,
-                creation_date=self._fetch_metric(bucket_name=bucket_name,
-                                                 key=metadata_entry.dataPath, metric=Metric.LAST_MODIFIED),
-                number_of_objects=self._fetch_metric(
-                    bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.NUMBER_OF_OBJECTS
-                ),
-                size=self._fetch_metric(
-                    bucket_name=bucket_name, key=metadata_entry.dataPath, metric=Metric.BUCKET_SIZE_BYTES
-                ),
-                file_formats=[FileFormat(metadata_entry.structureFormat)],
-                data_model=None,
-                rdfs=rdfs,
-                parent=parent,
-                fullPath=self._get_full_path(bucket_name, prefix),
-                sourceUrl=self._get_object_source_url(
-                    bucket_name=bucket_name,
-                    prefix=metadata_entry.dataPath.strip(KEY_SEPARATOR),
-                ),
-            )
-        return None
 
-    def _fetch_metric(self, bucket_name: str, key: str, metric: Metric):
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _generate_image_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        rdfs = self._get_image_meta(
+            bucket_name=bucket_name,
+            path=normalized_key,
+            client=self.minio_client,
+        )
+
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _generate_media_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        rdfs = self._get_media_meta(
+            bucket_name=bucket_name,
+            path=normalized_key,
+            client=self.minio_client,
+        )
+
+        prefix = (
+            f"{KEY_SEPARATOR}{data_path}"
+        )
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _is_shp_companion(self, abs_file_name: str) -> bool:
+        """동일 기본명의 .shp가 _metadata_cache에 존재하면 동반 파일로 판단"""
+        base, ext = os.path.splitext(abs_file_name)
+        if ext.lower().lstrip('.') not in SHP_COMPANION_EXTENSIONS:
+            return False
+        return (base + '.shp') in self._metadata_cache
+
+    def _generate_shp_container_details(
+            self,
+            bucket_name: str,
+            metadata_entry: MetadataEntry,
+            parent: Optional[EntityReference] = None,
+    ) -> Optional[MinioContainerDetails]:
+
+        data_path = metadata_entry.dataPath.strip(KEY_SEPARATOR)
+        normalized_key = get_normalized_key(client=self.minio_client, bucket_name=bucket_name, key=data_path)
+
+        if normalized_key is None:
+            return None
+
+        rdfs = self._get_shp_meta(
+            bucket_name=bucket_name,
+            path=normalized_key,
+            client=self.minio_client,
+        )
+
+        prefix = f"{KEY_SEPARATOR}{data_path}"
+
+        return MinioContainerDetails(
+            name=Path(data_path).name,
+            prefix=prefix,
+            creation_date=metadata_entry.lastModified,
+            number_of_objects=1.0,
+            size=float(metadata_entry.contentSize or 0),
+            file_formats=[FileFormat(metadata_entry.structureFormat)],
+            data_model=None,
+            rdfs=rdfs,
+            parent=parent,
+            fullPath=self._get_full_path(bucket_name, prefix),
+            sourceUrl=self._get_object_source_url(
+                bucket_name=bucket_name,
+                prefix=data_path,
+            ),
+            extension=metadata_entry.structureFormat,
+            classifications=self._get_classifications(bucket_name, data_path),
+        )
+
+    def _fetch_metric(self, bucket_name: str, key: str):
+        metric = {}
         try:
             key = urllib.parse.unquote_plus(key)
             res = self.minio_client.head_object(Bucket=bucket_name, Key=key)
-            if metric == Metric.BUCKET_SIZE_BYTES:
-                return float(res['ContentLength'])
-            elif metric == Metric.NUMBER_OF_OBJECTS:
-                return float(1)
-            elif metric == Metric.LAST_MODIFIED:
-                return str(res['LastModified'].isoformat())
+
+            if "ContentLength" in res:
+                metric[Metric.BUCKET_SIZE_BYTES] = float(res["ContentLength"])
+
+            if Metric.NUMBER_OF_OBJECTS.value in res:
+                metric[Metric.NUMBER_OF_OBJECTS] = float(1)
+
+            if Metric.LAST_MODIFIED.value in res:
+                metric[Metric.LAST_MODIFIED] = str(res[Metric.LAST_MODIFIED.value].isoformat())
+
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(
-                f"Failed fetching metric {metric.value} for bucket {bucket_name}, returning 0 - {err}"
+                f"Failed fetching metric for bucket {bucket_name}, key {key}, returning 0 - {err}"
             )
-        return 0
+        return metric

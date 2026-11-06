@@ -22,9 +22,9 @@ from oracledb.exceptions import DatabaseError
 from pydantic import SecretStr
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.oracleConnection import (
     OracleConnection,
     OracleDatabaseSchema,
@@ -36,9 +36,8 @@ from metadata.ingestion.connections.builders import (
     get_connection_args_common,
     get_connection_options_dict,
 )
-from metadata.ingestion.connections.test_connections import test_connection_db_common
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.source.database.oracle.queries import CHECK_ACCESS_TO_ALL
+# from metadata.ingestion.connections.test_connections import test_connection_db_common
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.utils.logger import ingestion_logger
 
 CX_ORACLE_LIB_VERSION = "8.3.0"
@@ -115,8 +114,14 @@ def get_connection(connection: OracleConnection) -> Engine:
             logger.info(
                 f"Initializing Oracle thick client at {connection.instantClientDirectory}"
             )
-            os.environ[LD_LIB_ENV] = connection.instantClientDirectory
-            oracledb.init_oracle_client()
+            lib_dir = connection.instantClientDirectory
+
+            # 기존 LD_LIBRARY_PATH 보존 + prefix 추가
+            prev = os.environ.get("LD_LIBRARY_PATH", "")
+            os.environ["LD_LIBRARY_PATH"] = f"{lib_dir}:{prev}" if prev else lib_dir
+
+            # lib_dir을 명시적으로 지정 (권장)
+            oracledb.init_oracle_client(lib_dir=lib_dir)
     except DatabaseError as err:
         logger.info(f"Could not initialize Oracle thick client: {err}")
 
@@ -127,23 +132,19 @@ def get_connection(connection: OracleConnection) -> Engine:
     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    engine: Engine,
-    service_connection: OracleConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-
-    test_conn_queries = {"CheckAccess": CHECK_ACCESS_TO_ALL}
-
-    test_connection_db_common(
-        metadata=metadata,
-        engine=engine,
-        service_connection=service_connection,
-        automation_workflow=automation_workflow,
-        queries=test_conn_queries,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     engine: Engine,
+#     service_connection: OracleConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#     test_connection_db_common(
+#         metadata=metadata,
+#         engine=engine,
+#         service_connection=service_connection,
+#         automation_workflow=automation_workflow,
+#     )

@@ -18,7 +18,6 @@ from typing import List
 
 from sqlalchemy import case, column
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.orm.functions.sum import SumFn
 from metadata.utils.logger import profiler_logger
@@ -41,7 +40,7 @@ class CountInSet(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.countInSet.value
+        return "countInSet"
 
     @property
     def metric_type(self):

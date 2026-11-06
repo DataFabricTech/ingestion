@@ -225,13 +225,11 @@ class ColumnTypeParser:
         "CLOB": "CLOB",
         "NCLOB": "CLOB",
         "LONG": "LONG",
-        # clickhouse
         "LOWCARDINALITY": "LOWCARDINALITY",
         "DATETIME64": "DATETIME",
         "SimpleAggregateFunction()": "AGGREGATEFUNCTION",
         "IPV4": "IPV4",
         "IPV6": "IPV6",
-        # Databricks
         "VOID": "NULL",
         # mysql
         "TINYBLOB": "BLOB",
@@ -288,6 +286,34 @@ class ColumnTypeParser:
 
         _COLUMN_TYPE_MAPPING[BIT] = "BINARY"
         _SOURCE_TYPE_TO_OM_TYPE["BIT"] = "BINARY"
+    except ImportError:
+        pass
+
+    try:
+        # Altibase data type mapping
+        from sqlalchemy_altibase import (
+            BIT as ALTIBASE_BIT,
+            BYTE as ALTIBASE_BYTE,
+            NIBBLE,
+            VARBIT as ALTIBASE_VARBIT,
+            VARBYTE as ALTIBASE_VARBYTE,
+        )
+
+        _COLUMN_TYPE_MAPPING.update({
+            ALTIBASE_BIT: "BOOLEAN",
+            ALTIBASE_BYTE: "VARBINARY",
+            NIBBLE: "VARCHAR",
+            ALTIBASE_VARBIT: "BOOLEAN",
+            ALTIBASE_VARBYTE: "VARBINARY",
+        })
+
+        _SOURCE_TYPE_TO_OM_TYPE.update({
+            "ALTIBASE_BIT": "BOOLEAN",
+            "ALTIBASE_BYTE": "VARBINARY",
+            "NIBBLE": "VARCHAR",
+            "ALTIBASE_VARBIT": "BOOLEAN",
+            "ALTIBASE_VARBYTE": "VARBINARY",
+        })
     except ImportError:
         pass
 
@@ -369,9 +395,7 @@ class ColumnTypeParser:
 
     @staticmethod
     def _parse_struct_fields_string(stuct_type: str) -> Dict[str, object]:
-        parts = ColumnTypeParser._ignore_brackets_split(
-            stuct_type, ",", skip_no_child_validation=True
-        )
+        parts = ColumnTypeParser._ignore_brackets_split(stuct_type, ",")
         columns = []
         for part in parts:
             name_and_type = ColumnTypeParser._ignore_brackets_split(part, ":")
@@ -389,10 +413,9 @@ class ColumnTypeParser:
             field_type = ColumnTypeParser._parse_datatype_string(name_and_type[1])
             field_type["name"] = field_name
             columns.append(field_type)
-
         return {
             "children": columns,
-            "dataTypeDisplay": f"struct<{stuct_type or 'unknown'}>",
+            "dataTypeDisplay": f"struct<{stuct_type}>",
             "dataType": "STRUCT",
         }
 
@@ -434,9 +457,7 @@ class ColumnTypeParser:
         }
 
     @staticmethod
-    def _ignore_brackets_split(
-        string: str, separator: str, skip_no_child_validation: bool = False
-    ) -> List[str]:
+    def _ignore_brackets_split(string: str, separator: str) -> List[str]:
         parts = []
         buf = ""
         level = 0
@@ -457,10 +478,9 @@ class ColumnTypeParser:
             else:
                 buf += char
 
-        if len(buf) == 0 and not skip_no_child_validation:
+        if len(buf) == 0:
             raise ValueError(f"The {separator} cannot be the last char: {string}")
-        if buf:
-            parts.append(buf)
+        parts.append(buf)
         return parts
 
     @staticmethod

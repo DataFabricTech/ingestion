@@ -50,21 +50,14 @@ class Dialects(Enum):
     Keep this alphabetically ordered
     """
 
-    Athena = "awsathena"
-    AzureSQL = "azuresql"
     BigQuery = "bigquery"
-    ClickHouse = "clickhouse"
-    Databricks = "databricks"
     Db2 = "db2"
-    Doris = "pydoris"
     Druid = "druid"
-    DynamoDB = "dynamoDB"
     Glue = "glue"
     Hana = "hana"
     Hive = "hive"
     Impala = "impala"
     IbmDbSa = "ibm_db_sa"
-    Ibmi = "ibmi"
     MariaDB = "mariadb"
     MSSQL = "mssql"
     MySQL = "mysql"
@@ -77,7 +70,6 @@ class Dialects(Enum):
     Snowflake = "snowflake"
     Trino = "trino"
     Vertica = "vertica"
-
 
 # Sometimes we want to skip certain types for computing metrics.
 # If the type is NULL, then we won't run the metric execution
@@ -92,7 +84,6 @@ NOT_COMPUTE = {
     sqa_types.SQASet.__name__,
     sqa_types.SQAUnion.__name__,
     sqa_types.SQASGeography.__name__,
-    DataType.GEOMETRY.value,
     DataType.ARRAY.value,
     DataType.JSON.value,
     CustomTypes.ARRAY.value.__name__,
@@ -114,6 +105,8 @@ QUANTIFIABLE_SET = {
 }
 
 CONCATENABLE_SET = {DataType.STRING.value, DataType.TEXT.value}
+
+DATATIME_SET = {DataType.DATETIME.value}
 
 
 # Now, let's define some helper methods to identify
@@ -137,11 +130,7 @@ def is_date_time(_type) -> bool:
     Check if sqlalchemy _type is derived from Date, Time or DateTime Type
     """
     if isinstance(_type, DataType):
-        return _type.value in {
-            DataType.DATETIME.value,
-            DataType.TIME.value,
-            DataType.DATE.value,
-        }
+        return _type.value in DATATIME_SET
     return (
         issubclass(_type.__class__, Date)
         or issubclass(_type.__class__, Time)

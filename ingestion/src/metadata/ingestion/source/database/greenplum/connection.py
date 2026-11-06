@@ -17,26 +17,36 @@ from typing import Optional
 
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.greenplumConnection import (
     GreenplumConnection,
+    SslMode,
 )
 from metadata.ingestion.connections.builders import (
     create_generic_db_connection,
     get_connection_args_common,
     get_connection_url_common,
+    init_empty_connection_arguments,
 )
-from metadata.ingestion.connections.test_connections import test_connection_db_common
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.source.database.greenplum.queries import GREENPLUM_GET_DATABASE
+# from metadata.ingestion.connections.test_connections import test_connection_db_common
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.source.database.greenplum.queries import GREENPLUM_GET_DATABASE
 
 
 def get_connection(connection: GreenplumConnection) -> Engine:
     """
     Create connection
     """
+    if connection.sslMode:
+        if not connection.connectionArguments:
+            connection.connectionArguments = init_empty_connection_arguments()
+        connection.connectionArguments.__root__["sslmode"] = connection.sslMode.value
+        if connection.sslMode in (SslMode.verify_ca, SslMode.verify_full):
+            connection.connectionArguments.__root__[
+                "sslrootcert"
+            ] = connection.sslConfig.__root__.certificatePath
     return create_generic_db_connection(
         connection=connection,
         get_connection_url_fn=get_connection_url_common,
@@ -44,23 +54,23 @@ def get_connection(connection: GreenplumConnection) -> Engine:
     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    engine: Engine,
-    service_connection: GreenplumConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-    queries = {
-        "GetDatabases": GREENPLUM_GET_DATABASE,
-    }
-    test_connection_db_common(
-        metadata=metadata,
-        engine=engine,
-        service_connection=service_connection,
-        automation_workflow=automation_workflow,
-        queries=queries,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     engine: Engine,
+#     service_connection: GreenplumConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#     queries = {
+#         "GetDatabases": GREENPLUM_GET_DATABASE,
+#     }
+#     test_connection_db_common(
+#         metadata=metadata,
+#         engine=engine,
+#         service_connection=service_connection,
+#         automation_workflow=automation_workflow,
+#         queries=queries,
+#     )

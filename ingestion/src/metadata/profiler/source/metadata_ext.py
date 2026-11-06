@@ -26,10 +26,7 @@ from typing import Iterable, cast
 from sqlalchemy.inspection import inspect
 
 from metadata.generated.schema.entity.data.database import Database
-from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
+from metadata.generated.schema.entity.data.table import Table, TableType
 from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
@@ -39,7 +36,7 @@ from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.models import Either
+from metadata.ingestion.api.models import Either, StackTraceError
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection
 from metadata.profiler.source.metadata import (
@@ -117,7 +114,6 @@ class OpenMetadataSourceExt(OpenMetadataSource):
         self._connection = None  # Lazy init as well
 
     def _iter(self, *_, **__) -> Iterable[Either[ProfilerSourceAndEntity]]:
-        global_profiler_config = self.metadata.get_profiler_config_settings()
         for database_name in self.get_database_names():
             try:
                 database_entity = fqn.search_database_from_es(
@@ -151,7 +147,6 @@ class OpenMetadataSourceExt(OpenMetadataSource):
                             self.config,
                             database_entity,
                             self.metadata,
-                            global_profiler_config,
                         )
                         yield Either(
                             right=ProfilerSourceAndEntity(
@@ -199,17 +194,8 @@ class OpenMetadataSourceExt(OpenMetadataSource):
                 else:
                     database_names = self.source.get_database_names_raw()
                     for database in database_names:
-                        database_fqn = fqn.build(
-                            self.metadata,
-                            entity_type=Database,
-                            service_name=self.config.source.serviceName,
-                            database_name=database,
-                        )
                         if filter_by_database(
-                            self.source_config.databaseFilterPattern,
-                            database_fqn
-                            if self.source_config.useFqnForFiltering
-                            else database,
+                            self.source_config.databaseFilterPattern, database
                         ):
                             self.status.filter(database, "Database pattern not allowed")
                             continue
@@ -226,6 +212,52 @@ class OpenMetadataSourceExt(OpenMetadataSource):
         except Exception as exc:
             logger.debug(f"Failed to fetch database names {exc}")
             logger.debug(traceback.format_exc())
+
+    def filter_entities(self, tables: Iterable[Table]) -> Iterable[Table]:
+        """
+        From a list of tables, apply the SQLSourceConfig
+        filter patterns.
+
+        We will update the status on the SQLSource Status.
+        """
+        for table in tables:
+            try:
+                if filter_by_schema(
+                    self.source_config.schemaFilterPattern,
+                    table.databaseSchema.name,  # type: ignore
+                ):
+                    self.status.filter(
+                        f"Schema pattern not allowed: {table.fullyQualifiedName.__root__}",
+                        "Schema pattern not allowed",
+                    )
+                    continue
+                if filter_by_table(
+                    self.source_config.tableFilterPattern,
+                    table.name.__root__,
+                ):
+                    self.status.filter(
+                        f"Table pattern not allowed: {table.fullyQualifiedName.__root__}",
+                        "Table pattern not allowed",
+                    )
+                    continue
+                if (
+                    table.tableType == TableType.View
+                    and not self.source_config.includeViews
+                ):
+                    self.status.filter(
+                        table.fullyQualifiedName.__root__,
+                        "View filtered out",
+                    )
+                    continue
+                yield table
+            except Exception as exc:
+                self.status.failed(
+                    StackTraceError(
+                        name=table.fullyQualifiedName.__root__,
+                        error=f"Unexpected error filtering entities for table [{table}]: {exc}",
+                        stackTrace=traceback.format_exc(),
+                    )
+                )
 
     def get_table_entities(self, database):
         """

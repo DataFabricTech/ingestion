@@ -34,7 +34,7 @@ from metadata.ingestion.ometa.ometa_api import OpenMetadata
 @dataclass
 class S3ObjectStoreClient:
     s3_client: BaseClient
-    cloudwatch_client: BaseClient
+    # cloudwatch_client: BaseClient
 
 
 def get_connection(connection: S3Connection) -> S3ObjectStoreClient:
@@ -44,7 +44,7 @@ def get_connection(connection: S3Connection) -> S3ObjectStoreClient:
     aws_client = AWSClient(connection.awsConfig)
     return S3ObjectStoreClient(
         s3_client=aws_client.get_client(service_name="s3"),
-        cloudwatch_client=aws_client.get_client(service_name="cloudwatch"),
+        # cloudwatch_client=aws_client.get_client(service_name="cloudwatch"),
     )
 
 
@@ -59,20 +59,11 @@ def test_connection(
     of a metadata workflow or during an Automation Workflow
     """
 
-    def test_buckets(connection: S3Connection, client: S3ObjectStoreClient):
-        if connection.bucketNames:
-            for bucket_name in connection.bucketNames:
-                client.s3_client.list_objects(Bucket=bucket_name)
-            return
-        client.s3_client.list_buckets()
-
     test_fn = {
-        "ListBuckets": partial(
-            test_buckets, client=client, connection=service_connection
-        ),
-        "GetMetrics": partial(
-            client.cloudwatch_client.list_metrics, Namespace="AWS/S3"
-        ),
+        "ListBuckets": client.s3_client.list_buckets,
+        # "GetMetrics": partial(
+        #     client.cloudwatch_client.list_metrics, Namespace="AWS/S3"
+        # ),
     }
 
     test_connection_steps(

@@ -22,74 +22,74 @@ from metadata.generated.schema.entity.services.ingestionPipelines.ingestionPipel
     PipelineType,
 )
 from metadata.generated.schema.entity.services.serviceType import ServiceType
-from metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
-    DashboardServiceMetadataPipeline,
-)
+# from metadata.generated.schema.metadataIngestion.dashboardServiceMetadataPipeline import (
+#     DashboardServiceMetadataPipeline,
+# )
 from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
-from metadata.generated.schema.metadataIngestion.databaseServiceQueryLineagePipeline import (
-    DatabaseServiceQueryLineagePipeline,
-)
-from metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
-    DatabaseServiceQueryUsagePipeline,
-)
-from metadata.generated.schema.metadataIngestion.dataInsightPipeline import (
-    DataInsightPipeline,
-)
-from metadata.generated.schema.metadataIngestion.dbtPipeline import DbtPipeline
-from metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
-    MessagingServiceMetadataPipeline,
-)
-from metadata.generated.schema.metadataIngestion.metadataToElasticSearchPipeline import (
-    MetadataToElasticSearchPipeline,
-)
-from metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
-    MlModelServiceMetadataPipeline,
-)
-from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
-    PipelineServiceMetadataPipeline,
-)
+# from metadata.generated.schema.metadataIngestion.databaseServiceQueryLineagePipeline import (
+#     DatabaseServiceQueryLineagePipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.databaseServiceQueryUsagePipeline import (
+#     DatabaseServiceQueryUsagePipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.dataInsightPipeline import (
+#     DataInsightPipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.dbtPipeline import DbtPipeline
+# from metadata.generated.schema.metadataIngestion.messagingServiceMetadataPipeline import (
+#     MessagingServiceMetadataPipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.metadataToElasticSearchPipeline import (
+#     MetadataToElasticSearchPipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.mlmodelServiceMetadataPipeline import (
+#     MlModelServiceMetadataPipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline import (
+#     PipelineServiceMetadataPipeline,
+# )
 from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline import (
     SearchServiceMetadataPipeline,
 )
-from metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
-    StorageServiceMetadataPipeline,
-)
-from metadata.generated.schema.metadataIngestion.testSuitePipeline import (
-    TestSuitePipeline,
-)
+# from metadata.generated.schema.metadataIngestion.storageServiceMetadataPipeline import (
+#     StorageServiceMetadataPipeline,
+# )
+# from metadata.generated.schema.metadataIngestion.testSuitePipeline import (
+#     TestSuitePipeline,
+# )
 from metadata.generated.schema.metadataIngestion.workflow import SourceConfig
 
 SERVICE_TYPE_REF = {
     ServiceType.Database.value: "databaseService",
-    ServiceType.Dashboard.value: "dashboardService",
-    ServiceType.Pipeline.value: "pipelineService",
-    ServiceType.Messaging.value: "messagingService",
-    ServiceType.MlModel.value: "mlmodelService",
-    ServiceType.Metadata.value: "metadataService",
+    # ServiceType.Dashboard.value: "dashboardService",
+    # ServiceType.Pipeline.value: "pipelineService",
+    # ServiceType.Messaging.value: "messagingService",
+    # ServiceType.MlModel.value: "mlmodelService",
+    # ServiceType.Metadata.value: "metadataService",
     ServiceType.Search.value: "searchService",
-    ServiceType.Storage.value: "storageService",
+    # ServiceType.Storage.value: "storageService",
 }
 
 SOURCE_CONFIG_TYPE_INGESTION = {
     DatabaseServiceMetadataPipeline.__name__: PipelineType.metadata,
-    DatabaseServiceQueryUsagePipeline.__name__: PipelineType.usage,
-    DatabaseServiceQueryLineagePipeline.__name__: PipelineType.lineage,
+    # DatabaseServiceQueryUsagePipeline.__name__: PipelineType.usage,
+    # DatabaseServiceQueryLineagePipeline.__name__: PipelineType.lineage,
     DatabaseServiceProfilerPipeline.__name__: PipelineType.profiler,
-    DashboardServiceMetadataPipeline.__name__: PipelineType.metadata,
-    MessagingServiceMetadataPipeline.__name__: PipelineType.metadata,
-    PipelineServiceMetadataPipeline.__name__: PipelineType.metadata,
-    MlModelServiceMetadataPipeline.__name__: PipelineType.metadata,
-    StorageServiceMetadataPipeline.__name__: PipelineType.metadata,
+    # DashboardServiceMetadataPipeline.__name__: PipelineType.metadata,
+    # MessagingServiceMetadataPipeline.__name__: PipelineType.metadata,
+    # PipelineServiceMetadataPipeline.__name__: PipelineType.metadata,
+    # MlModelServiceMetadataPipeline.__name__: PipelineType.metadata,
+    # StorageServiceMetadataPipeline.__name__: PipelineType.metadata,
     SearchServiceMetadataPipeline.__name__: PipelineType.metadata,
-    TestSuitePipeline.__name__: PipelineType.TestSuite,
-    MetadataToElasticSearchPipeline.__name__: PipelineType.elasticSearchReindex,
-    DataInsightPipeline.__name__: PipelineType.dataInsight,
-    DbtPipeline.__name__: PipelineType.dbt,
+    # TestSuitePipeline.__name__: PipelineType.TestSuite,
+    # MetadataToElasticSearchPipeline.__name__: PipelineType.elasticSearchReindex,
+    # DataInsightPipeline.__name__: PipelineType.dataInsight,
+    # DbtPipeline.__name__: PipelineType.dbt,
 }
 
 

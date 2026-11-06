@@ -15,18 +15,18 @@ DataLake connector to fetch metadata from a files stored s3, gcs and Hdfs
 import json
 import os
 import traceback
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Iterable, Tuple, Union
 
 from metadata.generated.schema.api.data.createDatabase import CreateDatabaseRequest
 from metadata.generated.schema.api.data.createDatabaseSchema import (
     CreateDatabaseSchemaRequest,
 )
-from metadata.generated.schema.api.data.createQuery import CreateQueryRequest
-from metadata.generated.schema.api.data.createStoredProcedure import (
-    CreateStoredProcedureRequest,
-)
+# from metadata.generated.schema.api.data.createQuery import CreateQueryRequest
+# from metadata.generated.schema.api.data.createStoredProcedure import (
+#     CreateStoredProcedureRequest,
+# )
 from metadata.generated.schema.api.data.createTable import CreateTableRequest
-from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.database import Database
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import Table, TableType
@@ -42,9 +42,10 @@ from metadata.generated.schema.entity.services.connections.database.datalake.s3C
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
+# from metadata.generated.schema.entity.services.ingestionPipelines.status import (
+#     StackTraceError,
+# )
+from metadata.ingestion.api.models import StackTraceError
 from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
@@ -59,14 +60,14 @@ from metadata.generated.schema.security.credentials.gcpValues import (
 )
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
-from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+# from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection
 from metadata.ingestion.source.database.database_service import DatabaseServiceSource
 from metadata.ingestion.source.database.datalake.connection import (
     set_gcs_datalake_client,
 )
-from metadata.ingestion.source.database.stored_procedures_mixin import QueryByProcedure
+# from metadata.ingestion.source.database.stored_procedures_mixin import QueryByProcedure
 from metadata.ingestion.source.storage.storage_service import (
     OPENMETADATA_TEMPLATE_FILE_NAME,
 )
@@ -117,9 +118,7 @@ class DatalakeSource(DatabaseServiceSource):
         self.reader = get_reader(config_source=self.config_source, client=self.client)
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: DatalakeConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, DatalakeConnection):
@@ -150,7 +149,7 @@ class DatalakeSource(DatabaseServiceSource):
                 database_fqn = fqn.build(
                     self.metadata,
                     entity_type=Database,
-                    service_name=self.context.get().database_service,
+                    service_name=self.context.database_service,
                     database_name=project_id,
                 )
                 if filter_by_database(
@@ -191,7 +190,7 @@ class DatalakeSource(DatabaseServiceSource):
         yield Either(
             right=CreateDatabaseRequest(
                 name=database_name,
-                service=self.context.get().database_service,
+                service=self.context.database_service,
             )
         )
 
@@ -206,8 +205,8 @@ class DatalakeSource(DatabaseServiceSource):
                 schema_fqn = fqn.build(
                     self.metadata,
                     entity_type=DatabaseSchema,
-                    service_name=self.context.get().database_service,
-                    database_name=self.context.get().database,
+                    service_name=self.context.database_service,
+                    database_name=self.context.database,
                     schema_name=bucket.name,
                 )
 
@@ -238,8 +237,8 @@ class DatalakeSource(DatabaseServiceSource):
             schema_fqn = fqn.build(
                 self.metadata,
                 entity_type=DatabaseSchema,
-                service_name=self.context.get().database_service,
-                database_name=self.context.get().database,
+                service_name=self.context.database_service,
+                database_name=self.context.database,
                 schema_name=bucket["Name"],
             )
             if filter_by_schema(
@@ -286,8 +285,8 @@ class DatalakeSource(DatabaseServiceSource):
             schema_fqn = fqn.build(
                 self.metadata,
                 entity_type=DatabaseSchema,
-                service_name=self.context.get().database_service,
-                database_name=self.context.get().database,
+                service_name=self.context.database_service,
+                database_name=self.context.database,
                 schema_name=schema["name"],
             )
             if filter_by_schema(
@@ -314,8 +313,8 @@ class DatalakeSource(DatabaseServiceSource):
                 database=fqn.build(
                     metadata=self.metadata,
                     entity_type=Database,
-                    service_name=self.context.get().database_service,
-                    database_name=self.context.get().database,
+                    service_name=self.context.database_service,
+                    database_name=self.context.database,
                 ),
             )
         )
@@ -331,7 +330,7 @@ class DatalakeSource(DatabaseServiceSource):
 
         :return: tables or views, depending on config
         """
-        bucket_name = self.context.get().database_schema
+        bucket_name = self.context.database_schema
         prefix = self.service_connection.prefix
         try:
             metadata_config_response = self.reader.read(
@@ -406,10 +405,10 @@ class DatalakeSource(DatabaseServiceSource):
         Prepare a table request and pass it to the sink
         """
         table_name, table_type, table_extension = table_name_and_type
-        schema_name = self.context.get().database_schema
+        schema_name = self.context.database_schema
         try:
             table_constraints = None
-            data_frame, raw_data = fetch_dataframe(
+            data_frame = fetch_dataframe(
                 config_source=self.config_source,
                 client=self.client,
                 file_fqn=DatalakeTableSchemaWrapper(
@@ -417,11 +416,10 @@ class DatalakeSource(DatabaseServiceSource):
                     bucket_name=schema_name,
                     file_extension=table_extension,
                 ),
-                fetch_raw_data=True,
             )
             if data_frame:
                 column_parser = DataFrameColumnParser.create(
-                    data_frame[0], table_extension, raw_data=raw_data
+                    data_frame[0], table_extension
                 )
                 columns = column_parser.get_columns()
             else:
@@ -436,8 +434,8 @@ class DatalakeSource(DatabaseServiceSource):
                     databaseSchema=fqn.build(
                         metadata=self.metadata,
                         entity_type=DatabaseSchema,
-                        service_name=self.context.get().database_service,
-                        database_name=self.context.get().database,
+                        service_name=self.context.database_service,
+                        database_name=self.context.database,
                         schema_name=schema_name,
                     ),
                     fileFormat=table_extension.value if table_extension else None,
@@ -453,30 +451,30 @@ class DatalakeSource(DatabaseServiceSource):
                 )
             )
 
-    def yield_view_lineage(self) -> Iterable[Either[AddLineageRequest]]:
-        yield from []
+    # def yield_view_lineage(self) -> Iterable[Either[AddLineageRequest]]:
+    #     yield from []
 
-    def yield_tag(
-        self, schema_name: str
-    ) -> Iterable[Either[OMetaTagAndClassification]]:
-        """We don't bring tag information"""
+    # def yield_tag(
+    #     self, schema_name: str
+    # ) -> Iterable[Either[OMetaTagAndClassification]]:
+    #     """We don't bring tag information"""
 
-    def get_stored_procedures(self) -> Iterable[Any]:
-        """Not implemented"""
+    # def get_stored_procedures(self) -> Iterable[Any]:
+    #     """Not implemented"""
 
-    def yield_stored_procedure(
-        self, stored_procedure: Any
-    ) -> Iterable[Either[CreateStoredProcedureRequest]]:
-        """Not implemented"""
+    # def yield_stored_procedure(
+    #     self, stored_procedure: Any
+    # ) -> Iterable[Either[CreateStoredProcedureRequest]]:
+    #     """Not implemented"""
 
-    def get_stored_procedure_queries(self) -> Iterable[QueryByProcedure]:
-        """Not Implemented"""
+    # def get_stored_procedure_queries(self) -> Iterable[QueryByProcedure]:
+    #     """Not Implemented"""
 
-    def yield_procedure_lineage_and_queries(
-        self,
-    ) -> Iterable[Either[Union[AddLineageRequest, CreateQueryRequest]]]:
-        """Not Implemented"""
-        yield from []
+    # def yield_procedure_lineage_and_queries(
+    #     self,
+    # ) -> Iterable[Either[Union[AddLineageRequest, CreateQueryRequest]]]:
+    #     """Not Implemented"""
+    #     yield from []
 
     def standardize_table_name(
         self, schema: str, table: str  # pylint: disable=unused-argument
@@ -488,9 +486,9 @@ class DatalakeSource(DatabaseServiceSource):
         table_fqn = fqn.build(
             self.metadata,
             entity_type=Table,
-            service_name=self.context.get().database_service,
-            database_name=self.context.get().database,
-            schema_name=self.context.get().database_schema,
+            service_name=self.context.database_service,
+            database_name=self.context.database,
+            schema_name=self.context.database_schema,
             table_name=table_name,
             skip_es_search=True,
         )

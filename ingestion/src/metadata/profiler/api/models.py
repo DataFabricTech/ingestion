@@ -31,13 +31,11 @@ from metadata.generated.schema.entity.data.table import (
     Table,
     TableData,
 )
-
-from metadata.generated.schema.entity.data.container import (
-    Container,
-    ContainerDataModel
-)
 from metadata.generated.schema.entity.services.connections.connectionBasicType import (
     SampleDataStorageConfig,
+)
+from metadata.generated.schema.entity.data.container import (
+    Container
 )
 from metadata.generated.schema.tests.customMetric import CustomMetric
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
@@ -72,7 +70,7 @@ class TableConfig(BaseProfileConfig):
 
     @classmethod
     def from_database_and_schema_config(
-            cls, config: "DatabaseAndSchemaConfig", table_fqn: str
+        cls, config: "DatabaseAndSchemaConfig", table_fqn: str
     ):
         table_config = TableConfig(
             fullyQualifiedName=table_fqn,
@@ -120,12 +118,16 @@ class ProfilerResponse(ConfigModel):
     profile: Optional[CreateTableProfileRequest] = None
     sample_data: Optional[TableData] = None
     unstructured_sample_data: Optional[str] = None
+    image_sample_data: Optional[str] = None
     column_tags: Optional[List[ColumnTag]] = None
+    unstructured_summary: Optional[str] = None
+    image_text: Optional[str] = None
+    image_detected_objects: Optional[List] = None
+    image_detected_objects_image: Optional[str] = None
 
     def __str__(self):
         """Return the table name being processed"""
         return f"Table [{self.table.name.__root__}]"
-
 
 class ThreadPoolMetrics(ConfigModel):
     """A container for all metrics to be computed on the same thread."""
@@ -137,3 +139,4 @@ class ThreadPoolMetrics(ConfigModel):
 
     class Config:
         arbitrary_types_allowed = True
+

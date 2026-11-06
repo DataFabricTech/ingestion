@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Iterable, List, Optional, Set
 
 from metadata.generated.schema.api.data.createPipeline import CreatePipelineRequest
-from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.pipeline import Pipeline
 from metadata.generated.schema.entity.services.pipelineService import (
     PipelineConnection,
@@ -27,17 +27,17 @@ from metadata.generated.schema.metadataIngestion.pipelineServiceMetadataPipeline
 from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
-from metadata.ingestion.api.delete import delete_entity_from_source
+# from metadata.ingestion.api.delete import delete_entity_from_source
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import Source
 from metadata.ingestion.api.topology_runner import TopologyRunnerMixin
-from metadata.ingestion.models.delete_entity import DeleteEntity
-from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+# from metadata.ingestion.models.delete_entity import DeleteEntity
+# from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
 from metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
 from metadata.ingestion.models.topology import (
     NodeStage,
     ServiceTopology,
-    TopologyContextManager,
+    TopologyContext,
     TopologyNode,
 )
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
@@ -70,17 +70,17 @@ class PipelineServiceTopology(ServiceTopology):
             ),
         ],
         children=["pipeline"],
-        post_process=["mark_pipelines_as_deleted"],
+        # post_process=["mark_pipelines_as_deleted"],
     )
     pipeline = TopologyNode(
         producer="get_pipeline",
         stages=[
-            NodeStage(
-                type_=OMetaTagAndClassification,
-                context="tags",
-                processor="yield_tag",
-                nullable=True,
-            ),
+            # NodeStage(
+            #     type_=OMetaTagAndClassification,
+            #     context="tags",
+            #     processor="yield_tag",
+            #     nullable=True,
+            # ),
             NodeStage(
                 type_=Pipeline,
                 context="pipeline",
@@ -88,18 +88,18 @@ class PipelineServiceTopology(ServiceTopology):
                 consumer=["pipeline_service"],
                 use_cache=True,
             ),
-            NodeStage(
-                type_=OMetaPipelineStatus,
-                processor="yield_pipeline_status",
-                consumer=["pipeline_service"],
-                nullable=True,
-            ),
-            NodeStage(
-                type_=AddLineageRequest,
-                processor="yield_pipeline_lineage",
-                consumer=["pipeline_service"],
-                nullable=True,
-            ),
+            # NodeStage(
+            #     type_=OMetaPipelineStatus,
+            #     processor="yield_pipeline_status",
+            #     consumer=["pipeline_service"],
+            #     nullable=True,
+            # ),
+            # NodeStage(
+            #     type_=AddLineageRequest,
+            #     processor="yield_pipeline_lineage",
+            #     consumer=["pipeline_service"],
+            #     nullable=True,
+            # ),
         ],
     )
 
@@ -116,7 +116,7 @@ class PipelineServiceSource(TopologyRunnerMixin, Source, ABC):
     service_connection: PipelineConnection.__fields__["config"].type_
 
     topology = PipelineServiceTopology()
-    context = TopologyContextManager(topology)
+    context = TopologyContext.create(topology)
     pipeline_source_state: Set = set()
 
     def __init__(
@@ -136,7 +136,7 @@ class PipelineServiceSource(TopologyRunnerMixin, Source, ABC):
         # Flag the connection for the test connection
         self.connection_obj = self.connection
         self.client = self.connection
-        self.test_connection()
+        # self.test_connection()
 
     @property
     def name(self) -> str:
@@ -148,11 +148,11 @@ class PipelineServiceSource(TopologyRunnerMixin, Source, ABC):
     ) -> Iterable[Either[CreatePipelineRequest]]:
         """Method to Get Pipeline Entity"""
 
-    @abstractmethod
-    def yield_pipeline_lineage_details(
-        self, pipeline_details: Any
-    ) -> Iterable[Either[AddLineageRequest]]:
-        """Get lineage between pipeline and data sources"""
+    # @abstractmethod
+    # def yield_pipeline_lineage_details(
+    #     self, pipeline_details: Any
+    # ) -> Iterable[Either[AddLineageRequest]]:
+    #     """Get lineage between pipeline and data sources"""
 
     @abstractmethod
     def get_pipelines_list(self) -> Optional[List[Any]]:
@@ -168,15 +168,15 @@ class PipelineServiceSource(TopologyRunnerMixin, Source, ABC):
     ) -> Iterable[Either[OMetaPipelineStatus]]:
         """Get Pipeline Status"""
 
-    def yield_pipeline_lineage(
-        self, pipeline_details: Any
-    ) -> Iterable[Either[AddLineageRequest]]:
-        """Yields lineage if config is enabled"""
-        if self.source_config.includeLineage:
-            yield from self.yield_pipeline_lineage_details(pipeline_details) or []
+    # def yield_pipeline_lineage(
+    #     self, pipeline_details: Any
+    # ) -> Iterable[Either[AddLineageRequest]]:
+    #     """Yields lineage if config is enabled"""
+    #     if self.source_config.includeLineage:
+    #         yield from self.yield_pipeline_lineage_details(pipeline_details) or []
 
-    def yield_tag(self, *args, **kwargs) -> Iterable[Either[OMetaTagAndClassification]]:
-        """Method to fetch pipeline tags"""
+    # def yield_tag(self, *args, **kwargs) -> Iterable[Either[OMetaTagAndClassification]]:
+    #     """Method to fetch pipeline tags"""
 
     def close(self):
         """Method to implement any required logic after the ingestion process is completed"""
@@ -220,26 +220,16 @@ class PipelineServiceSource(TopologyRunnerMixin, Source, ABC):
 
         self.pipeline_source_state.add(pipeline_fqn)
 
-    def mark_pipelines_as_deleted(self) -> Iterable[Either[DeleteEntity]]:
-        """Method to mark the pipelines as deleted"""
-        if self.source_config.markDeletedPipelines:
-            yield from delete_entity_from_source(
-                metadata=self.metadata,
-                entity_type=Pipeline,
-                entity_source_state=self.pipeline_source_state,
-                mark_deleted_entity=self.source_config.markDeletedPipelines,
-                params={"service": self.context.get().pipeline_service},
-            )
-
-    def get_db_service_names(self) -> List[str]:
-        """
-        Get the list of db service names
-        """
-        return (
-            self.source_config.lineageInformation.dbServiceNames or []
-            if self.source_config.lineageInformation
-            else []
-        )
+    # def mark_pipelines_as_deleted(self) -> Iterable[Either[DeleteEntity]]:
+    #     """Method to mark the pipelines as deleted"""
+    #     if self.source_config.markDeletedPipelines:
+    #         yield from delete_entity_from_source(
+    #             metadata=self.metadata,
+    #             entity_type=Pipeline,
+    #             entity_source_state=self.pipeline_source_state,
+    #             mark_deleted_entity=self.source_config.markDeletedPipelines,
+    #             params={"service": self.context.pipeline_service},
+    #         )
 
     def prepare(self):
         """

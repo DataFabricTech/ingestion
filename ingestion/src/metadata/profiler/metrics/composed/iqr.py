@@ -16,7 +16,6 @@ Inter Quartile Range Composed Metric definition
 
 from typing import Any, Dict, Optional, Tuple
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import ComposedMetric
 from metadata.profiler.metrics.window.first_quartile import FirstQuartile
 from metadata.profiler.metrics.window.third_quartile import ThirdQuartile
@@ -29,7 +28,7 @@ class InterQuartileRange(ComposedMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.interQuartileRange.value
+        return "interQuartileRange"
 
     @classmethod
     def required_metrics(cls) -> Tuple[str, ...]:

@@ -72,7 +72,7 @@ class TopologyRunnerMixin(Generic[C]):
     queue = Queue()
 
     def _multithread_process_node(
-        self, node: TopologyNode, threads: int
+            self, node: TopologyNode, threads: int
     ) -> Iterable[Entity]:
         """Multithread Processing of a Node"""
         node_producer = getattr(self, node.producer)
@@ -177,11 +177,11 @@ class TopologyRunnerMixin(Generic[C]):
             yield from self._run_node_post_process(node=node)
 
     def _multithread_process_entity(
-        self,
-        node: TopologyNode,
-        node_entities: List[Any],
-        child_nodes: List[TopologyNode],
-        parent_thread_id: int,
+            self,
+            node: TopologyNode,
+            node_entities: List[Any],
+            child_nodes: List[TopologyNode],
+            parent_thread_id: int,
     ):
         """Multithread processing of a Node Entity"""
         # Generates a new context based on the parent thread.
@@ -192,7 +192,7 @@ class TopologyRunnerMixin(Generic[C]):
             # For each stage, we get all the stage results and one by one yield them by adding them to the Queue.
             for stage in node.stages:
                 for stage_result in self._process_stage(
-                    stage=stage, node_entity=node_entity, child_nodes=child_nodes
+                        stage=stage, node_entity=node_entity, child_nodes=child_nodes
                 ):
                     self.queue.put(stage_result)
 
@@ -218,7 +218,7 @@ class TopologyRunnerMixin(Generic[C]):
         )
 
     def _process_stage(
-        self, stage: NodeStage, node_entity: Any, child_nodes: List[TopologyNode]
+            self, stage: NodeStage, node_entity: Any, child_nodes: List[TopologyNode]
     ) -> Iterable[Entity]:
         """
         For each entity produced in the Node Producer, iterate over all the Node's Stages and
@@ -262,7 +262,7 @@ class TopologyRunnerMixin(Generic[C]):
                     )
 
     def _init_cache_dict(
-        self, stage: NodeStage, child_nodes: List[TopologyNode]
+            self, stage: NodeStage, child_nodes: List[TopologyNode]
     ) -> None:
         """
         Method to call the API to fill the entities cache.
@@ -284,7 +284,7 @@ class TopologyRunnerMixin(Generic[C]):
                     )
 
     def get_fqn_source_hash_dict(
-        self, parent_type: Type[Entity], child_type: Type[Entity], entity_fqn: str
+            self, parent_type: Type[Entity], child_type: Type[Entity], entity_fqn: str
     ) -> None:
         """
         Get all the entities and store them as fqn:sourceHash in a dict
@@ -320,7 +320,7 @@ class TopologyRunnerMixin(Generic[C]):
         yield from self.process_nodes(get_topology_root(self.topology))
 
     def create_patch_request(
-        self, original_entity: Entity, create_request: C
+            self, original_entity: Entity, create_request: C
     ) -> PatchRequest:
         """
         Method to get the PatchRequest object
@@ -333,10 +333,10 @@ class TopologyRunnerMixin(Generic[C]):
 
     @singledispatchmethod
     def yield_and_update_context(
-        self,
-        right: C,
-        stage: NodeStage,
-        entity_request: Either[C],
+            self,
+            right: C,
+            stage: NodeStage,
+            entity_request: Either[C],
     ) -> Iterable[Either[Entity]]:
         """
         Handle the process of yielding the request and validating
@@ -352,15 +352,16 @@ class TopologyRunnerMixin(Generic[C]):
 
         # If we don't want to write data in OM, we'll return what we fetch from the API.
         # This will be applicable for service entities since we do not want to overwrite the data
+        # service entities 업데이트 하고 싶지 않다면 아래 주석 해제
         same_fingerprint = False
-        if not stage.overwrite and not self._is_force_overwrite_enabled():
-            entity = self.metadata.get_by_name(
-                entity=stage.type_,
-                fqn=entity_fqn,
-                fields=["*"],
-            )
-            if entity:
-                same_fingerprint = True
+        # if not stage.overwrite and not self._is_force_overwrite_enabled():
+        #     entity = self.metadata.get_by_name(
+        #         entity=stage.type_,
+        #         fqn=entity_fqn,
+        #         fields=["*"],
+        #     )
+        #     if entity:
+        #         same_fingerprint = True
 
         create_entity_request_hash = None
 
@@ -402,34 +403,34 @@ class TopologyRunnerMixin(Generic[C]):
             yield entity_request
 
         # We have ack the sink waiting for a response, but got nothing back
-        if stage.must_return and entity is None:
-            # we'll only check the get by name for entities like database service
-            # without which we cannot proceed ahead in the ingestion
-            tries = 3
-            while not entity and tries > 0:
-                entity = self.metadata.get_by_name(
-                    entity=stage.type_,
-                    fqn=entity_fqn,
-                    fields=["*"],  # Get all the available data from the Entity
-                )
-                tries -= 1
-
-            if not entity:
-                # Safe access to Entity Request name
-                raise MissingExpectedEntityAckException(
-                    f"Missing ack back from [{stage.type_.__name__}: {entity_fqn}] - "
-                    "Possible causes are changes in the server Fernet key or mismatched JSON Schemas "
-                    "for the service connection."
-                )
+        # if stage.must_return and entity is None:
+        #     # we'll only check the get by name for entities like database service
+        #     # without which we cannot proceed ahead in the ingestion
+        #     tries = 3
+        #     while not entity and tries > 0:
+        #         entity = self.metadata.get_by_name(
+        #             entity=stage.type_,
+        #             fqn=entity_fqn,
+        #             fields=["*"],  # Get all the available data from the Entity
+        #         )
+        #         tries -= 1
+        #
+        #     if not entity:
+        #         # Safe access to Entity Request name
+        #         raise MissingExpectedEntityAckException(
+        #             f"Missing ack back from [{stage.type_.__name__}: {entity_fqn}] - "
+        #             "Possible causes are changes in the server Fernet key or mismatched JSON Schemas "
+        #             "for the service connection."
+        #         )
 
         self.context.get().update_context_name(stage=stage, right=right)
 
     @yield_and_update_context.register
     def _(
-        self,
-        right: AddLineageRequest,
-        stage: NodeStage,
-        entity_request: Either[C],
+            self,
+            right: AddLineageRequest,
+            stage: NodeStage,
+            entity_request: Either[C],
     ) -> Iterable[Either[Entity]]:
         """
         Lineage Implementation for the context information.
@@ -442,10 +443,10 @@ class TopologyRunnerMixin(Generic[C]):
 
     @yield_and_update_context.register
     def _(
-        self,
-        right: OMetaTagAndClassification,
-        stage: NodeStage,
-        entity_request: Either[C],
+            self,
+            right: OMetaTagAndClassification,
+            stage: NodeStage,
+            entity_request: Either[C],
     ) -> Iterable[Either[Entity]]:
         """
         Tag implementation for the context information.
@@ -460,10 +461,10 @@ class TopologyRunnerMixin(Generic[C]):
 
     @yield_and_update_context.register
     def _(
-        self,
-        right: OMetaCustomProperties,
-        stage: NodeStage,
-        entity_request: Either[C],
+            self,
+            right: OMetaCustomProperties,
+            stage: NodeStage,
+            entity_request: Either[C],
     ) -> Iterable[Either[Entity]]:
         """Custom Property implementation for the context information"""
         yield entity_request

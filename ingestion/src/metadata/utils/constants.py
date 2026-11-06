@@ -12,30 +12,27 @@
 """
 Define constants useful for the metadata ingestion
 """
-from metadata.generated.schema.entity.data.chart import Chart
-from metadata.generated.schema.entity.data.container import Container
-from metadata.generated.schema.entity.data.dashboard import Dashboard
-from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
+# from metadata.generated.schema.entity.data.chart import Chart
+# from metadata.generated.schema.entity.data.container import Container
+# from metadata.generated.schema.entity.data.dashboard import Dashboard
+# from metadata.generated.schema.entity.data.dashboardDataModel import DashboardDataModel
 from metadata.generated.schema.entity.data.database import Database
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-from metadata.generated.schema.entity.data.mlmodel import MlModel
-from metadata.generated.schema.entity.data.pipeline import Pipeline
-from metadata.generated.schema.entity.data.searchIndex import SearchIndex
-from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
+# from metadata.generated.schema.entity.data.mlmodel import MlModel
+# from metadata.generated.schema.entity.data.pipeline import Pipeline
+# from metadata.generated.schema.entity.data.searchIndex import SearchIndex
+# from metadata.generated.schema.entity.data.storedProcedure import StoredProcedure
 from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.data.topic import Topic
-from metadata.generated.schema.entity.domains.dataProduct import DataProduct
-from metadata.generated.schema.entity.domains.domain import Domain
-from metadata.generated.schema.entity.services.dashboardService import DashboardService
+# from metadata.generated.schema.entity.data.topic import Topic
+# from metadata.generated.schema.entity.services.dashboardService import DashboardService
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.generated.schema.entity.services.messagingService import MessagingService
-from metadata.generated.schema.entity.services.metadataService import MetadataService
-from metadata.generated.schema.entity.services.mlmodelService import MlModelService
-from metadata.generated.schema.entity.services.pipelineService import PipelineService
-from metadata.generated.schema.entity.services.searchService import SearchService
-from metadata.generated.schema.entity.services.storageService import StorageService
-from metadata.generated.schema.entity.teams.team import Team
-from metadata.generated.schema.entity.teams.user import User
+# from metadata.generated.schema.entity.services.messagingService import MessagingService
+# from metadata.generated.schema.entity.services.metadataService import MetadataService
+# from metadata.generated.schema.entity.services.mlmodelService import MlModelService
+# from metadata.generated.schema.entity.services.pipelineService import PipelineService
+# from metadata.generated.schema.entity.services.searchService import SearchService
+# from metadata.generated.schema.entity.services.storageService import StorageService
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck
 
 DOT = "_DOT_"
 TEN_MIN = 10 * 60
@@ -62,7 +59,7 @@ ES_SOURCE_IGNORE_KEYS = {
     "type",
 }
 
-QUERY_WITH_OM_VERSION: str = '/* {"app": "Datafabric"'
+QUERY_WITH_OM_VERSION = '/* {"app": "OpenMetadata"'
 
 QUERY_WITH_DBT = '/* {"app": "dbt"'
 
@@ -72,37 +69,29 @@ NO_ACCESS_TOKEN = "no_token"
 
 SAMPLE_DATA_DEFAULT_COUNT = 50
 
-ENTITY_REFERENCE_CLASS_MAP = {
-    # Service Entities
-    "databaseService": DatabaseService,
-    "messagingService": MessagingService,
-    "dashboardService": DashboardService,
-    "pipelineService": PipelineService,
-    "storageService": StorageService,
-    "mlmodelService": MlModelService,
-    "metadataService": MetadataService,
-    "searchService": SearchService,
-    # Data Asset Entities
-    "table": Table,
-    "storedProcedure": StoredProcedure,
-    "database": Database,
-    "databaseSchema": DatabaseSchema,
-    "dashboard": Dashboard,
-    "dashboardDataModel": DashboardDataModel,
-    "pipeline": Pipeline,
-    "chart": Chart,
-    "topic": Topic,
-    "searchIndex": SearchIndex,
-    "mlmodel": MlModel,
-    "container": Container,
-    # User Entities
-    "user": User,
-    "team": Team,
-    # Domain
-    "domain": Domain,
-    "dataProduct": DataProduct,
-}
-
+# Mainly used for lineage
 ENTITY_REFERENCE_TYPE_MAP = {
-    value.__name__: key for key, value in ENTITY_REFERENCE_CLASS_MAP.items()
+    # Service Entities
+    DatabaseService.__name__: "databaseService",
+    # MessagingService.__name__: "messagingService",
+    # DashboardService.__name__: "dashboardService",
+    # PipelineService.__name__: "pipelineService",
+    # StorageService.__name__: "storageService",
+    # MlModelService.__name__: "mlmodelService",
+    # MetadataService.__name__: "metadataService",
+    # SearchService.__name__: "searchService",
+    # Data Asset Entities
+    Table.__name__: "table",
+    # StoredProcedure.__name__: "storedProcedure",
+    Database.__name__: "database",
+    DatabaseSchema.__name__: "databaseSchema",
+    # Dashboard.__name__: "dashboard",
+    # DashboardDataModel.__name__: "dashboardDataModel",
+    # Pipeline.__name__: "pipeline",
+    # Chart.__name__: "chart",
+    # Topic.__name__: "topic",
+    # SearchIndex.__name__: "searchIndex",
+    # MlModel.__name__: "mlmodel",
+    # Container.__name__: "container",
+    IngestionCheck.__name__: "IngestionCheck"
 }

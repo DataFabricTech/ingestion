@@ -17,9 +17,9 @@ from functools import singledispatch
 
 import pkg_resources
 
-from metadata.generated.schema.entity.services.connections.database.verticaConnection import (
-    VerticaConnection,
-)
+# from metadata.generated.schema.entity.services.connections.database.verticaConnection import (
+#     VerticaConnection,
+# )
 
 
 def render_query_header(ometa_version: str) -> str:
@@ -27,7 +27,7 @@ def render_query_header(ometa_version: str) -> str:
     Render the query header for OpenMetadata Queries
     """
 
-    header_obj = {"app": "DataFabric", "version": ometa_version}
+    header_obj = {"app": "OpenMetadata", "version": ometa_version}
     return f"/* {json.dumps(header_obj)} */"
 
 
@@ -42,20 +42,20 @@ def inject_query_header_by_conn(_, *args, **kwargs):
     return inject_query_header(*args, **kwargs)
 
 
-@inject_query_header_by_conn.register(VerticaConnection)
-def _(_, conn, cursor, statement, parameters, context, executemany):
-    """
-    If we add the header at the top, E.g., /*...*/SELECT * FROM XYZ,
-    then the query history tables don't store it.
-    We need a custom logic to pass the statement in the middle of the query.
-    To simplify, we are updating the queries as SELECT /*...*/ * FROM XYZ
-    """
-    version = pkg_resources.require("openmetadata-ingestion")[0].version
-    st_list = statement.split(" ")
-    statement_with_header = (
-        f"{st_list[0]} {render_query_header(version)} {' '.join(st_list[1:])}"
-    )
-    return statement_with_header, parameters
+# @inject_query_header_by_conn.register(VerticaConnection)
+# def _(_, conn, cursor, statement, parameters, context, executemany):
+#     """
+#     If we add the header at the top, E.g., /*...*/SELECT * FROM XYZ,
+#     then the query history tables don't store it.
+#     We need a custom logic to pass the statement in the middle of the query.
+#     To simplify, we are updating the queries as SELECT /*...*/ * FROM XYZ
+#     """
+#     version = pkg_resources.require("openmetadata-ingestion")[0].version
+#     st_list = statement.split(" ")
+#     statement_with_header = (
+#         f"{st_list[0]} {render_query_header(version)} {' '.join(st_list[1:])}"
+#     )
+#     return statement_with_header, parameters
 
 
 def inject_query_header(
@@ -65,6 +65,6 @@ def inject_query_header(
     Inject the query header for OpenMetadata Queries
     """
 
-    version = pkg_resources.require("openmetadata-ingestion")[0].version
+    version = pkg_resources.require("ingest-server")[0].version
     statement_with_header = render_query_header(version) + "\n" + statement
     return statement_with_header, parameters

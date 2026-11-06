@@ -17,14 +17,14 @@ from typing import Optional
 from simple_salesforce import Salesforce
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.salesforceConnection import (
     SalesforceConnection,
 )
-from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.connections.test_connections import test_connection_steps
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
 
 
 def get_connection(connection: SalesforceConnection) -> Engine:
@@ -40,21 +40,21 @@ def get_connection(connection: SalesforceConnection) -> Engine:
     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    client: Salesforce,
-    service_connection: SalesforceConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-    test_fn = {"CheckAccess": client.describe}
-
-    test_connection_steps(
-        metadata=metadata,
-        test_fn=test_fn,
-        service_type=service_connection.type.value,
-        automation_workflow=automation_workflow,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     client: Salesforce,
+#     service_connection: SalesforceConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#     test_fn = {"CheckAccess": client.describe}
+#
+#     test_connection_steps(
+#         metadata=metadata,
+#         test_fn=test_fn,
+#         service_type=service_connection.type.value,
+#         automation_workflow=automation_workflow,
+#     )

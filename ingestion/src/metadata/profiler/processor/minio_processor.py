@@ -61,6 +61,7 @@ class MinioProfilerProcessor(Processor):
 
         try:
             profile: ProfilerResponse = profiler_runner.process()
+
         except Exception as exc:
             self.status.failed(
                 StackTraceError(
@@ -72,6 +73,12 @@ class MinioProfilerProcessor(Processor):
             self.status.failures.extend(
                 record.profiler_source.interface.status.failures
             )
+            # return Either(left=StackTraceError(
+            #     name=f"{record.entity.fullyQualifiedName.__root__}",
+            #     error=str(exc),
+            # ))
+            return None
+
         else:
             # at this point we know we have an interface variable since we the `try` block above didn't raise
             self.status.failures.extend(record.profiler_source.interface.status.failures)  # type: ignore
@@ -79,7 +86,7 @@ class MinioProfilerProcessor(Processor):
         finally:
             profiler_runner.close()
 
-        return Either()
+        return None
 
     @classmethod
     def create(

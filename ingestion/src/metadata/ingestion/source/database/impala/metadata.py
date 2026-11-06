@@ -13,7 +13,6 @@ Impala source methods.
 """
 
 import re
-from typing import Optional
 
 from impala.sqlalchemy import ImpalaDialect, _impala_type_to_sqlalchemy_type
 from sqlalchemy import types, util
@@ -181,9 +180,7 @@ class ImpalaSource(CommonDbSourceService):
     """
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config = WorkflowSource.parse_obj(config_dict)
         connection: ImpalaConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, ImpalaConnection):

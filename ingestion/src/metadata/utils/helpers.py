@@ -20,18 +20,18 @@ import re
 import shutil
 import sys
 from datetime import datetime, timedelta
+from functools import wraps
 from math import floor, log
 from pathlib import Path
+from time import perf_counter
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import sqlparse
 from sqlparse.sql import Statement
 
-from metadata.generated.schema.entity.data.chart import ChartType
+# from metadata.generated.schema.entity.data.chart import ChartType
 from metadata.generated.schema.entity.data.table import Column, Table
-from metadata.generated.schema.entity.feed.suggestion import Suggestion, SuggestionType
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.generated.schema.type.basic import EntityLink
 from metadata.generated.schema.type.tagLabel import TagLabel
 from metadata.utils.constants import DEFAULT_DATABASE
 from metadata.utils.logger import utils_logger
@@ -79,24 +79,58 @@ class DockerActions:
         self.reset_db = reset_db
 
 
-om_chart_type_dict = {
-    "line": ChartType.Line,
-    "big_number": ChartType.Line,
-    "big_number_total": ChartType.Line,
-    "dual_line": ChartType.Line,
-    "line_multi": ChartType.Line,
-    "table": ChartType.Table,
-    "dist_bar": ChartType.Bar,
-    "bar": ChartType.Bar,
-    "box_plot": ChartType.BoxPlot,
-    "boxplot": ChartType.BoxPlot,
-    "histogram": ChartType.Histogram,
-    "treemap": ChartType.Area,
-    "area": ChartType.Area,
-    "pie": ChartType.Pie,
-    "text": ChartType.Text,
-    "scatter": ChartType.Scatter,
-}
+# om_chart_type_dict = {
+#     "line": ChartType.Line,
+#     "big_number": ChartType.Line,
+#     "big_number_total": ChartType.Line,
+#     "dual_line": ChartType.Line,
+#     "line_multi": ChartType.Line,
+#     "table": ChartType.Table,
+#     "dist_bar": ChartType.Bar,
+#     "bar": ChartType.Bar,
+#     "box_plot": ChartType.BoxPlot,
+#     "boxplot": ChartType.BoxPlot,
+#     "histogram": ChartType.Histogram,
+#     "treemap": ChartType.Area,
+#     "area": ChartType.Area,
+#     "pie": ChartType.Pie,
+#     "text": ChartType.Text,
+#     "scatter": ChartType.Scatter,
+# }
+
+
+def calculate_execution_time(func):
+    """
+    Method to calculate workflow execution time
+    """
+
+    @wraps(func)
+    def calculate_debug_time(*args, **kwargs):
+        start = perf_counter()
+        result = func(*args, **kwargs)
+        end = perf_counter()
+        logger.debug(
+            f"{func.__name__} executed in { pretty_print_time_duration(end - start)}"
+        )
+        return result
+
+    return calculate_debug_time
+
+
+def calculate_execution_time_generator(func):
+    """
+    Generator method to calculate workflow execution time
+    """
+
+    def calculate_debug_time(*args, **kwargs):
+        start = perf_counter()
+        yield from func(*args, **kwargs)
+        end = perf_counter()
+        logger.debug(
+            f"{func.__name__} executed in { pretty_print_time_duration(end - start)}"
+        )
+
+    return calculate_debug_time
 
 
 def pretty_print_time_duration(duration: Union[int, float]) -> str:
@@ -171,15 +205,15 @@ def replace_special_with(raw: str, replacement: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]", replacement, raw)
 
 
-def get_standard_chart_type(raw_chart_type: str) -> ChartType.Other:
-    """
-    Get standard chart type supported by OpenMetadata based on raw chart type input
-    :param raw_chart_type: raw chart type to be standardize
-    :return: standard chart type
-    """
-    if raw_chart_type is not None:
-        return om_chart_type_dict.get(raw_chart_type.lower(), ChartType.Other)
-    return ChartType.Other
+# def get_standard_chart_type(raw_chart_type: str) -> ChartType.Other:
+#     """
+#     Get standard chart type supported by OpenMetadata based on raw chart type input
+#     :param raw_chart_type: raw chart type to be standardize
+#     :return: standard chart type
+#     """
+#     if raw_chart_type is not None:
+#         return om_chart_type_dict.get(raw_chart_type.lower(), ChartType.Other)
+#     return ChartType.Other
 
 
 def find_in_iter(element: Any, container: Iterable[Any]) -> Optional[Any]:
@@ -193,38 +227,12 @@ def find_in_iter(element: Any, container: Iterable[Any]) -> Optional[Any]:
     return next((elem for elem in container if elem == element), None)
 
 
-def find_column_in_table(
-    column_name: str, table: Table, case_sensitive: bool = True
-) -> Optional[Column]:
+def find_column_in_table(column_name: str, table: Table) -> Optional[Column]:
     """
     If the column exists in the table, return it
     """
-
-    def equals(first: str, second: str) -> bool:
-        if case_sensitive:
-            return first == second
-        return first.lower() == second.lower()
-
     return next(
-        (col for col in table.columns if equals(col.name.__root__, column_name)), None
-    )
-
-
-def find_suggestion(
-    suggestions: List[Suggestion],
-    suggestion_type: SuggestionType,
-    entity_link: EntityLink,
-) -> Optional[Suggestion]:
-    """Given a list of suggestions, a suggestion type and an entity link, find
-    one suggestion in the list that matches the criteria
-    """
-    return next(
-        (
-            sugg
-            for sugg in suggestions
-            if sugg.type == suggestion_type and sugg.entityLink == entity_link
-        ),
-        None,
+        (col for col in table.columns if col.name.__root__ == column_name), None
     )
 
 
@@ -346,9 +354,7 @@ def format_large_string_numbers(number: Union[float, int]) -> str:
     units = ["", "K", "M", "B", "T"]
     constant_k = 1000.0
     magnitude = int(floor(log(abs(number), constant_k)))
-    if magnitude >= len(units):
-        return f"{int(number / constant_k**magnitude)}e{magnitude*3}"
-    return f"{number / constant_k**magnitude:.3f}{units[magnitude]}"
+    return f"{number / constant_k**magnitude:.2f}{units[magnitude]}"
 
 
 def clean_uri(uri: str) -> str:
@@ -423,9 +429,6 @@ def is_safe_sql_query(sql_query: str) -> bool:
         "SAVEPOINT",
         "SET TRANSACTION",
     }
-
-    if sql_query is None:
-        return True
 
     parsed_queries: Tuple[Statement] = sqlparse.parse(sql_query)
     for parsed_query in parsed_queries:

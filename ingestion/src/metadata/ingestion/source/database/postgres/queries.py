@@ -76,7 +76,7 @@ POSTGRES_PARTITION_DETAILS = textwrap.dedent(
 )
 
 POSTGRES_GET_ALL_TABLE_PG_POLICY = """
-SELECT object_id, polname, table_catalog, table_schema, table_name  
+SELECT object_id, polname, table_catalog , table_schema ,table_name  
 FROM information_schema.tables AS it
 JOIN (SELECT pc.oid as object_id, pc.relname, pp.*
       FROM pg_policy AS pp
@@ -176,7 +176,8 @@ POSTGRES_SQL_COLUMNS = """
             a.attrelid as table_oid,
             pgd.description as comment,
             {generated},
-            {identity}
+            {identity},
+            a.attnum as ordinal_position
         FROM pg_catalog.pg_attribute a
         LEFT JOIN pg_catalog.pg_description pgd ON (
             pgd.objoid = a.attrelid AND pgd.objsubid = a.attnum)
@@ -189,18 +190,3 @@ POSTGRES_GET_SERVER_VERSION = """
 show server_version
 """
 
-POSTGRES_FETCH_FK = """
-    SELECT r.conname,
-        pg_catalog.pg_get_constraintdef(r.oid, true) as condef,
-        n.nspname as conschema,
-        d.datname AS con_db_name
-    FROM  pg_catalog.pg_constraint r,
-        pg_namespace n,
-        pg_class c
-    JOIN pg_database d ON d.datname = current_database()
-    WHERE r.conrelid = :table AND
-        r.contype = 'f' AND
-        c.oid = confrelid AND
-        n.oid = c.relnamespace
-    ORDER BY 1
-"""

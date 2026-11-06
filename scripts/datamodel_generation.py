@@ -28,7 +28,7 @@ datamodel_code_generator.model.pydantic.types.IMPORT_SECRET_STR = Import.from_fu
 from datamodel_code_generator.__main__ import main
 
 current_directory = os.getcwd()
-ingestion_path = "./ingestion/"
+ingestion_path = "./"
 
 UTF_8 = "UTF-8"
 UNICODE_REGEX_REPLACEMENT_FILE_PATHS = [

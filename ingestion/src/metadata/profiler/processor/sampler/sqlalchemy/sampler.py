@@ -105,7 +105,7 @@ class SQASampler(SamplerInterface):
             )
             session_query = self.client.query(rnd)
             return (session_query.where(rnd.c.random <= self.profile_sample).cte(sample_table_name))
-                # .cte(f"{self.table.__tablename__}_sample"))
+            # .cte(f"{self.table.__tablename__}_sample"))
 
         table_query = self.client.query(self.table)
         session_query = self._base_sample_query(
@@ -227,8 +227,8 @@ class SQASampler(SamplerInterface):
         )
 
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalTypes.COLUMN_VALUE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.COLUMN_VALUE
         ):
             return aliased(
                 self.table,
@@ -245,8 +245,8 @@ class SQASampler(SamplerInterface):
             )
 
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalTypes.INTEGER_RANGE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.INTEGER_RANGE
         ):
             return aliased(
                 self.table,

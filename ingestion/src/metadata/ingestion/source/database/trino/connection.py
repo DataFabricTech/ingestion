@@ -18,10 +18,9 @@ from urllib.parse import quote_plus
 from requests import Session
 from sqlalchemy.engine import Engine
 
-from metadata.clients.azure_client import AzureClient
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.common import (
     basicAuth,
     jwtAuth,
@@ -36,9 +35,9 @@ from metadata.ingestion.connections.builders import (
     init_empty_connection_options,
 )
 from metadata.ingestion.connections.secrets import connection_with_options_secrets
-from metadata.ingestion.connections.test_connections import (
-    test_connection_db_schema_sources,
-)
+# from metadata.ingestion.connections.test_connections import (
+#     test_connection_db_schema_sources,
+# )
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.database.trino.queries import TRINO_GET_DATABASE
 
@@ -49,10 +48,7 @@ def get_connection_url(connection: TrinoConnection) -> str:
     """
     url = f"{connection.scheme.value}://"
     if connection.username:
-        # we need to encode twice because trino dialect internally
-        # url decodes the username and if there is an special char in username
-        # it will fail to authenticate
-        url += f"{quote_plus(quote_plus(connection.username))}"
+        url += f"{quote_plus(connection.username)}"
         if (
             isinstance(connection.authType, basicAuth.BasicAuth)
             and connection.authType.password
@@ -95,25 +91,6 @@ def get_connection(connection: TrinoConnection) -> Engine:
     """
     Create connection
     """
-    if connection.verify:
-        connection.connectionArguments = (
-            connection.connectionArguments or init_empty_connection_arguments()
-        )
-        connection.connectionArguments.__root__["verify"] = {
-            "verify": connection.verify
-        }
-    if hasattr(connection.authType, "azureConfig"):
-        azure_client = AzureClient(connection.authType.azureConfig).create_client()
-        if not connection.authType.azureConfig.scopes:
-            raise ValueError(
-                "Azure Scopes are missing, please refer https://learn.microsoft.com/en-gb/azure/mysql/flexible-server/how-to-azure-ad#2---retrieve-microsoft-entra-access-token and fetch the resource associated with it, for e.g. https://ossrdbms-aad.database.windows.net/.default"
-            )
-        access_token_obj = azure_client.get_token(
-            *connection.authType.azureConfig.scopes.split(",")
-        )
-        if not connection.connectionOptions:
-            connection.connectionOptions = init_empty_connection_options()
-        connection.connectionOptions.__root__["access_token"] = access_token_obj.token
     return create_generic_db_connection(
         connection=connection,
         get_connection_url_fn=get_connection_url,
@@ -121,24 +98,24 @@ def get_connection(connection: TrinoConnection) -> Engine:
     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    engine: Engine,
-    service_connection: TrinoConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-    queries = {
-        "GetDatabases": TRINO_GET_DATABASE,
-    }
-
-    test_connection_db_schema_sources(
-        metadata=metadata,
-        engine=engine,
-        service_connection=service_connection,
-        automation_workflow=automation_workflow,
-        queries=queries,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     engine: Engine,
+#     service_connection: TrinoConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#     queries = {
+#         "GetDatabases": TRINO_GET_DATABASE,
+#     }
+#
+#     test_connection_db_schema_sources(
+#         metadata=metadata,
+#         engine=engine,
+#         service_connection=service_connection,
+#         automation_workflow=automation_workflow,
+#         queries=queries,
+#     )

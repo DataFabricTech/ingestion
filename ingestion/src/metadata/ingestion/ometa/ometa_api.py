@@ -18,7 +18,10 @@ import traceback
 from typing import Dict, Generic, Iterable, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel
+# from requests.utils import requote_uri
 from requests.compat import quote
+
+import json
 
 from metadata.generated.schema.api.services.ingestionPipelines.createIngestionPipeline import (
     CreateIngestionPipelineRequest,
@@ -30,44 +33,44 @@ from metadata.generated.schema.type import basic
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName
 from metadata.generated.schema.type.entityHistory import EntityVersionHistory
 from metadata.generated.schema.type.entityReference import EntityReference
+from metadata.generated.schema.entity.data.ingestion import IngestionCheck, MetadataSystemCollectorStatus, ExecuteIngestion, CollectorStatus
 from metadata.ingestion.models.encoders import show_secrets_encoder
-from metadata.ingestion.ometa.auth_provider import OpenMetadataAuthenticationProvider
+from metadata.ingestion.ometa.auth_provider import AuthenticationProvider
 from metadata.ingestion.ometa.client import REST, APIError, ClientConfig
 from metadata.ingestion.ometa.mixins.container_mixin import OMetaContainerMixin
-from metadata.ingestion.ometa.mixins.custom_property_mixin import (
-    OMetaCustomPropertyMixin,
-)
-from metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
-from metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
-from metadata.ingestion.ometa.mixins.es_mixin import ESMixin
+# from metadata.ingestion.ometa.mixins.custom_property_mixin import (
+#     OMetaCustomPropertyMixin,
+# )
+# from metadata.ingestion.ometa.mixins.dashboard_mixin import OMetaDashboardMixin
+# from metadata.ingestion.ometa.mixins.data_insight_mixin import DataInsightMixin
+# from metadata.ingestion.ometa.mixins.es_mixin import ESMixin
 from metadata.ingestion.ometa.mixins.glossary_mixin import OMetaGlossaryMixin
 from metadata.ingestion.ometa.mixins.ingestion_pipeline_mixin import (
     OMetaIngestionPipelineMixin,
 )
-from metadata.ingestion.ometa.mixins.mlmodel_mixin import OMetaMlModelMixin
-from metadata.ingestion.ometa.mixins.patch_mixin import OMetaPatchMixin
-from metadata.ingestion.ometa.mixins.pipeline_mixin import OMetaPipelineMixin
-from metadata.ingestion.ometa.mixins.query_mixin import OMetaQueryMixin
-from metadata.ingestion.ometa.mixins.role_policy_mixin import OMetaRolePolicyMixin
-from metadata.ingestion.ometa.mixins.search_index_mixin import OMetaSearchIndexMixin
+# from metadata.ingestion.ometa.mixins.mlmodel_mixin import OMetaMlModelMixin
+# from metadata.ingestion.ometa.mixins.patch_mixin import OMetaPatchMixin
+# from metadata.ingestion.ometa.mixins.pipeline_mixin import OMetaPipelineMixin
+# from metadata.ingestion.ometa.mixins.query_mixin import OMetaQueryMixin
+# from metadata.ingestion.ometa.mixins.role_policy_mixin import OMetaRolePolicyMixin
+# from metadata.ingestion.ometa.mixins.search_index_mixin import OMetaSearchIndexMixin
 from metadata.ingestion.ometa.mixins.server_mixin import OMetaServerMixin
 from metadata.ingestion.ometa.mixins.service_mixin import OMetaServiceMixin
-from metadata.ingestion.ometa.mixins.suggestions_mixin import OMetaSuggestionsMixin
 from metadata.ingestion.ometa.mixins.table_mixin import OMetaTableMixin
-from metadata.ingestion.ometa.mixins.tests_mixin import OMetaTestsMixin
-from metadata.ingestion.ometa.mixins.topic_mixin import OMetaTopicMixin
-from metadata.ingestion.ometa.mixins.user_mixin import OMetaUserMixin
-from metadata.ingestion.ometa.mixins.version_mixin import OMetaVersionMixin
+# from metadata.ingestion.ometa.mixins.tests_mixin import OMetaTestsMixin
+# from metadata.ingestion.ometa.mixins.topic_mixin import OMetaTopicMixin
+# from metadata.ingestion.ometa.mixins.user_mixin import OMetaUserMixin
+# from metadata.ingestion.ometa.mixins.version_mixin import OMetaVersionMixin
 from metadata.ingestion.ometa.models import EntityList
+from metadata.ingestion.ometa.provider_registry import (
+    InvalidAuthProviderException,
+    auth_provider_registry,
+)
 from metadata.ingestion.ometa.routes import ROUTES
 from metadata.ingestion.ometa.utils import get_entity_type, model_str
 from metadata.utils.logger import ometa_logger
 from metadata.utils.secrets.secrets_manager_factory import SecretsManagerFactory
 from metadata.utils.ssl_registry import get_verify_ssl_fn
-
-# from urllib.parse import (
-#     quote
-# )
 
 logger = ometa_logger()
 
@@ -97,27 +100,26 @@ class EmptyPayloadException(Exception):
 
 
 class OpenMetadata(
-    OMetaPipelineMixin,
-    OMetaMlModelMixin,
+    # OMetaPipelineMixin,
+    # OMetaMlModelMixin,
     OMetaTableMixin,
     OMetaContainerMixin,
-    OMetaTopicMixin,
-    OMetaVersionMixin,
-    OMetaServiceMixin,
+    # OMetaTopicMixin,
+    # OMetaVersionMixin,
     OMetaGlossaryMixin,
-    ESMixin,
+    OMetaServiceMixin,
+    # ESMixin,
     OMetaServerMixin,
-    OMetaDashboardMixin,
-    OMetaPatchMixin,
-    OMetaTestsMixin,
-    DataInsightMixin,
+    # OMetaDashboardMixin,
+    # OMetaPatchMixin,
+    # OMetaTestsMixin,
+    # DataInsightMixin,
     OMetaIngestionPipelineMixin,
-    OMetaUserMixin,
-    OMetaQueryMixin,
-    OMetaRolePolicyMixin,
-    OMetaSearchIndexMixin,
-    OMetaCustomPropertyMixin,
-    OMetaSuggestionsMixin,
+    # OMetaUserMixin,
+    # OMetaQueryMixin,
+    # OMetaRolePolicyMixin,
+    # OMetaSearchIndexMixin,
+    # OMetaCustomPropertyMixin,
     Generic[T, C],
 ):
     """
@@ -129,7 +131,7 @@ class OpenMetadata(
     """
 
     client: REST
-    _auth_provider: OpenMetadataAuthenticationProvider
+    _auth_provider: AuthenticationProvider
     config: OpenMetadataConnection
 
     class_root = ".".join(["metadata", "generated", "schema"])
@@ -138,9 +140,9 @@ class OpenMetadata(
     data_path = "data"
 
     def __init__(
-            self,
-            config: OpenMetadataConnection,
-            raw_data: bool = False,
+        self,
+        config: OpenMetadataConnection,
+        raw_data: bool = False,
     ):
         self.config = config
 
@@ -150,7 +152,16 @@ class OpenMetadata(
             config.secretsManagerLoader,
         ).get_secrets_manager()
 
-        self._auth_provider = OpenMetadataAuthenticationProvider.create(self.config)
+        # Load the auth provider init from the registry
+        auth_provider_fn = auth_provider_registry.registry.get(
+            self.config.authProvider.value
+        )
+        if not auth_provider_fn:
+            raise InvalidAuthProviderException(
+                f"Cannot find {self.config.authProvider.value} in {auth_provider_registry.registry}"
+            )
+
+        self._auth_provider = auth_provider_fn(self.config)
 
         get_verify_ssl = get_verify_ssl_fn(self.config.verifySSL)
 
@@ -231,14 +242,14 @@ class OpenMetadata(
         file_name = (
             class_name.lower()
             .replace("glossaryterm", "glossaryTerm")
-            .replace("dashboarddatamodel", "dashboardDataModel")
-            .replace("testsuite", "testSuite")
-            .replace("testdefinition", "testDefinition")
-            .replace("testcase", "testCase")
+            # .replace("dashboarddatamodel", "dashboardDataModel")
+            # .replace("testsuite", "testSuite")
+            # .replace("testdefinition", "testDefinition")
+            # .replace("testcase", "testCase")
             .replace("searchindex", "searchIndex")
-            .replace("storedprocedure", "storedProcedure")
+            # .replace("storedprocedure", "storedProcedure")
             .replace("ingestionpipeline", "ingestionPipeline")
-            .replace("dataproduct", "dataProduct")
+            # .replace("dataproduct", "dataProduct")
         )
         class_path = ".".join(
             filter(
@@ -256,9 +267,11 @@ class OpenMetadata(
         )
         return entity_class
 
-    def _create(self, data: C, method: str) -> T:
+    def create_or_update(self, data: C) -> T:
         """
-        Internal logic to run POST vs. PUT
+        We allow CreateEntity for PUT, so we expect a type C.
+
+        We PUT to the endpoint and return the Entity generated result
         """
         entity = data.__class__
         is_create = "create" in data.__class__.__name__.lower()
@@ -270,47 +283,142 @@ class OpenMetadata(
             raise InvalidEntityException(
                 f"PUT operations need a CreateEntity, not {entity}"
             )
-
-        fn = getattr(self.client, method)
-        resp = fn(self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder))
+        # phy
+        # print(f'PUT {self.get_suffix(entity)}')
+        # print(f'PUT {type(data)}')
+        # print(f'PUT {data.json(encoder=show_secrets_encoder)}')
+        resp = self.client.put(
+            self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder)
+        )
         if not resp:
             raise EmptyPayloadException(
                 f"Got an empty response when trying to PUT to {self.get_suffix(entity)}, {data.json()}"
             )
         return entity_class(**resp)
 
-    def create_or_update(self, data: C) -> T:
-        """Run a PUT requesting via create request C"""
-        return self._create(data=data, method="put")
+    # def _create(self, data: C, method: str) -> T:
+    #     """
+    #     Internal logic to run POST vs. PUT
+    #     """
+    #     entity = data.__class__
+    #     is_create = "create" in data.__class__.__name__.lower()
+    #
+    #     # Prepare the return Entity Type
+    #     if is_create:
+    #         entity_class = self.get_entity_from_create(entity)
+    #     else:
+    #         raise InvalidEntityException(
+    #             f"PUT operations need a CreateEntity, not {entity}"
+    #         )
+    #
+    #     fn = getattr(self.client, method)
+    #     resp = fn(self.get_suffix(entity), data=data.json(encoder=show_secrets_encoder))
+    #     if not resp:
+    #         raise EmptyPayloadException(
+    #             f"Got an empty response when trying to PUT to {self.get_suffix(entity)}, {data.json()}"
+    #         )
+    #     return entity_class(**resp)
+    #
+    # def create_or_update(self, data: C) -> T:
+    #     """Run a PUT requesting via create request C"""
+    #     return self._create(data=data, method="put")
 
-    def create(self, data: C) -> T:
-        """Run a POST requesting via create request C"""
-        return self._create(data=data, method="post")
+    def check_ingestion_status(self, system_id, source_filter=None):
+
+        data = IngestionCheck(
+            system_id = system_id,
+            source_filter = source_filter
+        )
+
+        try:
+            self.client.put(
+                ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
+            )
+        except Exception as exc:
+            logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
+
+        logger.info(f"ingestion status check [{system_id}]")
+        # if not resp:
+        #     raise EmptyPayloadException(
+        #         f"Got an empty response when trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}"
+        #     )
+        # return resp
+
+    def update_ingestion_status(self, system_id, status: CollectorStatus, err_message=None):
+
+        data = MetadataSystemCollectorStatus(
+            system_id = system_id,
+            status = status.value,
+            err_description = err_message,
+            user = 'METADATA COLLECTOR')
+
+        # json_data = json.dumps(
+        #     data.model_dump(by_alias=True, exclude_none=True),
+        #     default=str  # Enum, UUID, datetime 등을 문자열로 직렬화
+        # )
+
+        try:
+            self.client.put(
+                ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
+            )
+        except Exception as exc:
+            logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
+
+        logger.info(f"ingestion status update [{system_id}]")
+
+    def execute_profile(self, system_id, workflow: "BaseWorkflow"):
+
+        includes = []
+        for step in workflow.steps:
+            for profiling in step.get_status().profiling_records:
+                includes.append(f"object={profiling.__root__}")
+
+        if len(includes) > 0:
+            if len(includes) > 50:
+                data = ExecuteIngestion(
+                    system_id = system_id
+                )
+            else:
+                data = ExecuteIngestion(
+                    system_id = system_id,
+                    include = includes
+                    )
+
+            try:
+                self.client.post(
+                    ROUTES.get(data.__class__.__name__), data=data.json(encoder=show_secrets_encoder)
+                )
+            except Exception as exc:
+                logger.error(f"Error trying to PUT to {ROUTES.get(data.__class__.__name__)}, {data.json()}, {exc}")
+
+            logger.info(f"execute profile [{system_id}]")
+        else:
+            logger.info(f"execute profile pass [{system_id}]")
 
     def get_by_name(
-            self,
-            entity: Type[T],
-            fqn: Union[str, FullyQualifiedEntityName],
-            fields: Optional[List[str]] = None,
-            nullable: bool = True,
+        self,
+        entity: Type[T],
+        fqn: Union[str, FullyQualifiedEntityName],
+        fields: Optional[List[str]] = None,
+        nullable: bool = True,
     ) -> Optional[T]:
         """
         Return entity by name or None
         """
-
         return self._get(
             entity=entity,
             path=f"name/{quote(model_str(fqn), safe='')}",
+            # path=f"name/{requote_uri(model_str(fqn))}",
             fields=fields,
             nullable=nullable,
         )
 
     def get_by_id(
-            self,
-            entity: Type[T],
-            entity_id: Union[str, basic.Uuid],
-            fields: Optional[List[str]] = None,
-            nullable: bool = True,
+        self,
+        entity: Type[T],
+        entity_id: Union[str, basic.Uuid],
+        fields: Optional[List[str]] = None,
+        nullable: bool = True,
     ) -> Optional[T]:
         """
         Return entity by ID or None
@@ -323,11 +431,11 @@ class OpenMetadata(
         )
 
     def _get(
-            self,
-            entity: Type[T],
-            path: str,
-            fields: Optional[List[str]] = None,
-            nullable: bool = True,
+        self,
+        entity: Type[T],
+        path: str,
+        fields: Optional[List[str]] = None,
+        nullable: bool = True,
     ) -> Optional[T]:
         """
         Generic GET operation for an entity
@@ -337,11 +445,16 @@ class OpenMetadata(
         """
         fields_str = "?fields=" + ",".join(fields) if fields else ""
         try:
+            #phy
+            # print(f"GET {self.get_suffix(entity)}/{path}{fields_str}")
             resp = self.client.get(f"{self.get_suffix(entity)}/{path}{fields_str}")
             if not resp:
-                raise EmptyPayloadException(
-                    f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
-                )
+                if nullable:
+                    return None
+                else:
+                    raise EmptyPayloadException(
+                        f"Got an empty response when trying to GET from {self.get_suffix(entity)}/{path}{fields_str}"
+                    )
             return entity(**resp)
         except APIError as err:
             # We can expect some GET calls to return us a None and manage it in following steps.
@@ -361,7 +474,7 @@ class OpenMetadata(
             raise err
 
     def get_entity_reference(
-            self, entity: Type[T], fqn: str
+        self, entity: Type[T], fqn: str
     ) -> Optional[EntityReference]:
         """
         Helper method to obtain an EntityReference from
@@ -384,13 +497,13 @@ class OpenMetadata(
 
     # pylint: disable=too-many-locals
     def list_entities(
-            self,
-            entity: Type[T],
-            fields: Optional[List[str]] = None,
-            after: Optional[str] = None,
-            limit: int = 100,
-            params: Optional[Dict[str, str]] = None,
-            skip_on_failure: bool = False,
+        self,
+        entity: Type[T],
+        fields: Optional[List[str]] = None,
+        after: Optional[str] = None,
+        limit: int = 100,
+        params: Optional[Dict[str, str]] = None,
+        skip_on_failure: bool = False,
     ) -> EntityList[T]:
         """
         Helps us paginate over the collection
@@ -413,12 +526,7 @@ class OpenMetadata(
                 try:
                     entities.append(entity(**elmt))
                 except Exception as exc:
-                    logger.error(
-                        f"Error creating entity [{entity.__name__}]. Failed with exception {exc}"
-                    )
-                    logger.debug(
-                        f"Can't create [{entity.__name__}] from [{elmt}]. Skipping."
-                    )
+                    logger.error(f"Error creating entity. Failed with exception {exc}")
                     continue
         else:
             entities = [entity(**elmt) for elmt in resp["data"]]
@@ -428,12 +536,12 @@ class OpenMetadata(
         return EntityList(entities=entities, total=total, after=after)
 
     def list_all_entities(
-            self,
-            entity: Type[T],
-            fields: Optional[List[str]] = None,
-            limit: int = 100,
-            params: Optional[Dict[str, str]] = None,
-            skip_on_failure: bool = False,
+        self,
+        entity: Type[T],
+        fields: Optional[List[str]] = None,
+        limit: int = 1000,
+        params: Optional[Dict[str, str]] = None,
+        skip_on_failure: bool = False,
     ) -> Iterable[T]:
         """
         Utility method that paginates over all EntityLists
@@ -471,7 +579,7 @@ class OpenMetadata(
             after = entity_list.after
 
     def list_versions(
-            self, entity_id: Union[str, basic.Uuid], entity: Type[T]
+        self, entity_id: Union[str, basic.Uuid], entity: Type[T]
     ) -> EntityVersionHistory:
         """
         Version history of an entity
@@ -497,11 +605,11 @@ class OpenMetadata(
         return [entity(**p) for p in resp["data"]]
 
     def delete(
-            self,
-            entity: Type[T],
-            entity_id: Union[str, basic.Uuid],
-            recursive: bool = False,
-            hard_delete: bool = False,
+        self,
+        entity: Type[T],
+        entity_id: Union[str, basic.Uuid],
+        recursive: bool = False,
+        hard_delete: bool = False,
     ) -> None:
         """
         API call to delete an entity from entity ID

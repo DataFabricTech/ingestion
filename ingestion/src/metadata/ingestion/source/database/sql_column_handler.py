@@ -26,7 +26,6 @@ from metadata.generated.schema.entity.data.table import (
     TableConstraint,
 )
 from metadata.ingestion.source.database.column_type_parser import ColumnTypeParser
-from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.helpers import clean_up_starting_ending_double_quotes_in_string
 from metadata.utils.logger import ingestion_logger
 
@@ -111,7 +110,7 @@ class SqlColumnHandlerMixin:
     @staticmethod
     def _get_columns_with_constraints(
         schema_name: str, table_name: str, inspector: Inspector
-    ) -> Tuple[List, List, List]:
+    ) -> Tuple[List, List, List, str]:
         pk_constraints = inspector.get_pk_constraint(table_name, schema_name)
         try:
             unique_constraints = inspector.get_unique_constraints(
@@ -126,9 +125,16 @@ class SqlColumnHandlerMixin:
             foreign_constraints = inspector.get_foreign_keys(table_name, schema_name)
         except NotImplementedError:
             logger.debug(
-                "Cannot obtain foreign constraints for table [{schema_name}.{table_name}]: NotImplementedError"
+                f"Cannot obtain foreign constraints for table [{schema_name}.{table_name}]: NotImplementedError"
             )
             foreign_constraints = []
+        try:
+            table_owner = inspector.get_table_owner(connection=inspector.bind.connect(),schema=schema_name, table_name=table_name)
+        except AttributeError:
+            logger.debug(
+                f"The table owner method is different for each database, so it needs to be defined individually. If not defined, use the schema. [{schema_name}.{table_name}]: AttributeError"
+            )
+            table_owner = schema_name
 
         pk_columns = (
             pk_constraints.get("constrained_columns")
@@ -170,7 +176,7 @@ class SqlColumnHandlerMixin:
             for pk_column in pk_columns
         ]
 
-        return pk_columns, unique_columns, foreign_columns
+        return pk_columns, unique_columns, foreign_columns, table_owner
 
     def _process_complex_col_type(self, parsed_string: dict, column: dict) -> Column:
         parsed_string["dataLength"] = self._check_col_length(
@@ -196,7 +202,6 @@ class SqlColumnHandlerMixin:
             ]
         return Column(**parsed_string)
 
-    @calculate_execution_time()
     def get_columns_and_constraints(  # pylint: disable=too-many-locals
         self, schema_name: str, table_name: str, db_name: str, inspector: Inspector
     ) -> Tuple[
@@ -213,6 +218,7 @@ class SqlColumnHandlerMixin:
             pk_columns,
             unique_columns,
             foreign_columns,
+            table_owner
         ) = self._get_columns_with_constraints(schema_name, table_name, inspector)
 
         column_level_unique_constraints = set()
@@ -271,6 +277,13 @@ class SqlColumnHandlerMixin:
                         precision,
                     )
                     col_data_length = 1 if col_data_length is None else col_data_length
+                    if self.inspector.bind.dialect.name == "postgresql":
+                        if 'character varying' in column.get("system_data_type"):
+                            column['system_data_type'] = column['system_data_type'].replace("character varying", 'VARCHAR')
+                        elif 'character' in column.get("system_data_type"):
+                            column['system_data_type'] = column['system_data_type'].replace("character", 'CHAR')
+                        elif 'bit varying' in column.get("system_data_type"):
+                            column['system_data_type'] = column['system_data_type'].replace("bit varying", 'VARBIT')
                     om_column = Column(
                         name=ColumnName(
                             __root__=column["name"]
@@ -281,9 +294,9 @@ class SqlColumnHandlerMixin:
                         ),
                         description=column.get("comment"),
                         dataType=col_type,
-                        dataTypeDisplay=column.get(
+                        dataTypeDisplay=str(column.get(
                             "system_data_type", data_type_display
-                        ),
+                        )).upper(),
                         dataLength=col_data_length,
                         constraint=col_constraint,
                         children=children,
@@ -299,9 +312,9 @@ class SqlColumnHandlerMixin:
                         column=column, parsed_string=parsed_string
                     )
                     om_column = col_obj
-                om_column.tags = self.get_column_tag_labels(
-                    table_name=table_name, column=column
-                )
+                # om_column.tags = self.get_column_tag_labels(
+                #     table_name=table_name, column=column
+                # )
             except Exception as exc:
                 logger.debug(traceback.format_exc())
                 logger.warning(
@@ -309,7 +322,7 @@ class SqlColumnHandlerMixin:
                 )
                 continue
             table_columns.append(om_column)
-        return table_columns, table_constraints, foreign_columns
+        return table_columns, table_constraints, foreign_columns, table_owner
 
     @staticmethod
     def _check_col_length(datatype: str, col_raw_type: object):

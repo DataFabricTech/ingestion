@@ -124,7 +124,6 @@ def get_columns(
         Column("minor_id", Integer, primary_key=True),
         Column("name", String, primary_key=True),
         Column("value", String),
-        Column("class_desc", String),
         schema="sys",
     )
     sys_columns = alias(
@@ -182,8 +181,6 @@ def get_columns(
             onclause=sql.and_(
                 extended_properties.c.major_id == sys_columns.c.object_id,
                 extended_properties.c.minor_id == sys_columns.c.column_id,
-                extended_properties.c.class_desc == "OBJECT_OR_COLUMN",
-                extended_properties.c.name == "MS_Description",
             ),
             isouter=True,
         )
@@ -204,12 +201,12 @@ def get_columns(
             identity_cols.c.seed_value,
             identity_cols.c.increment_value,
             sql.cast(extended_properties.c.value, NVARCHAR(4000)).label("comment"),
+            columns.c.ordinal_position,
         )
         .where(whereclause)
         .select_from(join)
         .order_by(columns.c.ordinal_position)
     )
-
     cursr = connection.execution_options(future_result=True).execute(sql_qry)
 
     cols = []
@@ -228,6 +225,7 @@ def get_columns(
         identity_start = row[identity_cols.c.seed_value]
         identity_increment = row[identity_cols.c.increment_value]
         comment = row["comment"]
+        ordinal_position = row[columns.c.ordinal_position]
 
         coltype = self.ischema_names.get(type_, None)
 
@@ -275,6 +273,7 @@ def get_columns(
             "default": default,
             "autoincrement": is_identity is not None,
             "comment": comment,
+            "ordinalPosition": ordinal_position
         }
 
         if definition is not None and is_persisted is not None:

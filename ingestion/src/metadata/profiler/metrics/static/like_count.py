@@ -16,7 +16,6 @@ Like Count Metric definition
 
 from sqlalchemy import case, column
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.orm.functions.sum import SumFn
 
@@ -36,7 +35,7 @@ class LikeCount(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.likeCount.value
+        return "likeCount"
 
     @property
     def metric_type(self):

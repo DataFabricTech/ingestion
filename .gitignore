@@ -127,3 +127,6 @@ ingestion/tests/cli_e2e/**/*test.yaml
 
 # GX artifacts
 /ingestion/tests/integration/great_expectations/gx/*
+# 실행 시 생성하는 설정
+ingestion/config.ini
+.env

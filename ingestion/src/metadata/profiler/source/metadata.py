@@ -17,19 +17,15 @@ from typing import Iterable, Optional, cast
 from pydantic import BaseModel
 
 from metadata.generated.schema.entity.data.database import Database
-from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
 from metadata.generated.schema.entity.data.table import Table, TableType
 from metadata.generated.schema.entity.services.databaseService import DatabaseService
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.models import Either
+from metadata.ingestion.api.models import Either, StackTraceError
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Source
@@ -41,10 +37,6 @@ from metadata.utils.filters import filter_by_database, filter_by_schema, filter_
 from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
-
-
-TABLE_FIELDS = ["tableProfilerConfig", "columns", "customMetrics"]
-TAGS_FIELD = ["tags"]
 
 
 class ProfilerSourceAndEntity(BaseModel):
@@ -74,10 +66,6 @@ class OpenMetadataSource(Source):
 
     def init_steps(self):
         super().__init__()
-
-    @property
-    def name(self) -> str:
-        return "OpenMetadata Service"
 
     # pylint: disable=super-init-not-called
     def __init__(
@@ -126,7 +114,7 @@ class OpenMetadataSource(Source):
         self.metadata.health_check()
 
     def _iter(self, *_, **__) -> Iterable[Either[ProfilerSourceAndEntity]]:
-        global_profiler_config = self.metadata.get_profiler_config_settings()
+
         for database in self.get_database_entities():
             try:
                 profiler_source = profiler_source_factory.create(
@@ -134,7 +122,6 @@ class OpenMetadataSource(Source):
                     self.config,
                     database,
                     self.metadata,
-                    global_profiler_config,
                 )
                 for entity in self.get_table_entities(database=database):
                     yield Either(
@@ -153,28 +140,15 @@ class OpenMetadataSource(Source):
                 )
 
     @classmethod
-    def create(
-        cls,
-        config_dict: dict,
-        metadata: OpenMetadata,
-        pipeline_name: Optional[str] = None,
-    ) -> "Step":
+    def create(cls, config_dict: dict, metadata: OpenMetadata) -> "Step":
         config = parse_workflow_config_gracefully(config_dict)
         return cls(config=config, metadata=metadata)
 
     def filter_databases(self, database: Database) -> Optional[Database]:
         """Returns filtered database entities"""
-        database_fqn = fqn.build(
-            self.metadata,
-            entity_type=Database,
-            service_name=self.config.source.serviceName,
-            database_name=database.name.__root__,
-        )
         if filter_by_database(
             self.source_config.databaseFilterPattern,
-            database_fqn
-            if self.source_config.useFqnForFiltering
-            else database.name.__root__,
+            database.name.__root__,
         ):
             self.status.filter(database.name.__root__, "Database pattern not allowed")
             return None
@@ -189,38 +163,18 @@ class OpenMetadataSource(Source):
         """
         for table in tables:
             try:
-                schema_fqn = fqn.build(
-                    self.metadata,
-                    entity_type=DatabaseSchema,
-                    service_name=self.config.source.serviceName,
-                    database_name=table.database.name,
-                    schema_name=table.databaseSchema.name,
-                )
                 if filter_by_schema(
                     self.source_config.schemaFilterPattern,
-                    schema_fqn
-                    if self.source_config.useFqnForFiltering
-                    else table.databaseSchema.name,  # type: ignore
+                    table.databaseSchema.name,  # type: ignore
                 ):
                     self.status.filter(
                         f"Schema pattern not allowed: {table.fullyQualifiedName.__root__}",
                         "Schema pattern not allowed",
                     )
                     continue
-                table_fqn = fqn.build(
-                    self.metadata,
-                    entity_type=Table,
-                    service_name=self.config.source.serviceName,
-                    database_name=table.database.name,
-                    schema_name=table.databaseSchema.name,
-                    table_name=table.name.__root__,
-                )
-
                 if filter_by_table(
                     self.source_config.tableFilterPattern,
-                    table_fqn
-                    if self.source_config.useFqnForFiltering
-                    else table.name.__root__,
+                    table.name.__root__,
                 ):
                     self.status.filter(
                         f"Table pattern not allowed: {table.fullyQualifiedName.__root__}",
@@ -284,9 +238,9 @@ class OpenMetadataSource(Source):
         """
         tables = self.metadata.list_all_entities(
             entity=Table,
-            fields=TABLE_FIELDS
-            if not self.source_config.processPiiSensitive
-            else TABLE_FIELDS + TAGS_FIELD,
+            fields=[
+                "tableProfilerConfig",
+            ],
             params={
                 "service": self.config.source.serviceName,
                 "database": fqn.build(

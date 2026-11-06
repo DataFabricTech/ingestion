@@ -18,15 +18,13 @@ from enum import Enum
 from typing import Iterable, List, Optional, cast
 
 from airflow.models import BaseOperator, DagRun, TaskInstance
-from airflow.models.dag import DagModel
 from airflow.models.serialized_dag import SerializedDagModel
 from airflow.serialization.serialized_objects import SerializedDAG
 from pydantic import BaseModel, ValidationError
-from sqlalchemy import join
 from sqlalchemy.orm import Session
 
 from metadata.generated.schema.api.data.createPipeline import CreatePipelineRequest
-from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.pipeline import (
     Pipeline,
     PipelineStatus,
@@ -37,24 +35,25 @@ from metadata.generated.schema.entity.data.pipeline import (
 from metadata.generated.schema.entity.services.connections.pipeline.airflowConnection import (
     AirflowConnection,
 )
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
+# from metadata.generated.schema.entity.services.ingestionPipelines.status import (
+#     StackTraceError,
+# )
+from metadata.ingestion.api.models import StackTraceError
 from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
-from metadata.generated.schema.type.entityLineage import EntitiesEdge, LineageDetails
-from metadata.generated.schema.type.entityLineage import Source as LineageSource
+# from metadata.generated.schema.type.entityLineage import EntitiesEdge, LineageDetails
+# from metadata.generated.schema.type.entityLineage import Source as LineageSource
 from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import InvalidSourceException
 from metadata.ingestion.connections.session import create_and_bind_session
 from metadata.ingestion.models.pipeline_status import OMetaPipelineStatus
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.ingestion.source.pipeline.airflow.lineage_parser import (
-    XLets,
-    get_xlets_from_dag,
-)
+# from metadata.ingestion.source.pipeline.airflow.lineage_parser import (
+#     XLets,
+#     get_xlets_from_dag,
+# )
 from metadata.ingestion.source.pipeline.airflow.models import (
     AirflowDag,
     AirflowDagDetails,
@@ -63,7 +62,7 @@ from metadata.ingestion.source.pipeline.airflow.models import (
 from metadata.ingestion.source.pipeline.airflow.utils import get_schedule_interval
 from metadata.ingestion.source.pipeline.pipeline_service import PipelineServiceSource
 from metadata.utils import fqn
-from metadata.utils.constants import ENTITY_REFERENCE_TYPE_MAP
+# from metadata.utils.constants import ENTITY_REFERENCE_TYPE_MAP
 from metadata.utils.helpers import clean_uri, datetime_to_ts
 from metadata.utils.logger import ingestion_logger
 
@@ -113,9 +112,7 @@ class AirflowSource(PipelineServiceSource):
         self._session = None
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ) -> "AirflowSource":
+    def create(cls, config_dict, metadata: OpenMetadata) -> "AirflowSource":
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: AirflowConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, AirflowConnection):
@@ -229,7 +226,7 @@ class AirflowSource(PipelineServiceSource):
 
             for dag_run in dag_run_list:
                 if (
-                    dag_run.run_id and self.context.get().task_names
+                    dag_run.run_id and self.context.task_names
                 ):  # Airflow dags can have old task which are turned off/commented out in code
                     tasks = self.get_task_instances(
                         dag_id=dag_run.dag_id,
@@ -249,7 +246,7 @@ class AirflowSource(PipelineServiceSource):
                             ),  # Might be None for running tasks
                         )  # Log link might not be present in all Airflow versions
                         for task in tasks
-                        if task.task_id in self.context.get().task_names
+                        if task.task_id in self.context.task_names
                     ]
 
                     pipeline_status = PipelineStatus(
@@ -262,8 +259,8 @@ class AirflowSource(PipelineServiceSource):
                     pipeline_fqn = fqn.build(
                         metadata=self.metadata,
                         entity_type=Pipeline,
-                        service_name=self.context.get().pipeline_service,
-                        pipeline_name=self.context.get().pipeline,
+                        service_name=self.context.pipeline_service,
+                        pipeline_name=self.context.pipeline,
                     )
                     yield Either(
                         right=OMetaPipelineStatus(
@@ -293,23 +290,11 @@ class AirflowSource(PipelineServiceSource):
             if hasattr(SerializedDagModel, "_data")
             else SerializedDagModel.data  # For 2.2.5 and 2.1.4
         )
-
-        session_query = self.session.query(
+        for serialized_dag in self.session.query(
             SerializedDagModel.dag_id,
             json_data_column,
             SerializedDagModel.fileloc,
-        )
-        if not self.source_config.includeUnDeployedPipelines:
-            session_query = session_query.select_from(
-                join(
-                    SerializedDagModel,
-                    DagModel,
-                    SerializedDagModel.dag_id == DagModel.dag_id,
-                )
-            ).filter(
-                DagModel.is_paused == False  # pylint: disable=singleton-comparison
-            )
-        for serialized_dag in session_query.yield_per(100):
+        ).yield_per(100):
             try:
                 data = serialized_dag[1]["dag"]
                 dag = AirflowDagDetails(
@@ -433,17 +418,17 @@ class AirflowSource(PipelineServiceSource):
                 tasks=self.get_tasks_from_dag(
                     pipeline_details, self.service_connection.hostPort
                 ),
-                service=self.context.get().pipeline_service,
+                service=self.context.pipeline_service,
                 owner=self.get_owner(pipeline_details.owner),
                 scheduleInterval=pipeline_details.schedule_interval,
             )
             yield Either(right=pipeline_request)
             self.register_record(pipeline_request=pipeline_request)
-            self.context.get().task_names = {
+            self.context.task_names = {
                 task.name for task in pipeline_request.tasks or []
             }
         except TypeError as err:
-            self.context.get().task_names = set()
+            self.context.task_names = set()
             yield Either(
                 left=StackTraceError(
                     name=pipeline_details.dag_id,
@@ -455,7 +440,7 @@ class AirflowSource(PipelineServiceSource):
                 )
             )
         except ValidationError as err:
-            self.context.get().task_names = set()
+            self.context.task_names = set()
             yield Either(
                 left=StackTraceError(
                     name=pipeline_details.dag_id,
@@ -465,7 +450,7 @@ class AirflowSource(PipelineServiceSource):
             )
 
         except Exception as err:
-            self.context.get().task_names = set()
+            self.context.task_names = set()
             yield Either(
                 left=StackTraceError(
                     name=pipeline_details.dag_id,
@@ -474,77 +459,77 @@ class AirflowSource(PipelineServiceSource):
                 )
             )
 
-    def yield_pipeline_lineage_details(
-        self, pipeline_details: AirflowDagDetails
-    ) -> Iterable[Either[AddLineageRequest]]:
-        """
-        Parse xlets and add lineage between Pipelines and Tables
-        :param pipeline_details: SerializedDAG from airflow metadata DB
-        :return: Lineage from inlets and outlets
-        """
-
-        # If the context is not set because of an error upstream,
-        # we don't want to continue the processing
-        pipeline_fqn = fqn.build(
-            metadata=self.metadata,
-            entity_type=Pipeline,
-            service_name=self.context.get().pipeline_service,
-            pipeline_name=self.context.get().pipeline,
-        )
-        pipeline_entity = self.metadata.get_by_name(entity=Pipeline, fqn=pipeline_fqn)
-        if not pipeline_entity:
-            return
-
-        lineage_details = LineageDetails(
-            pipeline=EntityReference(
-                id=pipeline_entity.id.__root__,
-                type=ENTITY_REFERENCE_TYPE_MAP[Pipeline.__name__],
-            ),
-            source=LineageSource.PipelineLineage,
-        )
-
-        xlets: List[XLets] = (
-            get_xlets_from_dag(dag=pipeline_details) if pipeline_details else []
-        )
-        for xlet in xlets:
-            for from_xlet in xlet.inlets or []:
-                from_entity = self.metadata.get_by_name(
-                    entity=from_xlet.entity, fqn=from_xlet.fqn
-                )
-                if from_entity:
-                    for to_xlet in xlet.outlets or []:
-                        to_entity = self.metadata.get_by_name(
-                            entity=to_xlet.entity, fqn=to_xlet.fqn
-                        )
-                        if to_entity:
-                            lineage = AddLineageRequest(
-                                edge=EntitiesEdge(
-                                    fromEntity=EntityReference(
-                                        id=from_entity.id,
-                                        type=ENTITY_REFERENCE_TYPE_MAP[
-                                            from_xlet.entity.__name__
-                                        ],
-                                    ),
-                                    toEntity=EntityReference(
-                                        id=to_entity.id,
-                                        type=ENTITY_REFERENCE_TYPE_MAP[
-                                            to_xlet.entity.__name__
-                                        ],
-                                    ),
-                                    lineageDetails=lineage_details,
-                                )
-                            )
-                            yield Either(right=lineage)
-                        else:
-                            logger.warning(
-                                f"Could not find [{to_xlet.entity.__name__}] [{to_xlet.fqn}] from "
-                                f"[{pipeline_entity.fullyQualifiedName.__root__}] outlets"
-                            )
-                else:
-                    logger.warning(
-                        f"Could not find [{from_xlet.entity.__name__}] [{from_xlet.fqn}] from "
-                        f"[{pipeline_entity.fullyQualifiedName.__root__}] inlets"
-                    )
+    # def yield_pipeline_lineage_details(
+    #     self, pipeline_details: AirflowDagDetails
+    # ) -> Iterable[Either[AddLineageRequest]]:
+    #     """
+    #     Parse xlets and add lineage between Pipelines and Tables
+    #     :param pipeline_details: SerializedDAG from airflow metadata DB
+    #     :return: Lineage from inlets and outlets
+    #     """
+    #
+    #     # If the context is not set because of an error upstream,
+    #     # we don't want to continue the processing
+    #     pipeline_fqn = fqn.build(
+    #         metadata=self.metadata,
+    #         entity_type=Pipeline,
+    #         service_name=self.context.pipeline_service,
+    #         pipeline_name=self.context.pipeline,
+    #     )
+    #     pipeline_entity = self.metadata.get_by_name(entity=Pipeline, fqn=pipeline_fqn)
+    #     if not pipeline_entity:
+    #         return
+    #
+    #     lineage_details = LineageDetails(
+    #         pipeline=EntityReference(
+    #             id=pipeline_entity.id.__root__,
+    #             type=ENTITY_REFERENCE_TYPE_MAP[Pipeline.__name__],
+    #         ),
+    #         source=LineageSource.PipelineLineage,
+    #     )
+    #
+    #     xlets: List[XLets] = (
+    #         get_xlets_from_dag(dag=pipeline_details) if pipeline_details else []
+    #     )
+    #     for xlet in xlets:
+    #         for from_xlet in xlet.inlets or []:
+    #             from_entity = self.metadata.get_by_name(
+    #                 entity=from_xlet.entity, fqn=from_xlet.fqn
+    #             )
+    #             if from_entity:
+    #                 for to_xlet in xlet.outlets or []:
+    #                     to_entity = self.metadata.get_by_name(
+    #                         entity=to_xlet.entity, fqn=to_xlet.fqn
+    #                     )
+    #                     if to_entity:
+    #                         lineage = AddLineageRequest(
+    #                             edge=EntitiesEdge(
+    #                                 fromEntity=EntityReference(
+    #                                     id=from_entity.id,
+    #                                     type=ENTITY_REFERENCE_TYPE_MAP[
+    #                                         from_xlet.entity.__name__
+    #                                     ],
+    #                                 ),
+    #                                 toEntity=EntityReference(
+    #                                     id=to_entity.id,
+    #                                     type=ENTITY_REFERENCE_TYPE_MAP[
+    #                                         to_xlet.entity.__name__
+    #                                     ],
+    #                                 ),
+    #                                 lineageDetails=lineage_details,
+    #                             )
+    #                         )
+    #                         yield Either(right=lineage)
+    #                     else:
+    #                         logger.warning(
+    #                             f"Could not find [{to_xlet.entity.__name__}] [{to_xlet.fqn}] from "
+    #                             f"[{pipeline_entity.fullyQualifiedName.__root__}] outlets"
+    #                         )
+    #             else:
+    #                 logger.warning(
+    #                     f"Could not find [{from_xlet.entity.__name__}] [{from_xlet.fqn}] from "
+    #                     f"[{pipeline_entity.fullyQualifiedName.__root__}] inlets"
+    #                 )
 
     def close(self):
         self.session.close()

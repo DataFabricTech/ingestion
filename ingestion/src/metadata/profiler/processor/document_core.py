@@ -15,11 +15,14 @@ Main Profile definition and queries to execute
 from __future__ import annotations
 
 import traceback
-from typing import Optional
+from typing import Optional, Tuple
 
 from metadata.generated.schema.metadataIngestion.storageServiceProfilerPipeline import StorageServiceProfilerPipeline
+from metadata.generated.schema.entity.data.container import FileFormat
 from metadata.profiler.api.models import ProfilerResponse
 from metadata.utils.logger import profiler_logger
+
+from metadata.ml.summarization import Summarization
 
 logger = profiler_logger()
 
@@ -29,25 +32,37 @@ class DocProfiler:
     Document Profiler.
     """
 
-    def __init__(self, source_config: StorageServiceProfilerPipeline, profiler_interface):
+    def __init__(self, source_config: StorageServiceProfilerPipeline, profiler_interface, file_format: FileFormat):
+        self.summarizer = Summarization()
         self.source_config = source_config
         self.profiler_interface = profiler_interface
+        self.file_format = file_format
 
     def process(self) -> ProfilerResponse:
 
+        # sample : 이미지 변환, summary
         if self.source_config.generateSampleData:
-            sample_data = self.generate_sample_data()
+            sample_data, sample_image_data = self.generate_sample_data()
+
+            if sample_data is not None:
+                ############## sample_data는 1000자 일테니 summary용 데이터를 가지고와야할듯.
+                str_summary = self.summarizer.summarize(sample_data)
+            else:
+                str_summary = None
         else:
             sample_data = None
+            str_summary = None
 
         profile_response = ProfilerResponse(
             table=self.profiler_interface.table_entity,
             unstructured_sample_data=sample_data,
+            unstructured_summary=str_summary,
+            image_sample_data=sample_image_data
         )
 
         return profile_response
 
-    def generate_sample_data(self) -> Optional[str]:
+    def generate_sample_data(self) -> Tuple[Optional[str], Optional[str]]:
         """
         Fetch and ingest sample data
         """
@@ -56,12 +71,12 @@ class DocProfiler:
                 "Fetching sample data for "
                 f"{self.profiler_interface.table_entity.fullyQualifiedName.__root__}..."  # type: ignore
             )
-            sample_data = self.profiler_interface.fetch_sample_data(sample_count=self.source_config.sampleDataCount)
-            return sample_data
+            sample_data, sample_image_data = self.profiler_interface.fetch_sample_data(get_chunk_size=-1)
+            return sample_data, sample_image_data
         except Exception as err:
             logger.debug(traceback.format_exc())
             logger.warning(f"Error fetching sample data: {err}")
-            return None
+            return None, None
 
     def close(self):
         pass

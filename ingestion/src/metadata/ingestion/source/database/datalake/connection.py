@@ -20,10 +20,9 @@ from typing import Optional
 
 from google.cloud import storage
 
-from metadata.clients.azure_client import AzureClient
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
@@ -40,8 +39,8 @@ from metadata.generated.schema.security.credentials.gcpValues import (
     MultipleProjectId,
     SingleProjectId,
 )
-from metadata.ingestion.connections.test_connections import test_connection_steps
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.connections.test_connections import test_connection_steps
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.utils.credentials import GOOGLE_CREDENTIALS, set_google_credentials
 
 
@@ -89,8 +88,22 @@ def _(config: GCSConfig):
 
 @get_datalake_client.register
 def _(config: AzureConfig):
+    from azure.identity import ClientSecretCredential
+    from azure.storage.blob import BlobServiceClient
+
     try:
-        return AzureClient(config.securityConfig).create_blob_client()
+        credentials = ClientSecretCredential(
+            config.securityConfig.tenantId,
+            config.securityConfig.clientId,
+            config.securityConfig.clientSecret.get_secret_value(),
+        )
+
+        azure_client = BlobServiceClient(
+            f"https://{config.securityConfig.accountName}.blob.core.windows.net/",
+            credential=credentials,
+        )
+        return azure_client
+
     except Exception as exc:
         raise RuntimeError(
             f"Unknown error connecting with {config.securityConfig}: {exc}."
@@ -103,7 +116,7 @@ def set_gcs_datalake_client(config: GCSConfig, project_id: str):
         gcs_config.securityConfig.gcpConfig.projectId = SingleProjectId.parse_obj(
             project_id
         )
-    return get_datalake_client(gcs_config)
+    return get_datalake_client(config=gcs_config)
 
 
 def get_connection(connection: DatalakeConnection) -> DatalakeClient:
@@ -118,51 +131,51 @@ def get_connection(connection: DatalakeConnection) -> DatalakeClient:
     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    connection: DatalakeClient,
-    service_connection: DatalakeConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-    config = connection.config.configSource
-    func = None
-    if isinstance(config, GCSConfig):
-        if connection.config.bucketName:
-            func = partial(connection.client.get_bucket, connection.config.bucketName)
-        else:
-            func = connection.client.list_buckets
-        os.environ.pop("GOOGLE_CLOUD_PROJECT", "")
-        if GOOGLE_CREDENTIALS in os.environ:
-            os.remove(os.environ[GOOGLE_CREDENTIALS])
-            del os.environ[GOOGLE_CREDENTIALS]
-
-    if isinstance(config, S3Config):
-        if connection.config.bucketName:
-            func = partial(
-                connection.client.list_objects, Bucket=connection.config.bucketName
-            )
-        else:
-            func = connection.client.list_buckets
-
-    if isinstance(config, AzureConfig):
-
-        def list_connection(connection):
-            conn = connection.client.list_containers(name_starts_with="")
-            list(conn)
-
-        func = partial(list_connection, connection)
-
-    test_fn = {
-        "ListBuckets": func,
-    }
-
-    test_connection_steps(
-        metadata=metadata,
-        test_fn=test_fn,
-        service_type=service_connection.type.value,
-        automation_workflow=automation_workflow,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     connection: DatalakeClient,
+#     service_connection: DatalakeConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#     config = connection.config.configSource
+#     func = None
+#     if isinstance(config, GCSConfig):
+#         if connection.config.bucketName:
+#             func = partial(connection.client.get_bucket, connection.config.bucketName)
+#         else:
+#             func = connection.client.list_buckets
+#         os.environ.pop("GOOGLE_CLOUD_PROJECT", "")
+#         if GOOGLE_CREDENTIALS in os.environ:
+#             os.remove(os.environ[GOOGLE_CREDENTIALS])
+#             del os.environ[GOOGLE_CREDENTIALS]
+#
+#     if isinstance(config, S3Config):
+#         if connection.config.bucketName:
+#             func = partial(
+#                 connection.client.list_objects, Bucket=connection.config.bucketName
+#             )
+#         else:
+#             func = connection.client.list_buckets
+#
+#     if isinstance(config, AzureConfig):
+#
+#         def list_connection(connection):
+#             conn = connection.client.list_containers(name_starts_with="")
+#             list(conn)
+#
+#         func = partial(list_connection, connection)
+#
+#     test_fn = {
+#         "ListBuckets": func,
+#     }
+#
+#     test_connection_steps(
+#         metadata=metadata,
+#         test_fn=test_fn,
+#         service_type=service_connection.type.value,
+#         automation_workflow=automation_workflow,
+#     )

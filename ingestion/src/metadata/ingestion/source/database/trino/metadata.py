@@ -16,8 +16,9 @@ import traceback
 from copy import deepcopy
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from sqlalchemy import exc, sql, util
+from sqlalchemy import exc, inspect, sql, util
 from sqlalchemy.engine.base import Connection
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import sqltypes
 from trino.sqlalchemy import datatype, error
 from trino.sqlalchemy.datatype import JSON
@@ -107,7 +108,7 @@ def _get_columns(
 
     res = connection.execute(sql.text(query), schema=schema, table=table_name)
     columns = []
-    for record in res:
+    for index, record in enumerate(res):
         col_type = datatype.parse_sqltype(record.Type)
         column = {
             "name": record.Column,
@@ -115,6 +116,7 @@ def _get_columns(
             "nullable": True,
             "comment": record.Comment,
             "system_data_type": record.Type,
+            "ordinalPosition": index # 컬럼 순서는 메타에 없기 때문에 수집 순서로 정한다.
         }
         type_str = record.Type.strip().lower()
         type_name, type_opts = get_type_name_and_opts(type_str)
@@ -183,9 +185,7 @@ class TrinoSource(CommonDbSourceService):
     ] = "JSON"
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config = WorkflowSource.parse_obj(config_dict)
         connection: TrinoConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, TrinoConnection):
@@ -205,8 +205,7 @@ class TrinoSource(CommonDbSourceService):
         new_service_connection = deepcopy(self.service_connection)
         new_service_connection.catalog = database_name
         self.engine = get_connection(new_service_connection)
-        self._connection_map = {}  # Lazy init as well
-        self._inspector_map = {}
+        self.inspector = inspect(self.engine)
 
     def get_database_names(self) -> Iterable[str]:
         configured_catalog = self.service_connection.catalog
@@ -241,3 +240,49 @@ class TrinoSource(CommonDbSourceService):
                         logger.warning(
                             f"Error trying to connect to database {new_catalog}: {err}"
                         )
+
+    def get_raw_database_schema_names(self) -> Iterable[str]:
+        """
+        Override to handle errors when connecting to Hive metastore for certain catalogs.
+        Some catalogs (like Hive) may fail to connect to their metastore, and we should
+        skip them gracefully rather than failing the entire ingestion.
+        """
+        if self.service_connection.__dict__.get("databaseSchema"):
+            yield self.service_connection.databaseSchema
+        else:
+            try:
+                for schema_name in self.inspector.get_schema_names():
+                    yield schema_name
+            except OperationalError as err:
+                # Check if this is a Hive metastore connection error
+                # SQLAlchemy wraps TrinoExternalError in OperationalError
+                error_str = str(err).lower()
+                # Also check the original exception if available
+                orig_error_str = ""
+                if hasattr(err, 'orig') and err.orig:
+                    orig_error_str = str(err.orig).lower()
+                
+                if ("hive_metastore_error" in error_str or 
+                    "failed connecting to hive metastore" in error_str or
+                    "hive_metastore_error" in orig_error_str or
+                    "failed connecting to hive metastore" in orig_error_str):
+                    catalog_name = getattr(self.service_connection, 'catalog', 'unknown')
+                    logger.warning(
+                        f"Failed to connect to Hive metastore for catalog '{catalog_name}'. "
+                        f"Skipping schema listing for this catalog. Error: {err}"
+                    )
+                    logger.debug(traceback.format_exc())
+                    # Return empty iterator to skip this catalog's schemas
+                    return
+                # Re-raise if it's a different OperationalError
+                raise
+            except Exception as err:
+                # Catch any other unexpected errors
+                catalog_name = getattr(self.service_connection, 'catalog', 'unknown')
+                logger.warning(
+                    f"Error listing schemas for catalog '{catalog_name}': {err}. "
+                    f"Skipping schema listing for this catalog."
+                )
+                logger.debug(traceback.format_exc())
+                # Return empty iterator to skip this catalog's schemas
+                return

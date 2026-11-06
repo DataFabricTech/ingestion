@@ -33,7 +33,6 @@ from metadata.ingestion.source.database.redshift.queries import (
     REDSHIFT_GET_SCHEMA_COLUMN_INFO,
     REDSHIFT_TABLE_COMMENTS,
 )
-from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.sqlalchemy_utils import get_table_comment_wrapper
 
 sa_version = Version(sa.__version__)
@@ -46,7 +45,6 @@ ischema_names.update(REDSHIFT_ISCHEMA_NAMES)
 
 
 # pylint: disable=protected-access
-@calculate_execution_time()
 @reflection.cache
 def get_columns(self, connection, table_name, schema=None, **kw):
     """
@@ -82,7 +80,6 @@ def get_columns(self, connection, table_name, schema=None, **kw):
     return columns
 
 
-@calculate_execution_time()
 def _get_column_info(self, *args, **kwargs):
     """
     Get column info
@@ -115,7 +112,6 @@ def _get_column_info(self, *args, **kwargs):
     return column_info
 
 
-@calculate_execution_time()
 @reflection.cache
 def _get_schema_column_info(
     self, connection, schema=None, **kw
@@ -134,12 +130,13 @@ def _get_schema_column_info(
     """
     schema_clause = f"AND schema = '{schema if schema else ''}'"
     all_columns = defaultdict(list)
-    result = connection.execute(
-        REDSHIFT_GET_SCHEMA_COLUMN_INFO.format(schema_clause=schema_clause)
-    )
-    for col in result:
-        key = RelationKey(col.table_name, col.schema, connection)
-        all_columns[key].append(col)
+    with connection.connect() as cnct:
+        result = cnct.execute(
+            REDSHIFT_GET_SCHEMA_COLUMN_INFO.format(schema_clause=schema_clause)
+        )
+        for col in result:
+            key = RelationKey(col.table_name, col.schema, connection)
+            all_columns[key].append(col)
     return dict(all_columns)
 
 
@@ -273,7 +270,6 @@ def _get_charlen(format_type):
     return charlen
 
 
-@calculate_execution_time()
 @reflection.cache
 def _get_pg_column_info(  # pylint: disable=too-many-locals,too-many-arguments, unused-argument
     self,
@@ -357,7 +353,6 @@ def _get_pg_column_info(  # pylint: disable=too-many-locals,too-many-arguments, 
     return column_info
 
 
-@calculate_execution_time()
 @reflection.cache
 def get_table_comment(
     self, connection, table_name, schema=None, **kw  # pylint: disable=unused-argument
@@ -371,7 +366,6 @@ def get_table_comment(
     )
 
 
-@calculate_execution_time()
 @reflection.cache
 def _get_all_relation_info(self, connection, **kw):  # pylint: disable=unused-argument
     # pylint: disable=consider-using-f-string

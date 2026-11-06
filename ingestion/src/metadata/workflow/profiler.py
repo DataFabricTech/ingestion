@@ -42,7 +42,7 @@ class ProfilerWorkflow(IngestionWorkflow):
         super().__init__(config)
 
         # Validate that we can properly reach the source database
-        self.test_connection()
+        # self.test_connection()
 
     def _get_source_class(self):
         # jblim : ProfilerType 을 이용해 MinIO 데이터를 처리할 수 있는 SourceClass 를 가져올 수 있도록 함.
@@ -62,10 +62,10 @@ class ProfilerWorkflow(IngestionWorkflow):
         self.source = source_class.create(self.config.dict(), self.metadata)
 
         profiler_processor = self._get_profiler_processor()
-        pii_processor = self._get_pii_processor()
-        glossary_processor = self._get_glossary_processor()
+        # pii_processor = self._get_pii_processor()
+        # glossary_processor = self._get_glossary_processor()
         sink = self._get_sink()
-        self.steps = (profiler_processor, pii_processor, glossary_processor, sink)
+        self.steps = (profiler_processor, sink)
         # self.steps = (profiler_processor, pii_processor, sink)
 
     def test_connection(self):
