@@ -163,7 +163,9 @@ base_requirements = {
     "ffmpeg-python==0.2.0",
     "pymediainfo==6.1.0",
     "httpx==0.28.1",
-    "psd-tools==1.10.7"
+    "psd-tools==1.10.7",
+    "lxml==6.1.0",
+    "olefile==0.47"
 }
 
 
