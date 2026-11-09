@@ -1,16 +1,37 @@
-from hwp5 import filestructure as FS
-from hwp5.storage.ole import OleStorage
 import xml.etree.ElementTree as ET
 import zipfile
 import olefile
 import zlib
 import struct
-#### 추가 ####
 import re
 import unicodedata
 
-from metadata.ml.summarization import Summarization
+from metadata.utils.logger import profiler_logger
 
+logger = profiler_logger()
+
+# pyhwp(AGPL-3.0)는 선택 설치다. 미설치 시 HWP 추출만 비활성화된다.
+#   pip install 'openmetadata-ingestion[hwp]'
+try:
+    from hwp5 import filestructure as FS
+    from hwp5.filestructure import Hwp5File
+    from hwp5.storage.ole import OleStorage
+
+    _HAS_PYHWP = True
+except ImportError:  # pragma: no cover
+    FS = None
+    Hwp5File = None
+    OleStorage = None
+    _HAS_PYHWP = False
+
+
+def _hwp_unavailable(feature: str):
+    logger.info(
+        "%s 비활성화: pyhwp가 설치되지 않았습니다. "
+        "pip install 'openmetadata-ingestion[hwp]' 로 활성화할 수 있습니다.",
+        feature,
+    )
+    return None
 
 class HwpMetadataExtractor:
     FILE_HEADER_SECTION = "FileHeader"
@@ -19,32 +40,70 @@ class HwpMetadataExtractor:
     BODYTEXT_SECTION = "BodyText"
     HWP_TEXT_TAGS = [67]
 
-    def __init__(self, file_path: str):
-        self.summarizer = Summarization()
+    def __init__(self):
         self._compressed = None
         self._valid = None
         self._ole = None
-        self.file_path = file_path
 
-        if zipfile.is_zipfile(file_path):
-            self.is_zip = True
-        else:
-            self.is_zip = False
+    def is_hwp(self, file_path):
 
         if file_path.endswith(".hwp"):
-            self.is_hwp = True
-        elif file_path.endswith(".hwpx") and self.is_zip:
-            self.is_hwp = False
+            return True
         else:
-            self.is_hwp = True
+            if file_path.endswith(".hwpx"):
+                if zipfile.is_zipfile(file_path):
+                    return False
+                return None
+            else:
+                return True
 
-    def get_metadata(self) -> dict:
-        if self.is_hwp:
-            return self.extract_metadata()
-        return self.extract_hwpx_metadata()
 
-    def extract_metadata(self) -> dict:
-        olestg = OleStorage(self.file_path)
+    def get_metadata(self, file_path) -> dict:
+        if self.is_hwp(file_path):
+            return self.extract_metadata(file_path)
+        return self.extract_hwpx_metadata(file_path)
+
+    def get_hwp_word_count(self, bodytext : Hwp5File):
+        character_count = 0
+        word_count = 0
+
+        try:
+            sections = getattr(bodytext, "section_list", [])
+        except Exception as e:
+            print(f"[오류] bodytext 접근 실패: {e}")
+            return 0, 0
+
+        for section in sections:
+            paragraphs = getattr(section, "paragraph_list", [])
+            for paragraph in paragraphs:
+                # 텍스트가 없는 경우 스킵
+                if not hasattr(paragraph, "text") or paragraph.text is None:
+                    continue
+
+                line_segments = getattr(paragraph.text, "line_segment_list", [])
+                for line_seg in line_segments:
+                    text = getattr(line_seg, "text", "")
+                    if not isinstance(text, str):
+                        continue  # 텍스트가 문자열이 아니면 무시
+                    character_count += len(text)
+                    word_count += len(text.split())
+
+        return character_count, word_count
+
+    def get_plaintext_lines(self, summary):
+        if not _HAS_PYHWP:
+            return _hwp_unavailable("HWP 텍스트 추출")
+
+        from hwp5.msoleprops import PropertySetStreamTextFormatter
+        stream = summary.getPropertySetStream
+        formatter = PropertySetStreamTextFormatter()
+        return list(formatter.formatTextLines(stream))
+
+    def extract_metadata(self, file_path) -> dict:
+        if not _HAS_PYHWP:
+            return _hwp_unavailable("HWP 메타데이터 추출")
+
+        olestg = OleStorage(file_path)
         hwp5file = FS.Hwp5File(olestg)
         summary: FS.HwpSummaryInfo = hwp5file.summaryinfo
 
@@ -69,18 +128,27 @@ class HwpMetadataExtractor:
             metadata["last_save_dtm"] = summary.lastSavedTime
         if summary.lastPrintedTime is not None:
             metadata["last_printed"] = summary.lastPrintedTime
+        if summary.numberOfPages is not None:
+            metadata["page_count"] = summary.numberOfPages
+        if summary.numberOfParagraphs is not None:
+            metadata["paragraph_count"] = summary.numberOfParagraphs
 
-        sample_data = self.get_sample_data(-1)
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-            metadata["Summary"] = str_summary
+        plaintext_lines = self.get_plaintext_lines(summary)
+        if plaintext_lines is not None:
+            metadata["line_count"] = len(plaintext_lines)
+
+        character_count, word_count = self.get_hwp_word_count(hwp5file.bodytext)
+        metadata["character_count"] = character_count
+        metadata["word_count"] = word_count
 
         return metadata
 
-    def extract_hwpx_metadata(self):
+
+    def extract_hwpx_metadata(self, file_path):
         # HWPX 파일을 ZIP 형식으로 열기
         metadata_dict = {}
-        with zipfile.ZipFile(self.file_path, 'r') as zip_ref:
+        section_files = []
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
             # 메타데이터가 포함된 XML 파일 읽기 (보통 meta.xml 파일)
             for file in zip_ref.filelist:
                 if file.filename == "Contents/content.hpf":
@@ -88,11 +156,11 @@ class HwpMetadataExtractor:
                         tree = ET.parse(content_file)
                         root = tree.getroot()
                         # XML 네임스페이스 정의
-                        ns = {
+                        metadata_ns = {
                             'opf': 'http://www.idpf.org/2007/opf/',
                             'dc': 'http://purl.org/dc/elements/1.1/'
                         }
-                        metadata = root.find('opf:metadata', ns)
+                        metadata = root.find('opf:metadata', metadata_ns)
                         if metadata is not None:
                             # 메타데이터 내부의 모든 항목을 순회
                             for meta in metadata:
@@ -111,22 +179,75 @@ class HwpMetadataExtractor:
                                     metadata_dict[tag] = meta.text
                         else:
                             print("Metadata not found.")
+                elif file.filename.startswith("Contents/section") and file.filename.endswith(".xml"):
+                    section_files.append(file.filename)
 
-        sample_data = self.get_sample_data(-1)
-        if sample_data is not None:
-            str_summary = self.summarizer.summarize(sample_data)
-            metadata_dict["Summary"] = str_summary
+            para_count = 0
+            char_count = 0
+            word_count = 0
+            image_count = 0
+            object_count = 0
+            line_count = 0
+            section_ns = {'hp': 'http://www.hancom.co.kr/hwpml/2011/paragraph',
+                          'hp10': 'http://www.hancom.co.kr/hwpml/2016/paragraph'}
+
+            for section in section_files:
+                with zip_ref.open(section) as file:
+                    tree = ET.parse(file)
+                    root = tree.getroot()
+
+                # 문단 추출 (두 네임스페이스 모두 시도)
+                for prefix in section_ns:
+                    paras =  root.findall(f'.//{prefix}:para', section_ns)
+                    if paras:
+                        for para in paras:
+                            para_count += 1
+                            for run in para.findall(f'.//{prefix}:run', section_ns):
+                                text_elem = run.find(f'{prefix}:t', section_ns)
+                                if text_elem is not None and text_elem.text:
+                                    text = text_elem.text
+                                    char_count += len(text)
+                                    word_count += len(text.split())
+                    else:
+                        for run in root.findall(f'.//{prefix}:run', section_ns):
+                            text_elem = run.find(f'{prefix}:t', section_ns)
+                            if text_elem is not None and text_elem.text:
+                                text = text_elem.text
+                                char_count += len(text)
+                                word_count += len(text.split())
+
+                    # 이미지 개수
+                    image_count += len(root.findall(f'.//{prefix}:pic', section_ns))
+
+                    # 도형 개수
+                    object_count = len(root.findall(f'.//{prefix}:shape', section_ns))
+
+                    #라인 수 추출
+                    line_count += len(root.findall(f'.//{prefix}:lineseg', section_ns))
+
+            if para_count > 0:
+                metadata_dict["paragraph_count"] = para_count
+            if char_count > 0:
+                metadata_dict["character_count"] = char_count
+            if word_count > 0:
+                metadata_dict["word_count"] = word_count
+            if image_count > 0:
+                metadata_dict["image_count"] = image_count
+            if object_count > 0:
+                metadata_dict["object_count"] = object_count
+            if line_count > 0:
+                metadata_dict["line_count"] = line_count
 
         return metadata_dict
 
-    def get_sample_data(self, chunk_size: int = 1000):
-        if self.is_hwp:
-            return self.get_sample_data_from_hwp(chunk_size)
-        return self.get_sample_data_from_hwpx(chunk_size)
+    def get_sample_data(self, file_path, chunk_size: int = 1000):
+        if self.is_hwp(file_path):
+            return self.get_sample_data_from_hwp(file_path, chunk_size)
+        return self.get_sample_data_from_hwpx(file_path, chunk_size)
 
     # 파일 불러오기
-    def load(self):
-        return olefile.OleFileIO(self.file_path)
+    def load(self, file_path):
+        return olefile.OleFileIO(file_path)
 
     # hwp 파일인지 확인 header가 없으면 hwp가 아닌 것으로 판단하여 진행 안함
     def is_valid(self, dirs):
@@ -151,8 +272,8 @@ class HwpMetadataExtractor:
         return ["BodyText/Section" + str(x) for x in sorted(m)]
 
     # text 추출
-    def get_sample_data_from_hwp(self, chunk_size):
-        _ole = self.load()
+    def get_sample_data_from_hwp(self, file_path, chunk_size):
+        _ole = self.load(file_path)
         _dirs = _ole.listdir()
         _valid = self.is_valid(_dirs)
         if not _valid:
@@ -202,11 +323,11 @@ class HwpMetadataExtractor:
 
         return text
 
-    def get_sample_data_from_hwpx(self, chunk_size: int = 1000):
+    def get_sample_data_from_hwpx(self, file_path, chunk_size: int = 1000):
         extracted_text = ""
         try:
             # HWPX 파일 열기
-            with zipfile.ZipFile(self.file_path, 'r') as z:
+            with zipfile.ZipFile(file_path, 'r') as z:
                 # Contents/ 디렉터리의 Section*.xml 파일 찾기
                 section_files = [f for f in z.namelist() if f.startswith("Contents/section") and f.endswith(".xml")]
 
@@ -240,22 +361,3 @@ def remove_control_characters(s):
     return "".join(ch for ch in s if unicodedata.category(ch)[0] != "C")
 
 
-def gettext(path: str):
-
-    f = olefile.OleFileIO(path)
-
-# if __name__ == "__main__":
-#     summary = Summarization()
-#
-#     extractor = HwpMetadataExtractor("/Users/jblim/Downloads/사업타당성_검토.hwp")
-#     result = summary.summarize(extractor.get_sample_data(-1))
-#     print(result)
-#     # metadatas = extractor.extract_metadata()
-#     # for key, value in metadatas.items():
-#     #     print(f"{key}: {value}")
-#
-#     extractor = HwpMetadataExtractor("/Users/jblim/Downloads/뉴스.hwpx")
-#     sampledata = extractor.get_sample_data(-1)
-#     result = summary.summarize(sampledata)
-#     print(result)
-#

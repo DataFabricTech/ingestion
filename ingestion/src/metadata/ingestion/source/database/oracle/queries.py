@@ -32,7 +32,7 @@ SELECT
 LOWER(view_name) AS "view_name",
 LOWER(owner) AS "schema",
 DBMS_METADATA.GET_DDL('VIEW', view_name, owner) AS view_def
-FROM ALL_VIEWS
+FROM all_views
 WHERE owner NOT IN ('SYSTEM', 'SYS')
 UNION ALL
 SELECT
@@ -52,7 +52,7 @@ SELECT mview_name FROM ALL_MVIEWS WHERE owner = :owner
 
 ORACLE_GET_TABLE_NAMES = textwrap.dedent(
     """
-SELECT table_name FROM ALL_TABLES WHERE 
+SELECT table_name FROM all_tables WHERE 
 {tablespace}
 OWNER = :owner  
 AND IOT_NAME IS NULL 
@@ -83,12 +83,12 @@ SELECT
     LINE,
     TEXT
 FROM
-    ALL_SOURCE
+    all_source
 WHERE
     type = 'PROCEDURE' and owner = '{schema}'
 """
 )
-CHECK_ACCESS_TO_ALL = "SELECT table_name FROM ALL_TABLES where ROWNUM < 2"
+
 ORACLE_GET_STORED_PROCEDURE_QUERIES = textwrap.dedent(
     """
 WITH SP_HISTORY AS (SELECT
@@ -97,7 +97,7 @@ WITH SP_HISTORY AS (SELECT
     TO_TIMESTAMP(LAST_LOAD_TIME, 'YYYY-MM-DD HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000, 'SECOND') AS end_time,
     PARSING_SCHEMA_NAME as user_name
   FROM gv$sql
-  WHERE UPPER(sql_text) LIKE '%%CALL%%' or UPPER(sql_text) LIKE '%%BEGIN%%'
+  WHERE sql_text LIKE 'CALL%%'
   AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'YYYY-MM-DD HH24:MI:SS') >= TO_TIMESTAMP('{start_date}', 'YYYY-MM-DD HH24:MI:SS')
  ),
  Q_HISTORY AS (SELECT
@@ -114,7 +114,7 @@ WITH SP_HISTORY AS (SELECT
       PARSING_SCHEMA_NAME AS SCHEMA_NAME,
       NULL AS DATABASE_NAME
     FROM gv$sql
-    WHERE UPPER(sql_text) NOT LIKE '%%CALL%%' AND UPPER(sql_text) NOT LIKE '%%BEGIN%%'
+    WHERE sql_text NOT LIKE '%CALL%'
       AND SQL_FULLTEXT NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
       AND SQL_FULLTEXT NOT LIKE '/* {{"app": "dbt", %%}} */%%'
       AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'YYYY-MM-DD HH24:MI:SS') 
@@ -135,7 +135,6 @@ JOIN Q_HISTORY Q
   ON Q.start_time between SP.start_time and SP.end_time
   AND Q.end_time between SP.start_time and SP.end_time
   AND Q.user_name = SP.user_name
-  AND Q.QUERY_TYPE <> 'SELECT'
 ORDER BY PROCEDURE_START_TIME DESC
 """
 )
@@ -152,9 +151,10 @@ ORACLE_GET_COLUMNS = textwrap.dedent(
             col.data_default,
             com.comments,
             col.virtual_column,
-            {identity_cols}
+            {identity_cols},
+            col.column_id
         FROM ALL_TAB_COLS{dblink} col
-        LEFT JOIN ALL_COL_COMMENTS{dblink} com
+        LEFT JOIN all_col_comments{dblink} com
         ON col.table_name = com.table_name
         AND col.column_name = com.column_name
         AND col.owner = com.owner
@@ -173,14 +173,14 @@ SELECT
   SQL_FULLTEXT AS query_text,
   TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') AS start_time,
   ELAPSED_TIME / 1000 AS duration,
-  TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000000, 'SECOND') AS end_time
+  TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000, 'SECOND') AS end_time
 FROM gv$sql
 WHERE OBJECT_STATUS = 'VALID' 
   {filters}
   AND SQL_FULLTEXT NOT LIKE '/* {{"app": "OpenMetadata", %%}} */%%'
   AND SQL_FULLTEXT NOT LIKE '/* {{"app": "dbt", %%}} */%%'
   AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') >= TO_TIMESTAMP('{start_time}', 'yy-MM-dd HH24:MI:SS')
-  AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000000, 'SECOND') 
+  AND TO_TIMESTAMP(FIRST_LOAD_TIME, 'yy-MM-dd/HH24:MI:SS') + NUMTODSINTERVAL(ELAPSED_TIME / 1000, 'SECOND') 
   < TO_TIMESTAMP('{end_time}', 'yy-MM-dd HH24:MI:SS')
 ORDER BY FIRST_LOAD_TIME DESC 
 OFFSET 0 ROWS FETCH NEXT {result_limit} ROWS ONLY

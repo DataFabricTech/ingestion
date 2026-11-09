@@ -18,7 +18,6 @@ from typing import List, cast
 
 from sqlalchemy import column
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.metrics.window.percentille_mixin import PercentilMixin
 from metadata.profiler.orm.functions.length import LenFn
@@ -39,7 +38,7 @@ class Median(StaticMetric, PercentilMixin):
 
     @classmethod
     def name(cls):
-        return MetricType.median.value
+        return "median"
 
     @classmethod
     def is_window_metric(cls):
@@ -90,12 +89,7 @@ class Median(StaticMetric, PercentilMixin):
                     f"We recommend using a smaller sample size or partitionning."
                 )
                 return None
-            try:
-                median = df.median()
-            except Exception as err:
-                logger.error(
-                    f"Unable to compute Median for {self.col.name} due to error: {err}"
-                )
+            median = df.median()
             return None if pd.isnull(median) else median
         logger.debug(
             f"Don't know how to process type {self.col.type} when computing Median"

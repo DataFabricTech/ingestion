@@ -34,11 +34,11 @@ from metadata.generated.schema.metadataIngestion.searchServiceMetadataPipeline i
 from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
-from metadata.ingestion.api.delete import delete_entity_from_source
+# from metadata.ingestion.api.delete import delete_entity_from_source
 from metadata.ingestion.api.models import Either
 from metadata.ingestion.api.steps import Source
 from metadata.ingestion.api.topology_runner import TopologyRunnerMixin
-from metadata.ingestion.models.delete_entity import DeleteEntity
+# from metadata.ingestion.models.delete_entity import DeleteEntity
 from metadata.ingestion.models.search_index_data import OMetaIndexSampleData
 from metadata.ingestion.models.topology import (
     NodeStage,
@@ -76,7 +76,7 @@ class SearchServiceTopology(ServiceTopology):
             ),
         ],
         children=["search_index"],
-        post_process=["mark_search_indexes_as_deleted"],
+        # post_process=["mark_search_indexes_as_deleted"],
     )
     search_index = TopologyNode(
         producer="get_search_index",
@@ -88,12 +88,12 @@ class SearchServiceTopology(ServiceTopology):
                 consumer=["search_service"],
                 use_cache=True,
             ),
-            NodeStage(
-                type_=OMetaIndexSampleData,
-                processor="yield_search_index_sample_data",
-                consumer=["search_service"],
-                nullable=True,
-            ),
+            # NodeStage(
+            #     type_=OMetaIndexSampleData,
+            #     processor="yield_search_index_sample_data",
+            #     consumer=["search_service"],
+            #     nullable=True,
+            # ),
         ],
     )
 
@@ -129,7 +129,7 @@ class SearchServiceSource(TopologyRunnerMixin, Source, ABC):
 
         # Flag the connection for the test connection
         self.connection_obj = self.connection
-        self.test_connection()
+        # self.test_connection()
 
     @property
     def name(self) -> str:
@@ -141,10 +141,10 @@ class SearchServiceSource(TopologyRunnerMixin, Source, ABC):
     ) -> Iterable[Either[CreateSearchIndexRequest]]:
         """Method to Get Search Index Entity"""
 
-    def yield_search_index_sample_data(
-        self, search_index_details: Any
-    ) -> Iterable[Either[SearchIndexSampleData]]:
-        """Method to Get Sample Data of Search Index Entity"""
+    # def yield_search_index_sample_data(
+    #     self, search_index_details: Any
+    # ) -> Iterable[Either[SearchIndexSampleData]]:
+    #     """Method to Get Sample Data of Search Index Entity"""
 
     @abstractmethod
     def get_search_index_list(self) -> Optional[List[Any]]:
@@ -187,16 +187,16 @@ class SearchServiceSource(TopologyRunnerMixin, Source, ABC):
         test_connection_fn = get_test_connection_fn(self.service_connection)
         test_connection_fn(self.metadata, self.connection_obj, self.service_connection)
 
-    def mark_search_indexes_as_deleted(self) -> Iterable[Either[DeleteEntity]]:
-        """Method to mark the search index as deleted"""
-        if self.source_config.markDeletedSearchIndexes:
-            yield from delete_entity_from_source(
-                metadata=self.metadata,
-                entity_type=SearchIndex,
-                entity_source_state=self.index_source_state,
-                mark_deleted_entity=self.source_config.markDeletedSearchIndexes,
-                params={"service": self.context.get().search_service},
-            )
+    # def mark_search_indexes_as_deleted(self) -> Iterable[Either[DeleteEntity]]:
+    #     """Method to mark the search index as deleted"""
+    #     if self.source_config.markDeletedSearchIndexes:
+    #         yield from delete_entity_from_source(
+    #             metadata=self.metadata,
+    #             entity_type=SearchIndex,
+    #             entity_source_state=self.index_source_state,
+    #             mark_deleted_entity=self.source_config.markDeletedSearchIndexes,
+    #             params={"service": self.context.get().search_service},
+    #         )
 
     def register_record(self, search_index_request: CreateSearchIndexRequest) -> None:
         """

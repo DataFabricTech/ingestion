@@ -18,6 +18,7 @@ from sqlalchemy.dialects.mysql.enumerated import ENUM, SET
 from sqlalchemy.dialects.mysql.reflection import _strip_values
 from sqlalchemy.dialects.mysql.types import DATETIME, TIME, TIMESTAMP
 from sqlalchemy.sql import sqltypes
+from sqlalchemy.engine import reflection
 
 from metadata.ingestion.source.database.column_type_parser import create_sqlalchemy_type
 from metadata.utils.sqlalchemy_utils import get_display_datatype
@@ -151,3 +152,8 @@ def parse_column(self, line, state):
     }
     col_d.update(col_kw)
     state.columns.append(col_d)
+
+    #show create table 순서대로 column 리스트를 만들고 있기 때문에 column position은 순서대로이다.
+    column_index = len(state.columns)-1
+    state.columns[column_index]["ordinalPosition"] = column_index+1
+

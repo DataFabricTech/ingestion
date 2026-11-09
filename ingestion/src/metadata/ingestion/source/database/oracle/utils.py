@@ -33,6 +33,20 @@ from metadata.utils.sqlalchemy_utils import (
 )
 
 
+def _preserve_raw_case(dialect, raw_name: str):
+    """
+    Oracle의 원본 대소문자를 유지한 채 이름을 반환한다.
+
+    row[0].lower() == row[0] (전체 소문자로 저장된, 즉 따옴표로 생성된 이름)인
+    경우에만 normalize_name()으로 quoted 표시를 붙여, 이후 컬럼/제약 조회 시
+    denormalize_name()이 대문자로 되돌리지 않고 ALL_TAB_COLS 등과 매칭되게 한다.
+    전체 대문자/혼합 대소문자 이름은 원본 그대로 반환한다.
+    """
+    return (
+        dialect.normalize_name(raw_name) if raw_name.lower() == raw_name else raw_name
+    )
+
+
 @reflection.cache
 def get_table_comment(
     self,
@@ -156,13 +170,14 @@ def get_columns(self, connection, table_name, schema=None, **kw):
     cols = connection.execute(sql.text(text), params)
 
     for row in cols:
-        colname = self.normalize_name(row[0])
+        colname = _preserve_raw_case(self, row[0])
         length = row[2]
         nullable = row[5] == "Y"
         default = row[6]
         generated = row[8]
         default_on_nul = row[9]
         identity_options = row[10]
+        ordinal_position = row[11]
 
         coltype, raw_coltype = self._get_col_type(
             row.data_type, row.data_precision, row.data_scale, length, colname
@@ -186,6 +201,7 @@ def get_columns(self, connection, table_name, schema=None, **kw):
             "autoincrement": "auto",
             "comment": row.comments,
             "system_data_type": raw_coltype,
+            "ordinalPosition": ordinal_position
         }
         if row.column_name.lower() == row.column_name:
             cdict["quote"] = True
@@ -219,7 +235,7 @@ def get_table_names(self, connection, schema=None, **kw):
         )
     sql_str = ORACLE_GET_TABLE_NAMES.format(tablespace=tablespace)
     cursor = connection.execute(sql.text(sql_str), {"owner": schema})
-    return [row[0] for row in cursor]
+    return [_preserve_raw_case(self, row[0]) for row in cursor]
 
 
 def get_mview_names(self, schema=None):
@@ -239,7 +255,7 @@ def get_mview_names_dialect(self, connection, schema=None, **kw):
     schema = self.denormalize_name(schema or self.default_schema_name)
     sql_query = sql.text(GET_MATERIALIZED_VIEW_NAMES)
     cursor = connection.execute(sql_query, {"owner": self.denormalize_name(schema)})
-    return [self.normalize_name(row[0]) for row in cursor]
+    return [_preserve_raw_case(self, row[0]) for row in cursor]
 
 
 def get_mview_definition(self, mview_name, schema=None):

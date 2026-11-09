@@ -21,7 +21,6 @@ from requests.exceptions import HTTPError
 
 from metadata.config.common import ConfigModel
 from metadata.ingestion.ometa.credentials import URL, get_api_version
-from metadata.utils.execution_time_tracker import calculate_execution_time
 from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
@@ -201,9 +200,6 @@ class REST:
                 )
                 time.sleep(retry_wait)
                 retry -= 1
-                if retry == 0:
-                    logger.error(f"No more retries left for {url}")
-                    traceback.format_exc()
         return None
 
     def _one_request(self, method: str, url: URL, opts: dict, retry: int):
@@ -231,12 +227,22 @@ class REST:
             # retry if we hit Rate Limit
             if resp.status_code in retry_codes and retry > 0:
                 raise RetryException() from http_error
+            body = (resp.text or "")[:2000]
+            logger.debug(
+                f"HTTP {resp.status_code} from [{method}] {url} - response body: {resp.text}"
+            )
             if "code" in resp.text:
-                error = resp.json()
-                if "code" in error:
+                try:
+                    error = resp.json()
+                except ValueError:
+                    error = None
+                if error and "code" in error:
                     raise APIError(error, http_error) from http_error
-            else:
-                raise
+            # 서버가 JSON 에러가 아닌 본문(HTML 에러 페이지 등)을 준 경우에도
+            # 원인을 알 수 있도록 응답 본문을 예외 메시지에 실어준다.
+            raise HTTPError(
+                f"{http_error} - response body: {body}", response=resp
+            ) from http_error
         except requests.ConnectionError as conn:
             # Trying to solve https://github.com/psf/requests/issues/4664
             try:
@@ -255,7 +261,6 @@ class REST:
 
         return None
 
-    @calculate_execution_time(context="GET")
     def get(self, path, data=None):
         """
         GET method
@@ -269,7 +274,6 @@ class REST:
         """
         return self._request("GET", path, data)
 
-    @calculate_execution_time(context="POST")
     def post(self, path, data=None):
         """
         POST method
@@ -283,7 +287,6 @@ class REST:
         """
         return self._request("POST", path, data)
 
-    @calculate_execution_time(context="PUT")
     def put(self, path, data=None):
         """
         PUT method
@@ -297,7 +300,6 @@ class REST:
         """
         return self._request("PUT", path, data)
 
-    @calculate_execution_time(context="PUT")
     def put_plain_text(self, path, data=None):
         """
         PUT method
@@ -311,7 +313,6 @@ class REST:
         """
         return self._request("PUT", path, data, headers={"Content-Type": "text/plain"})
 
-    @calculate_execution_time(context="PATCH")
     def patch(self, path, data=None):
         """
         PATCH method
@@ -330,7 +331,6 @@ class REST:
             headers={"Content-type": "application/json-patch+json"},
         )
 
-    @calculate_execution_time(context="DELETE")
     def delete(self, path, data=None):
         """
         DELETE method

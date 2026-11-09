@@ -32,17 +32,14 @@ def _(element, compiler, **kw):
     return f"SUM(CAST({proc} AS BIGINT))"
 
 
-@compiles(SumFn, Dialects.Athena)
 @compiles(SumFn, Dialects.Trino)
-@compiles(SumFn, Dialects.Presto)
 def _(element, compiler, **kw):
-    """Cast to DECIMAL to address cannot cast nan to bigint"""
+    """Cast to BIGINT to address cannot cast nan to bigint"""
     proc = compiler.process(element.clauses, **kw)
-    return f"SUM(TRY_CAST({proc} AS DECIMAL))"
+    return f"SUM(TRY_CAST({proc} AS BIGINT))"
 
 
 @compiles(SumFn, Dialects.BigQuery)
-@compiles(SumFn, Dialects.Postgres)
 def _(element, compiler, **kw):
     """Handle case where column type is INTEGER but SUM returns a NUMBER"""
     proc = compiler.process(element.clauses, **kw)
@@ -95,8 +92,3 @@ def _(element, compiler, **kw):
     return f"SUM(CAST({proc} AS BIGINT))"
 
 
-@compiles(SumFn, Dialects.ClickHouse)
-def _(element, compiler, **kw):
-    """Handle case where column type is INTEGER but SUM returns a NUMBER"""
-    proc = compiler.process(element.clauses, **kw)
-    return f"SUM(accurateCastOrNull({proc},'BIGINT'))"

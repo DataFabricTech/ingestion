@@ -15,6 +15,7 @@ Generic Delimiter-Separated-Values implementation
 import functools
 import io
 from functools import singledispatchmethod
+from io import TextIOWrapper
 from typing import Any, Dict, Optional
 
 from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
@@ -77,11 +78,11 @@ class DSVDataFrameReader(DataFrameReader):
         # columns = [Column(name=col) for col in chunk_list[0].columns]
         return DatalakeColumnWrapper(dataframes=chunk_list)
 
-    def read_from_pandas_with_raw(self, body) -> DatalakeColumnWrapper:
+    def read_from_pandas_with_raw(self, encoding, body) -> DatalakeColumnWrapper:
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
         chunk_list = []
-        with pd.read_csv(body, sep=self.separator, chunksize=CHUNKSIZE) as reader:
+        with pd.read_csv(body, sep=self.separator, chunksize=CHUNKSIZE, encoding=encoding) as reader:
             for chunks in reader:
                 chunk_list.append(chunks)
 
@@ -99,7 +100,10 @@ class DSVDataFrameReader(DataFrameReader):
         """
         Read the CSV file from the gcs bucket and return a dataframe
         """
-        path = f"gs://{bucket_name}/{key}"
+        # path = f"gs://{bucket_name}/{key}"
+        bucket = self.client.bucket(bucket_name)
+        blob = bucket.blob(key)
+        path = blob.download_as_bytes()
         return self.read_from_pandas(path=path)
 
     @_read_dsv_dispatch.register
@@ -109,31 +113,44 @@ class DSVDataFrameReader(DataFrameReader):
 
     @_read_dsv_dispatch.register
     def _(self, _: MinioCredentials, key: str, bucket_name: str) -> DatalakeColumnWrapper:
-        import urllib.parse  # pylint: disable=import-outside-toplevel
-        key = urllib.parse.unquote_plus(key)
-        storage_options = {
-            "key": f"{self.config_source.accessKeyId}",
-            "secret": f"{self.config_source.secretKey}",
-            "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}", "region_name": "ap-northeast-2"},}
+        # import urllib.parse  # pylint: disable=import-outside-toplevel
+        # key = urllib.parse.unquote_plus(key)
+        # storage_options = {
+        #     "key": f"{self.config_source.accessKeyId}",
+        #     "secret": f"{self.config_source.secretKey.get_secret_value()}",
+        #     "client_kwargs": {"endpoint_url": f"{self.config_source.endPointURL}"},}
+        #
+        # for encoding in PANDAS_ENCODINGS:
+        #     try:
+        #         return self.read_from_pandas(path=f"s3://{bucket_name}/{key}",
+        #                                      storage_options=storage_options, encoding=encoding)
+        #     except UnicodeDecodeError as err:
+        #         continue
+        #     except PermissionError as err:
+        #         try:
+        #             response = self.client.get_object(Bucket=bucket_name, Key=key)
+        #             data = response['Body'].read()
+        #             return self.read_from_pandas_with_raw(io.BytesIO(data))
+        #         except Exception as err:
+        #             raise err
+        #     except Exception as err:
+        #         raise err
 
+        response = self.client.get_object(Bucket=bucket_name, Key=key)
+        data = response['Body'].read()
         for encoding in PANDAS_ENCODINGS:
             try:
-                return self.read_from_pandas(path=f"s3://{bucket_name}/{key}",
-                                             storage_options=storage_options, encoding=encoding)
+                text_body = TextIOWrapper(io.BytesIO(data), encoding=encoding)
+                result = self.read_from_pandas_with_raw(encoding, text_body)
+                break
             except UnicodeDecodeError as err:
                 continue
-            except PermissionError as err:
-                try:
-                    response = self.client.get_object(Bucket=bucket_name, Key=key)
-                    data = response['Body'].read()
-                    return self.read_from_pandas_with_raw(io.BytesIO(data))
-                except Exception as err:
-                    raise err
             except Exception as err:
                 raise err
-
         # res = self.client.head_object(Bucket=bucket_name, Key=key)
         # data.raw_data = res
+
+        return result
 
     @_read_dsv_dispatch.register
     def _(self, _: AzureConfig, key: str, bucket_name: str) -> DatalakeColumnWrapper:

@@ -17,7 +17,6 @@ Count Metric definition
 
 from sqlalchemy import column, func
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.orm.functions.count import CountFn
 from metadata.utils.logger import profiler_logger
@@ -34,7 +33,7 @@ class Count(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.valuesCount.value
+        return "valuesCount"
 
     @property
     def metric_type(self):

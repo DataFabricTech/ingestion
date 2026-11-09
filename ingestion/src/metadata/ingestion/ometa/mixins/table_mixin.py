@@ -17,13 +17,10 @@ import traceback
 from typing import List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
-from requests.compat import quote
+from requests.utils import quote
 
 from metadata.generated.schema.api.data.createTableProfile import (
     CreateTableProfileRequest,
-)
-from metadata.generated.schema.api.tests.createCustomMetric import (
-    CreateCustomMetricRequest,
 )
 from metadata.generated.schema.entity.data.table import (
     ColumnProfile,
@@ -36,7 +33,7 @@ from metadata.generated.schema.entity.data.table import (
     TableProfilerConfig,
 )
 from metadata.generated.schema.type.basic import FullyQualifiedEntityName, Uuid
-from metadata.generated.schema.type.usageRequest import UsageRequest
+# from metadata.generated.schema.type.usageRequest import UsageRequest
 from metadata.ingestion.ometa.client import REST
 from metadata.ingestion.ometa.models import EntityList
 from metadata.ingestion.ometa.utils import model_str
@@ -155,19 +152,19 @@ class OMetaTableMixin:
         )
         return Table(**resp)
 
-    def publish_table_usage(
-        self, table: Table, table_usage_request: UsageRequest
-    ) -> None:
-        """
-        POST usage details for a Table
-
-        :param table: Table Entity to update
-        :param table_usage_request: Usage data to add
-        """
-        resp = self.client.post(
-            f"/usage/table/{table.id.__root__}", data=table_usage_request.json()
-        )
-        logger.debug("published table usage %s", resp)
+    # def publish_table_usage(
+    #     self, table: Table, table_usage_request: UsageRequest
+    # ) -> None:
+    #     """
+    #     POST usage details for a Table
+    #
+    #     :param table: Table Entity to update
+    #     :param table_usage_request: Usage data to add
+    #     """
+    #     resp = self.client.post(
+    #         f"/usage/table/{table.id.__root__}", data=table_usage_request.json()
+    #     )
+    #     logger.debug("published table usage %s", resp)
 
     def publish_frequently_joined_with(
         self, table: Table, table_join_request: TableJoins
@@ -291,18 +288,3 @@ class OMetaTableMixin:
             Optional[Table]: OM table object
         """
         return self._get(Table, f"{quote(model_str(fqn))}/tableProfile/latest")
-
-    def create_or_update_custom_metric(
-        self, custom_metric: CreateCustomMetricRequest, table_id: str
-    ) -> Table:
-        """Create or update custom metric. If custom metric name matches an existing
-        one then it will be updated.
-
-        Args:
-            custom_metric (CreateCustomMetricRequest): custom metric to be create or updated
-        """
-        resp = self.client.put(
-            f"{self.get_suffix(Table)}/{table_id}/customMetric",
-            data=custom_metric.json(),
-        )
-        return Table(**resp)

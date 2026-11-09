@@ -17,7 +17,6 @@ from functools import singledispatch
 
 import requests
 
-from metadata.clients.azure_client import AzureClient
 from metadata.generated.schema.entity.services.connections.database.datalake.azureConfig import (
     AzureConfig,
 )
@@ -33,9 +32,9 @@ from metadata.generated.schema.metadataIngestion.storage.manifestMetadataConfig 
 from metadata.generated.schema.metadataIngestion.storage.storageMetadataADLSConfig import (
     StorageMetadataAdlsConfig,
 )
-from metadata.generated.schema.metadataIngestion.storage.storageMetadataGCSConfig import (
-    StorageMetadataGcsConfig,
-)
+# from metadata.generated.schema.metadataIngestion.storage.storageMetadataGCSConfig import (
+#     StorageMetadataGcsConfig,
+# )
 from metadata.generated.schema.metadataIngestion.storage.storageMetadataHttpConfig import (
     StorageMetadataHttpConfig,
 )
@@ -154,7 +153,21 @@ def _(config: StorageMetadataAdlsConfig) -> ManifestMetadataConfig:
             else STORAGE_METADATA_MANIFEST_FILE_NAME
         )
 
-        blob_client = AzureClient(config.securityConfig).create_blob_client()
+        from azure.identity import (  # pylint: disable=import-outside-toplevel
+            ClientSecretCredential,
+        )
+        from azure.storage.blob import (  # pylint: disable=import-outside-toplevel
+            BlobServiceClient,
+        )
+
+        blob_client = BlobServiceClient(
+            account_url=f"https://{config.securityConfig.accountName}.blob.core.windows.net/",
+            credential=ClientSecretCredential(
+                config.securityConfig.tenantId,
+                config.securityConfig.clientId,
+                config.securityConfig.clientSecret.get_secret_value(),
+            ),
+        )
 
         reader = get_reader(
             config_source=AzureConfig(securityConfig=config.securityConfig),
@@ -170,35 +183,35 @@ def _(config: StorageMetadataAdlsConfig) -> ManifestMetadataConfig:
         )
 
 
-@get_manifest.register
-def _(config: StorageMetadataGcsConfig) -> ManifestMetadataConfig:
-    try:
-        bucket_name, prefix = (
-            config.prefixConfig.containerName,
-            config.prefixConfig.objectPrefix,
-        )
-
-        path = (
-            f"{prefix}/{STORAGE_METADATA_MANIFEST_FILE_NAME}"
-            if prefix
-            else STORAGE_METADATA_MANIFEST_FILE_NAME
-        )
-
-        from google.cloud.storage import (  # pylint: disable=import-outside-toplevel
-            Client,
-        )
-
-        set_google_credentials(gcp_credentials=config.securityConfig)
-        gcs_client = Client()
-        reader = get_reader(
-            config_source=GCSConfig(securityConfig=config.securityConfig),
-            client=gcs_client,
-        )
-
-        manifest = reader.read(path=path, bucket_name=bucket_name)
-        return ManifestMetadataConfig.parse_obj(json.loads(manifest))
-    except Exception as exc:
-        logger.debug(traceback.format_exc())
-        raise StorageMetadataConfigException(
-            f"Error fetching manifest file from gcs: {exc}"
-        )
+# @get_manifest.register
+# def _(config: StorageMetadataGcsConfig) -> ManifestMetadataConfig:
+#     try:
+#         bucket_name, prefix = (
+#             config.prefixConfig.containerName,
+#             config.prefixConfig.objectPrefix,
+#         )
+#
+#         path = (
+#             f"{prefix}/{STORAGE_METADATA_MANIFEST_FILE_NAME}"
+#             if prefix
+#             else STORAGE_METADATA_MANIFEST_FILE_NAME
+#         )
+#
+#         from google.cloud.storage import (  # pylint: disable=import-outside-toplevel
+#             Client,
+#         )
+#
+#         set_google_credentials(gcp_credentials=config.securityConfig)
+#         gcs_client = Client()
+#         reader = get_reader(
+#             config_source=GCSConfig(securityConfig=config.securityConfig),
+#             client=gcs_client,
+#         )
+#
+#         manifest = reader.read(path=path, bucket_name=bucket_name)
+#         return ManifestMetadataConfig.parse_obj(json.loads(manifest))
+#     except Exception as exc:
+#         logger.debug(traceback.format_exc())
+#         raise StorageMetadataConfigException(
+#             f"Error fetching manifest file from gcs: {exc}"
+#         )

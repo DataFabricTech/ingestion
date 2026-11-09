@@ -17,7 +17,6 @@ MIN_LENGTH Metric definition
 
 from sqlalchemy import column, func
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.orm.functions.length import LenFn
 from metadata.profiler.orm.registry import is_concatenable
@@ -37,7 +36,7 @@ class MinLength(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.minLength.value
+        return "minLength"
 
     @property
     def metric_type(self):
@@ -68,7 +67,7 @@ class MinLength(StaticMetric):
             min_length_list = []
 
             for df in dfs:
-                if any(df[self.col.name].dropna()):
+                if any(df[self.col.name]):
                     min_length_list.append(
                         length_vectorize_func(
                             df[self.col.name].dropna().astype(str)

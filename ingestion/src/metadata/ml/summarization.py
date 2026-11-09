@@ -3,6 +3,11 @@ import ssl
 from nltk.data import find
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+"""
+eenzeenee/t5-base-korean-summarization
+모델은 추상적 요약을 수행하는 딥러닝 기반 모델입니다.
+긴 텍스트를 입력받아 핵심 내용을 새로운 문장으로 생성합니다.
+"""
 model = AutoModelForSeq2SeqLM.from_pretrained('eenzeenee/t5-base-korean-summarization')
 tokenizer = AutoTokenizer.from_pretrained('eenzeenee/t5-base-korean-summarization')
 
@@ -22,11 +27,17 @@ class Summarization:
         inputs = [self.prefix + text]
 
         inputs = tokenizer(inputs, max_length=512, truncation=True, return_tensors="pt")
-        output = model.generate(**inputs, num_beams=3, do_sample=True, min_length=10, max_length=100)
+        # num_beams : 후보 문장을 탐색하는 개수
+        # 3 -> 1 : 3에서 1로 수정, 속도 개선
+        # 1 : 가장 기본적인 방법입니다. 현재 상태에서 가장 확률이 높은 단어를 선택하여 생성합니다.
+        output = model.generate(**inputs, num_beams=1, do_sample=False, min_length=10, max_length=100)
         decoded_output = tokenizer.batch_decode(output, skip_special_tokens=True)[0]
-        result = nltk.sent_tokenize(decoded_output.strip())[0]
 
-        return result
+        result = nltk.sent_tokenize(decoded_output.strip())
+        if result:
+            return result[0]
+        else:
+            return ""
 
 def pkg_download(pkg_name):
     try:

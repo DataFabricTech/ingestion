@@ -17,9 +17,6 @@ from logging import Logger
 from metadata.data_quality.interface.pandas.pandas_test_suite_interface import (
     PandasTestSuiteInterface,
 )
-from metadata.data_quality.interface.sqlalchemy.databricks.test_suite_interface import (
-    DatabricksTestSuiteInterface,
-)
 from metadata.data_quality.interface.sqlalchemy.snowflake.test_suite_interface import (
     SnowflakeTestSuiteInterface,
 )
@@ -31,9 +28,6 @@ from metadata.data_quality.interface.sqlalchemy.unity_catalog.test_suite_interfa
 )
 from metadata.data_quality.interface.test_suite_interface import TestSuiteInterface
 from metadata.generated.schema.entity.data.table import Table
-from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
-    DatabricksConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
 )
@@ -122,7 +116,6 @@ test_suite_interface = {
     DatalakeConnection.__name__: PandasTestSuiteInterface,
     SnowflakeConnection.__name__: SnowflakeTestSuiteInterface,
     UnityCatalogConnection.__name__: UnityCatalogTestSuiteInterface,
-    DatabricksConnection.__name__: DatabricksTestSuiteInterface,
 }
 
 test_suite_interface_factory.register_many(test_suite_interface)

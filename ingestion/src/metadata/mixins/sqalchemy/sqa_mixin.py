@@ -20,14 +20,8 @@ from typing import List, Optional
 from sqlalchemy import Column, MetaData, inspect
 from sqlalchemy.orm import DeclarativeMeta
 
-from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
-    DatabricksConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.snowflakeConnection import (
     SnowflakeType,
-)
-from metadata.generated.schema.entity.services.connections.database.unityCatalogConnection import (
-    UnityCatalogConnection,
 )
 from metadata.ingestion.source.connections import get_connection
 from metadata.ingestion.source.database.snowflake.queries import (
@@ -87,21 +81,13 @@ class SQAInterfaceMixin:
             )
 
     def set_catalog(self, session) -> None:
-        """Set catalog for the session. Right now only databricks and unity catalog requires it
+        """Set catalog for the session
 
         Args:
             session (Session): sqa session object
         """
-        if not isinstance(
-            self.service_connection_config,
-            (UnityCatalogConnection, DatabricksConnection),
-        ):
-            return
-        bind = session.get_bind()
-        bind.execute(
-            "USE CATALOG %(catalog)s;",
-            {"catalog": self.service_connection_config.catalog},
-        ).first()
+        # Catalog setting removed for Databricks
+        pass
 
     def close(self):
         """close session"""

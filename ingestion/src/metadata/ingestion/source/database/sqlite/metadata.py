@@ -14,8 +14,6 @@ Sqlite source implementation.
 Useful for testing!
 """
 
-from typing import Optional
-
 from metadata.generated.schema.entity.services.connections.database.sqliteConnection import (
     SQLiteConnection,
 )
@@ -34,9 +32,7 @@ class SqliteSource(CommonDbSourceService):
     """
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection = config.serviceConnection.__root__.config
         if not isinstance(connection, SQLiteConnection):

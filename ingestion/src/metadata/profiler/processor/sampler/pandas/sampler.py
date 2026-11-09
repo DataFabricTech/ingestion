@@ -24,10 +24,12 @@ from metadata.generated.schema.entity.data.table import (
     PartitionProfilerConfig,
     ProfileSampleType,
     TableData,
+    ColumnName
 )
 from metadata.profiler.processor.sampler.sampler_interface import SamplerInterface
 from metadata.utils.sqa_like_column import SQALikeColumn
 
+from pydantic import ValidationError
 
 class DatalakeSampler(SamplerInterface):
     """
@@ -40,16 +42,16 @@ class DatalakeSampler(SamplerInterface):
         self._partition_details = cast(PartitionProfilerConfig, self._partition_details)
         partition_field = self._partition_details.partitionColumnName
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalTypes.COLUMN_VALUE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.COLUMN_VALUE
         ):
             return [
                 df[df[partition_field].isin(self._partition_details.partitionValues)]
                 for df in self.table
             ]
         if (
-            self._partition_details.partitionIntervalType
-            == PartitionIntervalTypes.INTEGER_RANGE
+                self._partition_details.partitionIntervalType
+                == PartitionIntervalTypes.INTEGER_RANGE
         ):
             return [
                 df[
@@ -67,7 +69,7 @@ class DatalakeSampler(SamplerInterface):
                     self._partition_details.partitionIntervalUnit.value,
                     self._partition_details.partitionInterval,
                 )
-            ]
+                ]
             for df in self.table
         ]
 
@@ -156,7 +158,7 @@ class DatalakeSampler(SamplerInterface):
         return data_frame.dropna().values.tolist()
 
     def fetch_sample_data(
-        self, columns: Optional[List[SQALikeColumn]] = None
+            self, columns: Optional[List[SQALikeColumn]] = None
     ) -> TableData:
         """Fetch sample data from the table
 
@@ -167,4 +169,16 @@ class DatalakeSampler(SamplerInterface):
             return self._fetch_sample_data_from_user_query()
 
         cols, rows = self.get_col_row(data_frame=self.table, columns=columns)
-        return TableData(columns=cols, rows=rows)
+
+        # column name 유효성 검사
+        invalid_index = []
+        for idx, col in enumerate(cols):
+            try:
+                ColumnName(__root__=col)
+            except ValidationError:
+                invalid_index.append(idx)
+
+        filtered_cols = [item for i, item in enumerate(cols) if i not in invalid_index]
+        filtered_rows = [item for i, item in enumerate(rows) if i not in invalid_index]
+
+        return TableData(columns=filtered_cols, rows=filtered_rows)

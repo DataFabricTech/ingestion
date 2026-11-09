@@ -39,10 +39,14 @@ def fetch_dataframe(
     fetch_raw_data: bool = False,
     **kwargs,
 ) -> Optional[List["DataFrame"]]:
+
+    from metadata.generated.schema.security.credentials.minioCredentials import (
+        MinioCredentials
+    )
     """
     Method to get dataframe for profiling
     """
-    # dispatch to handle fetching of data from multiple file formats (csv, tsv, json, avro and parquet)
+    # dispatch to handle fetching of data from multiple file formats (csv, json, avro and parquet)
     key: str = file_fqn.key
     bucket_name: str = file_fqn.bucket_name
     try:
@@ -208,7 +212,7 @@ class GenericDataFrameColumnParser:
         cols = []
         if hasattr(data_frame, "columns"):
             df_columns = list(data_frame.columns)
-            for column in df_columns:
+            for idx, column in enumerate(df_columns, start=1):
                 # use String by default
                 data_type = DataType.STRING
                 try:
@@ -220,6 +224,7 @@ class GenericDataFrameColumnParser:
                         "dataType": data_type,
                         "name": truncate_column_name(column),
                         "displayName": column,
+                        "ordinalPosition": idx
                     }
                     if data_type == DataType.ARRAY:
                         parsed_string["arrayDataType"] = DataType.UNKNOWN

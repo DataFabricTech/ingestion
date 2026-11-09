@@ -21,19 +21,19 @@ from urllib.parse import quote_plus
 from pydantic import SecretStr
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.hiveConnection import (
     HiveConnection,
     HiveScheme,
 )
-from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
-    MysqlConnection,
-)
-from metadata.generated.schema.entity.services.connections.database.postgresConnection import (
-    PostgresConnection,
-)
+# from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
+#     MysqlConnection,
+# )
+# from metadata.generated.schema.entity.services.connections.database.postgresConnection import (
+#     PostgresConnection,
+# )
 from metadata.ingestion.connections.builders import (
     create_generic_db_connection,
     get_connection_args_common,
@@ -41,10 +41,10 @@ from metadata.ingestion.connections.builders import (
     get_connection_url_common,
     init_empty_connection_arguments,
 )
-from metadata.ingestion.connections.test_connections import (
-    test_connection_db_schema_sources,
-)
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.connections.test_connections import (
+#     test_connection_db_schema_sources,
+# )
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
 
 HIVE_POSTGRES_SCHEME = "hive+postgres"
 HIVE_MYSQL_SCHEME = "hive+mysql"
@@ -124,75 +124,75 @@ def get_metastore_connection(connection: Any) -> Engine:
     raise NotImplementedError("Metastore not implemented")
 
 
-@get_metastore_connection.register
-def _(connection: PostgresConnection):
-    # import required to load sqlalchemy plugin
-    # pylint: disable=import-outside-toplevel,unused-import
-    from metadata.ingestion.source.database.hive.metastore_dialects.postgres import (  # nopycln: import
-        HivePostgresMetaStoreDialect,
-    )
-
-    class CustomPostgresScheme(Enum):
-        HIVE_POSTGRES = HIVE_POSTGRES_SCHEME
-
-    class CustomPostgresConnection(PostgresConnection):
-        scheme: Optional[CustomPostgresScheme]
-
-    connection_copy = deepcopy(connection.__dict__)
-    connection_copy["scheme"] = CustomPostgresScheme.HIVE_POSTGRES
-
-    custom_connection = CustomPostgresConnection(**connection_copy)
-
-    return create_generic_db_connection(
-        connection=custom_connection,
-        get_connection_url_fn=get_connection_url_common,
-        get_connection_args_fn=get_connection_args_common,
-    )
-
-
-@get_metastore_connection.register
-def _(connection: MysqlConnection):
-    # import required to load sqlalchemy plugin
-    # pylint: disable=import-outside-toplevel,unused-import
-    from metadata.ingestion.source.database.hive.metastore_dialects.mysql import (  # nopycln: import
-        HiveMysqlMetaStoreDialect,
-    )
-
-    class CustomMysqlScheme(Enum):
-        HIVE_MYSQL = HIVE_MYSQL_SCHEME
-
-    class CustomMysqlConnection(MysqlConnection):
-        scheme: Optional[CustomMysqlScheme]
-
-    connection_copy = deepcopy(connection.__dict__)
-    connection_copy["scheme"] = CustomMysqlScheme.HIVE_MYSQL
-
-    custom_connection = CustomMysqlConnection(**connection_copy)
-
-    return create_generic_db_connection(
-        connection=custom_connection,
-        get_connection_url_fn=get_connection_url_common,
-        get_connection_args_fn=get_connection_args_common,
-    )
+# @get_metastore_connection.register
+# def _(connection: PostgresConnection):
+#     # import required to load sqlalchemy plugin
+#     # pylint: disable=import-outside-toplevel,unused-import
+#     from metadata.ingestion.source.database.hive.metastore_dialects.postgres import (  # nopycln: import
+#         HivePostgresMetaStoreDialect,
+#     )
+#
+#     class CustomPostgresScheme(Enum):
+#         HIVE_POSTGRES = HIVE_POSTGRES_SCHEME
+#
+#     class CustomPostgresConnection(PostgresConnection):
+#         scheme: Optional[CustomPostgresScheme]
+#
+#     connection_copy = deepcopy(connection.__dict__)
+#     connection_copy["scheme"] = CustomPostgresScheme.HIVE_POSTGRES
+#
+#     custom_connection = CustomPostgresConnection(**connection_copy)
+#
+#     return create_generic_db_connection(
+#         connection=custom_connection,
+#         get_connection_url_fn=get_connection_url_common,
+#         get_connection_args_fn=get_connection_args_common,
+#     )
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    engine: Engine,
-    service_connection: HiveConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
+# @get_metastore_connection.register
+# def _(connection: MysqlConnection):
+#     # import required to load sqlalchemy plugin
+#     # pylint: disable=import-outside-toplevel,unused-import
+#     from metadata.ingestion.source.database.hive.metastore_dialects.mysql import (  # nopycln: import
+#         HiveMysqlMetaStoreDialect,
+#     )
+#
+#     class CustomMysqlScheme(Enum):
+#         HIVE_MYSQL = HIVE_MYSQL_SCHEME
+#
+#     class CustomMysqlConnection(MysqlConnection):
+#         scheme: Optional[CustomMysqlScheme]
+#
+#     connection_copy = deepcopy(connection.__dict__)
+#     connection_copy["scheme"] = CustomMysqlScheme.HIVE_MYSQL
+#
+#     custom_connection = CustomMysqlConnection(**connection_copy)
+#
+#     return create_generic_db_connection(
+#         connection=custom_connection,
+#         get_connection_url_fn=get_connection_url_common,
+#         get_connection_args_fn=get_connection_args_common,
+#     )
 
-    if service_connection.metastoreConnection:
-        engine = get_metastore_connection(service_connection.metastoreConnection)
 
-    test_connection_db_schema_sources(
-        metadata=metadata,
-        engine=engine,
-        service_connection=service_connection,
-        automation_workflow=automation_workflow,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     engine: Engine,
+#     service_connection: HiveConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#
+#     if service_connection.metastoreConnection:
+#         engine = get_metastore_connection(service_connection.metastoreConnection)
+#
+#     test_connection_db_schema_sources(
+#         metadata=metadata,
+#         engine=engine,
+#         service_connection=service_connection,
+#         automation_workflow=automation_workflow,
+#     )

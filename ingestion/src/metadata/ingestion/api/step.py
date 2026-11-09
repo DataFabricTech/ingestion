@@ -46,26 +46,15 @@ class Step(ABC, Closeable):
 
     @classmethod
     @abstractmethod
-    def create(
-        cls,
-        config_dict: dict,
-        metadata: OpenMetadata,
-        pipeline_name: Optional[str] = None,
-    ) -> "Step":
+    def create(cls, config_dict: dict, metadata: OpenMetadata) -> "Step":
         pass
 
     def get_status(self) -> Status:
         return self.status
 
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        pass
-
     @abstractmethod
     def close(self) -> None:
         pass
-
 
 class Summary(StepSummary):
     """
@@ -90,7 +79,6 @@ class Summary(StepSummary):
             f"{self.name} Summary: [{self.records} Records, [{self.updated_records} Updated Records,"
             f" {self.warnings} Warnings, {self.errors} Errors, {self.filtered} Filtered]"
         )
-
 
 class ReturnStep(Step, ABC):
     """Steps that run by returning a single unit"""

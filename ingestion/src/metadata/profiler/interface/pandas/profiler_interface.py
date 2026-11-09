@@ -54,19 +54,19 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
     # pylint: disable=too-many-arguments
 
     def __init__(
-        self,
-        service_connection_config,
-        ometa_client,
-        entity,
-        storage_config,
-        profile_sample_config,
-        source_config,
-        sample_query,
-        table_partition_config,
-        thread_count: int = 5,
-        timeout_seconds: int = 43200,
-        sample_data_count: int = SAMPLE_DATA_DEFAULT_COUNT,
-        **kwargs,
+            self,
+            service_connection_config,
+            ometa_client,
+            entity,
+            storage_config,
+            profile_sample_config,
+            source_config,
+            sample_query,
+            table_partition_config,
+            thread_count: int = 5,
+            timeout_seconds: int = 43200,
+            sample_data_count: int = SAMPLE_DATA_DEFAULT_COUNT,
+            **kwargs,
     ):
         """Instantiate Pandas Interface object"""
 
@@ -152,11 +152,11 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         )
 
     def _compute_table_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -180,12 +180,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             raise RuntimeError(exc)
 
     def _compute_static_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -213,12 +213,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return row_dict
 
     def _compute_query_metrics(
-        self,
-        metric: Metrics,
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metric: Metrics,
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -236,12 +236,12 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return {metric.name(): col_metric}
 
     def _compute_window_metrics(
-        self,
-        metrics: List[Metrics],
-        runner: List,
-        column,
-        *args,
-        **kwargs,
+            self,
+            metrics: List[Metrics],
+            runner: List,
+            column,
+            *args,
+            **kwargs,
     ):
         """
         Given a list of metrics, compute the given results
@@ -259,11 +259,11 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def _compute_system_metrics(
-        self,
-        metrics: Metrics,
-        runner: List,
-        *args,
-        **kwargs,
+            self,
+            metrics: Metrics,
+            runner: List,
+            *args,
+            **kwargs,
     ):
         """
         Given a list of metrics, compute the given results
@@ -272,7 +272,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return None  # to be implemented
 
     def _compute_custom_metrics(
-        self, metrics: List[CustomMetric], runner, *args, **kwargs
+            self, metrics: List[CustomMetric], runner, *args, **kwargs
     ):
         """Compute custom metrics. For pandas source we expect expression
         to be a boolean value. We'll return the length of the dataframe
@@ -301,13 +301,14 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
                 msg = f"Error trying to compute profile for custom metric: {exc}"
                 logger.debug(traceback.format_exc())
                 logger.warning(msg)
-        if custom_metrics:
-            return {"customMetrics": custom_metrics}
-        return None
+        # if custom_metrics:
+        #     return {"customMetrics": custom_metrics}
+        # return None
+        return {"customMetrics": custom_metrics}
 
     def compute_metrics(
-        self,
-        metric_func: ThreadPoolMetrics,
+            self,
+            metric_func: ThreadPoolMetrics,
     ):
         """Run metrics in processor worker"""
         logger.debug(f"Running profiler for {metric_func.table.name.__root__}")
@@ -346,7 +347,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
         return sampler.fetch_sample_data(columns)
 
     def get_composed_metrics(
-        self, column: Column, metric: Metrics, column_results: Dict
+            self, column: Column, metric: Metrics, column_results: Dict
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -366,7 +367,7 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def get_hybrid_metrics(
-        self, column: Column, metric: Metrics, column_results: Dict, **kwargs
+            self, column: Column, metric: Metrics, column_results: Dict, **kwargs
     ):
         """Given a list of metrics, compute the given results
         and returns the values
@@ -386,8 +387,8 @@ class PandasProfilerInterface(ProfilerInterface, PandasInterfaceMixin):
             return None
 
     def get_all_metrics(
-        self,
-        metric_funcs: List[ThreadPoolMetrics],
+            self,
+            metric_funcs: List[ThreadPoolMetrics],
     ):
         """get all profiler metrics"""
 

@@ -12,15 +12,10 @@
 Abstract definition of each step
 """
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, Optional
+from typing import Any
 
-from metadata.ingestion.api.models import Entity
 from metadata.ingestion.api.step import BulkStep, IterStep, ReturnStep, StageStep
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.utils.execution_time_tracker import (
-    calculate_execution_time,
-    calculate_execution_time_generator,
-)
 from metadata.utils.logger import ingestion_logger
 
 logger = ingestion_logger()
@@ -51,46 +46,18 @@ class Source(IterStep, ABC):
     def test_connection(self) -> None:
         pass
 
-    @property
-    def name(self) -> str:
-        return "Source"
-
-    @calculate_execution_time_generator(context="Source")
-    def run(self) -> Iterable[Optional[Entity]]:
-        yield from super().run()
-
 
 class Sink(ReturnStep, ABC):
     """All Sinks must inherit this base class."""
-
-    @property
-    def name(self) -> str:
-        return "Sink"
-
-    @calculate_execution_time(context="Sink")
-    def run(self, record: Entity) -> Optional[Entity]:
-        return super().run(record)
 
 
 class Processor(ReturnStep, ABC):
     """All Processor must inherit this base class"""
 
-    @property
-    def name(self) -> str:
-        return "Processor"
-
 
 class Stage(StageStep, ABC):
     """All Stages must inherit this base class."""
 
-    @property
-    def name(self) -> str:
-        return "Stage"
-
 
 class BulkSink(BulkStep, ABC):
     """All Stages must inherit this base class."""
-
-    @property
-    def name(self) -> str:
-        return "BulkSink"

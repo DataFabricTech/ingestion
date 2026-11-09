@@ -12,8 +12,6 @@
 Druid source methods.
 """
 
-from typing import Optional
-
 from metadata.generated.schema.entity.services.connections.database.druidConnection import (
     DruidConnection,
 )
@@ -27,9 +25,7 @@ from metadata.ingestion.source.database.common_db_source import CommonDbSourceSe
 
 class DruidSource(CommonDbSourceService):
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         """Create class instance"""
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: DruidConnection = config.serviceConnection.__root__.config

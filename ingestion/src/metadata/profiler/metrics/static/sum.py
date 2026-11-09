@@ -12,20 +12,18 @@
 """
 SUM Metric definition
 """
-from functools import partial
-from typing import Callable, Optional
+# pylint: disable=duplicate-code
 
 from sqlalchemy import column
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
-from metadata.generated.schema.entity.data.table import Table
-from metadata.profiler.adaptors.nosql_adaptor import NoSQLAdaptor
-from metadata.profiler.metrics.core import StaticMetric, T, _label
+from metadata.profiler.metrics.core import StaticMetric, _label
 from metadata.profiler.orm.functions.length import LenFn
 from metadata.profiler.orm.functions.sum import SumFn
 from metadata.profiler.orm.registry import is_concatenable, is_quantifiable
 
-# pylint: disable=duplicate-code
+from metadata.utils.logger import profiler_logger
+
+logger = profiler_logger()
 
 
 class Sum(StaticMetric):
@@ -39,7 +37,7 @@ class Sum(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.sum.value
+        return "sum"
 
     @_label
     def fn(self):
@@ -56,17 +54,18 @@ class Sum(StaticMetric):
         """pandas function"""
 
         if is_quantifiable(self.col.type):
+            # return sum(df[self.col.name].sum() for df in dfs)
+            return_value = 0
             try:
-                return sum(df[self.col.name].sum() for df in dfs)
-            except (TypeError, ValueError):
-                try:
-                    return sum(df[self.col.name].astype(float).sum() for df in dfs)
-                except Exception:
-                    return None
-        return None
+                for df in dfs:
+                    if is_quantifiable(df[self.col.name].dtype):
+                        return_value += df[self.col.name].sum()
 
-    def nosql_fn(self, adaptor: NoSQLAdaptor) -> Callable[[Table], Optional[T]]:
-        """nosql function"""
-        if is_quantifiable(self.col.type):
-            return partial(adaptor.sum, column=self.col)
-        return lambda table: None
+            except Exception as e:
+                logger.warning(
+                    f"Don't know how to process type {self.col.type} when computing SUM, error : {e}"
+                )
+                return None
+
+            return return_value
+        return None

@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional, Union, cast
 from sqlalchemy import and_, case, column, func
 from sqlalchemy.orm import DeclarativeMeta, Session
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.composed.iqr import InterQuartileRange
 from metadata.profiler.metrics.core import HybridMetric
 from metadata.profiler.metrics.static.count import Count
@@ -30,7 +29,6 @@ from metadata.utils.helpers import format_large_string_numbers
 from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
-
 
 # pylint: disable=too-many-locals
 class Histogram(HybridMetric):
@@ -45,7 +43,7 @@ class Histogram(HybridMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.histogram.value
+        return "histogram"
 
     @property
     def metric_type(self):

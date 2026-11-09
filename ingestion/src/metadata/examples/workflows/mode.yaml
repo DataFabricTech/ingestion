@@ -21,13 +21,11 @@ source:
         includes:
           - Supplier Quality Analysis Sample
           - "Customer"
-      lineageInformation:
-        dbServiceNames: [local_redshift]
+      dbServiceNames: [local_redshift]
 sink:
   type: metadata-rest
   config: {}
 workflowConfig:
-#  loggerLevel: INFO # DEBUG, INFO, WARN or ERROR
   openMetadataServerConfig:
     hostPort: http://localhost:8585/api
     authProvider: openmetadata

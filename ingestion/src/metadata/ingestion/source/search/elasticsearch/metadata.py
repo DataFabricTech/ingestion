@@ -56,9 +56,7 @@ class ElasticsearchSource(SearchServiceSource):
         self.client: Elasticsearch = self.connection
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: ElasticsearchConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, ElasticsearchConnection):
@@ -102,45 +100,46 @@ class ElasticsearchSource(SearchServiceSource):
                 fields=parse_es_index_mapping(
                     search_index_details.get(index_name, {}).get("mappings")
                 ),
+                systemType=self.config.systemType
             )
             yield Either(right=search_index_request)
             self.register_record(search_index_request=search_index_request)
 
-    def yield_search_index_sample_data(
-        self, search_index_details: Any
-    ) -> Iterable[Either[OMetaIndexSampleData]]:
-        """
-        Method to Get Sample Data of Search Index Entity
-        """
-        if self.source_config.includeSampleData and self.context.get().search_index:
-            sample_data = self.client.search(
-                index=self.context.get().search_index,
-                q=WILDCARD_SEARCH,
-                size=self.source_config.sampleSize,
-                request_timeout=self.service_connection.connectionTimeoutSecs,
-            )
-
-            search_index_fqn = fqn.build(
-                metadata=self.metadata,
-                entity_type=SearchIndex,
-                service_name=self.context.get().search_service,
-                search_index_name=self.context.get().search_index,
-            )
-            search_index_entity = self.metadata.get_by_name(
-                entity=SearchIndex, fqn=search_index_fqn
-            )
-
-            yield Either(
-                right=OMetaIndexSampleData(
-                    entity=search_index_entity,
-                    data=SearchIndexSampleData(
-                        messages=[
-                            str(message)
-                            for message in sample_data.get("hits", {}).get("hits", [])
-                        ]
-                    ),
-                )
-            )
+    # def yield_search_index_sample_data(
+    #     self, search_index_details: Any
+    # ) -> Iterable[Either[OMetaIndexSampleData]]:
+    #     """
+    #     Method to Get Sample Data of Search Index Entity
+    #     """
+    #     if self.source_config.includeSampleData and self.context.get().search_index:
+    #         sample_data = self.client.search(
+    #             index=self.context.get().search_index,
+    #             q=WILDCARD_SEARCH,
+    #             size=self.source_config.sampleSize,
+    #             request_timeout=self.service_connection.connectionTimeoutSecs,
+    #         )
+    #
+    #         search_index_fqn = fqn.build(
+    #             metadata=self.metadata,
+    #             entity_type=SearchIndex,
+    #             service_name=self.context.get().search_service,
+    #             search_index_name=self.context.get().search_index,
+    #         )
+    #         search_index_entity = self.metadata.get_by_name(
+    #             entity=SearchIndex, fqn=search_index_fqn
+    #         )
+    #
+    #         yield Either(
+    #             right=OMetaIndexSampleData(
+    #                 entity=search_index_entity,
+    #                 data=SearchIndexSampleData(
+    #                     messages=[
+    #                         str(message)
+    #                         for message in sample_data.get("hits", {}).get("hits", [])
+    #                     ]
+    #                 ),
+    #             )
+    #         )
 
     def close(self):
         try:

@@ -20,22 +20,19 @@ from metadata.generated.schema.api.data.createDatabase import CreateDatabaseRequ
 from metadata.generated.schema.api.data.createDatabaseSchema import (
     CreateDatabaseSchemaRequest,
 )
-from metadata.generated.schema.api.data.createQuery import CreateQueryRequest
-from metadata.generated.schema.api.data.createStoredProcedure import (
-    CreateStoredProcedureRequest,
-)
+# from metadata.generated.schema.api.data.createQuery import CreateQueryRequest
+# from metadata.generated.schema.api.data.createStoredProcedure import (
+#     CreateStoredProcedureRequest,
+# )
 from metadata.generated.schema.api.data.createTable import CreateTableRequest
-from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.database import Database
 from metadata.generated.schema.entity.data.databaseSchema import DatabaseSchema
-from metadata.generated.schema.entity.data.table import (
-    Table,
-    TableConstraint,
-    TableType,
-)
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
+from metadata.generated.schema.entity.data.table import Table, TableType
+# from metadata.generated.schema.entity.services.ingestionPipelines.status import (
+#     StackTraceError,
+# )
+from metadata.ingestion.api.models import StackTraceError
 from metadata.generated.schema.metadataIngestion.databaseServiceMetadataPipeline import (
     DatabaseServiceMetadataPipeline,
 )
@@ -43,11 +40,11 @@ from metadata.generated.schema.metadataIngestion.workflow import (
     Source as WorkflowSource,
 )
 from metadata.ingestion.api.models import Either
-from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
+# from metadata.ingestion.models.ometa_classification import OMetaTagAndClassification
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
 from metadata.ingestion.source.connections import get_connection
 from metadata.ingestion.source.database.database_service import DatabaseServiceSource
-from metadata.ingestion.source.database.stored_procedures_mixin import QueryByProcedure
+# from metadata.ingestion.source.database.stored_procedures_mixin import QueryByProcedure
 from metadata.utils import fqn
 from metadata.utils.constants import DEFAULT_DATABASE
 from metadata.utils.datalake.datalake_utils import DataFrameColumnParser
@@ -104,7 +101,7 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
         yield Either(
             right=CreateDatabaseRequest(
                 name=database_name,
-                service=self.context.get().database_service,
+                service=self.context.database_service,
                 sourceUrl=self.get_source_url(database_name=database_name),
             )
         )
@@ -121,8 +118,8 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
             schema_fqn = fqn.build(
                 self.metadata,
                 entity_type=DatabaseSchema,
-                service_name=self.context.get().database_service,
-                database_name=self.context.get().database,
+                service_name=self.context.database_service,
+                database_name=self.context.database,
                 schema_name=schema,
             )
 
@@ -149,11 +146,11 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
                 database=fqn.build(
                     metadata=self.metadata,
                     entity_type=Database,
-                    service_name=self.context.get().database_service,
-                    database_name=self.context.get().database,
+                    service_name=self.context.database_service,
+                    database_name=self.context.database,
                 ),
                 sourceUrl=self.get_source_url(
-                    database_name=self.context.get().database,
+                    database_name=self.context.database,
                     schema_name=schema_name,
                 ),
             )
@@ -175,16 +172,16 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
 
         :return: tables or views, depending on config
         """
-        schema_name = self.context.get().database_schema
+        schema_name = self.context.database_schema
         if self.source_config.includeTables:
             for collection in self.get_table_name_list(schema_name):
                 table_name = collection
                 table_fqn = fqn.build(
                     self.metadata,
                     entity_type=Table,
-                    service_name=self.context.get().database_service,
-                    database_name=self.context.get().database,
-                    schema_name=self.context.get().database_schema,
+                    service_name=self.context.database_service,
+                    database_name=self.context.database,
+                    schema_name=self.context.database_schema,
                     table_name=table_name,
                 )
                 if filter_by_table(
@@ -207,15 +204,6 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
         need to be overridden by sources
         """
 
-    def get_table_constraints(
-        self,
-        db_name: str,
-        schema_name: str,
-        table_name: str,
-    ) -> Optional[List[TableConstraint]]:
-        # pylint: disable=unused-argument
-        return None
-
     def yield_table(
         self, table_name_and_type: Tuple[str, str]
     ) -> Iterable[Either[CreateTableRequest]]:
@@ -226,7 +214,7 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
         import pandas as pd  # pylint: disable=import-outside-toplevel
 
         table_name, table_type = table_name_and_type
-        schema_name = self.context.get().database_schema
+        schema_name = self.context.database_schema
         try:
             data = self.get_table_columns_dict(schema_name, table_name)
             df = pd.DataFrame.from_records(list(data))
@@ -236,20 +224,16 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
                 name=table_name,
                 tableType=table_type,
                 columns=columns,
-                tableConstraints=self.get_table_constraints(
-                    schema_name=schema_name,
-                    table_name=table_name,
-                    db_name=self.context.get().database,
-                ),
+                tableConstraints=None,
                 databaseSchema=fqn.build(
                     metadata=self.metadata,
                     entity_type=DatabaseSchema,
-                    service_name=self.context.get().database_service,
-                    database_name=self.context.get().database,
+                    service_name=self.context.database_service,
+                    database_name=self.context.database,
                     schema_name=schema_name,
                 ),
                 sourceUrl=self.get_source_url(
-                    database_name=self.context.get().database,
+                    database_name=self.context.database,
                     schema_name=schema_name,
                     table_name=table_name,
                     table_type=table_type,
@@ -267,35 +251,35 @@ class CommonNoSQLSource(DatabaseServiceSource, ABC):
                 )
             )
 
-    def yield_view_lineage(self) -> Iterable[Either[AddLineageRequest]]:
-        """
-        views are not supported with NoSQL
-        """
-        yield from []
+    # def yield_view_lineage(self) -> Iterable[Either[AddLineageRequest]]:
+    #     """
+    #     views are not supported with NoSQL
+    #     """
+    #     yield from []
 
-    def yield_tag(
-        self, schema_name: str
-    ) -> Iterable[Either[OMetaTagAndClassification]]:
-        """
-        tags are not supported with NoSQL
-        """
+    # def yield_tag(
+    #     self, schema_name: str
+    # ) -> Iterable[Either[OMetaTagAndClassification]]:
+    #     """
+    #     tags are not supported with NoSQL
+    #     """
 
-    def get_stored_procedures(self) -> Iterable[Any]:
-        """Not implemented"""
+    # def get_stored_procedures(self) -> Iterable[Any]:
+    #     """Not implemented"""
 
-    def yield_stored_procedure(
-        self, stored_procedure: Any
-    ) -> Iterable[Either[CreateStoredProcedureRequest]]:
-        """Not implemented"""
+    # def yield_stored_procedure(
+    #     self, stored_procedure: Any
+    # ) -> Iterable[Either[CreateStoredProcedureRequest]]:
+    #     """Not implemented"""
 
-    def get_stored_procedure_queries(self) -> Iterable[QueryByProcedure]:
-        """Not Implemented"""
+    # def get_stored_procedure_queries(self) -> Iterable[QueryByProcedure]:
+    #     """Not Implemented"""
 
-    def yield_procedure_lineage_and_queries(
-        self,
-    ) -> Iterable[Either[Union[AddLineageRequest, CreateQueryRequest]]]:
-        """Not Implemented"""
-        yield from []
+    # def yield_procedure_lineage_and_queries(
+    #     self,
+    # ) -> Iterable[Either[Union[AddLineageRequest, CreateQueryRequest]]]:
+    #     """Not Implemented"""
+    #     yield from []
 
     def get_source_url(
         self,

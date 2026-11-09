@@ -38,6 +38,16 @@ from metadata.utils.logger import profiler_logger
 
 logger = profiler_logger()
 
+# Ultralytics(AGPL-3.0)는 선택 설치다. 미설치 시 이미지 객체 탐지만 비활성화된다.
+#   pip install 'openmetadata-ingestion[yolo]'
+try:
+    from ultralytics import YOLO  # AGPL-3.0 — optional extra [yolo]
+
+    _HAS_ULTRALYTICS = True
+except ImportError:  # pragma: no cover
+    YOLO = None
+    _HAS_ULTRALYTICS = False
+
 #CONTAINER_FIELDS = ["tableProfilerConfig", "dataModel", "customMetrics"]
 CONTAINER_FIELDS = ["dataModel", "parent", "fileFormats"]
 TAGS_FIELD = ["tags"]
@@ -123,15 +133,42 @@ class MetadataSourceForMinio(Source):
 
     def _iter(self, *_, **__) -> Iterable[Either[MinIoProfilerSourceAndEntity]]:
         global_profiler_config = self.metadata.get_profiler_config_settings()
+        global_profiler_config = self.metadata.get_profiler_config_none_settings() # {} 로 재정의하고 있었음 이유 모름..
+
+        # 이미지 객체 탐지 모델 로딩. Ultralytics 미설치 시 탐지 없이 진행한다.
+        if _HAS_ULTRALYTICS:
+            detected_objects_model = YOLO("yolov8s.pt")
+            global_profiler_config = self.metadata.get_profiler_config_detect_model_settings(
+                detected_objects_model
+            )
+            logger.debug(">>>>> model loading ")
+        else:
+            logger.info(
+                "이미지 객체 탐지 비활성화: Ultralytics가 설치되지 않았습니다. "
+                "pip install 'openmetadata-ingestion[yolo]' 로 활성화할 수 있습니다."
+            )
         supported_file_formats = [
             FileFormat.csv,
-            FileFormat.tsv,
             FileFormat.xls,
             FileFormat.xlsx,
             FileFormat.hwp,
             FileFormat.hwpx,
             FileFormat.doc,
             FileFormat.docx,
+            FileFormat.jpeg,
+            FileFormat.jpg,
+            FileFormat.png,
+            FileFormat.bmp,
+            FileFormat.gif,
+            FileFormat.webp,
+            FileFormat.cr2,
+            FileFormat.nef,
+            FileFormat.tiff,
+            FileFormat.tif,
+            FileFormat.txt,
+            FileFormat.json,
+            FileFormat.xml,
+            FileFormat.pdf
         ]
         for container in self.get_container_entities():
             # Skip unsupported file formats

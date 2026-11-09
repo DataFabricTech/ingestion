@@ -12,18 +12,15 @@
 Profiler Processor Step
 """
 import traceback
-from typing import Optional, cast
+from typing import cast
 
-from metadata.generated.schema.entity.services.ingestionPipelines.status import (
-    StackTraceError,
-)
 from metadata.generated.schema.metadataIngestion.databaseServiceProfilerPipeline import (
     DatabaseServiceProfilerPipeline,
 )
 from metadata.generated.schema.metadataIngestion.workflow import (
     OpenMetadataWorkflowConfig,
 )
-from metadata.ingestion.api.models import Either
+from metadata.ingestion.api.models import Either, StackTraceError
 from metadata.ingestion.api.parser import parse_workflow_config_gracefully
 from metadata.ingestion.api.step import Step
 from metadata.ingestion.api.steps import Processor
@@ -40,6 +37,7 @@ class ProfilerProcessor(Processor):
     """
 
     def __init__(self, config: OpenMetadataWorkflowConfig):
+
         super().__init__()
 
         self.config = config
@@ -50,11 +48,8 @@ class ProfilerProcessor(Processor):
             DatabaseServiceProfilerPipeline, self.config.source.sourceConfig.config
         )  # Used to satisfy type checked
 
-    @property
-    def name(self) -> str:
-        return "Profiler"
-
     def _run(self, record: ProfilerSourceAndEntity) -> Either[ProfilerResponse]:
+
         profiler_runner: Profiler = record.profiler_source.get_profiler_runner(
             record.entity, self.profiler_config
         )
@@ -82,9 +77,7 @@ class ProfilerProcessor(Processor):
         return Either()
 
     @classmethod
-    def create(
-        cls, config_dict: dict, _: OpenMetadata, pipeline_name: Optional[str] = None
-    ) -> "Step":
+    def create(cls, config_dict: dict, _: OpenMetadata) -> "Step":
         config = parse_workflow_config_gracefully(config_dict)
         return cls(config=config)
 

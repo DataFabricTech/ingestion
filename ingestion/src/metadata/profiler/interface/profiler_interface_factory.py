@@ -15,28 +15,8 @@ Factory class for creating profiler interface objects
 
 from typing import cast
 
-from metadata.generated.schema.entity.services.connections.storage.minioConnection import MinioConnection
-
-from metadata.generated.schema.entity.services.connections.database.bigQueryConnection import (
-    BigQueryConnection,
-)
-from metadata.generated.schema.entity.services.connections.database.databricksConnection import (
-    DatabricksConnection,
-)
 from metadata.generated.schema.entity.services.connections.database.datalakeConnection import (
     DatalakeConnection,
-)
-from metadata.generated.schema.entity.services.connections.database.db2Connection import (
-    Db2Connection,
-)
-from metadata.generated.schema.entity.services.connections.database.dynamoDBConnection import (
-    DynamoDBConnection,
-)
-from metadata.generated.schema.entity.services.connections.database.mariaDBConnection import (
-    MariaDBConnection,
-)
-from metadata.generated.schema.entity.services.connections.database.mongoDBConnection import (
-    MongoDBConnection,
 )
 from metadata.generated.schema.entity.services.connections.database.singleStoreConnection import (
     SingleStoreConnection,
@@ -47,28 +27,14 @@ from metadata.generated.schema.entity.services.connections.database.snowflakeCon
 from metadata.generated.schema.entity.services.connections.database.trinoConnection import (
     TrinoConnection,
 )
-from metadata.generated.schema.entity.services.connections.database.unityCatalogConnection import (
-    UnityCatalogConnection,
+from metadata.generated.schema.entity.services.connections.storage.minioConnection import (
+    MinioConnection
 )
 from metadata.generated.schema.entity.services.databaseService import DatabaseConnection
-from metadata.profiler.factory import Factory
-from metadata.profiler.interface.nosql.profiler_interface import NoSQLProfilerInterface
 from metadata.profiler.interface.pandas.profiler_interface import (
     PandasProfilerInterface,
 )
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
-from metadata.profiler.interface.sqlalchemy.bigquery.profiler_interface import (
-    BigQueryProfilerInterface,
-)
-from metadata.profiler.interface.sqlalchemy.databricks.profiler_interface import (
-    DatabricksProfilerInterface,
-)
-from metadata.profiler.interface.sqlalchemy.db2.profiler_interface import (
-    DB2ProfilerInterface,
-)
-from metadata.profiler.interface.sqlalchemy.mariadb.profiler_interface import (
-    MariaDBProfilerInterface,
-)
 from metadata.profiler.interface.sqlalchemy.profiler_interface import (
     SQAProfilerInterface,
 )
@@ -81,12 +47,18 @@ from metadata.profiler.interface.sqlalchemy.snowflake.profiler_interface import 
 from metadata.profiler.interface.sqlalchemy.trino.profiler_interface import (
     TrinoProfilerInterface,
 )
-from metadata.profiler.interface.sqlalchemy.unity_catalog.profiler_interface import (
-    UnityCatalogProfilerInterface,
-)
 
 
-class ProfilerInterfaceFactory(Factory):
+class ProfilerInterfaceFactory:
+    """Creational factory for profiler interface objects"""
+
+    def __init__(self):
+        self._interface_type = {}
+
+    def register(self, interface_type: str, interface_class):
+        """Register a new interface"""
+        self._interface_type[interface_type] = interface_class
+
     def create(self, interface_type: str, *args, **kwargs):
         """Create interface object based on interface type"""
         interface_class = self._interface_type.get(interface_type)
@@ -97,19 +69,19 @@ class ProfilerInterfaceFactory(Factory):
 
 
 profiler_interface_factory = ProfilerInterfaceFactory()
-profilers = {
-    DatabaseConnection.__name__: SQAProfilerInterface,
-    BigQueryConnection.__name__: BigQueryProfilerInterface,
-    SingleStoreConnection.__name__: SingleStoreProfilerInterface,
-    DatalakeConnection.__name__: PandasProfilerInterface,
-    MinioConnection.__name__: PandasProfilerInterface,
-    MariaDBConnection.__name__: MariaDBProfilerInterface,
-    SnowflakeConnection.__name__: SnowflakeProfilerInterface,
-    TrinoConnection.__name__: TrinoProfilerInterface,
-    UnityCatalogConnection.__name__: UnityCatalogProfilerInterface,
-    DatabricksConnection.__name__: DatabricksProfilerInterface,
-    Db2Connection.__name__: DB2ProfilerInterface,
-    MongoDBConnection.__name__: NoSQLProfilerInterface,
-    DynamoDBConnection.__name__: NoSQLProfilerInterface,
-}
-profiler_interface_factory.register_many(profilers)
+profiler_interface_factory.register(DatabaseConnection.__name__, SQAProfilerInterface)
+profiler_interface_factory.register(
+    SingleStoreConnection.__name__, SingleStoreProfilerInterface
+)
+profiler_interface_factory.register(
+    DatalakeConnection.__name__, PandasProfilerInterface
+)
+profiler_interface_factory.register(
+    SnowflakeConnection.__name__, SnowflakeProfilerInterface
+)
+profiler_interface_factory.register(
+    TrinoConnection.__name__, TrinoProfilerInterface
+)
+profiler_interface_factory.register(
+    MinioConnection.__name__, PandasProfilerInterface
+)

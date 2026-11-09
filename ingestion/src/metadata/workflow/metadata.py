@@ -20,17 +20,18 @@ from metadata.utils.importer import (
     import_source_class,
 )
 from metadata.utils.logger import ingestion_logger
-from metadata.workflow.ingestion import IngestionWorkflow
+from metadata.workflow.base import BaseWorkflow
 
 logger = ingestion_logger()
 
 
-class MetadataWorkflow(IngestionWorkflow):
+class MetadataWorkflow(BaseWorkflow):
     """
     Metadata ingestion workflow implementation.
     """
 
     def set_steps(self):
+
         # We keep the source registered in the workflow
         self.source = self._get_source()
         sink = self._get_sink()
@@ -57,15 +58,7 @@ class MetadataWorkflow(IngestionWorkflow):
             )
         )
 
-        pipeline_name = (
-            self.ingestion_pipeline.fullyQualifiedName.__root__
-            if self.ingestion_pipeline
-            else None
-        )
-
-        source: Source = source_class.create(
-            self.config.source.dict(), self.metadata, pipeline_name
-        )
+        source: Source = source_class.create(self.config.source.dict(), self.metadata)
         logger.debug(f"Source type:{source_type},{source_class} configured")
         source.prepare()
         logger.debug(f"Source type:{source_type},{source_class}  prepared")

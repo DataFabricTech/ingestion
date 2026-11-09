@@ -23,7 +23,6 @@ from metadata.readers.dataframe.avro import AvroDataFrameReader
 from metadata.readers.dataframe.base import DataFrameReader
 from metadata.readers.dataframe.dsv import (
     CSVDataFrameReader,
-    TSVDataFrameReader,
     get_dsv_reader_by_separator,
 )
 from metadata.readers.dataframe.json import JSONDataFrameReader
@@ -37,7 +36,6 @@ logger = utils_logger()
 
 class SupportedTypes(Enum):
     CSV = "csv"
-    TSV = "tsv"
     OLD_EXCEL = "xls"
     EXCEL = "xlsx"
     AVRO = "avro"
@@ -49,7 +47,6 @@ class SupportedTypes(Enum):
 
 DF_READER_MAP = {
     SupportedTypes.CSV.value: CSVDataFrameReader,
-    SupportedTypes.TSV.value: TSVDataFrameReader,
     SupportedTypes.OLD_EXCEL.value: ExcelDataFrameReader,
     SupportedTypes.EXCEL.value: ExcelDataFrameReader,
     SupportedTypes.AVRO.value: AvroDataFrameReader,
@@ -70,7 +67,7 @@ def get_df_reader(
     Load the File Reader based on the Config Source
     """
     # If we have a DSV file, build a reader dynamically based on the received separator
-    if type_ in {SupportedTypes.CSV, SupportedTypes.TSV} and separator:
+    if type_ in {SupportedTypes.CSV} and separator:
         return get_dsv_reader_by_separator(separator=separator)(
             config_source=config_source, client=client
         )

@@ -49,16 +49,14 @@ def get_entity_type(
     if "service" in class_name:
         # Capitalize service, e.g., pipelineService
         return class_name.replace("service", "Service")
-    if "testdefinition" in class_name:
-        return class_name.replace("testdefinition", "testDefinition")
-    if "testsuite" in class_name:
-        return class_name.replace("testsuite", "testSuite")
+    # if "testdefinition" in class_name:
+    #     return class_name.replace("testdefinition", "testDefinition")
+    # if "testsuite" in class_name:
+    #     return class_name.replace("testsuite", "testSuite")
     if "databaseschema" in class_name:
         return class_name.replace("databaseschema", "databaseSchema")
-    if "searchindex" in class_name:
-        return class_name.replace("searchindex", "searchIndex")
-    if "dashboarddatamodel" in class_name:
-        return class_name.replace("dashboarddatamodel", "dashboardDataModel")
+    # if "searchindex" in class_name:
+    #     return class_name.replace("searchindex", "searchIndex")
 
     return class_name
 

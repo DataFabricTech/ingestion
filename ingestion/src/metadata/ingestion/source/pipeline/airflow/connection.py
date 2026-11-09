@@ -18,9 +18,9 @@ from typing import Optional
 from airflow import settings
 from sqlalchemy.engine import Engine
 
-from metadata.generated.schema.entity.automations.workflow import (
-    Workflow as AutomationWorkflow,
-)
+# from metadata.generated.schema.entity.automations.workflow import (
+#     Workflow as AutomationWorkflow,
+# )
 from metadata.generated.schema.entity.services.connections.database.mysqlConnection import (
     MysqlConnection,
 )
@@ -38,10 +38,10 @@ from metadata.generated.schema.entity.services.connections.pipeline.backendConne
 )
 from metadata.ingestion.connections.test_connections import (
     SourceConnectionException,
-    test_connection_engine_step,
-    test_connection_steps,
+    # test_connection_engine_step,
+    # test_connection_steps,
 )
-from metadata.ingestion.ometa.ometa_api import OpenMetadata
+# from metadata.ingestion.ometa.ometa_api import OpenMetadata
 
 
 # Only import when needed
@@ -98,22 +98,22 @@ def get_connection(connection: AirflowConnection) -> Engine:
         raise SourceConnectionException(msg) from exc
 
 
-def test_connection(
-    metadata: OpenMetadata,
-    engine: Engine,
-    service_connection: AirflowConnection,
-    automation_workflow: Optional[AutomationWorkflow] = None,
-) -> None:
-    """
-    Test connection. This can be executed either as part
-    of a metadata workflow or during an Automation Workflow
-    """
-
-    test_fn = {"CheckAccess": partial(test_connection_engine_step, engine)}
-
-    test_connection_steps(
-        metadata=metadata,
-        test_fn=test_fn,
-        service_type=service_connection.type.value,
-        automation_workflow=automation_workflow,
-    )
+# def test_connection(
+#     metadata: OpenMetadata,
+#     engine: Engine,
+#     service_connection: AirflowConnection,
+#     automation_workflow: Optional[AutomationWorkflow] = None,
+# ) -> None:
+#     """
+#     Test connection. This can be executed either as part
+#     of a metadata workflow or during an Automation Workflow
+#     """
+#
+#     test_fn = {"CheckAccess": partial(test_connection_engine_step, engine)}
+#
+#     test_connection_steps(
+#         metadata=metadata,
+#         test_fn=test_fn,
+#         service_type=service_connection.type.value,
+#         automation_workflow=automation_workflow,
+#     )

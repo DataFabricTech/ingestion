@@ -21,7 +21,6 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.orm import DeclarativeMeta
 from sqlalchemy.sql.functions import FunctionElement
 
-from metadata.generated.schema.configuration.profilerConfiguration import MetricType
 from metadata.profiler.metrics.core import CACHE, StaticMetric, _label
 from metadata.profiler.orm.registry import Dialects
 
@@ -61,7 +60,7 @@ class ColumnCount(StaticMetric):
 
     @classmethod
     def name(cls):
-        return MetricType.columnCount.value
+        return "columnCount"
 
     @classmethod
     def is_col_metric(cls) -> bool:

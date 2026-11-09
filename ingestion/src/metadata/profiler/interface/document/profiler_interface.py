@@ -11,11 +11,12 @@
 #  pylint: disable=arguments-differ
 import os
 import uuid
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, List, Tuple
 
 from sqlalchemy import Column
 
 from metadata.generated.schema.tests.customMetric import CustomMetric
+from metadata.generated.schema.entity.data.container import FileFormat
 from metadata.profiler.interface.profiler_interface import ProfilerInterface
 from metadata.profiler.metrics.registry import Metrics
 from metadata.profiler.processor.runner import QueryRunner
@@ -24,6 +25,13 @@ from metadata.utils.local_dir import ensure_directory_exists
 from metadata.utils.logger import profiler_interface_registry_logger
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
+from metadata.utils.word.txt_extractor import TxtMetadataExtractor
+from metadata.utils.word.xml_extractor import XmlMetadataExtractor
+from metadata.utils.word.json_extractor import JsonMetadataExtractor
+from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
+from metadata.utils.s3_utils import get_normalized_key
+
+from utils.process_config import config
 
 logger = profiler_interface_registry_logger()
 
@@ -78,7 +86,7 @@ class DocumentProfilerInterface(ProfilerInterface):
         """
         Read the word document from the bucket
         """
-        local_dir_path = os.environ.get('AIRFLOW_HOME') + "/tmp"
+        local_dir_path = config.document_tmp_dir
         # 다운로드 디렉토리 확인 및 생성
         ensure_directory_exists(local_dir_path)
 
@@ -93,38 +101,95 @@ class DocumentProfilerInterface(ProfilerInterface):
             logger.error(e)
             return None
 
-    def fetch_sample_data(self, **kwargs) -> Optional[str]:
+    def fetch_sample_data(self, **kwargs) -> Tuple[Optional[str], Optional[str]]:
         """
-        Fetch sample data from minio document(doc, hwp)
+        Fetch sample data from minio document
         """
+        get_chunk_size = kwargs.get('chunk_size', 1000)
         local_file_path = ""
         try:
             bucket_name = self.table_entity.fullPath.replace("s3://", "").split("/")[0]
-            path = str(self.table_entity.prefix).strip('/')
-            local_file_path = self._get_document_data(bucket_name, path)
+            data_path = str(self.table_entity.prefix).strip('/')
+            normalized_key = get_normalized_key(client=self.client, bucket_name=bucket_name, key=data_path)
+
+            if normalized_key is None:
+                return None, None
+
+            local_file_path = self._get_document_data(bucket_name, normalized_key)
             if local_file_path is None:
-                return None
-            file_extension = path.split('.')[-1]
-            if file_extension == "hwp" or file_extension == "hwpx":
-                return self.get_hwp_sample(local_file_path)
-            elif file_extension == "docx" or file_extension == "doc":
-                return self.get_word_sample(local_file_path)
-            else:
+                return None, None
+
+            sample_data = None
+            sample_image_data =None
+            # get sample data
+            if self.table_entity.fileFormats[0] in [FileFormat.hwp, FileFormat.hwpx]:
+                sample_data = self.get_hwp_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.docx]:
+                sample_data = self.get_ms_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.txt]:
+                sample_data = self.get_txt_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.xml]:
+                sample_data = self.get_xml_sample(local_file_path, get_chunk_size)
+            elif self.table_entity.fileFormats[0] in [FileFormat.json]:
+                sample_data = self.get_json_sample(local_file_path, get_chunk_size)
+
+            # get sample image data
+            if self.table_entity.fileFormats[0] in [FileFormat.docx, FileFormat.doc,
+                                                    FileFormat.txt,
+                                                    FileFormat.xml,
+                                                    FileFormat.json,
+                                                    FileFormat.xlsx, FileFormat.xls]:
+                sample_image_data = self.get_word_sample_image(local_file_path)
+
+            if sample_data is None and sample_image_data is None:
                 logger.warn("Unsupported file type")
-                return None
+
+            return sample_data, sample_image_data
+
         except Exception as e:
             logger.error(e)
         finally:
             os.remove(local_file_path)
 
-    def get_hwp_sample(self, local_file_path):
-        hwp_extractor = HwpMetadataExtractor(local_file_path)
-        sample_data = hwp_extractor.get_sample_data(1000)
+    def get_hwp_sample(self, local_file_path, chunk_size=1000):
+        hwp_extractor = HwpMetadataExtractor()
+        sample_data = hwp_extractor.get_sample_data(local_file_path, chunk_size)
         return sample_data
 
-    def get_word_sample(self, local_file_path):
-        word_extractor = MsWordMetadataExtractor(local_file_path)
-        sample_text = word_extractor.get_sample_data(1000)
+    def get_ms_sample(self, local_file_path, chunk_size=1000):
+        extractor = MsWordMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
+
+    def get_txt_sample(self, local_file_path, chunk_size=1000):
+        extractor = TxtMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
+
+    def get_xml_sample(self, local_file_path, chunk_size=1000):
+        extractor = XmlMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
+        return sample_text
+
+    def get_word_sample_image(self, local_file_path):
+        extractor = PdfMetadataExtractor(local_file_path)
+        pdf_path = ""
+        try:
+            pdf_path = extractor.convert_to_pdf()
+            if pdf_path:
+                sample_text = extractor.get_sample_data(pdf_path)
+                return sample_text
+            else:
+                return None
+        except Exception as e:
+            logger.error(e)
+            return None
+        finally:
+            os.remove(pdf_path)
+
+    def get_json_sample(self, local_file_path, chunk_size=1000):
+        extractor = JsonMetadataExtractor()
+        sample_text = extractor.get_sample_data(local_file_path, chunk_size)
         return sample_text
 
     def _get_sampler(self):

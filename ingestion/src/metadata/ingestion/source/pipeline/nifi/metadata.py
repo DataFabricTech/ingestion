@@ -17,7 +17,7 @@ from typing import Iterable, List, Optional
 from pydantic import BaseModel, ValidationError
 
 from metadata.generated.schema.api.data.createPipeline import CreatePipelineRequest
-from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
+# from metadata.generated.schema.api.lineage.addLineage import AddLineageRequest
 from metadata.generated.schema.entity.data.pipeline import Task
 from metadata.generated.schema.entity.services.connections.pipeline.nifiConnection import (
     NifiConnection,
@@ -81,9 +81,7 @@ class NifiSource(PipelineServiceSource):
     """
 
     @classmethod
-    def create(
-        cls, config_dict, metadata: OpenMetadata, pipeline_name: Optional[str] = None
-    ):
+    def create(cls, config_dict, metadata: OpenMetadata):
         config: WorkflowSource = WorkflowSource.parse_obj(config_dict)
         connection: NifiConnection = config.serviceConnection.__root__.config
         if not isinstance(connection, NifiConnection):
@@ -115,7 +113,8 @@ class NifiSource(PipelineServiceSource):
                 Task(
                     name=processor.id_,
                     displayName=processor.name,
-                    sourceUrl=f"{clean_uri(self.service_connection.hostPort)}{processor.uri}",
+                    # sourceUrl=f"{clean_uri(self.service_connection.hostPort)}{processor.uri}",
+                    sourceUrl=f"{processor.uri}",
                     taskType=processor.type_,
                     downstreamTasks=self._get_downstream_tasks_from(
                         source_id=processor.id_,
@@ -142,9 +141,10 @@ class NifiSource(PipelineServiceSource):
         pipeline_request = CreatePipelineRequest(
             name=pipeline_details.id_,
             displayName=pipeline_details.name,
-            sourceUrl=f"{clean_uri(self.service_connection.hostPort)}{pipeline_details.uri}",
+            # sourceUrl=f"{clean_uri(self.service_connection.hostPort)}{pipeline_details.uri}",
+            sourceUrl=f"{pipeline_details.uri}",
             tasks=self._get_tasks_from_details(pipeline_details),
-            service=self.context.get().pipeline_service,
+            service=self.context.pipeline_service,
         )
         yield Either(right=pipeline_request)
         self.register_record(pipeline_request=pipeline_request)
@@ -158,15 +158,15 @@ class NifiSource(PipelineServiceSource):
         https://github.com/open-metadata/OpenMetadata/issues/6955
         """
 
-    def yield_pipeline_lineage_details(
-        self, pipeline_details: NifiPipelineDetails
-    ) -> Iterable[Either[AddLineageRequest]]:
-        """
-        Parse all the stream available in the connection and create a lineage between them
-        :param pipeline_details: pipeline_details object from Nifi
-        :return: Lineage request
-        https://github.com/open-metadata/OpenMetadata/issues/6950
-        """
+    # def yield_pipeline_lineage_details(
+    #     self, pipeline_details: NifiPipelineDetails
+    # ) -> Iterable[Either[AddLineageRequest]]:
+    #     """
+    #     Parse all the stream available in the connection and create a lineage between them
+    #     :param pipeline_details: pipeline_details object from Nifi
+    #     :return: Lineage request
+    #     https://github.com/open-metadata/OpenMetadata/issues/6950
+    #     """
 
     @staticmethod
     def _get_connections_from_process_group(

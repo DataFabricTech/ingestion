@@ -14,13 +14,13 @@ OMeta client create helpers
 import traceback
 from typing import List
 
-from metadata.generated.schema.entity.data.chart import Chart
+# from metadata.generated.schema.entity.data.chart import Chart
 from metadata.generated.schema.entity.services.connections.metadata.openMetadataConnection import (
     OpenMetadataConnection,
 )
-from metadata.generated.schema.type.entityReference import EntityReference
+# from metadata.generated.schema.type.entityReference import EntityReference
 from metadata.ingestion.ometa.ometa_api import OpenMetadata
-from metadata.utils import fqn
+# from metadata.utils import fqn
 from metadata.utils.logger import ometa_logger
 
 logger = ometa_logger()
@@ -39,7 +39,8 @@ def create_ometa_client(
     """
     try:
         metadata = OpenMetadata(metadata_config)
-        metadata.health_check()
+        # todo: 주석처리
+        # metadata.health_check()
         return metadata
     except Exception as exc:
         logger.debug(traceback.format_exc())
@@ -47,22 +48,22 @@ def create_ometa_client(
         raise ValueError(exc)
 
 
-def get_chart_entities_from_id(
-    chart_ids: List[str], metadata: OpenMetadata, service_name: str
-) -> List[EntityReference]:
-    """
-    Method to get the chart entity using get_by_name api
-    """
-
-    entities = []
-    for chart_id in chart_ids:
-        chart: Chart = metadata.get_by_name(
-            entity=Chart,
-            fqn=fqn.build(
-                metadata, Chart, chart_name=str(chart_id), service_name=service_name
-            ),
-        )
-        if chart:
-            entity = EntityReference(id=chart.id, type="chart")
-            entities.append(entity)
-    return entities
+# def get_chart_entities_from_id(
+#     chart_ids: List[str], metadata: OpenMetadata, service_name: str
+# ) -> List[EntityReference]:
+#     """
+#     Method to get the chart entity using get_by_name api
+#     """
+#
+#     entities = []
+#     for chart_id in chart_ids:
+#         chart: Chart = metadata.get_by_name(
+#             entity=Chart,
+#             fqn=fqn.build(
+#                 metadata, Chart, chart_name=str(chart_id), service_name=service_name
+#             ),
+#         )
+#         if chart:
+#             entity = EntityReference(id=chart.id, type="chart")
+#             entities.append(entity)
+#     return entities

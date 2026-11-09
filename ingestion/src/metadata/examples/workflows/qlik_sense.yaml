@@ -23,21 +23,19 @@ source:
   sourceConfig:
     config:
       type: DashboardMetadata
-      lineageInformation:
-        dbServiceNames:
-        - mysql
-        - postgres
+      dbServiceNames:
+      - mysql
+      - postgres
       chartFilterPattern: {}
       # dashboardFilterPattern:
       #   includes:
       #   - .*mysql.*
-      includeDraftDashboard: True
 
 sink:
   type: metadata-rest
   config: {}
 workflowConfig:
-#  loggerLevel: INFO # DEBUG, INFO, WARN or ERROR
+  loggerLevel: DEBUG
   openMetadataServerConfig:
     hostPort: http://localhost:8585/api
     authProvider: openmetadata

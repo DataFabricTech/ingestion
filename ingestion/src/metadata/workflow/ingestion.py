@@ -68,19 +68,19 @@ class IngestionWorkflow(BaseWorkflow, ABC):
     def __init__(self, config: OpenMetadataWorkflowConfig):
         self.config = config
 
-        self.service_type: ServiceType = get_service_type_from_source_type(
-            self.config.source.type
-        )
+        # self.service_type: ServiceType = get_service_type_from_source_type(
+        #     self.config.source.type
+        # )
 
-        metadata_config: OpenMetadataConnection = (
-            self.config.workflowConfig.openMetadataServerConfig
-        )
+        # metadata_config: OpenMetadataConnection = (
+        #     self.config.workflowConfig.openMetadataServerConfig
+        # )
 
         super().__init__(
             config=config,
-            log_level=config.workflowConfig.loggerLevel,
-            metadata_config=metadata_config,
-            service_type=self.service_type,
+            # log_level=config.workflowConfig.loggerLevel,
+            # metadata_config=metadata_config,
+            # service_type=self.service_type,
         )
 
     @abstractmethod

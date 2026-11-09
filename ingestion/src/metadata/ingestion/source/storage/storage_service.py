@@ -14,12 +14,12 @@ Base class for ingesting Object Storage services
 import os
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
 from enum import Enum
 from typing import Any, Iterable, List, Optional, Set
 
 from metadata.generated.schema.api.data.createContainer import CreateContainerRequest
-from metadata.generated.schema.entity.data.container import Container, Rdf
+from metadata.generated.schema.entity.data.container import Container, Rdf, FileFormat
+from metadata.generated.schema.entity.data.file import File
 from metadata.generated.schema.entity.services.storageService import (
     StorageConnection,
     StorageService,
@@ -68,6 +68,21 @@ from metadata.utils.storage_metadata_config import (
 )
 from metadata.utils.word.ms_word_extractor import MsWordMetadataExtractor
 from metadata.utils.word.hwp_extractor import HwpMetadataExtractor
+from metadata.utils.word.txt_extractor import TxtMetadataExtractor
+from metadata.utils.word.xml_extractor import XmlMetadataExtractor
+from metadata.utils.word.json_extractor import JsonMetadataExtractor
+from metadata.utils.word.xls_extractor import XlsMetadataExtractor
+
+from metadata.utils.image.pil_extractor import PilMetadataExtractor
+from metadata.utils.image.pdf_extractor import PdfMetadataExtractor
+from metadata.utils.image.exifread_extractor import ExifreadMetadataExtractor
+from metadata.utils.image.psd_extractor import PsdMetadataExtractor
+from metadata.utils.image.imageio_extractor import ImageioMetadataExtractor
+from metadata.utils.image.exr_extractor import ExrMetadataExtractor
+from metadata.utils.media.audio_extractor import MutagenMetadataExtractor
+from metadata.utils.media.video_extractor import MediaInfoMetadataExtractor
+
+from utils.process_config import config
 
 logger = ingestion_logger()
 
@@ -96,7 +111,7 @@ class StorageServiceTopology(ServiceTopology):
         ],
         # children=["container"],
         children=["bucket"],
-        post_process=["mark_containers_as_deleted"]
+        # post_process=["mark_containers_as_deleted"]
     )
 
     bucket = TopologyNode(
@@ -134,15 +149,16 @@ class StorageServiceTopology(ServiceTopology):
         producer="get_containers",
         stages=[
             NodeStage(
-                type_=Container,
-                context="container",
-                processor="yield_create_container_requests",
+                type_=File,
+                context="file",
+                processor="yield_create_file_requests",
                 # consumer=["objectstore_service"],
                 consumer=["objectstore_service", "bucket", "directory"],
                 nullable=True,
                 use_cache=True,
             )
         ],
+        threads=True,  # Enable multithreading for container/file processing
     )
 
 
@@ -191,12 +207,22 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
         # Flag the connection for the test connection
         self.connection_obj = self.connection
-        self.test_connection()
+        # phy
+        # self.test_connection()
 
         # Try to get the global manifest
         self.global_manifest: Optional[
             ManifestMetadataConfig
         ] = self.get_manifest_file()
+
+        # extractor 재사용을 위한 맵
+        self.metadata_extractor = {}
+        
+        # Set threads for parallel processing
+        # Now StorageServiceMetadataPipeline has threads field (after spec update)
+        if hasattr(self.source_config, 'threads') and self.source_config.threads:
+            self.context.set_threads(self.source_config.threads)
+            logger.info(f"Parallel processing enabled with {self.source_config.threads} threads")
 
     @property
     def name(self) -> str:
@@ -239,13 +265,20 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         Mark the container record as scanned and update
         the storage_source_state
         """
-        parent_container = (
-            self.metadata.get_by_id(
+        if container_request.parent and container_request.parent.id:
+            parent = self.metadata.get_by_id(
                 entity=Container, entity_id=container_request.parent.id
-            ).fullyQualifiedName.__root__
-            if container_request.parent
-            else None
-        )
+            )
+            parent_container = parent.fullyQualifiedName
+        else:
+            parent_container = None
+        # parent_container = (
+        #     self.metadata.get_by_id(
+        #         entity=Container, entity_id=container_request.parent.id
+        #     ).fullyQualifiedName.__root__
+        #     if container_request.parent
+        #     else None
+        # )
         container_fqn = fqn.build(
             self.metadata,
             entity_type=Container,
@@ -357,9 +390,10 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
 
     def _get_document_data(self, bucket_name: str, key: str, client: Any) -> Optional[str]:
         """
-        Read the word document from the bucket
+        Read the document from the bucket
         """
-        local_dir_path = os.environ.get('AIRFLOW_HOME') + "/tmp"
+        local_dir_path = config.document_tmp_dir
+
         # 다운로드 디렉토리 확인 및 생성
         ensure_directory_exists(local_dir_path)
 
@@ -370,7 +404,8 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
             s3reader = S3Reader(client)
             s3reader.download(key, local_file_path=local_file_path, bucket_name=bucket_name, verbose=True)
             return local_file_path
-        except (Exception,):
+        except (Exception,) as e:
+            print(e)
             return None
 
     def _get_document_meta(self, bucket_name: str, path: str, metadata_entry: MetadataEntry,
@@ -382,110 +417,268 @@ class StorageServiceSource(TopologyRunnerMixin, Source, ABC):
         if local_file_path is None:
             return None
 
-        file_extension = path.split('.')[-1]
+        try:
+            file_extension = path.split('.')[-1]
+            if file_extension in self.metadata_extractor:
+                extractor = self.metadata_extractor[file_extension]
+            else:
+                if file_extension in [FileFormat.hwp.value, FileFormat.hwpx.value]:
+                    extractor = HwpMetadataExtractor()
+                elif file_extension in [FileFormat.doc.value, FileFormat.docx.value]:
+                    extractor = MsWordMetadataExtractor()
+                elif file_extension == FileFormat.txt.value:
+                    extractor = TxtMetadataExtractor()
+                elif file_extension == FileFormat.json.value:
+                    extractor = JsonMetadataExtractor()
+                elif file_extension == FileFormat.xml.value:
+                    extractor = XmlMetadataExtractor()
+                elif file_extension in [FileFormat.xls.value, FileFormat.xlsx.value]:
+                    extractor = XlsMetadataExtractor()
+                else:
+                    logger.warn("Unsupported file type")
+                    return None
 
-        if file_extension == "hwp" or file_extension == "hwpx":
-            return self._get_hwp_meta(local_file_path)
-        elif file_extension == "docx" or file_extension == "doc":
-            return self._get_word_meta(local_file_path)
-        else:
-            logger.warn("Unsupported file type")
+                self.metadata_extractor[file_extension] = extractor
+
+            metadata = extractor.get_metadata(local_file_path)
+
+            rdfs = self._get_common_rdfs(metadata.items())
+
+        except Exception as e:
+            ingestion_logger().error(f"get rdfs fail : bucket : {bucket_name}, path : {path}, {e}")
+            return None
+        finally:
+            os.remove(local_file_path)
+
+        return rdfs
+
+
+    def _get_image_meta(self, bucket_name: str, path: str,
+                           client: Any) -> Optional[List[Rdf]]:
+        """
+        Read the image from the bucket
+        """
+        local_file_path = self._get_document_data(bucket_name, path, client)
+        if local_file_path is None:
             return None
 
-    def _get_hwp_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from hwp/hwpx file
-        """
         try:
-            extractor = HwpMetadataExtractor(local_file_path)
-            metas = extractor.get_metadata()
-            rdfs = []
-            for k, v in metas.items():
-                if v is None:
-                    continue
-                if isinstance(v, str) and v == "":
-                    continue
-                rdfs.append(Rdf(name=k, object=f'{v}'))
-            return rdfs
+            file_extension = path.split('.')[-1]
+
+            if file_extension in [FileFormat.jpg.value, FileFormat.png.value, FileFormat.jpeg.value,
+                                  FileFormat.bmp.value, FileFormat.gif.value, FileFormat.webp.value,
+                                  FileFormat.cr2.value, FileFormat.nef.value, FileFormat.tiff.value, FileFormat.tif.value]:
+                metadata = self._get_pil_meta(local_file_path)
+            elif file_extension in [FileFormat.arw.value, FileFormat.orf.value]:
+                metadata = self._get_exifread_meta(local_file_path)
+            elif file_extension == FileFormat.psd.value:
+                metadata = self._get_psd_meta(local_file_path)
+            elif file_extension == FileFormat.hdr.value:
+                metadata = self._get_imageio_meta(local_file_path)
+            elif file_extension == FileFormat.exr.value:
+                metadata = self._get_exr_meta(local_file_path)
+            elif file_extension == FileFormat.pdf.value:
+                metadata = self._get_pdf_meta(local_file_path)
+            else:
+                logger.warn("Unsupported file type")
+                return None
+
+            rdfs = self._get_common_rdfs(metadata.items())
+
         finally:
             os.remove(local_file_path)
 
-    def _get_word_meta(self, local_file_path: str) -> Optional[List[Rdf]]:
-        """
-        Extract metadata from word(doc/docx) document
-        """
-        try:
-            extractor = MsWordMetadataExtractor(local_file_path)
-            metas = extractor.extract_metadata()
-            rdfs = []
-            for k, v in metas.items():
-                if isinstance(v, str) and v == "":
-                    continue
+        return rdfs
 
-                if k == "Author":
-                    rdfs.append(Rdf(name="Author", object=v))
-                if k == "Category":
-                    rdfs.append(Rdf(name="Category", object=v))
-                if k == 'Comments':
-                    rdfs.append(Rdf(name="Comments", object=v))
-                if k == 'Content Status':
-                    rdfs.append(Rdf(name="Content Status", object=v))
-                if k == 'Created':
-                    if isinstance(v, str):
-                        rdfs.append(Rdf(name="Created", object=v))
-                    if isinstance(v, datetime):
-                        # datetime 형식의 경우 str로 변환
-                        rdfs.append(Rdf(name="Created", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
-                if k == 'Identifier':
-                    rdfs.append(Rdf(name="Identifier", object=v))
-                if k == 'Language':
-                    rdfs.append(Rdf(name="Language", object=v))
-                if k == 'Last Modified By':
-                    rdfs.append(Rdf(name="Last Modified By", object=v))
-                if k == 'Modified':
-                    if isinstance(v, str):
-                        rdfs.append(Rdf(name="Modified", object=v))
-                    if isinstance(v, datetime):
-                        # datetime 형식의 경우 str로 변환
-                        rdfs.append(Rdf(name="Modified", object=v.strftime('%Y-%m-%d %H:%M:%S %Z')))
-                if k == 'Revision':
-                    rdfs.append(Rdf(name="Revision", object=v))
-                if k == 'Subject':
-                    rdfs.append(Rdf(name="Subject", object=v))
-                if k == 'Title':
-                    rdfs.append(Rdf(name="Title", object=v))
-                if k == 'Version':
-                    rdfs.append(Rdf(name="Version", object=v))
-                if k == "cp:revision":
-                    rdfs.append(Rdf(name="Revision", object=v))
-                if k == "meta:word_count":
-                    rdfs.append(Rdf(name="word_count", object=v))
-                if k == "meta:character_count":
-                    rdfs.append(Rdf(name="character_count", object=v))
-                if k == "extended-properties:Application":
-                    if isinstance(v, str):
-                        rdfs.append(Rdf(name="Application", object=v))
-                    if isinstance(v, list):
-                        # v duplicate 삭제
-                        values = " ".join(list(set(v)))
-                        rdfs.append(Rdf(name="Application", object=values))
-                if k == "dcterms:created":
-                    rdfs.append(Rdf(name="Created", object=v if isinstance(v, str) else v[0]))
-                if k == "dcterms:modified":
-                    rdfs.append(Rdf(name="Modified", object=v if isinstance(v, str) else v[0]))
-                if k == "Content-Length":
-                    rdfs.append(Rdf(name="Content-Length", object=v))
-                if k == "meta:last-author":
-                    rdfs.append(Rdf(name="Last-author", object=v if isinstance(v, str) else v[0]))
-                if k == "xmpTPg:NPages":
-                    rdfs.append(Rdf(name="Page_count", object=v))
-                if k == "dc:language":
-                    rdfs.append(Rdf(name="Language", object=v if isinstance(v, str) else v[0]))
-                if k == "Summary":
-                    rdfs.append(Rdf(name="Summary", object=v if isinstance(v, str) else v[0]))
-                # if v is not None:
-                #     rdfs.append(Rdf(name=k, object=v))
-            return rdfs_delete_duplicated(rdfs)
+    def _get_media_meta(self, bucket_name: str, path: str,
+                        client: Any) -> Optional[List[Rdf]]:
+        """
+        Read the audio from the bucket
+        """
+        local_file_path = self._get_document_data(bucket_name, path, client)
+        if local_file_path is None:
+            return None
+
+        try:
+            file_extension = path.split('.')[-1]
+
+            if file_extension in [FileFormat.wav.value]:
+                metadata = self._get_wave_meta(local_file_path)
+            elif file_extension in [FileFormat.mp3.value]:
+                metadata = self._get_mp3_meta(local_file_path)
+            elif file_extension in [FileFormat.mp4.value, FileFormat.mov.value, FileFormat.m4v.value]:
+                metadata = self._get_mediainfo_meta(local_file_path)
+            else:
+                logger.warn("Unsupported file type")
+                return None
+
+            rdfs = self._get_common_rdfs(metadata.items())
+
         finally:
             os.remove(local_file_path)
 
+        return rdfs
+
+    def _get_shp_meta(self, bucket_name: str, path: str, client: Any) -> Optional[List[Rdf]]:
+        """
+        SHP 파일과 동반 파일(.dbf, .prj)을 MinIO에서 읽어 공간 메타데이터를 추출한다.
+        외부 라이브러리 없이 struct로 파싱한다.
+        """
+        import struct
+
+        SHAPE_TYPES = {
+            0: 'Null Shape', 1: 'Point', 3: 'Polyline', 5: 'Polygon', 8: 'MultiPoint',
+            11: 'PointZ', 13: 'PolylineZ', 15: 'PolygonZ', 18: 'MultiPointZ',
+            21: 'PointM', 23: 'PolylineM', 25: 'PolygonM', 28: 'MultiPointM',
+            31: 'MultiPatch',
+        }
+        DBF_FIELD_TYPES = {
+            'C': 'String', 'N': 'Numeric', 'F': 'Float',
+            'D': 'Date', 'L': 'Logical', 'M': 'Memo',
+        }
+
+        metadata = {}
+        base_path = path.rsplit('.', 1)[0]
+        s3reader = S3Reader(client)
+        local_dir = config.document_tmp_dir
+        ensure_directory_exists(local_dir)
+
+        # --- .shp 헤더 파싱 (shape type, bounding box) ---
+        shp_local = f"{local_dir}/{uuid.uuid4().hex}.shp"
+        try:
+            s3reader.download(path, local_file_path=shp_local, bucket_name=bucket_name, verbose=False)
+            with open(shp_local, 'rb') as f:
+                header = f.read(100)
+            if len(header) >= 68:
+                shape_type = struct.unpack_from('<i', header, 32)[0]
+                metadata['geometry_type'] = SHAPE_TYPES.get(shape_type, f'Unknown({shape_type})')
+                xmin, ymin, xmax, ymax = struct.unpack_from('<dddd', header, 36)
+                metadata['bbox_xmin'] = round(xmin, 6)
+                metadata['bbox_ymin'] = round(ymin, 6)
+                metadata['bbox_xmax'] = round(xmax, 6)
+                metadata['bbox_ymax'] = round(ymax, 6)
+        except Exception as e:
+            logger.warning(f"SHP header parse failed: {e}")
+        finally:
+            if os.path.exists(shp_local):
+                os.remove(shp_local)
+
+        # --- .prj 파싱 (좌표계 WKT) ---
+        prj_local = f"{local_dir}/{uuid.uuid4().hex}.prj"
+        prj_path = base_path + '.prj'
+        try:
+            s3reader.download(prj_path, local_file_path=prj_local, bucket_name=bucket_name, verbose=False)
+            with open(prj_local, 'r', encoding='utf-8', errors='ignore') as f:
+                crs_wkt = f.read().strip()
+            if crs_wkt:
+                metadata['crs'] = crs_wkt[:500]
+        except Exception:
+            pass
+        finally:
+            if os.path.exists(prj_local):
+                os.remove(prj_local)
+
+        # --- .dbf 헤더 파싱 (컬럼 목록, 레코드 수) ---
+        dbf_local = f"{local_dir}/{uuid.uuid4().hex}.dbf"
+        dbf_path = base_path + '.dbf'
+        try:
+            s3reader.download(dbf_path, local_file_path=dbf_local, bucket_name=bucket_name, verbose=False)
+            with open(dbf_local, 'rb') as f:
+                raw = f.read()
+            if len(raw) >= 32:
+                record_count = struct.unpack_from('<I', raw, 4)[0]
+                header_size = struct.unpack_from('<H', raw, 8)[0]
+                metadata['feature_count'] = record_count
+                fields = []
+                offset = 32
+                while offset + 32 <= header_size and raw[offset] != 0x0D:
+                    name = raw[offset:offset + 11].split(b'\x00')[0].decode('utf-8', errors='ignore').strip()
+                    ftype = chr(raw[offset + 11])
+                    flen = raw[offset + 16]
+                    fields.append(f"{name}({DBF_FIELD_TYPES.get(ftype, ftype)},{flen})")
+                    offset += 32
+                if fields:
+                    metadata['columns'] = ', '.join(fields)
+        except Exception as e:
+            logger.warning(f"DBF parse failed: {e}")
+        finally:
+            if os.path.exists(dbf_local):
+                os.remove(dbf_local)
+
+        if not metadata:
+            return None
+        return self._get_common_rdfs(metadata.items())
+
+    def _get_common_rdfs(self, meta_items: dict) -> Optional[List[Rdf]]:
+        rdfs = []
+        for k, v in meta_items:
+            if v is None:
+                continue
+            if isinstance(v, str) and v == "":
+                continue
+            rdfs.append(Rdf(name=k, object=f'{v}'))
+
+        return rdfs
+
+    def _get_pil_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from jpg file
+        """
+        extractor = PilMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_pdf_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from pdf file
+        """
+        extractor = PdfMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_exifread_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from image file
+        """
+        extractor = ExifreadMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_psd_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from image file
+        """
+        extractor = PsdMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_imageio_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from image file
+        """
+        extractor = ImageioMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_exr_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from image file
+        """
+        extractor = ExrMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
+
+    def _get_mp3_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from audio file
+        """
+        extractor = MutagenMetadataExtractor(local_file_path)
+        return extractor.extract_metadata_from_mp3()
+
+    def _get_wave_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from audio file
+        """
+        extractor = MutagenMetadataExtractor(local_file_path)
+        return extractor.extract_metadata_from_wav()
+
+    def _get_mediainfo_meta(self, local_file_path: str) -> dict:
+        """
+        Extract metadata from video file
+        """
+        extractor = MediaInfoMetadataExtractor(local_file_path)
+        return extractor.extract_metadata()
